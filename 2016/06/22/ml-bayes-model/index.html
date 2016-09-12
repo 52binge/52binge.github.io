@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Bayes Model - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="bayes model -- 这是一个 民间学术“屌丝” 在死后才 逆袭 的故事">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Bayes Model">
+<meta property="og:url" content="http://selfboot.org/2016/06/22/ml-bayes-model/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="bayes model -- 这是一个 民间学术“屌丝” 在死后才 逆袭 的故事">
+<meta property="og:image" content="http://selfboot.org/images/bayes01.png">
+<meta property="og:image" content="http://selfboot.org/images/speling.png">
+<meta property="og:updated_time" content="2016-08-04T07:29:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Bayes Model">
+<meta name="twitter:description" content="bayes model -- 这是一个 民间学术“屌丝” 在死后才 逆袭 的故事">
+<meta name="twitter:image" content="http://selfboot.org/images/bayes01.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+          <a class="main-nav-link" href="/ml">Learning</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://selfboot.org"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <br>
+    <section id="main" class="outer"><article id="post-ml-bayes-model" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Bayes Model
+      <small class=article-detail-date-index>&nbsp; 2016-06-22</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/06/22/ml-bayes-model/" class="article-date">
+  <time datetime="2016-06-22T02:07:21.000Z" itemprop="datePublished">2016-06-22</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2016/06/22/ml-bayes-model/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$'], ['\[','\]'] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p><strong>bayes model learning</strong></p>
+<p><strong>Content List</strong></p>
+<ul>
+<li>Bayes’ method</li>
+<li>Bayes’ theorem</li>
+<li>Application example</li>
+<li>Naive Bayes Learning and classification</li>
+<li>Parameter estimation of Naive Bayes Method</li>
+</ul>
+<a id="more"></a>
+<table>
+<thead>
+<tr>
+<th>符号</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>\( x_j \)</td>
+<td>第 $j$ 维特征</td>
+</tr>
+<tr>
+<td>$ x $</td>
+<td>一条样本的特征向量, $ x = (x_1, x_2, …, x_n) $</td>
+</tr>
+<tr>
+<td>$ x^{(i)} $</td>
+<td>第 $i$ 条样本</td>
+</tr>
+<tr>
+<td>$ x^{(i)}_j $</td>
+<td>第 $i$ 条样本的第$j$ 维特征</td>
+</tr>
+<tr>
+<td>$ y^{(i)} $</td>
+<td>第 $i$ 条样本的结果 (label)</td>
+</tr>
+<tr>
+<td>\( X \)</td>
+<td>所有样本的特征全集, 即 $X = (x^{(1)}, x^{(2)}, …, x^{(m)})^T$</td>
+</tr>
+<tr>
+<td>\( Y \)</td>
+<td>所有样本的label全集, 即 $Y = (y^{(1)}, y^{(2)}, … , y^{(m)})^T$</td>
+</tr>
+<tr>
+<td>\( w \)</td>
+<td>第 $j$ 维特征</td>
+</tr>
+<tr>
+<td>\( w_j \)</td>
+<td>参数向量， 即 $ w = (w_0, w_1, …, w_n) $</td>
+</tr>
+</tbody>
+</table>
+<p>这是一个 民间学术“屌丝” 在死后才 <strong>逆袭</strong> 的故事</p>
+<p><img src="/images/bayes01.png" alt="bayes01.png"></p>
+<p>Thomas Bayes（1702-1763）《An essay towards solving a problem in the doctrine of chances》</p>
+<blockquote>
+<p>对偶问题 </p>
+<p>  :  在解决具体某个问题 P  的时候，往往由于参数、定义域等问题，不好直接处理。但可以把问题 P 转换成与之等价的问题 Q。通过解决 Q问题，来得到 P问题 的解。这时，Q问题就叫做P问题的“对偶问题”</p>
+</blockquote>
+<h2 id="1-Naive-Bayes-method"><a href="#1-Naive-Bayes-method" class="headerlink" title="1. Naive Bayes method"></a>1. Naive Bayes method</h2><blockquote>
+<p>比如，一个朋友创业，你明明知道创业的结果就两种，即要么成功要么失败，但你依然会忍不住去估计他创业成功的几率有多大？你如果对他为人比较了解，而且有方法、思路清晰、有毅力、且能团结周围的人，你会不由自主的估计他创业成功的几率可能在80%以上。这种不同于 “非黑即白、非0即1”的思考方式，便是<strong>贝叶斯式的思考方式</strong>。</p>
+</blockquote>
+<h3 id="preface"><a href="#preface" class="headerlink" title="preface"></a>preface</h3><p>贝叶斯派 认为参数 $ \theta $ 是随机变量，而样本 $ \chi $ 是固定的，由于样本 $ \chi $ 是固定的，所以他们重点研究的是参数 $ \theta $ 的分布。</p>
+<p>贝叶斯派 既然把 参数 $ \theta $ 看做是一个随机变量，所以要计算的分布，便得事先知道的无条件分布，即在有样本之前（或观察到X之前），有着怎样的分布呢？</p>
+<p>比如往台球桌上扔一个球，这个球落会落在何处呢？如果是不偏不倚的把球抛出去，那么此球落在台球桌上的任一位置都有着相同的机会，即球落在台球桌上某一位置的概率服从均匀分布。这种在实验之前定下的属于基本前提性质的分布称为先验分布，或的无条件分布。</p>
+<p>至此，贝叶斯派提出了一个思考问题的固定模式 :  </p>
+<p><strong><code>先验分布 == 无条件分布</code></strong></p>
+<p><strong>先验分布 $ \pi(\theta) $ + 样本信息 $ \chi $ =&gt; 后验分布  $ \pi(\theta | \chi ) $</strong></p>
+<h3 id="先验信息"><a href="#先验信息" class="headerlink" title="先验信息"></a>先验信息</h3><p>先验信息一般来源于经验跟历史资料。比如 : 林丹跟某选手对决，解说一般会根据林丹历次比赛的成绩对此次比赛的胜负做个大致的判断。</p>
+<h3 id="后验分布"><a href="#后验分布" class="headerlink" title="后验分布"></a>后验分布</h3><p>  而后验分布  $ \pi(\theta | \chi ) $ 一般也认为是在给定样本 $ \chi $ 的情况下的 $ \theta $ 条件分布，而使  $ \pi(\theta | \chi ) $ 达到最大的值 $ \theta_{MD} $ 称为最大后验估计，类似于经典统计学中的极大似然估计。</p>
+<blockquote>
+<p> 综合起来看，则好比是人类刚开始时对大自然只有少得可怜的先验知识，但随着不断观察、实验获得更多的样本、结果，使得人们对自然界的规律摸得越来越透彻。所以，贝叶斯方法既符合人们日常生活的思考方式，也符合人们认识自然的规律，经过不断的发展，最终占据统计学领域的半壁江山。</p>
+</blockquote>
+<h2 id="2-Naive-Bayes-theorem"><a href="#2-Naive-Bayes-theorem" class="headerlink" title="2. Naive Bayes theorem"></a>2. Naive Bayes theorem</h2><p><strong>条件概率</strong>（又称后验概率）就是事件 $A$ 在另外一个事件 $B$ 已经发生条件下的发生概率。条件概率表示为 $P(A|B)$</p>
+<p>$$<br>P(A|B) = \frac{P(A \bigcap B)}{P(B)}<br>$$</p>
+<blockquote>
+<p>联合概率 ${P(A \bigcap B)}$ , ${P(A, B)}$</p>
+<p>事件 $B$ 发生之前，我们对事件 $A$ 的发生有一个基本的概率判断，称为 $A$ 的先验概率，用 $P(A)$ 表示；</p>
+<p>事件 $B$ 发生之后，我们对事件 $A$ 的发生概率重新评估，称为 $A$ 的后验概率，用 $P(A|B)$ 表示；</p>
+</blockquote>
+<h2 id="3-Application-examples"><a href="#3-Application-examples" class="headerlink" title="3. Application examples"></a>3. Application examples</h2><p><strong>Google的拼写检查</strong></p>
+<p><img src="/images/speling.png" alt="speling"></p>
+<p>用户输入一个单词时，可能拼写正确，也可能拼写错误。</p>
+<p>如果把拼写正确的情况记做 $c$ （代表correct），拼写错误的情况记做 $w$（代表wrong），那么”拼写检查”要做的事情就是：在发生 $w$ 的情况下，试图推断出 $c$ 。</p>
+<p>换言之：已知w，然后在若干个备选方案中，找出可能性最大的那个 $c$，也就是求的 $P(c|w)$ 最大值。</p>
+<p>而根据贝叶斯定理，有：</p>
+<p>$$<br>P(c|w) = \frac{P(w | c) * P(c)}{p(w)}<br>$$</p>
+<blockquote>
+<p>$P(c)$ 表示某个正确的词的出现”概率”，它可以用”频率”代替。如果我们有一个足够大的文本库，那么这个文本库中每个单词的出现频率，就相当于它的发生概率。</p>
+<p>$P(w|c)$ 表示在试图拼写 $c$ 的情况下，出现拼写错误 $w$ 的概率。 简化为 “编辑距离”</p>
+</blockquote>
+<p><a href="http://norvig.com/spell-correct.html" target="_blank" rel="external">google_spell-correct</a></p>
+<h2 id="4-Naive-Bayes-Learning-and-classification"><a href="#4-Naive-Bayes-Learning-and-classification" class="headerlink" title="4. Naive Bayes Learning and classification"></a>4. Naive Bayes Learning and classification</h2><h2 id="5-Parameter-estimation-of-Naive-Bayes-Method"><a href="#5-Parameter-estimation-of-Naive-Bayes-Method" class="headerlink" title="5. Parameter estimation of Naive Bayes Method"></a>5. Parameter estimation of Naive Bayes Method</h2>
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      <div class="well">
+  原创文章，转载请注明： 转载自<a href="http://blairos.org"> Blair Chan's Blog</a>，作者：
+  <a href="http://blairos.org/about">Libin Chan</a>
+  <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 3.0 China Mainland License" href="http://creativecommons.org/licenses/by/3.0/cn/">署名3.0中国大陆许可协议</a>发布，欢迎转载，但必须保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Naive-Bayes-method"><span class="toc-number"></span> <span class="toc-text">1. Naive Bayes method</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#preface"><span class="toc-number"></span> <span class="toc-text">preface</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#先验信息"><span class="toc-number"></span> <span class="toc-text">先验信息</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#后验分布"><span class="toc-number"></span> <span class="toc-text">后验分布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Naive-Bayes-theorem"><span class="toc-number"></span> <span class="toc-text">2. Naive Bayes theorem</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Application-examples"><span class="toc-number"></span> <span class="toc-text">3. Application examples</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Naive-Bayes-Learning-and-classification"><span class="toc-number"></span> <span class="toc-text">4. Naive Bayes Learning and classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Parameter-estimation-of-Naive-Bayes-Method"><span class="toc-number"></span> <span class="toc-text">5. Parameter estimation of Naive Bayes Method</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/bayes/">bayes</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/07/14/ef-leve01/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Welcome a new employee / Saying where you are from
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/06/04/elasticsearch-1.7-Introduce/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Elasticsearch * Reference1.7 Introduce&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/blair1">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://selfboot.org/2016/06/22/ml-bayes-model/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
