@@ -1059,7 +1059,7 @@
 <blockquote>
 <p> QPI : Quick Path Interconnect</p>
 </blockquote>
-<h3 id="2-5-Context-switch"><a href="#2-5-Context-switch" class="headerlink" title="2.5 Context switch"></a>2.5 Context switch</h3><p>线程已经执行了一部分内容，需要记录下它的内容和状态，中途由于调度算法，</p>
+<h3 id="2-5-Context-switch"><a href="#2-5-Context-switch" class="headerlink" title="2.5 Context switch"></a>2.5 Context switch</h3><p>线程已经执行了一部分内容，需要记录下它的内容和状态，中途由于调度算法。</p>
 <p>CPU 调度 的最基本单位是线程，Java也是基于多线程模式。由于多线程模型中多个线程共享进程的资源，所以Java程序，如某一个线程占用资源过大时，就可能导致整个JVM进程挂掉。(影响都是相对的)</p>
 <blockquote>
 <p>在实际运行中会有代码段和数据段，内容切换时要保存这些运行中的上下文信息，再使用的时候，再加载回来。</p>
@@ -1067,12 +1067,12 @@
 </blockquote>
 <h3 id="2-6-并发与争用"><a href="#2-6-并发与争用" class="headerlink" title="2.6 并发与争用"></a>2.6 并发与争用</h3><p>只要是服务器端程序，迟早会遇到并发。当 并发 时，就会存在对各种资源的争用，包括对各个部件(如CPU)的争用。</p>
 <blockquote>
-<p>Web 程序也会经常遇到并发问题的<br>编写者，没有遇到是因为 Web 容器帮助处理好了线程的本地变量分配，我们几乎不用关注并发。</p>
+<p>Web 程序也会经常遇到并发问题的，编写者，没有遇到是因为 Web 容器帮助处理好了线程的本地变量分配，我们几乎不用关注并发。</p>
 </blockquote>
 <h4 id="2-6-1-临界区"><a href="#2-6-1-临界区" class="headerlink" title="2.6.1 临界区"></a>2.6.1 临界区</h4><blockquote>
 <p>当程序出现 “加锁” 时 (如 Java的 synchronized) 说明这一块是临界区，只允许一个线程访问，其他线程来回进行等待队列。<br>争用带来的是同步的开销，它会发出许多指令要求所有CPU处理中不允许其他线程进入临界区，且需要将等待线程放入队列阻塞。<br>争用 CPU 的访问也不仅仅体现在锁上面，CPU本身数量也有限。 单个CPU会对任务进行 基于 时间片、优先级、任务大小分别调度。</p>
 </blockquote>
-<h4 id="2-6-2-配置-Web-应用线程池-数量"><a href="#2-6-2-配置-Web-应用线程池-数量" class="headerlink" title="2.6.2 配置 Web 应用线程池 数量"></a>2.6.2 配置 Web 应用线程池 数量</h4><p>在理想的 CPU 密集型系统，线程数是 CPU数+1 / CPU-1</p>
+<h4 id="2-6-2-应用线程池数"><a href="#2-6-2-应用线程池数" class="headerlink" title="2.6.2 应用线程池数"></a>2.6.2 应用线程池数</h4><p>在理想的 CPU 密集型系统，线程数是 CPU数+1 / CPU-1</p>
 <ul>
 <li>系统CPU密集度</li>
 </ul>
@@ -1080,7 +1080,17 @@
 <blockquote>
 <p>系统中关键程序访问总共花费 120ms, I/O操作 占用 100ms，100ms时间内 CPU是可以被其他线程访问的。此时，这个程序在单核系统中的线程数理论上可以设置为 6， 在多核系统就是乘以CPU个数 左右这个数字。</p>
 </blockquote>
-<p>一般这个线程数的决定，一般是通过测试的。</p>
+<p>一般这个线程数的决定是通过测试的。</p>
+<h4 id="2-6-3-“锁”"><a href="#2-6-3-“锁”" class="headerlink" title="2.6.3 “锁”"></a>2.6.3 “锁”</h4><p><code>锁</code> 就是临界区的范围，有粒度。如果在 锁  内部发送 I/O, 大循环、递归等，那么就必须等待这些操作处理完成后才能有下一个线程进入处理。如果这段程序是 <code>关键程序</code>, 当系统真正并发的时候，很多线程都会阻塞在这里。这时要计算线程数，要看锁对象 是不是静态对象或Class, (如果是，则是一个JVM全局锁)，无论配置多少线程效果都一样。<code>锁是全局的，无论多少个CPU也是无济于事的。</code></p>
+<blockquote>
+<p>结论 : 锁尽量不要设置为 全局锁，能用粒度控制，尽量粒度控制</p>
+</blockquote>
+<h4 id="2-6-4-JVM-本身的调节"><a href="#2-6-4-JVM-本身的调节" class="headerlink" title="2.6.4 JVM 本身的调节"></a>2.6.4 JVM 本身的调节</h4><p>不论 CPU 跑多快，如 JVM hold不住节奏，不断做GC，那么如何配置线程池，系统性能还是上不来。</p>
+<p>可以根据 JVM 运行日志中，平均做 Young GC 的时间间隔 (通过 Young GC 与 运行时长对比)，以及系统的QPS，来估算每个请求大致占用的内存大小，有时不准，但具有参考价值。</p>
+<p><strong>如何计算</strong></p>
+<blockquote>
+<p>Eden 空间的大小我们是知道的。通常一个请求分配空间都在 Eden 区域，Eden区域满发生Young GC。Young GC 时间间隔就是Eden满的时间间隔，例如 3s， 进一步通过 QPS*3 得到多少个请求可以填充满 Eden 区域。这可初步估算每个请求占用的内存空间。</p>
+</blockquote>
 <h2 id="3-内存"><a href="#3-内存" class="headerlink" title="3. 内存"></a>3. 内存</h2><p>基本所有的程序猿与程序媛都知道，它是跑程序的地方。</p>
 <blockquote>
 <p>初步了解以下概念 :<br>地址位数、逻辑地址和物理地址、内核区域、进程分配、JVM内存与其他进程内存区别</p>
@@ -1172,6 +1182,43 @@
     </entry>
     
     <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://selfboot.org/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://selfboot.org/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -1213,43 +1260,6 @@
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://selfboot.org/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -8335,6 +8345,18 @@
     </entry>
     
     <entry>
+      <title><![CDATA[Centos 7.1 install Common software]]></title>
+      <url>http://selfboot.org/2016/04/19/centos7-install-common-software/</url>
+      <content type="html"><![CDATA[<h2 id="1-install-ifconfig"><a href="#1-install-ifconfig" class="headerlink" title="1. install ifconfig"></a>1. install ifconfig</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search ifconfig</span><br><span class="line">yum install net-tools.x86_64</span><br></pre></td></tr></table></figure>
+<h2 id="2-install-vim"><a href="#2-install-vim" class="headerlink" title="2. install vim"></a>2. install vim</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search vim</span><br><span class="line">yum install vim-enhanced</span><br></pre></td></tr></table></figure>
+<h2 id="3-install-wget"><a href="#3-install-wget" class="headerlink" title="3. install wget"></a>3. install wget</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"> [libin@centos-linux-1 x]$ yum search wget</span><br><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line"> * base: mirrors.skyshe.cn</span><br><span class="line"> * extras: mirrors.163.com</span><br><span class="line"> * updates: mirrors.163.com</span><br><span class="line">============================================================================================ N/S matched: wget =============================================================================================</span><br><span class="line">wget.x86_64 : A utility <span class="keyword">for</span> retrieving files using the HTTP or FTP protocols</span><br><span class="line"></span><br><span class="line">  Name and summary matches only, use <span class="string">"search all"</span> <span class="keyword">for</span> everything.</span><br><span class="line"> </span><br><span class="line"> [libin@centos-linux-1 x]$ yum install wget.x86_64</span><br></pre></td></tr></table></figure>
+<h2 id="4-install-git"><a href="#4-install-git" class="headerlink" title="4. install git"></a>4. install git</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search git</span><br><span class="line">yum install git.x86_64</span><br></pre></td></tr></table></figure>
+<p>default，git havn’t color, you can use under cmd give git add color</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git config --global color.status auto </span><br><span class="line">$ git config --global color.diff auto </span><br><span class="line">$ git config --global color.branch auto </span><br><span class="line">$ git config --global color.interactive auto</span><br></pre></td></tr></table></figure>
+<h2 id="5-install-netcat"><a href="#5-install-netcat" class="headerlink" title="5. install netcat"></a>5. install netcat</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search netcat</span><br><span class="line">yum install nmap-ncat.x86_64</span><br></pre></td></tr></table></figure>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[CentOS and RedHat Linux]]></title>
       <url>http://selfboot.org/2016/04/19/ops-centos-and-redhat/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -8361,18 +8383,6 @@
 <p>一句话，选用 CentOS 还是 RHEL，取决于你所在公司是否拥有相应的技术力量。</p>
 <h2 id="4-Refence-article"><a href="#4-Refence-article" class="headerlink" title="4. Refence article"></a>4. Refence article</h2><p>本文整理自网络文章</p>
 ]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Centos 7.1 install Common software]]></title>
-      <url>http://selfboot.org/2016/04/19/centos7-install-common-software/</url>
-      <content type="html"><![CDATA[<h2 id="1-install-ifconfig"><a href="#1-install-ifconfig" class="headerlink" title="1. install ifconfig"></a>1. install ifconfig</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search ifconfig</span><br><span class="line">yum install net-tools.x86_64</span><br></pre></td></tr></table></figure>
-<h2 id="2-install-vim"><a href="#2-install-vim" class="headerlink" title="2. install vim"></a>2. install vim</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search vim</span><br><span class="line">yum install vim-enhanced</span><br></pre></td></tr></table></figure>
-<h2 id="3-install-wget"><a href="#3-install-wget" class="headerlink" title="3. install wget"></a>3. install wget</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"> [libin@centos-linux-1 x]$ yum search wget</span><br><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line"> * base: mirrors.skyshe.cn</span><br><span class="line"> * extras: mirrors.163.com</span><br><span class="line"> * updates: mirrors.163.com</span><br><span class="line">============================================================================================ N/S matched: wget =============================================================================================</span><br><span class="line">wget.x86_64 : A utility <span class="keyword">for</span> retrieving files using the HTTP or FTP protocols</span><br><span class="line"></span><br><span class="line">  Name and summary matches only, use <span class="string">"search all"</span> <span class="keyword">for</span> everything.</span><br><span class="line"> </span><br><span class="line"> [libin@centos-linux-1 x]$ yum install wget.x86_64</span><br></pre></td></tr></table></figure>
-<h2 id="4-install-git"><a href="#4-install-git" class="headerlink" title="4. install git"></a>4. install git</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search git</span><br><span class="line">yum install git.x86_64</span><br></pre></td></tr></table></figure>
-<p>default，git havn’t color, you can use under cmd give git add color</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git config --global color.status auto </span><br><span class="line">$ git config --global color.diff auto </span><br><span class="line">$ git config --global color.branch auto </span><br><span class="line">$ git config --global color.interactive auto</span><br></pre></td></tr></table></figure>
-<h2 id="5-install-netcat"><a href="#5-install-netcat" class="headerlink" title="5. install netcat"></a>5. install netcat</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search netcat</span><br><span class="line">yum install nmap-ncat.x86_64</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
