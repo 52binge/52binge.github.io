@@ -412,8 +412,29 @@
 <p><strong>Example:</strong></p>
 <p>$<br>\begin{align}<br>&amp; \theta = \begin{bmatrix}5 \newline -1 \newline 0\end{bmatrix} \newline &amp; y = 1 \; if \; 5 + (-1) x_1 + 0 x_2 \geq 0 \newline &amp; 5 - x_1 \geq 0 \newline &amp; - x_1 \geq -5 \newline&amp; x_1 \leq 5 \newline \end{align}<br>$</p>
 <p>In this case, our decision boundary is a straight vertical line placed on the graph where $x_1=5$, and everything to the left of that denotes $y = 1$, while everything to the right denotes $y = 0$.</p>
-<p><strong>Boundary </strong></p>
+<p><strong>Boundary</strong></p>
 <p><img src="/images/ml-ng-w3-03.png" alt="Decision Boundary"></p>
+<h2 id="4-Cost-Function"><a href="#4-Cost-Function" class="headerlink" title="4. Cost Function"></a>4. Cost Function</h2><p>We cannot use the same cost function that we use for linear regression because the Logistic Function will cause the output to be wavy, causing many local optima. In other words, it will not be a convex function.</p>
+<p>Instead, our cost function for logistic regression looks like:</p>
+<p>$<br>\begin{align}<br>&amp; J(\theta) = \dfrac{1}{m} \sum_{i=1}^m \mathrm{Cost}(h_\theta(x^{(i)}),y^{(i)}) \newline &amp; \mathrm{Cost}(h_\theta(x),y) = -\log(h_\theta(x)) \; &amp; \text{if y = 1} \newline &amp; \mathrm{Cost}(h_\theta(x),y) = -\log(1-h_\theta(x)) \; &amp; \text{if y = 0}<br>\end{align}<br>$</p>
+<p><img src="/images/ml-ng-w3-04.png" alt="Cost Function"></p>
+<p><img src="/images/ml-ng-w3-05.png" alt="Cost Function"></p>
+<p>$<br>\begin{align}<br>&amp; \mathrm{Cost}(h_\theta(x),y) = 0 \text{  if  } h_\theta(x) = y \newline &amp; \mathrm{Cost}(h_\theta(x),y) \rightarrow \infty \text{  if  } y = 0 \; \mathrm{and} \; h_\theta(x) \rightarrow 1 \newline &amp; \mathrm{Cost}(h_\theta(x),y) \rightarrow \infty \text{  if  } y = 1 \; \mathrm{and} \; h_\theta(x) \rightarrow 0 \newline<br>\end{align}<br>$</p>
+<p>If our correct answer ‘y’ is 0, then the cost function will be 0 if our hypothesis function also outputs 0. If our hypothesis approaches 1, then the cost function will approach infinity.</p>
+<p>If our correct answer ‘y’ is 1, then the cost function will be 0 if our hypothesis function outputs 1. If our hypothesis approaches 0, then the cost function will approach infinity.</p>
+<h2 id="5-Simplified-Cost-Function-and-Gradient-Descent"><a href="#5-Simplified-Cost-Function-and-Gradient-Descent" class="headerlink" title="5. Simplified Cost Function and Gradient Descent"></a>5. Simplified Cost Function and Gradient Descent</h2><p>We can compress our cost function’s two conditional cases into one case:</p>
+<p>$ \mathrm{Cost}(h_\theta(x),y) = - y \cdot \log(h_\theta(x)) - (1 - y) \cdot \log(1 - h_\theta(x))$</p>
+<p>We can fully write out our entire cost function as follows:</p>
+<p>$<br>J(\theta) = - \frac{1}{m} \displaystyle \sum_{i=1}^m [y^{(i)}\log (h_\theta (x^{(i)})) + (1 - y^{(i)})\log (1 - h_\theta(x^{(i)}))]<br>$</p>
+<p>A <code>vectorized</code> implementation is:</p>
+<p>$<br>\begin{align}<br>&amp; h = g(X\theta)\newline<br>&amp; J(\theta)  = \frac{1}{m} \cdot \left(-y^{T}\log(h)-(1-y)^{T}\log(1-h)\right)<br>\end{align}<br>$</p>
+<p><strong>Gradient Descent</strong></p>
+<p>Remember that the general form of gradient descent is:</p>
+<p>$<br>\begin{align}<br>&amp; Repeat \; \lbrace \newline &amp; \; \theta_j := \theta_j - \alpha \dfrac{\partial}{\partial \theta_j}J(\theta) \newline &amp; \rbrace<br>\end{align}<br>$</p>
+<p>We can work out the derivative part using calculus to get:</p>
+<p>$<br>\begin{align}<br>&amp; Repeat \; \lbrace \newline<br>&amp; \; \theta_j := \theta<em>j - \frac{\alpha}{m} \sum</em>{i=1}^m (h_\theta(x^{(i)}) - y^{(i)}) x_j^{(i)} \newline &amp; \rbrace<br>\end{align}<br>$</p>
+<p><strong>A vectorized implementation is:</strong></p>
+<p>$<br>\theta := \theta - \frac{\alpha}{m} X^{T} (g(X \theta ) - \vec{y})<br>$</p>
 <h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2>
       
     </div>
