@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>linux etc/profile and zshrc 等环境配置简介 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="linux /etc/profile、.zshrc 等环境配置简介">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux etc/profile and zshrc 等环境配置简介">
+<meta property="og:url" content="http://selfboot.org/2014/05/18/ops-bashrc-profile/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="linux /etc/profile、.zshrc 等环境配置简介">
+<meta property="og:updated_time" content="2016-11-14T08:30:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux etc/profile and zshrc 等环境配置简介">
+<meta name="twitter:description" content="linux /etc/profile、.zshrc 等环境配置简介">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+          <a class="main-nav-link" href="/ml">Learning</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://selfboot.org"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <br>
+    <section id="main" class="outer"><article id="post-ops-bashrc-profile" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      linux etc/profile and zshrc 等环境配置简介
+      <small class=article-detail-date-index>&nbsp; 2014-05-18</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2014/05/18/ops-bashrc-profile/" class="article-date">
+  <time datetime="2014-05-17T23:54:16.000Z" itemprop="datePublished">2014-05-18</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2014/05/18/ops-bashrc-profile/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <table>
+<thead>
+<tr>
+<th>config file</th>
+<th>desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/etc/profile，/etc/bashrc</td>
+<td>系统全局环境变量设定 </td>
+</tr>
+<tr>
+<td>~/.profile，~/.bashrc</td>
+<td>用户家目录下的私有环境变量设定 </td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-login-env-steps"><a href="#1-login-env-steps" class="headerlink" title="1. login env steps"></a>1. login env steps</h2><table>
+<thead>
+<tr>
+<th>Read step</th>
+<th>desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>/etc/profile</td>
+<td>/etc/profile.d 和 /etc/inputrc</td>
+</tr>
+<tr>
+<td>~/.bash_profile</td>
+<td>~/.bash_profile，如无则读取 ~/.bash_login，如无则读取 ~/.profile</td>
+</tr>
+<tr>
+<td>~/.bashrc</td>
+<td>~/.bashrc</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>以上是 登入系统,环境设定档 流程</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>~/.profile 、 ~/.bashrc 相同点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>都具有个性化定制功能</td>
+<td></td>
+</tr>
+<tr>
+<td>~/.profile 可以设定本用户专有的路径，环境变量，等，它只能登入的时候执行一次</td>
+<td></td>
+</tr>
+<tr>
+<td>~/.bashrc 也是某用户专有设定文档，可以设定路径，命令别名，每次shell script的执行都会使用它一次</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>bashrc 和 profile 的区别</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>login shell</code> : shell等待你的输入，并且执行你提交的命令。 shell与用户进行交互</td>
+<td></td>
+</tr>
+<tr>
+<td><code>non-login shell</code> : shell不与你进行交互，是读取存在文件中的命令,并且执行它们。当它读到文件的结尾，shell终止</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-etc-profile"><a href="#2-etc-profile" class="headerlink" title="2. /etc/profile"></a>2. /etc/profile</h2><blockquote>
+<p>每个用户设置环境信息,当用户第一次登录时,该文件被执行. 并从/etc/profile.d目录的配置文件中搜集shell的设置. </p>
+</blockquote>
+<h2 id="3-etc-bashrc"><a href="#3-etc-bashrc" class="headerlink" title="3. /etc/bashrc"></a>3. /etc/bashrc</h2><blockquote>
+<p>为每一个运行 bash shell 的用户执行此文件. 当bash shell被打开时,该文件被读取.<br>Ubuntu没有此文件，与之对应的是/ect/bash.bashrc 它也是全局的, bash执行时，不管是何种方式，都会读取此文件。</p>
+</blockquote>
+<h2 id="4-bash-profile"><a href="#4-bash-profile" class="headerlink" title="4. ~/.bash_profile"></a>4. ~/.bash_profile</h2><blockquote>
+<p>每个用户都可使用该文件输入专用于自己使用的shell信息,当用户登录时,该<br>文件仅仅执行一次!默认情况下,他设置一些环境变量,执行用户的.bashrc文件. </p>
+<p>若bash是以login方式执行时，读取~/.bash_profile，若它不存在，则读取~/.bash_login，若前两者不存在，读取~/.profile。 </p>
+<p>另外，图形模式登录时，此文件将被读取，即使存在~/.bash_profile和~/.bash_login。 </p>
+<p>~/.bash_profile 是交互式、login 方式进入 bash 运行的<br>~/.bashrc 是交互式 non-login 方式进入 bash 运行的 </p>
+</blockquote>
+<h2 id="5-bashrc"><a href="#5-bashrc" class="headerlink" title="5. ~/.bashrc"></a>5. ~/.bashrc</h2><blockquote>
+<p>该文件包含专用于你的bash shell的bash信息,当登录时以及每次打开新的shell时,该文件被读取. </p>
+<p>当bash是以non-login形式执行时，读取此文件。若是以login形式执行，则不会读取此文件。 </p>
+<p>~/.bash_profile 是交互式、login 方式进入 bash 运行的<br>~/.bashrc 是交互式 non-login 方式进入 bash 运行的 </p>
+</blockquote>
+<h2 id="6-bash-login"><a href="#6-bash-login" class="headerlink" title="6. ~/.bash_login"></a>6. ~/.bash_login</h2><blockquote>
+<p>若bash是以login方式执行时，读取~/.bash_profile，若它不存在，则读取~/.bash_login，若前两者不存在，读取~/.profile。 </p>
+</blockquote>
+<h2 id="7-zsh"><a href="#7-zsh" class="headerlink" title="7. zsh"></a>7. zsh</h2><p>Mac OSX, 使用 zsh, 发现 /etc/profile 不会被执行。</p>
+<p>~/.zshrc 与 /etc/zshenv 这两个文件，都是每次启动新的 terminal 都会被执行</p>
+<h2 id="8-Ref-article"><a href="#8-Ref-article" class="headerlink" title="8. Ref article"></a>8. Ref article</h2><blockquote>
+<p>整理自网络文章汇总。 如 ： <a href="http://blog.chinaunix.net/uid-26435987-id-3400127.html" target="_blank" rel="external">http://blog.chinaunix.net/uid-26435987-id-3400127.html</a></p>
+</blockquote>
+<h2 id="9-my-zshrc"><a href="#9-my-zshrc" class="headerlink" title="9. my zshrc"></a>9. my zshrc</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Path to your oh-my-zsh installation.</span></span><br><span class="line"><span class="built_in">export</span> ZSH=/Users/hp/.oh-my-zsh</span><br><span class="line"></span><br><span class="line"><span class="comment"># Set name of the theme to load.</span></span><br><span class="line"><span class="comment"># Look in ~/.oh-my-zsh/themes/</span></span><br><span class="line"><span class="comment"># Optionally, if you set this to "random", it'll load a random theme each</span></span><br><span class="line"><span class="comment"># time that oh-my-zsh is loaded.</span></span><br><span class="line">ZSH_THEME=<span class="string">"robbyrussell"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line to use case-sensitive completion.</span></span><br><span class="line"><span class="comment"># CASE_SENSITIVE="true"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line to disable bi-weekly auto-update checks.</span></span><br><span class="line"><span class="comment"># DISABLE_AUTO_UPDATE="true"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line to change how often to auto-update (in days).</span></span><br><span class="line"><span class="comment"># export UPDATE_ZSH_DAYS=13</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line to disable colors in ls.</span></span><br><span class="line"><span class="comment"># DISABLE_LS_COLORS="true"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line to disable auto-setting terminal title.</span></span><br><span class="line"><span class="comment"># DISABLE_AUTO_TITLE="true"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line to enable command auto-correction.</span></span><br><span class="line"><span class="comment"># ENABLE_CORRECTION="true"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line to display red dots whilst waiting for completion.</span></span><br><span class="line"><span class="comment"># COMPLETION_WAITING_DOTS="true"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line if you want to disable marking untracked files</span></span><br><span class="line"><span class="comment"># under VCS as dirty. This makes repository status check for large repositories</span></span><br><span class="line"><span class="comment"># much, much faster.</span></span><br><span class="line"><span class="comment"># DISABLE_UNTRACKED_FILES_DIRTY="true"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Uncomment the following line if you want to change the command execution time</span></span><br><span class="line"><span class="comment"># stamp shown in the history command output.</span></span><br><span class="line"><span class="comment"># The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"</span></span><br><span class="line"><span class="comment"># HIST_STAMPS="mm/dd/yyyy"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Would you like to use another custom folder than $ZSH/custom?</span></span><br><span class="line"><span class="comment"># ZSH_CUSTOM=/path/to/new-custom-folder</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)</span></span><br><span class="line"><span class="comment"># Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/</span></span><br><span class="line"><span class="comment"># Example format: plugins=(rails git textmate ruby lighthouse)</span></span><br><span class="line"><span class="comment"># Add wisely, as too many plugins slow down shell startup.</span></span><br><span class="line">plugins=(git)</span><br><span class="line"></span><br><span class="line"><span class="comment"># User configuration</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># export PATH="/usr/share/java/apache-maven/bin:/Library/Java/JavaVirtualMachines/jdk1.8.0_25.jdk/Contents/Home/bin:/usr/local/opt/coreutils/libexec/gnubin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/hp/bin"</span></span><br><span class="line"><span class="comment"># export PATH="/usr/share/java/apache-maven/bin:/usr/local/opt/coreutils/libexec/gnubin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/Users/hp/bin"</span></span><br><span class="line"><span class="comment"># export MANPATH="/usr/local/man:$MANPATH"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> <span class="variable">$ZSH</span>/oh-my-zsh.sh</span><br><span class="line"></span><br><span class="line"><span class="comment"># You may need to manually set your language environment</span></span><br><span class="line"><span class="comment"># export LANG=en_US.UTF-8</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Preferred editor for local and remote sessions</span></span><br><span class="line"><span class="comment"># if [[ -n $SSH_CONNECTION ]]; then</span></span><br><span class="line"><span class="comment">#   export EDITOR='vim'</span></span><br><span class="line"><span class="comment"># else</span></span><br><span class="line"><span class="comment">#   export EDITOR='mvim'</span></span><br><span class="line"><span class="comment"># fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Compilation flags</span></span><br><span class="line"><span class="comment"># export ARCHFLAGS="-arch x86_64"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ssh</span></span><br><span class="line"><span class="comment"># export SSH_KEY_PATH="~/.ssh/dsa_id"</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Set personal aliases, overriding those provided by oh-my-zsh libs,</span></span><br><span class="line"><span class="comment"># plugins, and themes. Aliases can be placed here, though oh-my-zsh</span></span><br><span class="line"><span class="comment"># users are encouraged to define aliases within the ZSH_CUSTOM folder.</span></span><br><span class="line"><span class="comment"># For a full list of active aliases, run `alias`.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Example aliases</span></span><br><span class="line"><span class="comment"># alias zshconfig="mate ~/.zshrc"</span></span><br><span class="line"><span class="comment"># alias ohmyzsh="mate ~/.oh-my-zsh"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#### bash_profile at robby_chan ####</span></span><br><span class="line"><span class="comment">###################################################</span></span><br><span class="line"><span class="keyword">if</span> brew list | grep coreutils &gt; /dev/null ; <span class="keyword">then</span></span><br><span class="line">  PATH=<span class="string">"<span class="variable">$(brew --prefix coreutils)</span>/libexec/gnubin:<span class="variable">$PATH</span>"</span></span><br><span class="line">  <span class="built_in">alias</span> ls=<span class="string">'ls -F --show-control-chars --color=auto'</span></span><br><span class="line">  <span class="built_in">eval</span> `gdircolors -b <span class="variable">$HOME</span>/.dir_colors`</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"><span class="built_in">alias</span> grep=<span class="string">'grep --color'</span></span><br><span class="line"><span class="built_in">alias</span> egrep=<span class="string">'egrep --color'</span></span><br><span class="line"><span class="built_in">alias</span> fgrep=<span class="string">'fgrep --color'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">###################################################</span></span><br><span class="line"><span class="built_in">alias</span> x=<span class="string">'sh $xe'</span></span><br><span class="line"><span class="built_in">alias</span> x0=<span class="string">'sh $xe0'</span></span><br><span class="line"><span class="built_in">alias</span> x8=<span class="string">'sh $xe8'</span></span><br><span class="line"><span class="comment">#alias ct='sh $centos01_libin'</span></span><br><span class="line"><span class="comment">#alias cth='sh $centos01_hp'</span></span><br><span class="line"><span class="comment">#alias ll='ls -l'</span></span><br><span class="line">xe=/usr/<span class="built_in">local</span>/xSoft/comany_soft_tool/libin196.sh</span><br><span class="line">xe0=/usr/<span class="built_in">local</span>/xSoft/comany_soft_tool/libin190.sh</span><br><span class="line">xe8=/usr/<span class="built_in">local</span>/xSoft/comany_soft_tool/libin198.sh</span><br><span class="line">centos01_libin=/usr/<span class="built_in">local</span>/xSoft/comany_soft_tool/centos01_libin.sh</span><br><span class="line">centos01_hp=/usr/<span class="built_in">local</span>/xSoft/comany_soft_tool/centos01_hp.sh</span><br><span class="line"><span class="comment">#.bash_profile</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#Get the aliases and functions</span></span><br><span class="line"><span class="keyword">if</span> [ <span class="_">-f</span> ~/.bashrc ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">source</span> ~/.bashrc</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#PS1="[\u@\h \W]\$ "</span></span><br><span class="line"><span class="comment">#export JAVA_HOME=`/usr/libexec/java_home`</span></span><br><span class="line"><span class="comment">#JAVA_HOME=/System/Library/Java/JavaVirtualMachines/1.6.0.jdk/Contents/Home</span></span><br><span class="line"><span class="comment">#JAVA_HOME=/System/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span></span><br><span class="line"></span><br><span class="line">MS=/usr/<span class="built_in">local</span>/xSoft</span><br><span class="line"></span><br><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span>    </span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br><span class="line"></span><br><span class="line"><span class="comment">### Maven ###</span></span><br><span class="line">M2_HOME=/usr/<span class="built_in">local</span>/xSoft/apache-maven</span><br><span class="line">MAVEN_HOME=<span class="variable">$M2_HOME</span></span><br><span class="line">M3_HOME=<span class="variable">$M2_HOME</span></span><br><span class="line">PATH=<span class="variable">$M3_HOME</span>/bin:<span class="variable">$PATH</span>    </span><br><span class="line"><span class="built_in">export</span> MAVEN_HOME M2_HOME PATH</span><br><span class="line"><span class="comment">#MAVEN_OPTS=-Xms128m -Xmx512m</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### Scala ###</span></span><br><span class="line"><span class="comment">#export SCALA_HOME=/usr/local/xSoft/scala</span></span><br><span class="line"><span class="built_in">export</span> SCALA_HOME=/usr/<span class="built_in">local</span>/Cellar/scala/2.11.5</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$&#123;SCALA_HOME&#125;</span>/bin:<span class="variable">$PATH</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### Spark ###</span></span><br><span class="line"><span class="built_in">export</span> SPARK_HOME=/usr/<span class="built_in">local</span>/xSoft/spark</span><br><span class="line"></span><br><span class="line"><span class="comment">### Tomcat ###</span></span><br><span class="line">CATALINA_HOME=/usr/<span class="built_in">local</span>/xSoft/apache-tomcat</span><br><span class="line">PATH=<span class="variable">$CATALINA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line"><span class="built_in">export</span> CATALINA_HOME PATH</span><br><span class="line"></span><br><span class="line"><span class="comment">## Jetty ##</span></span><br><span class="line">JETTY_HOME=/usr/<span class="built_in">local</span>/xSoft/jetty8</span><br><span class="line"></span><br><span class="line"><span class="comment">### ElasticSearch ###</span></span><br><span class="line"><span class="built_in">export</span> ES_HOME=/usr/<span class="built_in">local</span>/xSoft/elasticsearch</span><br><span class="line"></span><br><span class="line"><span class="comment">### HADOOP ###</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_INSTALL=/usr/<span class="built_in">local</span>/hadoop</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_INSTALL</span>/bin</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$HADOOP_INSTALL</span>/sbin</span><br><span class="line"><span class="built_in">export</span> HADOOP_MAPRED_HOME=<span class="variable">$HADOOP_INSTALL</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_COMMON_HOME=<span class="variable">$HADOOP_INSTALL</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_HDFS_HOME=<span class="variable">$HADOOP_INSTALL</span></span><br><span class="line"><span class="built_in">export</span> YARN_HOME=<span class="variable">$HADOOP_INSTALL</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### Python</span></span><br><span class="line"><span class="comment">#export PATH=/System/Library/Frameworks/Python.framework/Versions/3.5/bin:$&#123;PATH&#125;</span></span><br><span class="line"><span class="built_in">export</span> PATH=/System/Library/Frameworks/Python.framework/Versions/2.7/bin:<span class="variable">$&#123;PATH&#125;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#################################################</span></span><br><span class="line"><span class="comment"># User specific environment and startup programs</span></span><br><span class="line">PATH=<span class="variable">$PATH</span>:<span class="variable">$HOME</span>/bin</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">"/usr/local/bin:/usr/local/sbib:<span class="variable">$PATH</span>"</span></span><br><span class="line"><span class="built_in">export</span> PATH</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> LC_ALL=en_US.UTF-8</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> NVM_DIR=<span class="string">"/Users/hp/.nvm"</span></span><br><span class="line">[ <span class="_">-s</span> <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span> ] &amp;&amp; . <span class="string">"<span class="variable">$NVM_DIR</span>/nvm.sh"</span>  <span class="comment"># This loads nvm</span></span><br></pre></td></tr></table></figure>
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      <div class="well">
+  原创文章，转载请注明： 转载自<a href="http://blairos.org"> Blair Chan's Blog</a>，作者：
+  <a href="http://blairos.org/about">Libin Chan</a>
+  <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 3.0 China Mainland License" href="http://creativecommons.org/licenses/by/3.0/cn/">署名3.0中国大陆许可协议</a>发布，欢迎转载，但必须保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-login-env-steps"><span class="toc-number"></span> <span class="toc-text">1. login env steps</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-etc-profile"><span class="toc-number"></span> <span class="toc-text">2. /etc/profile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-etc-bashrc"><span class="toc-number"></span> <span class="toc-text">3. /etc/bashrc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-bash-profile"><span class="toc-number"></span> <span class="toc-text">4. ~/.bash_profile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-bashrc"><span class="toc-number"></span> <span class="toc-text">5. ~/.bashrc</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-bash-login"><span class="toc-number"></span> <span class="toc-text">6. ~/.bash_login</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-zsh"><span class="toc-number"></span> <span class="toc-text">7. zsh</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Ref-article"><span class="toc-number"></span> <span class="toc-text">8. Ref article</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-my-zshrc"><span class="toc-number"></span> <span class="toc-text">9. my zshrc</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/devops/">devops</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/bashrc/">bashrc</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2015/12/27/java-logback-indoor/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Logback 入门初步
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2013/02/02/java-se-introduce/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Java SE Basic Introduce&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2016 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/blairchan">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://selfboot.org/2014/05/18/ops-bashrc-profile/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
