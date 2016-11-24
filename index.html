@@ -59,7 +59,7 @@
 </header>
     <br>
     <section id="main" class="outer">
-      <article id="post-rs-spark-ml-p4" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-spark-ml-p4-rs" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -67,7 +67,7 @@
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/11/23/rs-spark-ml-p4/"><strong>Spark build recommendation system</strong></a>
+      <a class="article-title-index" href="/2016/11/23/spark-ml-p4-rs/"><strong>Spark build recommendation system</strong></a>
       <small class=article-date-index>&nbsp; 2016-11-23</small>
       <!--<a>
       <div = post.date  </div>
@@ -79,7 +79,7 @@
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2016/11/23/rs-spark-ml-p4/" class="article-date">
+      <!--<a href="/2016/11/23/spark-ml-p4-rs/" class="article-date">
   <time datetime="2016-11-23T07:28:21.000Z" itemprop="datePublished">2016-11-23</time>
 </a>-->
       
@@ -96,14 +96,14 @@
 
       <!--
   <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+    <a class="article-category-index-link" href="/categories/spark/">spark</a>
   </div>
 
 -->
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/11/23/rs-spark-ml-p4/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://selfboot.org/2016/11/23/spark-ml-p4-rs/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -142,7 +142,7 @@
 <blockquote>
 <p>对用户的推荐可以根据用户的属性或描述得出，之后再通过相同的相似度定义来与物品属性做匹配。</p>
 </blockquote>
-<h3 id="1-2-协同过滤"><a href="#1-2-协同过滤" class="headerlink" title="1.2 协同过滤"></a>1.2 协同过滤</h3><p>协同过滤是一种利用大量已有的用户偏好来估计用户对其未接触过的物品的喜好程度。其内在思想是<strong>相似度的定义</strong>。</p>
+<h3 id="1-2-协同过滤"><a href="#1-2-协同过滤" class="headerlink" title="1.2 协同过滤"></a>1.2 协同过滤</h3><p>协同过滤是一种利用大量已有的用户偏好来估计用户对其<code>未接触过</code>的物品的喜好程度。其内在思想是<strong>相似度的定义</strong>。</p>
 <ul>
 <li><p>基于用户</p>
 <blockquote>
@@ -209,23 +209,25 @@
 <p><img src="/images/spark_ml_4.6.png" alt="图4-6 用物品因子矩阵计算相似度"></p>
 <p>隐式模型仍然会创建一个用户因子矩阵和一个物品因子矩阵。但是，模型所求解的是偏好矩阵而非评级矩阵的近似。</p>
 <p><strong>3. 最小二乘法</strong></p>
-<p>最小二乘法（Alternating Least Squares，ALS）是一种求解矩阵分解问题的最优化方法。它功能强大、效果理想而且被证明相对容易并行化。</p>
-<p>ALS的实现原理是迭代式求解一系列最小二乘回归问题。在每一次迭代时，固定用户因子矩阵或是物品因子矩阵中的一个，然后用固定的这个矩阵以及评级数据来更新另一个矩阵。之后，被更新的矩阵被固定住，再更新另外一个矩阵。如此迭代，直到模型收敛（或是迭代了预设好的次数）。</p>
+<p>最小二乘法（Alternating Least Squares，ALS）是一种求解矩阵分解问题的最优化方法。且相对容易并行化。</p>
 <blockquote>
-<p>Spark文档的协同过滤部分引用了ALS算法的核心论文。对显式数据和隐式数据的处理的组件背后使用的都是该算法。具体参见：<a href="http://spark.apache.org/docs/latest/mllib-collaborative-filtering.html。" target="_blank" rel="external">http://spark.apache.org/docs/latest/mllib-collaborative-filtering.html。</a></p>
+<p>ALS的实现原理是迭代式求解一系列最小二乘回归问题。在每一次迭代时，固定用户因子矩阵或是物品因子矩阵中的一个，然后用固定的这个矩阵以及评级数据来更新另一个矩阵。之后，被更新的矩阵被固定住，再更新另外一个矩阵。如此迭代，直到模型收敛（或是迭代了预设好的次数）。</p>
 </blockquote>
-<h2 id="2-提取有效特征"><a href="#2-提取有效特征" class="headerlink" title="2. 提取有效特征"></a>2. 提取有效特征</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">&gt;./bin/spark-shell –driver-memory <span class="number">4</span>g</span><br><span class="line"><span class="keyword">val</span> rawData = sc.textFile(<span class="string">"/Users/hp/ghome/ml/ml-100k/u.data"</span>)</span><br><span class="line">rawData.first()</span><br><span class="line"><span class="keyword">val</span> rawRatings = rawData.map(_.split(<span class="string">"\t"</span>).take(<span class="number">3</span>))</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">ALS</span></span><br><span class="line"></span><br><span class="line"><span class="type">ALS</span>.</span><br><span class="line">asInstanceOf    isInstanceOf   main   toString        train           trainImplicit</span><br><span class="line"><span class="type">ALS</span>.train</span><br></pre></td></tr></table></figure>
-<p>上述输出表明ALS模型需要一个由Rating记录构成的RDD，而Rating类则是对用户ID、影片ID（这里是通称product）和实际星级这些参数的封装。我们可以调用map方法将原来的各ID和星级的数组转换为对应的Rating对象，从而创建所需的评级数据集。</p>
+<h2 id="2-提取有效特征"><a href="#2-提取有效特征" class="headerlink" title="2. 提取有效特征"></a>2. 提取有效特征</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">&gt;./bin/spark-shell –-driver-memory <span class="number">2</span>g</span><br><span class="line"><span class="keyword">val</span> rawData = sc.textFile(<span class="string">"/Users/hp/ghome/github/Recommendation/spark-ml/ml-100k/u.data"</span>)</span><br><span class="line">rawData.first()</span><br><span class="line"><span class="keyword">val</span> rawRatings = rawData.map(_.split(<span class="string">"\t"</span>).take(<span class="number">3</span>))</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">ALS</span></span><br><span class="line"></span><br><span class="line"><span class="type">ALS</span>.</span><br><span class="line">asInstanceOf    isInstanceOf   main   toString        train           trainImplicit</span><br><span class="line"><span class="type">ALS</span>.train</span><br></pre></td></tr></table></figure>
+<p>ALS模型需要一个由Rating记录构成的RDD，而Rating类则是对用户ID、影片ID（这里是通称product）和实际星级这些参数的封装。<br>我们可以调用map方法将原来的各ID和星级的数组转换为对应的Rating对象，从而创建所需的评级数据集。</p>
 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">scala&gt; <span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">Rating</span></span><br><span class="line"><span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">Rating</span></span><br><span class="line"></span><br><span class="line">scala&gt; <span class="keyword">val</span> ratings = rawRatings.map &#123; <span class="keyword">case</span> <span class="type">Array</span>(user, movie, rating) =&gt;</span><br><span class="line">     | <span class="type">Rating</span>(user.toInt, movie.toInt, rating.toDouble) &#125;</span><br><span class="line">ratings: org.apache.spark.rdd.<span class="type">RDD</span>[org.apache.spark.mllib.recommendation.<span class="type">Rating</span>] = <span class="type">MapPartitionsRDD</span>[<span class="number">3</span>] at map at &lt;console&gt;:<span class="number">27</span></span><br><span class="line"></span><br><span class="line">scala&gt; ratings.first()</span><br><span class="line">res3: org.apache.spark.mllib.recommendation.<span class="type">Rating</span> = <span class="type">Rating</span>(<span class="number">196</span>,<span class="number">242</span>,<span class="number">3.0</span>)</span><br><span class="line"></span><br><span class="line">scala&gt; ratings.take(<span class="number">10</span>)</span><br><span class="line">res4: <span class="type">Array</span>[org.apache.spark.mllib.recommendation.<span class="type">Rating</span>] = <span class="type">Array</span>(<span class="type">Rating</span>(<span class="number">196</span>,<span class="number">242</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">186</span>,<span class="number">302</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">22</span>,<span class="number">377</span>,<span class="number">1.0</span>), <span class="type">Rating</span>(<span class="number">244</span>,<span class="number">51</span>,<span class="number">2.0</span>), <span class="type">Rating</span>(<span class="number">166</span>,<span class="number">346</span>,<span class="number">1.0</span>), <span class="type">Rating</span>(<span class="number">298</span>,<span class="number">474</span>,<span class="number">4.0</span>), <span class="type">Rating</span>(<span class="number">115</span>,<span class="number">265</span>,<span class="number">2.0</span>), <span class="type">Rating</span>(<span class="number">253</span>,<span class="number">465</span>,<span class="number">5.0</span>), <span class="type">Rating</span>(<span class="number">305</span>,<span class="number">451</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">6</span>,<span class="number">86</span>,<span class="number">3.0</span>))</span><br></pre></td></tr></table></figure>
 <h2 id="3-训练推荐模型"><a href="#3-训练推荐模型" class="headerlink" title="3. 训练推荐模型"></a>3. 训练推荐模型</h2><p>从原始数据提取出这些简单特征后，便可训练模型。MLlib已实现模型训练的细节，这不需要我们担心。我们只需提供上述指定类型的新RDD以及其他所需参数来作为训练的输入即可。</p>
-<h3 id="3-1-使用MovieLens-100k数据集训练模型"><a href="#3-1-使用MovieLens-100k数据集训练模型" class="headerlink" title="3.1 使用MovieLens 100k数据集训练模型"></a>3.1 使用MovieLens 100k数据集训练模型</h3><p>现在开始训练模型了，所需的其他参数有以下几个</p>
+<h3 id="3-1-Movie-100k-train-model"><a href="#3-1-Movie-100k-train-model" class="headerlink" title="3.1 Movie-100k train model"></a>3.1 Movie-100k train model</h3><p>现在开始训练模型了，所需的其他参数有以下几个</p>
 <ul>
 <li><code>rank</code>：对应ALS模型中的因子个数，也就是在低阶近似矩阵中的隐含特征个数。因子个数一般越多越好。但它也会直接影响模型训练和保存时所需的内存开销，尤其是在用户和物品很多的时候。因此实践中该参数常作为训练效果与系统开销之间的调节参数。通常，其合理取值为10到200。</li>
 <li><code>iterations</code>：对应运行时的迭代次数。ALS能确保每次迭代都能降低评级矩阵的重建误差，但一般经少数次迭代后ALS模型便已能收敛为一个比较合理的好模型。这样，大部分情况下都没必要迭代太多次（10次左右一般就挺好）。</li>
 <li><code>lambda</code>：该参数控制模型的正则化过程，从而控制模型的过拟合情况。其值越高，正则化越严厉。该参数的赋值与实际数据的大小、特征和稀疏程度有关。和其他的机器学习模型一样，正则参数应该通过用非样本的测试数据进行交叉验证来调整。</li>
 </ul>
 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">scala&gt; <span class="keyword">val</span> model = <span class="type">ALS</span>.train(ratings, <span class="number">50</span>, <span class="number">10</span>, <span class="number">0.01</span>)</span><br><span class="line">model: org.apache.spark.mllib.recommendation.<span class="type">MatrixFactorizationModel</span> = org.apache.spark.mllib.recommendation.<span class="type">MatrixFactorizationModel</span>@<span class="number">2e835760</span></span><br><span class="line"></span><br><span class="line">scala&gt; model.userFeatures</span><br><span class="line">res5: org.apache.spark.rdd.<span class="type">RDD</span>[(<span class="type">Int</span>, <span class="type">Array</span>[<span class="type">Double</span>])] = users <span class="type">MapPartitionsRDD</span>[<span class="number">209</span>] at mapValues at <span class="type">ALS</span>.scala:<span class="number">255</span></span><br><span class="line"></span><br><span class="line">scala&gt; model.userFeatures.count</span><br><span class="line">res6: <span class="type">Long</span> = <span class="number">943</span></span><br></pre></td></tr></table></figure>
-<h3 id="3-2-使用隐式反馈数据训练模型"><a href="#3-2-使用隐式反馈数据训练模型" class="headerlink" title="3.2 使用隐式反馈数据训练模型"></a>3.2 使用隐式反馈数据训练模型</h3><p>MLlib中标准的矩阵分解模型用于显式评级数据的处理。若要处理隐式数据，则可使用<code>trainImplicit</code>函数。其调用方式和标准的<code>train</code>模式类似，但多了一个可设置的<code>alpha</code>参数（也是一个正则化参数，<code>lambda</code>应通过测试和交叉验证法来设置）。</p>
+<blockquote>
+<p><code>MatrixFactorizationModel</code> 对象将 用户因子和物品因子分别保存在一个 <code>(id,factor)</code> 对类型的RDD中。<br>它们分别称作<code>userFeatures</code> 和 <code>productFeatures</code>。</p>
+</blockquote>
+<h3 id="3-2-隐式反馈数据训练模型"><a href="#3-2-隐式反馈数据训练模型" class="headerlink" title="3.2 隐式反馈数据训练模型"></a>3.2 隐式反馈数据训练模型</h3><p>MLlib中标准的矩阵分解模型用于显式评级数据的处理。若要处理隐式数据，则可使用<code>trainImplicit</code>函数。其调用方式和标准的<code>train</code>模式类似，但多了一个可设置的<code>alpha</code>参数（也是一个正则化参数，<code>lambda</code>应通过测试和交叉验证法来设置）。</p>
 <p>alpha参数指定了信心权重所应达到的基准线。该值越高则所训练出的模型越认为用户与他所没评级过的电影之间没有相关性。</p>
 <h2 id="4-使用推荐模型"><a href="#4-使用推荐模型" class="headerlink" title="4. 使用推荐模型"></a>4. 使用推荐模型</h2><p>预测通常有两种：为某个用户推荐物品，或找出与某个物品相关或相似的其他物品。</p>
 <h3 id="4-1-用户推荐"><a href="#4-1-用户推荐" class="headerlink" title="4.1 用户推荐"></a>4.1 用户推荐</h3><p>通过模型求出用户可能喜好程度最高的前K个商品。</p>
@@ -241,6 +243,150 @@
 <blockquote>
 <p>Reading notes</p>
 </blockquote>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-spark-ml-p3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/11/23/spark-ml-p3/"><strong>Spark Data Acquisition and Process</strong></a>
+      <small class=article-date-index>&nbsp; 2016-11-23</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/11/23/spark-ml-p3/" class="article-date">
+  <time datetime="2016-11-23T05:28:21.000Z" itemprop="datePublished">2016-11-23</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      spark data acquisition and process <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/spark/">spark</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2016/11/23/spark-ml-p3/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+
+<p><strong>focus</strong></p>
+<ul>
+<li>数据的处理、清理、探索和可视化方法；</li>
+<li>学习如何使用外部库或Spark内置函数来正则化输入特征.</li>
+</ul>
+<h2 id="1-获取公开数据集"><a href="#1-获取公开数据集" class="headerlink" title="1. 获取公开数据集"></a>1. 获取公开数据集</h2><p><strong>UCL机器学习知识库</strong></p>
+<blockquote>
+<p>包括近300个不同大小和类型的数据集，可用于分类、回归、聚类和推荐系统任务。数据集列表位于：<a href="http://archive.ics.uci.edu/ml/。" target="_blank" rel="external">http://archive.ics.uci.edu/ml/。</a></p>
+</blockquote>
+<p><strong>Amazon AWS公开数据集</strong></p>
+<blockquote>
+<p>包含的通常是大型数据集，可通过Amazon S3访问。包括人类基因组项目、Common Crawl网页语料库、维基百科数据和Google Books Ngrams。相关信息可参见：<a href="http://aws.amazon.com/publicdatasets/。" target="_blank" rel="external">http://aws.amazon.com/publicdatasets/。</a></p>
+</blockquote>
+<p><strong>Kaggle</strong></p>
+<blockquote>
+<p>它们覆盖分类、回归、排名、推荐系统以及图像分析领域：<a href="http://www.kaggle.com/competitions。" target="_blank" rel="external">http://www.kaggle.com/competitions。</a></p>
+</blockquote>
+<p><strong>KDnuggets</strong></p>
+<blockquote>
+<p>这里包含一个详细的公开数据集列表 ：<a href="http://www.kdnuggets.com/datasets/index.html。" target="_blank" rel="external">http://www.kdnuggets.com/datasets/index.html。</a></p>
+</blockquote>
+<h3 id="1-1-Movie-100k"><a href="#1-1-Movie-100k" class="headerlink" title="1.1 Movie-100k"></a>1.1 Movie-100k</h3><p>MovieLens 100k数据集包含表示多个用户对多部电影的10万次评级数据，也包含电影元数据和用户属性信息</p>
+<p><a href="http://files.grouplens.org/datasets/movielens/ml-100k.zip" target="_blank" rel="external">http://files.grouplens.org/datasets/movielens/ml-100k.zip</a></p>
+<p>ml-100k/  u.user（用户属性文件）、u.item（电影元数据）和 u.data（用户对电影的评级）</p>
+<p><strong>u.user</strong></p>
+<p>user.id、age、gender、occupation、ZIP code</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&gt;head -5 u.user</span><br><span class="line">  1|24|M|technician|85711</span><br><span class="line">  2|53|F|other|94043</span><br><span class="line">  3|23|M|writer|32067</span><br><span class="line">  4|24|M|technician|43537</span><br><span class="line">  5|33|F|other|15213</span><br></pre></td></tr></table></figure>
+<p><strong>u.item</strong></p>
+<p>movie id、title、release date以及若干与IMDB link和电影分类相关的属性</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&gt;head -5 u.item</span><br><span class="line">  1|Toy Story (1995)|01-Jan-1995||http://us.imdb.com/M/title-exact?Toy%20 Story%20(1995)|0|0|0|1|1|1|0|0|0|0|0|0|0|0|0|0|0|0|0</span><br><span class="line">  2|GoldenEye (1995)|01-Jan-1995||http://us.imdb.com/M/title- exact?GoldenEye%20(1995)|0|1|1|0|0|0|0|0|0|0|0|0|0|0|0|0|1|0|0</span><br><span class="line">  3|Four Rooms (1995)|01-Jan-1995||http://us.imdb.com/M/title- exact?Four%20Rooms%20(1995)|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|1|0|0</span><br><span class="line">  4|Get Shorty (1995)|01-Jan-1995||http://us.imdb.com/M/title- exact?Get%20Shorty%20(1995)|0|1|0|0|0|1|0|0|1|0|0|0|0|0|0|0|0|0|0</span><br><span class="line">  5|Copycat (1995)|01-Jan-1995||http://us.imdb.com/M/title- exact?Copycat%20(1995)|0|0|0|0|0|0|1|0|1|0|0|0|0|0|0|0|1|0|0</span><br></pre></td></tr></table></figure>
+<p><strong>u.data</strong></p>
+<p>user id、movie id、rating（从1到5）和timestamp属性，各属性间用制表符（\t）分隔</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&gt;head -5 u.data</span><br><span class="line">196    242    3    881250949</span><br><span class="line">186    302    3    891717742</span><br><span class="line">22     377    1    878887116</span><br><span class="line">244    51     2    880606923</span><br><span class="line">166    346    1    886397596</span><br></pre></td></tr></table></figure>
+<h2 id="2-探索与可视化数据"><a href="#2-探索与可视化数据" class="headerlink" title="2. 探索与可视化数据"></a>2. 探索与可视化数据</h2><p>IPython Install</p>
+<blockquote>
+<p><a href="http://ipython.org/install.html。" target="_blank" rel="external">http://ipython.org/install.html。</a><br><a href="http://ipython.org/ipython-doc/stable/interactive/tutorial.html。" target="_blank" rel="external">http://ipython.org/ipython-doc/stable/interactive/tutorial.html。</a></p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $SPARK_HOME</span><br><span class="line">&gt;IPYTHON=1 IPYTHON_OPTS=&quot;--pylab&quot; ./bin/pyspark</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>matplotlib backend: MacOSX 输出行表示IPython和pylab均被PySpark启用<br>IPython Notebook guide：<a href="http://ipython.org/ipython-doc/stable/interactive/notebook.html" target="_blank" rel="external">http://ipython.org/ipython-doc/stable/interactive/notebook.html</a></p>
+</blockquote>
+<h3 id="2-1-用户数据"><a href="#2-1-用户数据" class="headerlink" title="2.1 用户数据"></a>2.1 用户数据</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">user_data = sc.textFile(<span class="string">"/Users/hp/ghome/github/Recommendation/spark-ml/ml-100k/u.user"</span>)</span><br><span class="line">user_data.first()</span><br><span class="line"><span class="string">u'1|24|M|technician|85711'</span></span><br><span class="line">user_data.take(<span class="number">5</span>)</span><br><span class="line">Out[<span class="number">4</span>]:</span><br><span class="line">[<span class="string">u'1|24|M|technician|85711'</span>,</span><br><span class="line"> <span class="string">u'2|53|F|other|94043'</span>,</span><br><span class="line"> <span class="string">u'3|23|M|writer|32067'</span>,</span><br><span class="line"> <span class="string">u'4|24|M|technician|43537'</span>,</span><br><span class="line"> <span class="string">u'5|33|F|other|15213'</span>]</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">user_fields = user_data.map(<span class="keyword">lambda</span> line: line.split(<span class="string">"|"</span>))</span><br><span class="line">num_users = user_fields.map(<span class="keyword">lambda</span> fields: fields[<span class="number">0</span>]).count()</span><br><span class="line">num_genders = user_fields.map(<span class="keyword">lambda</span> fields: fields[<span class="number">2</span>]).distinct().count()</span><br><span class="line">num_occupations = user_fields.map(<span class="keyword">lambda</span> fields: fields[<span class="number">3</span>]).distinct().count()</span><br><span class="line">num_zipcodes = user_fields.map(<span class="keyword">lambda</span> fields: fields[<span class="number">4</span>]).distinct().count()</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Users: %d, genders: %d, occupations: %d, ZIP codes: %d"</span> % (num_users, num_genders, num_occupations, num_zipcodes)</span><br></pre></td></tr></table></figure>
+<p>Output</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">Users: <span class="number">943</span>, genders: <span class="number">2</span>, occupations: <span class="number">21</span>, ZIP codes: <span class="number">795</span></span><br></pre></td></tr></table></figure>
+<p><strong><font color="red">age distribution<font></font></font></strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ages = user_fields.map(<span class="keyword">lambda</span> x: int(x[<span class="number">1</span>])).collect()</span><br><span class="line">hist(ages, bins=<span class="number">20</span>, color=<span class="string">'lightblue'</span>, normed=<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="/images/spark_ml.3.1.png" alt="age distribution"></p>
+<p><strong><font color="red">occupation distribution<font></font></font></strong></p>
+<p><img src="/images/spark_ml.3.2.png" alt="occupation distribution"></p>
+<h3 id="2-2-电影数据"><a href="#2-2-电影数据" class="headerlink" title="2.2 电影数据"></a>2.2 电影数据</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">movie_ages = years_filtered.map(<span class="keyword">lambda</span> yr: <span class="number">1998</span>-yr).countByValue()</span><br></pre></td></tr></table></figure>
+<p><img src="/images/spark_ml.3.3.png" alt="moive age distribution"></p>
+<h3 id="2-3-评级数据"><a href="#2-3-评级数据" class="headerlink" title="2.3 评级数据"></a>2.3 评级数据</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">Min rating: <span class="number">1</span></span><br><span class="line">Max rating: <span class="number">5</span></span><br><span class="line">Average rating: <span class="number">3.53</span></span><br><span class="line">Median rating: <span class="number">4</span></span><br><span class="line">Average of ratings per user: <span class="number">106.00</span></span><br><span class="line">Average of ratings per movie: <span class="number">59.00</span></span><br></pre></td></tr></table></figure>
+<p><img src="/images/spark_ml.3.4.png" alt="moive rating score"></p>
+<hr>
+<p>大部分用户的评级次数少于100。但该分布也表明仍然有较多用户做出过上百次的评级。</p>
+<p><img src="/images/spark_ml.3.5.png" alt="各用户的电影评级的分布"></p>
 
       
     </div>
@@ -2637,234 +2783,6 @@
 <p><img src="/images/math-l1p2-01.png" width="460" height="350" img=""></p>
 <h3 id="1-2-导数的定义"><a href="#1-2-导数的定义" class="headerlink" title="1.2 导数的定义"></a>1.2 导数的定义</h3><p><img src="/images/math-l1p2-02.png" alt="concept"></p>
 <h2 id="2-函数的求导法则"><a href="#2-函数的求导法则" class="headerlink" title="2. 函数的求导法则"></a>2. 函数的求导法则</h2><h2 id="3-高阶导数"><a href="#3-高阶导数" class="headerlink" title="3. 高阶导数"></a>3. 高阶导数</h2><h2 id="4-隐函数及由参数方程所确定的函数的导数"><a href="#4-隐函数及由参数方程所确定的函数的导数" class="headerlink" title="4. 隐函数及由参数方程所确定的函数的导数"></a>4. 隐函数及由参数方程所确定的函数的导数</h2><h2 id="5-函数的微分"><a href="#5-函数的微分" class="headerlink" title="5. 函数的微分"></a>5. 函数的微分</h2>
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ef-l5u5-Movies-l1" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/10/28/ef-l5u5-Movies-l1/"><strong>Movies L1 Talking about a movie you recently saw</strong></a>
-      <small class=article-date-index>&nbsp; 2016-10-28</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/10/28/ef-l5u5-Movies-l1/" class="article-date">
-  <time datetime="2016-10-27T23:15:16.000Z" itemprop="datePublished">2016-10-28</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      level 5 unit 5 lesson 1, Movies <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/English/">English</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/10/28/ef-l5u5-Movies-l1/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
-<li>horror</li>
-<li>science fiction</li>
-<li>romance</li>
-<li>documentary</li>
-<li>comedy</li>
-<li>thriller</li>
-<li>action</li>
-<li>bioengineering</li>
-<li>soundtrack</li>
-</ul>
-<p><img src="/images/ef-l5u5l1.png" width="460" height="400" img=""></p>
-<table>
-<thead>
-<tr>
-<th>Dialog</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[IAN] Let me introduce you to … Kevin.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] Student.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] Popular with the ladies.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] So, tell our <strong>viewers</strong>, why are you studying <strong>bioengineering</strong>?</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] Well, I’ve always liked it, so <strong>that’s why I decided to study bioengineering</strong>.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] What are you reading ?</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] I know the movies … So tell our viewers …</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] What did you think about the movies?</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] Well, I hated the last one.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] The book is good, but the movie is like an action movie. It’s terrible.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] The first one is the best.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] It’s even <strong>a bit scary</strong>.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] So it’s a horror movie.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] No, I feel it’s not really a horror movie.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] I think it’s more of a thriller. [‘θrɪlə]</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] So no happy ending.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] And <code>what do we have here?</code></td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] No girls, no life, and he’s an Econ major.</td>
-<td></td>
-</tr>
-<tr>
-<td>[FELTON] No hobbies?</td>
-<td></td>
-</tr>
-<tr>
-<td>[FELTON] I like music.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] Wow, that’s really interesting, Felton … the Third.</td>
-<td></td>
-</tr>
-<tr>
-<td>[FELTON] I also like movies, especially the soundtrack.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] Well, thanks for joining us.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>I’m in economics major</p>
-</blockquote>
-<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><table>
-<thead>
-<tr>
-<th>Dialog</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>JENNY: I just saw another Joseph Fiennes movie.</td>
-<td></td>
-</tr>
-<tr>
-<td>LUCAS: Which one  ? Is it an action movie?</td>
-<td></td>
-</tr>
-<tr>
-<td>JENNY: Uh, ‘Shakespeare in Love.’ It’s a romantic comedy. But <strong>I think that there’s some good history in it</strong>, too. It’s funny because Shakespeare can’t think of any good ideas. I thought it was quite entertaining.</td>
-<td></td>
-</tr>
-<tr>
-<td>LUCAS: Me, too. I don’t usually like romances, but <strong>that’s one of my favorite movies. It’s an old one.</strong></td>
-<td></td>
-</tr>
-<tr>
-<td>JENNY: Yeah, it’s quite old, but it’s still good.</td>
-<td></td>
-</tr>
-<tr>
-<td>LUCAS: Mm-hmm. Did you watch it with your kids?</td>
-<td></td>
-</tr>
-<tr>
-<td>JENNY: No, but <strong>I think I could show this one to my kids.</strong></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>I thought that they did a fantastic job.</p>
-</blockquote>
-
       
     </div>
     -->
