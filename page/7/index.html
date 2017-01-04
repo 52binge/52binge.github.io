@@ -59,6 +59,335 @@
 </header>
     <br>
     <section id="main" class="outer">
+      <article id="post-spark-machine-learning-02-design-machine-learning-system" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/09/08/spark-machine-learning-02-design-machine-learning-system/"><strong>Spark Machine Learning 02 - 设计机器学习系统</strong></a>
+      <small class=article-date-index>&nbsp; 2016-09-08</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/09/08/spark-machine-learning-02-design-machine-learning-system/" class="article-date">
+  <time datetime="2016-09-08T02:07:21.000Z" itemprop="datePublished">2016-09-08</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      introduce how to design ml system about moiveStream <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2016/09/08/spark-machine-learning-02-design-machine-learning-system/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>Spark Machine Learing Reading Notes</p>
+</blockquote>
+<h2 id="1-原始-MovieStream-介绍"><a href="#1-原始-MovieStream-介绍" class="headerlink" title="1. 原始 MovieStream 介绍"></a>1. 原始 MovieStream 介绍</h2><p><img src="/images/ml-spark-ml-0201.jpg" alt="MovieStream"></p>
+<h3 id="1-1-个性化"><a href="#1-1-个性化" class="headerlink" title="1.1 个性化"></a>1.1 个性化</h3><p><code>个性化</code> 是根据各因素来改变用户体验和<code>呈现给用户内容</code>。这些因素可能包括用户的行为数据和外部因素。</p>
+<p><code>推荐</code>（recommendation）, 常指向用户呈现一个他们可能感兴趣的物品列表。</p>
+<p>个性化和推荐十分相似, 根据因素改变搜索的呈现不同用户不同内容，这是隐式个性化</p>
+<h3 id="1-2-客户细分"><a href="#1-2-客户细分" class="headerlink" title="1.2 客户细分"></a>1.2 客户细分</h3><p>目标营销用与推荐类似的方法从用户群中找出要营销的对象。一般来说，推荐和个性化的应用场景都是一对一，根据用户的特征进行分组，并可能参考行为数据。也可能使用了某种机器学习模型，比如 <code>聚类</code>。</p>
+<h3 id="1-3-预测建模"><a href="#1-3-预测建模" class="headerlink" title="1.3 预测建模"></a>1.3 预测建模</h3><p><code>预测性分析</code> 从某种意义上说还覆盖推荐、个性化和目标营销。用预测建模（predictive modeling）来表示其他做预测的模型。借助活动记录、收入数据以及内容属性，MovieStream 可以创建一个回归模型（regression model）来预测新电影的市场表现。</p>
+<p>另外，我们也可使用分类模型（classificaiton model）来对只有部分数据的新电影自动分配标签、关键字或分类。</p>
+<h2 id="2-机器学习模型的种类"><a href="#2-机器学习模型的种类" class="headerlink" title="2. 机器学习模型的种类"></a>2. 机器学习模型的种类</h2><p><code>supervised learning</code>：这种方法使用已标记数据来学习。<code>推荐引擎</code>、<code>回归</code>和<code>分类</code>便是例子。它们所使用的标记数据可以是用户对电影的评级（对推荐来说）、电影标签（对上述分类例子来说）或是收入数字（对回归预测来说）.</p>
+<p><code>unsupervised learning</code>：一些模型的学习过程不需要标记数据，我们称其为无监督学习。这类模型试图学习或是提取数据背后的结构或从中抽取最为重要的特征。<code>聚类</code>、<code>降维</code>和<code>文本处理</code>的某些特征提取都是无监督学习.</p>
+<h2 id="3-数据驱动ML系统的组成"><a href="#3-数据驱动ML系统的组成" class="headerlink" title="3. 数据驱动ML系统的组成"></a>3. 数据驱动ML系统的组成</h2><p><img src="/images/ml-spark-ml-0202.png" alt="机器学习流程"></p>
+<h3 id="3-1-数据获取与存储"><a href="#3-1-数据获取与存储" class="headerlink" title="3.1 数据获取与存储"></a>3.1 数据获取与存储</h3><p>MovieStream 的数据通常来自用户活动.</p>
+<p>要存储的数据包括：原始数据、即时处理后的数据，以及可用于生产系统的最终建模结果。</p>
+<p><strong>数据存储</strong></p>
+<ol>
+<li><strong>文件系统</strong> : 如 HDFS、Amazon S3 等；</li>
+<li><strong>SQL数据库</strong> : 如 MySQL、PostgreSQL；</li>
+<li><strong>NoSQL</strong> : -如 HBase、Cassandra、Mongodb；</li>
+<li><strong>搜索引擎</strong> : 如 Solr 、Elasticsearch；</li>
+<li><strong>流数据</strong> : – 如 Kafka、Flume、Amazon Kinesis</li>
+</ol>
+<h3 id="3-2-数据清理与转换"><a href="#3-2-数据清理与转换" class="headerlink" title="3.2 数据清理与转换"></a>3.2 数据清理与转换</h3><p>大部分机器学习模型所处理的都是 <code>feature</code>。特征 通常是输入变量所对应的可用于模型的数值表示。</p>
+<p>原始数据 预处理 几种 情况</p>
+<ol>
+<li>数据过滤</li>
+<li>合并多个数据源</li>
+<li>数据汇总</li>
+</ol>
+<p>对许多模型类型来说，这种表示就是包含 <strong>数值数据的</strong> <code>向量</code> or <code>矩阵</code>。</p>
+<p>将类别数据（比如地理位置所在的国家或是电影的类别）编码为对应的数值表示。</p>
+<ol>
+<li>文本数据提取有用信息。</li>
+<li>处理图像或是音频数据。</li>
+<li>数值数据常被转换为类别数据以减少某个变量的可能值的数目。例如将年龄分为 601, 602…</li>
+<li>对特征进行正则化、标准化，以保证同一模型的不同输入变量的值域相同。</li>
+</ol>
+<p>这些数据清理、探索、聚合和转换步骤，都能通过Spark核心API、SparkSQL引擎和其他外部Scala、Java或Python包做到。借助 Spark 的 Hadoop功能 还能实现上述多种存储系统上的读写。</p>
+<h3 id="3-3-模型训练与测试回路"><a href="#3-3-模型训练与测试回路" class="headerlink" title="3.3 模型训练与测试回路"></a>3.3 模型训练与测试回路</h3><p>当数据已转换为可用于模型的形式，便可开始模型的训练和测试。</p>
+<p>在训练数据集上运行模型并在测试数据集（即为评估模型而预留的数据，在训练阶段模型没接触过该数据）上测试其效果，这个过程一般相对直接，被称作交叉验证（cross-validation）。</p>
+<p>Spark MLlib 来实现对各种机器学习方法的模型训练、评估以及交叉验证。</p>
+<h3 id="3-4-模型部署与整合"><a href="#3-4-模型部署与整合" class="headerlink" title="3.4 模型部署与整合"></a>3.4 模型部署与整合</h3><p>通过训练测试循环找出最佳模型后，要让它能得出可付诸实践的预测，还需将其部署到生产系统中。</p>
+<p>这个过程一般要将已训练的模型导入特定的数据存储中。</p>
+<h3 id="3-5-模型监控与反馈"><a href="#3-5-模型监控与反馈" class="headerlink" title="3.5 模型监控与反馈"></a>3.5 模型监控与反馈</h3><p>监控机器学习系统在生产环境下的表现十分重要。</p>
+<p>同样值得注意的是，模型准确度和预测效果只是现实中系统表现的一部分。</p>
+<p>我们可以尽可能在生产系统中部署不同的模型，通过调整它们而优化业务指标。实践中，这通常通过在线分割测试（<code>live split test</code>）进行。</p>
+<p>模型反馈（<code>model feedback</code>），指通过用户的行为来对模型的预测进行反馈的过程。在现实系统中，模型的应用将影响用户的决策和潜在行为，从而反过来将从根本上改变模型自己将来的训练数据。</p>
+<h3 id="3-6-批处理-实时方案选择"><a href="#3-6-批处理-实时方案选择" class="headerlink" title="3.6 批处理/实时方案选择"></a>3.6 批处理/实时方案选择</h3><p>常见的批处理方法。模型用所有数据或一部分数据进行周期性的重新训练。由于上述流程会花费一定的时间，这就使得批处理方法难以在新数据到达时立即完成模型的更新。</p>
+<p>存在一类名为在线学习（online learning）的机器学习方法。它们在新数据到达时便能立即更新模型，从而使实时系统成为可能。常见的例子有对线性模型的在线优化算法，如<code>随机梯度下降法</code>。</p>
+<h2 id="4-机器学习系统架构"><a href="#4-机器学习系统架构" class="headerlink" title="4. 机器学习系统架构"></a>4. 机器学习系统架构</h2><p><img src="/images/ml-spark-ml-0203.png" alt="机器学习系统架构"></p>
+<p>机器学习流程示意图的内容：</p>
+<ul>
+<li>收集与用户、用户行为和电影标题有关的数据；</li>
+<li>将这些数据转为特征；</li>
+<li>模型训练，包括训练-测试和模型选择环节；</li>
+<li>将已训练模型部署到在线服务系统，并用于离线处理；</li>
+<li>通过推荐和目标页面将模型结果反馈到MovieStream站点；</li>
+<li>将模型结果返回到MovieStream的个性化营销渠道；</li>
+<li>使用离线模型来为MovieSteam的各个团队提供工具，以帮助其理解用户的行为、内容目录的特点和业务收入的驱动因素。</li>
+</ul>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ef-l3u6-Jobs-and-companies-l1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/08/30/ef-l3u6-Jobs-and-companies-l1/"><strong>Jobs and companies L1 Asking about work experience</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-30</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/08/30/ef-l3u6-Jobs-and-companies-l1/" class="article-date">
+  <time datetime="2016-08-29T23:06:16.000Z" itemprop="datePublished">2016-08-30</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      level 03 unit 6 lesson 1，asking about work experience <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/English/">English</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2016/08/30/ef-l3u6-Jobs-and-companies-l1/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>bank &gt; banker</li>
+<li>design &gt; designer</li>
+<li>act  &gt; actor</li>
+<li>direct &gt; director</li>
+<li>supervise  &gt; supervisor    </li>
+<li>illustrate &gt; illustrator [‘ɪləstreɪtə]</li>
+<li>firefighter</li>
+</ul>
+<p><img src="/images/ef-l3u6l1.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog 1</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: hi, how do your job?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I love it! I’m so happy I got it.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: good.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: The pay’s higher than my last job. My boss is really nice.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Where were you before?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: LM company. a designer</td>
+<td></td>
+</tr>
+<tr>
+<td>A: How was it there?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: It was terrible. The pay was low. My boss was horrible. Business was really bad.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: How long were you there for?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I was there for eight months. but I’m much happier.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog 2</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MAN: I’m very happy in my new job at Tomorrow Computers. I’m aprogrammer. My last  boss was awful. I wasn’t  happy there.</td>
+<td></td>
+</tr>
+<tr>
+<td>WOMAN: Where were you before  ?</td>
+<td></td>
+</tr>
+<tr>
+<td>MAN: I was at Dyno Systems. I was an engineer.</td>
+<td></td>
+</tr>
+<tr>
+<td>WOMAN: Was  that your first job?</td>
+<td></td>
+</tr>
+<tr>
+<td>MAN: No. Before that  , I was at LM Computers.</td>
+<td></td>
+</tr>
+<tr>
+<td>WOMAN: Well, I’m happy that you like your new job.</td>
+<td></td>
+</tr>
+<tr>
+<td>MAN: Me, too. Thanks.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><ul>
+<li>You were an actor.</li>
+<li>They were managers. / Were they managers?</li>
+<li>They weren’t managers.</li>
+<li>She wasn’t an actor.</li>
+<li>Where were you last night?</li>
+<li>I like my job now, but my last job was terrible!</li>
+<li>She was a waiter before she was a supervisor.</li>
+<li>She was a supervisor. After that, she was the manager.</li>
+</ul>
+<h2 id="3-talkig-about-your-job"><a href="#3-talkig-about-your-job" class="headerlink" title="3. talkig about your job"></a>3. talkig about your job</h2><ul>
+<li>How’s your job?</li>
+<li>What’s your job like?    </li>
+<li>How was your last job?</li>
+<li>What was your last job like?</li>
+<li>Where were you before?</li>
+</ul>
+<ul>
+<li>I like my job, but I work too many hours.</li>
+<li>The pay is really good in my new job.</li>
+<li>My boss is OK, but sometimes he’s difficult.</li>
+</ul>
+<ul>
+<li>My last job was easier than this job.</li>
+<li>My pay is better now, but I work longer hours.</li>
+<li>I was at LM Computers for only one year.</li>
+<li>My last boss was terrible.</li>
+</ul>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-life-thai" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2205,526 +2534,6 @@
 </tr>
 </tbody>
 </table>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ml-decisionTree-model" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/08/16/ml-decisionTree-model/"><strong>Decision Tree Model</strong></a>
-      <small class=article-date-index>&nbsp; 2016-08-16</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/08/16/ml-decisionTree-model/" class="article-date">
-  <time datetime="2016-08-16T08:43:21.000Z" itemprop="datePublished">2016-08-16</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      decision tree learning <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/08/16/ml-decisionTree-model/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p><strong>Data Mining</strong></p>
-<ul>
-<li>挖掘目标</li>
-<li>数据取样</li>
-<li>数据探索</li>
-<li>数据预处理</li>
-<li><code>挖掘建模</code></li>
-<li>模型评价</li>
-</ul>
-<p>分类问题 : 决策树算法、朴素贝叶斯、支持向量机、BP神经网络、懒惰学习算法、随机森林与自适应增强算法、分类模型选择和结果评价</p>
-<h2 id="1-Classification-Introduce"><a href="#1-Classification-Introduce" class="headerlink" title="1. Classification Introduce"></a>1. Classification Introduce</h2><blockquote>
-<p>分类有着广泛的应用，如医学疾病判别、垃圾邮件过滤、垃圾短信拦截、客户分析等等。分类问题可以分为两类</p>
-</blockquote>
-<h3 id="1-1-归类-离散"><a href="#1-1-归类-离散" class="headerlink" title="1.1 归类 : 离散"></a>1.1 归类 : 离散</h3><p>归类 是指对<code>离散数据</code>的分类，比如对根据一个人的笔迹判别这个是男还是女，这里的 Category 只有两个，类别是离散的集合空间{男，女}的。</p>
-<h3 id="1-2-预测-连续"><a href="#1-2-预测-连续" class="headerlink" title="1.2 预测 : 连续"></a>1.2 预测 : 连续</h3><p>预测 是指对<code>连续数据</code>的分类，比如预测明天8点天气的湿度情况，天气的湿度在随时变化，8点时的天气是一个具体值，它不属于某个有限集合空间。预测也叫回归分析，在金融领域有着广泛应用。</p>
-<blockquote>
-<p>虽然对离散数据和连续数据的处理方式有所不同，但其实他们之间相互转化，比如我们可以根据比较的某个特征值判断，如果值大于0.5就认定为男性，小于等于0.5就认为是女性，这样就转化为连续处理方式；将天气湿度值分段处理也就转化为离散数据。</p>
-</blockquote>
-<p><strong>数据分类</strong> 分两个步骤：</p>
-<ol>
-<li>构造模型，利用训练数据集 训练 分类器；</li>
-<li>利用建好的分类器模型对测试数据进行分类。</li>
-</ol>
-<blockquote>
-<p>好的分类器具有很好的泛化能力，即它不仅在训练数据集上能达到很高的正确率，而且能在未见过得测试数据集也能达到较高的正确率。如果一个分类器只是在训练数据上表现优秀，但在测试数据上表现稀烂，这个分类器就已经过拟合了，它只是把训练数据记下来了，并没有抓到整个数据空间的特征。</p>
-</blockquote>
-<h2 id="2-Decision-Tree’-Classification"><a href="#2-Decision-Tree’-Classification" class="headerlink" title="2. Decision Tree’ Classification"></a>2. Decision Tree’ Classification</h2><p>代表性的例子说明 :</p>
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>阴晴(F)</th>
-<th>温度(F)</th>
-<th>湿度(F)</th>
-<th>刮风(F)</th>
-<th>是否玩（C）</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>sunny</td>
-<td>hot</td>
-<td>high</td>
-<td>false</td>
-<td>否</td>
-</tr>
-<tr>
-<td>2</td>
-<td>sunny</td>
-<td>hot</td>
-<td>high</td>
-<td>true</td>
-<td>否</td>
-</tr>
-<tr>
-<td>3</td>
-<td>overcast</td>
-<td>hot</td>
-<td>high</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>4</td>
-<td>rainy</td>
-<td>mild</td>
-<td>high</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>5</td>
-<td>rainy</td>
-<td>cool</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>6</td>
-<td>rainy</td>
-<td>cool</td>
-<td>normal</td>
-<td>true</td>
-<td>否</td>
-</tr>
-<tr>
-<td>7</td>
-<td>overcast</td>
-<td>cool</td>
-<td>normal</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>8</td>
-<td>sunny</td>
-<td>mild</td>
-<td>high</td>
-<td>false</td>
-<td>否</td>
-</tr>
-<tr>
-<td>9</td>
-<td>sunny</td>
-<td>cool</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>10</td>
-<td>rainy</td>
-<td>mild</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>11</td>
-<td>sunny</td>
-<td>mild</td>
-<td>normal</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>12</td>
-<td>overcast</td>
-<td>mild</td>
-<td>high</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>13</td>
-<td>overcast</td>
-<td>hot</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>14</td>
-<td>rainy</td>
-<td>mild</td>
-<td>high</td>
-<td>true</td>
-<td>否</td>
-</tr>
-</tbody>
-</table>
-<p>利用ID3算法中的 Info Gain Feature Selection，递归的学习一棵决策树，得到树结构如下</p>
-<p><img src="/images/model-dt02.png" width="560" height="400" img=""></p>
-<blockquote>
-<p>决策树（decision tree）是一个树结构（可以是二叉树或非二叉树）。其每个非叶节点表示一个Feature属性上的测试，每个分支代表这个Feature属性在某个值域上的输出，而每个叶节点存放一个 Category 。使用 DT 进行决策的过程就是从 root 开始，测试待分类项中相应的 Feature 属性，并按照其值选择输出分支，直到到达叶子节点，将叶子节点存放的 Category 作为决策结果。</p>
-</blockquote>
-<p>Feature Selection，如何量化最优Feature? <code>-&gt;</code> 导致 DT Algorithm 出现了 ID3、C4.5、C5.0、CART 等。</p>
-<h2 id="3-Decision-Tree’-Build"><a href="#3-Decision-Tree’-Build" class="headerlink" title="3. Decision Tree’ Build"></a>3. Decision Tree’ Build</h2><p>构造 Decision Tree 的关键步骤是分裂属性。所谓分裂属性就是在某个节点处按照某一特征属性的不同划分构造不同的分支，其目标是让各个分裂子集尽可能地“纯”。尽可能“纯”就是尽量让一个分裂子集中待分类项属于同一类别。</p>
-<blockquote>
-<p>构造决策树的过程本质上就是根据 <strong>data-feature</strong> 将 数据集(D) 分类的递归过程，我们需要解决的第一个问题就是，<strong>当前 数据集(D) 上哪个 Feature 在划分数据分类时起决定性作用</strong></p>
-</blockquote>
-<h3 id="3-1-构造-DT-流程"><a href="#3-1-构造-DT-流程" class="headerlink" title="3.1 构造 DT 流程"></a>3.1 构造 DT 流程</h3><p>训练数据集 $D = \{ (x^{(1)}，y^{(1)}) ， (x^{(2)}，y^{(2)})， ⋯ ， (x^{(m)}，y^{(m)}) \}$ (Feature用离散值表示)<br>候选特征集 $F = \{f^1，f^2， ⋯，f^n \}$</p>
-<p>开始建立 Root节点，将所有训练数据都置于根节点（$m$条样本）。从 feature集合 $F$ 中选择一个最优特征 $f^∗$，按照 $f^∗$ 取值将 训练数据集(D) 切分成若干子集，使得各个自己有一个在当前条件下最好的分类。</p>
-<p>如果子集中样本类别基本相同，那么构建叶节点，并将数据子集划分给对应的叶节点；如果子集中样本类别差异较大，不能被基本正确分类，需要在剩下的特征集合 $（F−{f^∗}）$ 中选择新的最优特征，继续对数据子集进行切分。如此递归地进行下去，直至所有数据自己都能被基本正确 Category，或者没有合适的最优特征为止。</p>
-<p>这样最终结果是每个子集都被分到叶节点上，对应着一个明确的类别。那么，递归生成的层级结构即为一棵 DT。</p>
-<h3 id="3-2-伪代码构造-DT"><a href="#3-2-伪代码构造-DT" class="headerlink" title="3.2 伪代码构造 DT"></a>3.2 伪代码构造 DT</h3><p>  输入 : 训练数据集 $D = \{ (x^{(1)}，y^{(1)}) ， (x^{(2)}，y^{(2)})， ⋯ ， (x^{(m)}，y^{(m)}) \}$(Feature用离散值表示)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;候选特征集 $F = \{f^1，f^2， ⋯，f^n \}$</p>
-<p>  输出 : T(D, F)</p>
-<p><img src="/images/model-dt-03.png" width="760" height="400" img=""></p>
-<p>决策树学习过程中递归的每一步，在选择最优特征后，根据特征取值切割当前节点的数据集，得到若干数据子集。<br>算法的时间复杂度是O(k<em>|D|</em>log(|D|))，k为属性个数，|D|为记录集D的记录数。</p>
-<h2 id="4-Feature-Selection"><a href="#4-Feature-Selection" class="headerlink" title="4. Feature Selection"></a>4. Feature Selection</h2><p>递归地选择最优feature，根据feature取值切割数据集，使得对应的数据子集有一个较好的分类。从伪代码中也可以看出，在决策树学习过程中，最重要的是第07行，即如何选择最优feature？也就是我们常说的feature选择问题。</p>
-<p>在这里，希望随着feature选择过程地不断进行，决策树的分支节点所包含的样本尽可能属于同一类别，即希望节点的”纯度（purity）”越来越高。</p>
-<blockquote>
-<p>如子集中的样本都属于同一个类别，是最好的结果；如果说大多数的样本类型相同，只有少部分样本不同，也可以接受。</p>
-</blockquote>
-<p>那么如何才能做到选择的特征对应的样本子集纯度最高呢？</p>
-<table>
-<thead>
-<tr>
-<th>Algorithm</th>
-<th>Feature 选择方法</th>
-<th>Author</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ID3</td>
-<td>Information gain</td>
-<td>Quinlan. 1986</td>
-</tr>
-<tr>
-<td>C4.5</td>
-<td>Gain ratio</td>
-<td>Quinlan. 1993.</td>
-</tr>
-<tr>
-<td>CART</td>
-<td>回归树： 最小二乘<br>分类树： 基尼指数 Gini index</td>
-<td>Breiman. 1984<br>(Classification and Regression Tree 分类与回归树)</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>ID3 (Iterative Dichotomiser)</p>
-</blockquote>
-<h3 id="4-1-Information-Gain"><a href="#4-1-Information-Gain" class="headerlink" title="4.1 Information Gain"></a>4.1 Information Gain</h3><p>信息增益（Information Gain）衡量 Feature 的重要性是根据当前 Feature 为划分带来多少信息量，带来的信息越多，该 Feature 就越重要，此时节点的”纯度”也就越高。</p>
-<p><a href="/2016/08/18/ml-entropy-base/">Infomation Entropy</a></p>
-<blockquote>
-<p>对一个分类系统来说，假设类别 $C$ 可能的取值为 $c_1，c_2，⋯，c_k$（$k$是类别总数），每一个类别出现的概率分别是 $p(c_1)，p(c_2)，⋯，p(c_k)$。此时，分类系统的 Entropy 可以表示为:</p>
-<p>$$<br>info(C) = -  \sum_{i=1}^k p(c_i) \cdot log_2 p(c_i) \qquad (fml.4.1.1)<br>$$</p>
-<p>分类系统的作用就是输出一个特征向量（文本特征、ID特征 等）属于哪个 Category 的值，而这个值可能是 $c_1，c_2，⋯，c_k$ ，因此这个值所携带的信息量就是 (fml.4.1.1) 公式这么多</p>
-</blockquote>
-<p><strong>Condition Entropy</strong></p>
-<p>假设 离散特征 $f$ 的取值有 $I$ 个，$info(C|f=f_i)$ 表示特征 $f$ 被取值为 $f_i$ 时的<strong><em>Condition Entropy</em></strong>； $info(C|f)$ 是指特征 $f$ 被固定时的 <strong><em>Condition Entropy</em></strong>。二者之间的关系是：</p>
-<blockquote>
-<p>$$<br>\begin{align}<br>info(C|f) &amp; = p_1 \cdot info(C|f=f_1) + p_2 \cdot info(C|f=f_2) + … + p_k \cdot info(C|f=f_{k}) \\ &amp; = \sum_{i=1}^{I} p_i \cdot info(C|f=f_i) \end{align}  \quad (fml.4.1.2)<br>$$<br>假设总样本数有 $m$ 条，特征 $f=f_i$ 时的样本数 $m_i，p_i=\frac{m_i}{m}$.</p>
-</blockquote>
-<p><strong>如何求 $P(C|f=f_i)$</strong> ?</p>
-<blockquote>
-<p>二分类情况 :</p>
-<p>以二分类为例（正例为1，负例为0），总样本数为 $m$ 条，特征 $f$ 的取值为 $I$ 个，其中特征 $f=f_i$ 对应的样本数为 $m_i$ 条，其中正例 $m_{i1}$ 条，负例 $m_{i0}$ 条 $m_i = m_{i0} + m_{i1}$ 。那么有：</p>
-<p>$$<br>\begin{align} info(C|f=f_i) &amp; = - \frac{m_{i1}}{m_i} \cdot log_{2} \frac{m_{i1}}{m_i} - \frac{m_{i0}}{m_i} \cdot log_{2} \frac{m_{i0}}{m_i} \end{align} \qquad (fml.4.1.3)<br>$$<br>多分类情况:</p>
-<p>$$<br>\begin{align} info(C|f=f_i) = -\sum_{j=0}^{k-1} \frac{m_{ij}}{m_i} \cdot log_{2} \frac{m_{ij}}{m_i} \end{align} \qquad (fml.4.1.4)<br>$$</p>
-<p>公式$\frac{m_{ij}}{m_i}$物理含义是当 $f=f_i$ 且 $C=c_j$ 的概率，即条件概率 $p(c_j|f_i)$</p>
-<p>因此，<strong><em>Condition Entropy</em></strong> 计算公式为：</p>
-<p>$$<br>\begin{align} info(C|f) &amp; = \sum_{i=1}^{I} p(f_i) \cdot info(C|f=f_i) \\ &amp; = - \sum_{i=1}^{I} p(f_i) \cdot \underline { \sum_{j=0}^{k-1} p(c_j|f_i) \cdot log_2 p(c_j|f_i) } \qquad (fml.4.1.5)<br>\end{align}<br>$$</p>
-</blockquote>
-<p>特征 $f$ 给系统带来的 info gain 等于系统原有的 Entropy 与固定特征 $f$ 的 <strong><em>Condition Entropy</em></strong> 之差，公式表示如下:</p>
-<blockquote>
-<p>$$<br>\begin{align} IG(F) &amp; = E(C) - E(C|F) \\ &amp; = -\sum_{i=1}^{k} p(c_i) \cdot \log_{2} p(c_i) + \sum_{i=1}^{I} p(f_i) \cdot \underline { \sum_{j=0}^{k-1} p(c_j|f_i) \cdot log_2 p(c_j|f_i) } \end{align}  \qquad (fml.4.1.6)<br>$$</p>
-<p>$n$ 表示特征 $f$ 取值个数，$k$ 表示类别 $C$ 个数，$\sum_{j=0}^{n-1} \frac{m_{ij}}{m_i} \cdot log_{2} \frac{m_{ij}}{m_i}$ 表示每一个类别对应的 Entropy 。</p>
-</blockquote>
-<hr>
-<p><strong>下面以天气数据为例,通过 <code>Info gain</code> 选择最优 feature 的过程 :</strong></p>
-<blockquote>
-<p>根据 阴晴、温度、湿度 和 刮风 来决定是否出去玩。样本中总共有 14 条记录，取值为 <code>是</code>(9个正样本)、<code>否</code>(5个负样本)，用 $S(9+,5−)$ 表示.</p>
-<p>(1). 分类系统的 Entropy :<br>$$<br>Entropy(S) = info(9,5) = (-\frac{9}{14} _ llog_2 (\frac{9}{14})) + (- \frac{5}{14} _ llog_2 (\frac{5}{14})) = 0.940位   \quad (exp.4.1.1)<br>$$<br>(2). 如果以特征”阴晴”作为根节点。“阴晴”取值为{sunny, overcast, rainy}, 分别对应的正负样本数分别为(2+,3-), (4+,0-), (3+,2-)，那么在这三个节点上的 info Entropy 分别为：<br>$$<br>\begin{align} &amp; Entropy(S| “阴晴”=sunny) = info(2,3) = 0.971位  \quad(exp.4.1.1) \\ &amp; Entropy(S| “阴晴”=overcast) = info(4,0) = 0位  \;\;\quad(exp.4.1.2) \\ &amp; Entropy(S| “阴晴”=rainy) = info(3,2) = 0.971位  \;\quad(exp.4.1.3) \end{align}<br>$$</p>
-<p>以 Feature “阴晴” 为根节点，平均信息值（即 <strong>Condition Entropy</strong>）为：<br>$$<br>Entropy(S|“阴晴”) = \frac{5}{14} * 0.971 + \frac{4}{14} * 0 + \frac{5}{14} * 0.971 = 0.693位 \quad (exp.4.1.4)<br>$$</p>
-<p>以 Feature “阴晴” 为条件，计算得到的 <strong>Condition Entropy</strong> 代表了期望的信息总量，即对于一个新样本判定其属于哪个类别所必需的信息量。</p>
-<p>(3). 计算特征“阴晴”“阴晴”对应的信息增益:<br>$$<br>IG( “阴晴”) = Entropy(S) - Entropy(S| “阴晴”) = 0.247位 \quad\quad(exp.4.1.5)<br>$$</p>
-<p>同样的计算方法，可得每个特征对应的信息增益，即<br>$$<br>IG(“刮风”) = Entropy(S) - Entropy(S|“刮风”) = 0.048位 \qquad\qquad(exp.4.1.6) \\ IG(“湿度”) = Entropy(S) - Entropy(S|“湿度”) = 0.152位 \qquad\qquad(exp.4.1.7) \\ IG(“温度”) = Entropy(S) - Entropy(S|“温度”) = 0.029位 \qquad\qquad(exp.4.1.8)<br>$$</p>
-<p>显然，Feature “阴晴” 的 info gain 最大，于是把它作为划分特征。基于“阴晴”对根节点进行划分的结果，如图4.5所示（决策树学习过程部分）。决策树学习算法对子节点进一步划分，重复上面的计算步骤。</p>
-</blockquote>
-<p><img src="/images/model-dt02.png" width="560" height="400" img=""></p>
-<h3 id="4-2-Gain-ratio"><a href="#4-2-Gain-ratio" class="headerlink" title="4.2 Gain ratio"></a>4.2 Gain ratio</h3><p>与 Info Gain 不同，<code>Gain ratio</code> 的计算考虑了 F 分裂数据集后所产生的子节点的数量和规模，而<strong>忽略任何有关类别的信息</strong>。</p>
-<blockquote>
-<p>以 info gain 示例为例，按照 特征“阴晴” 将数据集分裂成3个子集，规模分别为5、4和5，因此不考虑子集中所包含的类别，产生一个分裂信息为：</p>
-<p>$$<br>SplitInfo(“阴晴”) = info(5,4,5) = 1.577位 \qquad (exp.4.2.1)<br>$$<br><strong>Split Information Entropy</strong> 可简单地理解为表示信息分支所需要的信息量。 </p>
-<p>那么 Info Gain ratio ：<br>$$<br>IG_{ratio}(F) = \frac {IG(F)} {SplitInfo(F)} \qquad (exp.4.2.2)<br>$$<br>在这里，特征 “阴晴”的 Gain ratio 为 $IG_{ratio}( “阴晴”)=\frac{0.247}{1.577} = 0.157$。减少信息增益方法对取值数较多的特征的影响。</p>
-</blockquote>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>-(math.log((<span class="number">5.0</span>/<span class="number">14.0</span>), <span class="number">2</span>) * (<span class="number">5.0</span>/<span class="number">14.0</span>) * <span class="number">2</span> + (<span class="number">4.0</span>/<span class="number">14.0</span>) * (math.log((<span class="number">4.0</span>/<span class="number">14.0</span>), <span class="number">2</span>)))</span><br><span class="line"><span class="number">1.577406282852345</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-<p>基尼指数（Gini Index）是 <code>CART</code> 中分类树的特征选择方法. 接下来重点介绍</p>
-<h2 id="5-CART"><a href="#5-CART" class="headerlink" title="5. CART"></a>5. CART</h2><p>分类与回归树（Classification And Regression Tree, 简称 CART）模型在Tree-Based家族中是应用最广泛的学习方法之一.</p>
-<p>更多请参见本博文章 <a href="/2016/08/24/ml-CART/">CART</a></p>
-<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
-<li><a href="http://www.cnblogs.com/fengfenggirl/p/classsify_decision_tree.html" target="_blank" rel="external">逗比算法工程师</a></li>
-<li><a href="http://www.52caml.com/" target="_blank" rel="external">算法杂货铺</a></li>
-<li><a href="http://www.cnblogs.com/leoo2sk/archive/2010/09/19/decision-tree.html" target="_blank" rel="external">52caml</a></li>
-<li>《机器学习导论》</li>
-<li>《统计学习方法》</li>
-<li>《数据挖掘－实用机器学习技术》</li>
-</ul>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ef-l3u3-Hotels-l2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/08/16/ef-l3u3-Hotels-l2/"><strong>Hotels L2 Making a hotel reservation</strong></a>
-      <small class=article-date-index>&nbsp; 2016-08-16</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/08/16/ef-l3u3-Hotels-l2/" class="article-date">
-  <time datetime="2016-08-15T22:59:16.000Z" itemprop="datePublished">2016-08-16</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      level 03 unit 3 lesson 2，Making a hotel reservation <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/English/">English</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/08/16/ef-l3u3-Hotels-l2/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
-<li>reservation</li>
-<li>checking in</li>
-<li>checking out</li>
-<li>a single room or a double</li>
-<li>reserve</li>
-<li>nonsmoking room</li>
-<li>credit card number</li>
-</ul>
-<p><img src="/images/ef-l3u3l2.png" width="460" height="400" img=""></p>
-<table>
-<thead>
-<tr>
-<th><strong>Dialog</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>A: Hotel Ana，How Can I help you?</td>
-<td></td>
-</tr>
-<tr>
-<td>B: I’d like to make a reservation please.</td>
-<td></td>
-</tr>
-<tr>
-<td>A: For how many people? / For how many nights?</td>
-<td></td>
-</tr>
-<tr>
-<td>B: Just me.</td>
-<td></td>
-</tr>
-<tr>
-<td>A: OK, When are you checking in?</td>
-<td></td>
-</tr>
-<tr>
-<td>B: check in March 15th and check out March 19th</td>
-<td></td>
-</tr>
-<tr>
-<td>A: 15th to 19th. So, that. Would you like a single room or a double ?</td>
-<td></td>
-</tr>
-<tr>
-<td>B: a single please. I’d like to have a nonsmoking room.</td>
-<td></td>
-</tr>
-<tr>
-<td>A: That’s no problem. Would you like me to reserve it for you, now?</td>
-<td></td>
-</tr>
-<tr>
-<td>B: What’s the rate?</td>
-<td></td>
-</tr>
-<tr>
-<td>A: It’s <code>$</code>210 a night.</td>
-<td></td>
-</tr>
-<tr>
-<td>B: OK, Yes. Please reserve it for me now. My name is Baxter.</td>
-<td></td>
-</tr>
-<tr>
-<td>A: May I have your credit card number?</td>
-<td></td>
-</tr>
-<tr>
-<td>B: It’s 3788-6672-4038-24.</td>
-<td></td>
-</tr>
-<tr>
-<td>A: Great!. just one monment. ok. Can I help you with anything else?</td>
-<td></td>
-</tr>
-<tr>
-<td>B: no, Thanks</td>
-<td></td>
-</tr>
-<tr>
-<td>A: all right.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><ul>
-<li>Would you like to reserve the room now?</li>
-<li>I’d like to make a reservation</li>
-<li>I’d like to reserve a room.</li>
-<li>He’d like to have a nonsmoking room.</li>
-<li>Mr. Samuels would like to check in on May 21st.</li>
-<li>Is there anything else I can help you with?</li>
-</ul>
-<h2 id="Writing"><a href="#Writing" class="headerlink" title="Writing"></a>Writing</h2><p>Dear Hotel Argent,</p>
-<p>My wife and I would like to reserve a double, nonsmoking room in August. We’d like to check in on the 14th and check out on the 19th. That’s five nights. We’d like a room with wireless internet and a big bathroom. We’d also like a reasonable rate.</p>
-<p>Thank you very much.</p>
-<p>Jim Daniels</p>
 
       
     </div>
