@@ -719,6 +719,125 @@ img {
 </ul>
 <p>Student Table 存储在 GP 中</p>
 <p><img src="/images/sql-etl/greenplum-2.3.png" alt=""></p>
+<h4 id="2-3-3-基本语法"><a href="#2-3-3-基本语法" class="headerlink" title="2.3.3 基本语法"></a>2.3.3 基本语法</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[hdfs@node196 libin]$ psql -h 192.168.xx.xx -p xx <span class="_">-d</span> testdb -U xx</span><br><span class="line">psql (9.2.15, server 8.2.15)</span><br><span class="line">WARNING: psql version 9.2, server version 8.2.</span><br><span class="line">         Some psql features might not work.</span><br><span class="line">Type <span class="string">"help"</span> <span class="keyword">for</span> help.</span><br></pre></td></tr></table></figure>
+<p><strong>1. 语法介绍</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">\h <span class="keyword">create</span></span><br></pre></td></tr></table></figure>
+<p><strong>2. CREATE TABLE</strong></p>
+<ul>
+<li>需要指定表分布键</li>
+<li>需要用某个字段分区，partition by</li>
+<li>like 类似 create table t1 as select * from t2 limit O</li>
+<li>inherits can extend table</li>
+</ul>
+<p>分类策略 </p>
+<ol>
+<li>Hash 分布 (默认第一个字段，推荐显示指定)</li>
+<li>随机分布 (distributed randomly 性能较差， 主键分布一般)</li>
+</ol>
+<blockquote>
+<p>like 创建的表，结构与原表一样，不指定分布键，默认与原表一样。</p>
+<p>appendonly、压缩等特殊属性，不一定一样。</p>
+</blockquote>
+<p><strong>3. SELECT</strong></p>
+<p><strong>4. CREATE TABLE AS 与 SELECT INTO</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> test2 <span class="keyword">AS</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> test1 <span class="keyword">distributed</span> <span class="keyword">by</span> (<span class="keyword">id</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">INTO</span> test4 <span class="keyword">from</span> test1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>SELECT INTO 不能指定分布键，使用默认</p>
+</blockquote>
+<p><strong>5. INSERT</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test001 <span class="keyword">VALUES</span>(<span class="number">100</span>, <span class="string">'tom'</span>), (<span class="number">101</span>, <span class="string">'jim'</span>); <span class="keyword">INSERT</span> <span class="number">0</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意 : 分布键 绝对不能为空，否则为 null。数据分布到一个节点。</p>
+</blockquote>
+<p><strong>6. UPDATE</strong></p>
+<p>不能批量对 分布key 执行 update 操作</p>
+<p><strong>7. DELETE</strong></p>
+<p>涉及 子查询，子查询结果还涉及数据重分布，这样报错</p>
+<h4 id="2-3-4-数据类型"><a href="#2-3-4-数据类型" class="headerlink" title="2.3.4 数据类型"></a>2.3.4 数据类型</h4><table>
+<thead>
+<tr>
+<th>类型名称</th>
+<th>存储空间</th>
+<th>description</th>
+<th>范围</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>smallint</td>
+<td>2</td>
+<td></td>
+<td>-32768 ~ +32767</td>
+</tr>
+<tr>
+<td>integer</td>
+<td>4</td>
+<td></td>
+<td>-2 147 483 648 ~ +2 147 483 647</td>
+</tr>
+<tr>
+<td>bigint</td>
+<td>8</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr>
+<td>decimal</td>
+<td>变长</td>
+<td></td>
+<td>nolimit</td>
+</tr>
+<tr>
+<td>double precision</td>
+<td>4</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr>
+<td>serial</td>
+<td>4</td>
+<td>自增整数</td>
+<td>1 ~ 2 147 483 647</td>
+</tr>
+<tr>
+<td>bigserial</td>
+<td>8</td>
+<td>大范围自增整数</td>
+<td></td>
+</tr>
+<tr>
+<td>varchar(n)</td>
+<td>变长</td>
+<td></td>
+<td>limit</td>
+</tr>
+<tr>
+<td>char(n)</td>
+<td>定长</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>text</td>
+<td>变长</td>
+<td></td>
+<td>nolimit</td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>8</td>
+<td>带不带时区，自己选择</td>
+<td></td>
+</tr>
+<tr>
+<td>date</td>
+<td>4</td>
+<td>表示日期</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://cread.jd.com/read/startRead.action?bookId=30189846&amp;readType=1" target="_blank" rel="external">JD阅读 : Greenplum企业级应用实战</a></li>
 <li><a href="http://dbaplus.cn/news-21-341-1.html" target="_blank" rel="external">聊聊Greenplum的那些事</a></li>
