@@ -4,6 +4,34 @@
   
     
     <entry>
+      <title><![CDATA[Greenplum 手动开发流程]]></title>
+      <url>http://selfboot.org/2017/01/12/db-greenplum-manual-dev-steps/</url>
+      <content type="html"><![CDATA[<p><img src="/images/db/greenplum-flow.png" alt=""></p>
+<h2 id="1-Rds-import-oss"><a href="#1-Rds-import-oss" class="headerlink" title="1. Rds import oss"></a>1. Rds import oss</h2><p>通过 datax 从 mysql 导出数据到 OSS</p>
+<p>组装 : mysql2oss-e_coupon.json</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "job": &#123;</span><br><span class="line">        "content": [</span><br><span class="line">        &#123;</span><br><span class="line">            "reader": &#123;</span><br><span class="line">                "name": "mysqlreader",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "username": "xx",</span><br><span class="line">                        "password": "xx",</span><br><span class="line">                        "connection": [</span><br><span class="line">                        &#123;</span><br><span class="line">                            "jdbcUrl": [</span><br><span class="line">                                "jdbc:mysql://192.168.184.xx:port"</span><br><span class="line">                                ],</span><br><span class="line">                            "table": [</span><br><span class="line">                                "rds-lib-name.e_coupon"</span><br><span class="line">                                ]</span><br><span class="line">                        &#125;</span><br><span class="line">                        ],</span><br><span class="line">                        "column":[</span><br><span class="line">                            "id",</span><br><span class="line">                            "x_card_user_id",</span><br><span class="line">                            "coupon_discount_code",</span><br><span class="line">                            ...</span><br><span class="line">                            "order_merchant_id"</span><br><span class="line">                        ],</span><br><span class="line">                        "where": "created_time BETWEEN '2016-01-01 00:00:00' AND '2017-01-05 23:59:59'"</span><br><span class="line">                    &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">                "writer": &#123;</span><br><span class="line">                    "name": "osswriter",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "accessId": "xx",</span><br><span class="line">                        "accessKey": "xx",</span><br><span class="line">                        "bucket": "company-name-data",</span><br><span class="line">                        "encoding": "UTF-8",</span><br><span class="line">                        "endpoint": "http://oss-cn-hangzhou.aliyuncs.com",</span><br><span class="line">                        "fieldDelimiter": "\t",</span><br><span class="line">                        "object": "datax_dev/libin/e_coupon",</span><br><span class="line">                        "writeMode": "truncate"</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ],</span><br><span class="line">        "setting": &#123;</span><br><span class="line">            "speed": &#123;</span><br><span class="line">                "channel": 1</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>触发执行 :</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">python datax.py mysql2oss-e_coupon.json</span><br></pre></td></tr></table></figure>
+<h2 id="2-ext-table"><a href="#2-ext-table" class="headerlink" title="2. ext table"></a>2. ext table</h2><p>创建外部表，ext_dm_e_coupon，并将 location 指向为 oss</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">bigint</span>,</span><br><span class="line">    x_card_user_id <span class="built_in">varchar</span>,</span><br><span class="line">    coupon_discount_code <span class="built_in">varchar</span>,</span><br><span class="line">    ...</span><br><span class="line">    order_merchant_id <span class="built_in">bigint</span></span><br><span class="line">) LOCATION(</span><br><span class="line">    <span class="string">'oss://oss-cn-hangzhou.aliyuncs.com</span><br><span class="line">        dir=datax_dev/libin/</span><br><span class="line">        id=xx</span><br><span class="line">        key=xx</span><br><span class="line">        bucket=xkeshi-data'</span></span><br><span class="line">) <span class="keyword">FORMAT</span> <span class="string">'text'</span> (<span class="literal">NULL</span> <span class="keyword">AS</span> <span class="string">'null'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 45596 id comment 字段有回车 ,So del comment varchar, don't imported.</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-ods-table"><a href="#3-ods-table" class="headerlink" title="3. ods table"></a>3. ods table</h2><p>创建 ods_dm_e_coupon 表，并向其中导入数据</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> ods_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ods_dm_e_coupon <span class="keyword">AS</span> <span class="keyword">SELECT</span></span><br><span class="line">	*</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	ext_dm_e_coupon <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>显示指定 distributed BY (id)，可读性更好</p>
+</blockquote>
+<h2 id="4-mds-table"><a href="#4-mds-table" class="headerlink" title="4. mds table"></a>4. mds table</h2><p>创建 mds_dm_e_coupon_profile 表</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile (</span><br><span class="line">	<span class="keyword">id</span> bigserial,</span><br><span class="line">	coupon_info_code <span class="built_in">VARCHAR</span>,</span><br><span class="line">	shop_id <span class="built_in">BIGINT</span>,</span><br><span class="line">	collected_avg_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_sum_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_rate <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>)</span><br><span class="line">) <span class="keyword">WITH</span> (</span><br><span class="line">	appendonly = <span class="literal">TRUE</span>,</span><br><span class="line">	compresslevel = <span class="number">5</span></span><br><span class="line">) <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建表的时候，给一个自增 id. 每一个表都有一个自增 id，是一个比较好的规范</p>
+</blockquote>
+<h2 id="5-insert-mds-table"><a href="#5-insert-mds-table" class="headerlink" title="5. insert mds table"></a>5. insert mds table</h2><p>insert data to mds_dm_e_coupon_profile</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> mds_dm_e_coupon_profile (</span><br><span class="line">	coupon_info_code,</span><br><span class="line">	shop_id,</span><br><span class="line">	collected_avg_actual_price,</span><br><span class="line">	collected_sum_actual_price,</span><br><span class="line">	collected_count,</span><br><span class="line">	verified_count,</span><br><span class="line">	verified_rate</span><br><span class="line">) <span class="keyword">SELECT</span></span><br><span class="line">	tt1.coupon_info_code,</span><br><span class="line">	tt1.shop_id,</span><br><span class="line">	tt1.avg_actual_price <span class="keyword">AS</span> collected_avg_actual_price,</span><br><span class="line">	tt1.sum_actual_price <span class="keyword">AS</span> collected_sum_actual_price,</span><br><span class="line">	tt1.collected_count,</span><br><span class="line">	<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">	<span class="keyword">round</span>(</span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) * <span class="number">1.0</span></span><br><span class="line">		) / (tt1.collected_count * <span class="number">1.0</span>),</span><br><span class="line">		<span class="number">2</span></span><br><span class="line">	) <span class="keyword">AS</span> verified_rate</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	(</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			t1.coupon_info_code,</span><br><span class="line">			t1.shop_id,</span><br><span class="line">			<span class="keyword">COUNT</span> (t1.<span class="keyword">ID</span>) <span class="keyword">AS</span> collected_count,</span><br><span class="line">			<span class="keyword">round</span>(<span class="keyword">AVG</span>(t1.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">			<span class="keyword">SUM</span> (t1.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">		<span class="keyword">FROM</span></span><br><span class="line">			(</span><br><span class="line">				<span class="keyword">SELECT</span></span><br><span class="line">					*</span><br><span class="line">				<span class="keyword">FROM</span></span><br><span class="line">					ods_dm_e_coupon</span><br><span class="line">				<span class="keyword">WHERE</span></span><br><span class="line">					<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			) t1</span><br><span class="line">		<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">			(t1.coupon_info_code, t1.shop_id)</span><br><span class="line">		<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">			t1.shop_id</span><br><span class="line">	) tt1</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> (</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		t2.coupon_info_code,</span><br><span class="line">		t2.shop_id,</span><br><span class="line">		<span class="keyword">COUNT</span> (t2.<span class="keyword">ID</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">		<span class="keyword">round</span>(<span class="keyword">AVG</span>(t2.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">		<span class="keyword">SUM</span> (t2.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">	<span class="keyword">FROM</span></span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">SELECT</span></span><br><span class="line">				*</span><br><span class="line">			<span class="keyword">FROM</span></span><br><span class="line">				ods_dm_e_coupon</span><br><span class="line">			<span class="keyword">WHERE</span></span><br><span class="line">				<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			<span class="keyword">AND</span> <span class="keyword">RESULT</span> = <span class="number">2</span></span><br><span class="line">		) t2</span><br><span class="line">	<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">		(t2.coupon_info_code, t2.shop_id)</span><br><span class="line">	<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">		t2.shop_id</span><br><span class="line">) tt2 <span class="keyword">ON</span> tt1.coupon_info_code = tt2.coupon_info_code</span><br><span class="line"><span class="keyword">AND</span> tt1.shop_id = tt2.shop_id</span><br></pre></td></tr></table></figure>
+<h2 id="6-validation-results"><a href="#6-validation-results" class="headerlink" title="6. validation results"></a>6. validation results</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mds_dm_e_coupon_profile <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">id</span> <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/db/greenplum-man-1.png" alt=""></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[VOA 32 Welcome to the Treehouse!]]></title>
       <url>http://selfboot.org/2017/01/11/voa-32-Tak/</url>
       <content type="html"><![CDATA[<p>plate pitcher swing</p>
@@ -204,34 +232,6 @@ mv {
 </tr>
 </tbody>
 </table>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Greenplum 手动开发流程]]></title>
-      <url>http://selfboot.org/2017/01/10/greenplum-manual-dev-steps/</url>
-      <content type="html"><![CDATA[<p><img src="/images/sql-etl/greenplum-flow.png" alt=""></p>
-<h2 id="1-Rds-import-oss"><a href="#1-Rds-import-oss" class="headerlink" title="1. Rds import oss"></a>1. Rds import oss</h2><p>通过 datax 从 mysql 导出数据到 OSS</p>
-<p>组装 : mysql2oss-e_coupon.json</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "job": &#123;</span><br><span class="line">        "content": [</span><br><span class="line">        &#123;</span><br><span class="line">            "reader": &#123;</span><br><span class="line">                "name": "mysqlreader",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "username": "xx",</span><br><span class="line">                        "password": "xx",</span><br><span class="line">                        "connection": [</span><br><span class="line">                        &#123;</span><br><span class="line">                            "jdbcUrl": [</span><br><span class="line">                                "jdbc:mysql://192.168.184.xx:port"</span><br><span class="line">                                ],</span><br><span class="line">                            "table": [</span><br><span class="line">                                "rds-lib-name.e_coupon"</span><br><span class="line">                                ]</span><br><span class="line">                        &#125;</span><br><span class="line">                        ],</span><br><span class="line">                        "column":[</span><br><span class="line">                            "id",</span><br><span class="line">                            "x_card_user_id",</span><br><span class="line">                            "coupon_discount_code",</span><br><span class="line">                            ...</span><br><span class="line">                            "order_merchant_id"</span><br><span class="line">                        ],</span><br><span class="line">                        "where": "created_time BETWEEN '2016-01-01 00:00:00' AND '2017-01-05 23:59:59'"</span><br><span class="line">                    &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">                "writer": &#123;</span><br><span class="line">                    "name": "osswriter",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "accessId": "xx",</span><br><span class="line">                        "accessKey": "xx",</span><br><span class="line">                        "bucket": "company-name-data",</span><br><span class="line">                        "encoding": "UTF-8",</span><br><span class="line">                        "endpoint": "http://oss-cn-hangzhou.aliyuncs.com",</span><br><span class="line">                        "fieldDelimiter": "\t",</span><br><span class="line">                        "object": "datax_dev/libin/e_coupon",</span><br><span class="line">                        "writeMode": "truncate"</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ],</span><br><span class="line">        "setting": &#123;</span><br><span class="line">            "speed": &#123;</span><br><span class="line">                "channel": 1</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>触发执行 :</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">python datax.py mysql2oss-e_coupon.json</span><br></pre></td></tr></table></figure>
-<h2 id="2-ext-table"><a href="#2-ext-table" class="headerlink" title="2. ext table"></a>2. ext table</h2><p>创建外部表，ext_dm_e_coupon，并将 location 指向为 oss</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">bigint</span>,</span><br><span class="line">    x_card_user_id <span class="built_in">varchar</span>,</span><br><span class="line">    coupon_discount_code <span class="built_in">varchar</span>,</span><br><span class="line">    ...</span><br><span class="line">    order_merchant_id <span class="built_in">bigint</span></span><br><span class="line">) LOCATION(</span><br><span class="line">    <span class="string">'oss://oss-cn-hangzhou.aliyuncs.com</span><br><span class="line">        dir=datax_dev/libin/</span><br><span class="line">        id=xx</span><br><span class="line">        key=xx</span><br><span class="line">        bucket=xkeshi-data'</span></span><br><span class="line">) <span class="keyword">FORMAT</span> <span class="string">'text'</span> (<span class="literal">NULL</span> <span class="keyword">AS</span> <span class="string">'null'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 45596 id comment 字段有回车 ,So del comment varchar, don't imported.</span></span><br></pre></td></tr></table></figure>
-<h2 id="3-ods-table"><a href="#3-ods-table" class="headerlink" title="3. ods table"></a>3. ods table</h2><p>创建 ods_dm_e_coupon 表，并向其中导入数据</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> ods_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ods_dm_e_coupon <span class="keyword">AS</span> <span class="keyword">SELECT</span></span><br><span class="line">	*</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	ext_dm_e_coupon <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>显示指定 distributed BY (id)，可读性更好</p>
-</blockquote>
-<h2 id="4-mds-table"><a href="#4-mds-table" class="headerlink" title="4. mds table"></a>4. mds table</h2><p>创建 mds_dm_e_coupon_profile 表</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile (</span><br><span class="line">	<span class="keyword">id</span> bigserial,</span><br><span class="line">	coupon_info_code <span class="built_in">VARCHAR</span>,</span><br><span class="line">	shop_id <span class="built_in">BIGINT</span>,</span><br><span class="line">	collected_avg_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_sum_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_rate <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>)</span><br><span class="line">) <span class="keyword">WITH</span> (</span><br><span class="line">	appendonly = <span class="literal">TRUE</span>,</span><br><span class="line">	compresslevel = <span class="number">5</span></span><br><span class="line">) <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>创建表的时候，给一个自增 id. 每一个表都有一个自增 id，是一个比较好的规范</p>
-</blockquote>
-<h2 id="5-insert-mds-table"><a href="#5-insert-mds-table" class="headerlink" title="5. insert mds table"></a>5. insert mds table</h2><p>insert data to mds_dm_e_coupon_profile</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> mds_dm_e_coupon_profile (</span><br><span class="line">	coupon_info_code,</span><br><span class="line">	shop_id,</span><br><span class="line">	collected_avg_actual_price,</span><br><span class="line">	collected_sum_actual_price,</span><br><span class="line">	collected_count,</span><br><span class="line">	verified_count,</span><br><span class="line">	verified_rate</span><br><span class="line">) <span class="keyword">SELECT</span></span><br><span class="line">	tt1.coupon_info_code,</span><br><span class="line">	tt1.shop_id,</span><br><span class="line">	tt1.avg_actual_price <span class="keyword">AS</span> collected_avg_actual_price,</span><br><span class="line">	tt1.sum_actual_price <span class="keyword">AS</span> collected_sum_actual_price,</span><br><span class="line">	tt1.collected_count,</span><br><span class="line">	<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">	<span class="keyword">round</span>(</span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) * <span class="number">1.0</span></span><br><span class="line">		) / (tt1.collected_count * <span class="number">1.0</span>),</span><br><span class="line">		<span class="number">2</span></span><br><span class="line">	) <span class="keyword">AS</span> verified_rate</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	(</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			t1.coupon_info_code,</span><br><span class="line">			t1.shop_id,</span><br><span class="line">			<span class="keyword">COUNT</span> (t1.<span class="keyword">ID</span>) <span class="keyword">AS</span> collected_count,</span><br><span class="line">			<span class="keyword">round</span>(<span class="keyword">AVG</span>(t1.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">			<span class="keyword">SUM</span> (t1.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">		<span class="keyword">FROM</span></span><br><span class="line">			(</span><br><span class="line">				<span class="keyword">SELECT</span></span><br><span class="line">					*</span><br><span class="line">				<span class="keyword">FROM</span></span><br><span class="line">					ods_dm_e_coupon</span><br><span class="line">				<span class="keyword">WHERE</span></span><br><span class="line">					<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			) t1</span><br><span class="line">		<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">			(t1.coupon_info_code, t1.shop_id)</span><br><span class="line">		<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">			t1.shop_id</span><br><span class="line">	) tt1</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> (</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		t2.coupon_info_code,</span><br><span class="line">		t2.shop_id,</span><br><span class="line">		<span class="keyword">COUNT</span> (t2.<span class="keyword">ID</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">		<span class="keyword">round</span>(<span class="keyword">AVG</span>(t2.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">		<span class="keyword">SUM</span> (t2.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">	<span class="keyword">FROM</span></span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">SELECT</span></span><br><span class="line">				*</span><br><span class="line">			<span class="keyword">FROM</span></span><br><span class="line">				ods_dm_e_coupon</span><br><span class="line">			<span class="keyword">WHERE</span></span><br><span class="line">				<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			<span class="keyword">AND</span> <span class="keyword">RESULT</span> = <span class="number">2</span></span><br><span class="line">		) t2</span><br><span class="line">	<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">		(t2.coupon_info_code, t2.shop_id)</span><br><span class="line">	<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">		t2.shop_id</span><br><span class="line">) tt2 <span class="keyword">ON</span> tt1.coupon_info_code = tt2.coupon_info_code</span><br><span class="line"><span class="keyword">AND</span> tt1.shop_id = tt2.shop_id</span><br></pre></td></tr></table></figure>
-<h2 id="6-validation-results"><a href="#6-validation-results" class="headerlink" title="6. validation results"></a>6. validation results</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mds_dm_e_coupon_profile <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">id</span> <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql-etl/greenplum-man-1.png" alt=""></p>
 ]]></content>
     </entry>
     
@@ -527,7 +527,7 @@ img {
     
     <entry>
       <title><![CDATA[Greenplum 学习笔记]]></title>
-      <url>http://selfboot.org/2017/01/04/greenplum-short-introduce/</url>
+      <url>http://selfboot.org/2017/01/04/db-greenplum-short-introduce/</url>
       <content type="html"><![CDATA[<style>
 img {
         display: block !important;
@@ -2326,8 +2326,8 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Spark build recommendation system]]></title>
-      <url>http://selfboot.org/2016/11/23/spark-ml-p4-rs/</url>
+      <title><![CDATA[Spark Machine Learning p4 - Build Recommendation System]]></title>
+      <url>http://selfboot.org/2016/11/23/spark-machine-learning-p4-rs/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2460,84 +2460,6 @@ img {
 <blockquote>
 <p>Reading notes</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Spark Data Acquisition and Process]]></title>
-      <url>http://selfboot.org/2016/11/23/spark-ml-p3/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-
-<p><strong>focus</strong></p>
-<ul>
-<li>数据的处理、清理、探索和可视化方法；</li>
-<li>学习如何使用外部库或Spark内置函数来正则化输入特征.</li>
-</ul>
-<h2 id="1-获取公开数据集"><a href="#1-获取公开数据集" class="headerlink" title="1. 获取公开数据集"></a>1. 获取公开数据集</h2><p><strong>UCL机器学习知识库</strong></p>
-<blockquote>
-<p>包括近300个不同大小和类型的数据集，可用于分类、回归、聚类和推荐系统任务。数据集列表位于：<a href="http://archive.ics.uci.edu/ml/。" target="_blank" rel="external">http://archive.ics.uci.edu/ml/。</a></p>
-</blockquote>
-<p><strong>Amazon AWS公开数据集</strong></p>
-<blockquote>
-<p>包含的通常是大型数据集，可通过Amazon S3访问。包括人类基因组项目、Common Crawl网页语料库、维基百科数据和Google Books Ngrams。相关信息可参见：<a href="http://aws.amazon.com/publicdatasets/。" target="_blank" rel="external">http://aws.amazon.com/publicdatasets/。</a></p>
-</blockquote>
-<p><strong>Kaggle</strong></p>
-<blockquote>
-<p>它们覆盖分类、回归、排名、推荐系统以及图像分析领域：<a href="http://www.kaggle.com/competitions。" target="_blank" rel="external">http://www.kaggle.com/competitions。</a></p>
-</blockquote>
-<p><strong>KDnuggets</strong></p>
-<blockquote>
-<p>这里包含一个详细的公开数据集列表 ：<a href="http://www.kdnuggets.com/datasets/index.html。" target="_blank" rel="external">http://www.kdnuggets.com/datasets/index.html。</a></p>
-</blockquote>
-<h3 id="1-1-Movie-100k"><a href="#1-1-Movie-100k" class="headerlink" title="1.1 Movie-100k"></a>1.1 Movie-100k</h3><p>MovieLens 100k数据集包含表示多个用户对多部电影的10万次评级数据，也包含电影元数据和用户属性信息</p>
-<p><a href="http://files.grouplens.org/datasets/movielens/ml-100k.zip" target="_blank" rel="external">http://files.grouplens.org/datasets/movielens/ml-100k.zip</a></p>
-<p>ml-100k/  u.user（用户属性文件）、u.item（电影元数据）和 u.data（用户对电影的评级）</p>
-<p><strong>u.user</strong></p>
-<p>user.id、age、gender、occupation、ZIP code</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&gt;head -5 u.user</span><br><span class="line">  1|24|M|technician|85711</span><br><span class="line">  2|53|F|other|94043</span><br><span class="line">  3|23|M|writer|32067</span><br><span class="line">  4|24|M|technician|43537</span><br><span class="line">  5|33|F|other|15213</span><br></pre></td></tr></table></figure>
-<p><strong>u.item</strong></p>
-<p>movie id、title、release date以及若干与IMDB link和电影分类相关的属性</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&gt;head -5 u.item</span><br><span class="line">  1|Toy Story (1995)|01-Jan-1995||http://us.imdb.com/M/title-exact?Toy%20 Story%20(1995)|0|0|0|1|1|1|0|0|0|0|0|0|0|0|0|0|0|0|0</span><br><span class="line">  2|GoldenEye (1995)|01-Jan-1995||http://us.imdb.com/M/title- exact?GoldenEye%20(1995)|0|1|1|0|0|0|0|0|0|0|0|0|0|0|0|0|1|0|0</span><br><span class="line">  3|Four Rooms (1995)|01-Jan-1995||http://us.imdb.com/M/title- exact?Four%20Rooms%20(1995)|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|0|1|0|0</span><br><span class="line">  4|Get Shorty (1995)|01-Jan-1995||http://us.imdb.com/M/title- exact?Get%20Shorty%20(1995)|0|1|0|0|0|1|0|0|1|0|0|0|0|0|0|0|0|0|0</span><br><span class="line">  5|Copycat (1995)|01-Jan-1995||http://us.imdb.com/M/title- exact?Copycat%20(1995)|0|0|0|0|0|0|1|0|1|0|0|0|0|0|0|0|1|0|0</span><br></pre></td></tr></table></figure>
-<p><strong>u.data</strong></p>
-<p>user id、movie id、rating（从1到5）和timestamp属性，各属性间用制表符（\t）分隔</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&gt;head -5 u.data</span><br><span class="line">196    242    3    881250949</span><br><span class="line">186    302    3    891717742</span><br><span class="line">22     377    1    878887116</span><br><span class="line">244    51     2    880606923</span><br><span class="line">166    346    1    886397596</span><br></pre></td></tr></table></figure>
-<h2 id="2-探索与可视化数据"><a href="#2-探索与可视化数据" class="headerlink" title="2. 探索与可视化数据"></a>2. 探索与可视化数据</h2><p>IPython Install</p>
-<blockquote>
-<p><a href="http://ipython.org/install.html。" target="_blank" rel="external">http://ipython.org/install.html。</a><br><a href="http://ipython.org/ipython-doc/stable/interactive/tutorial.html。" target="_blank" rel="external">http://ipython.org/ipython-doc/stable/interactive/tutorial.html。</a></p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cd $SPARK_HOME</span><br><span class="line">&gt;IPYTHON=1 IPYTHON_OPTS=&quot;--pylab&quot; ./bin/pyspark</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>matplotlib backend: MacOSX 输出行表示IPython和pylab均被PySpark启用<br>IPython Notebook guide：<a href="http://ipython.org/ipython-doc/stable/interactive/notebook.html" target="_blank" rel="external">http://ipython.org/ipython-doc/stable/interactive/notebook.html</a></p>
-</blockquote>
-<h3 id="2-1-用户数据"><a href="#2-1-用户数据" class="headerlink" title="2.1 用户数据"></a>2.1 用户数据</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">user_data = sc.textFile(<span class="string">"/Users/hp/ghome/github/Recommendation/spark-ml/ml-100k/u.user"</span>)</span><br><span class="line">user_data.first()</span><br><span class="line"><span class="string">u'1|24|M|technician|85711'</span></span><br><span class="line">user_data.take(<span class="number">5</span>)</span><br><span class="line">Out[<span class="number">4</span>]:</span><br><span class="line">[<span class="string">u'1|24|M|technician|85711'</span>,</span><br><span class="line"> <span class="string">u'2|53|F|other|94043'</span>,</span><br><span class="line"> <span class="string">u'3|23|M|writer|32067'</span>,</span><br><span class="line"> <span class="string">u'4|24|M|technician|43537'</span>,</span><br><span class="line"> <span class="string">u'5|33|F|other|15213'</span>]</span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">user_fields = user_data.map(<span class="keyword">lambda</span> line: line.split(<span class="string">"|"</span>))</span><br><span class="line">num_users = user_fields.map(<span class="keyword">lambda</span> fields: fields[<span class="number">0</span>]).count()</span><br><span class="line">num_genders = user_fields.map(<span class="keyword">lambda</span> fields: fields[<span class="number">2</span>]).distinct().count()</span><br><span class="line">num_occupations = user_fields.map(<span class="keyword">lambda</span> fields: fields[<span class="number">3</span>]).distinct().count()</span><br><span class="line">num_zipcodes = user_fields.map(<span class="keyword">lambda</span> fields: fields[<span class="number">4</span>]).distinct().count()</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Users: %d, genders: %d, occupations: %d, ZIP codes: %d"</span> % (num_users, num_genders, num_occupations, num_zipcodes)</span><br></pre></td></tr></table></figure>
-<p>Output</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">Users: <span class="number">943</span>, genders: <span class="number">2</span>, occupations: <span class="number">21</span>, ZIP codes: <span class="number">795</span></span><br></pre></td></tr></table></figure>
-<p><strong><font color="red">age distribution<font></font></font></strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ages = user_fields.map(<span class="keyword">lambda</span> x: int(x[<span class="number">1</span>])).collect()</span><br><span class="line">hist(ages, bins=<span class="number">20</span>, color=<span class="string">'lightblue'</span>, normed=<span class="keyword">True</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="/images/spark_ml.3.1.png" alt="age distribution"></p>
-<p><strong><font color="red">occupation distribution<font></font></font></strong></p>
-<p><img src="/images/spark_ml.3.2.png" alt="occupation distribution"></p>
-<h3 id="2-2-电影数据"><a href="#2-2-电影数据" class="headerlink" title="2.2 电影数据"></a>2.2 电影数据</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">movie_ages = years_filtered.map(<span class="keyword">lambda</span> yr: <span class="number">1998</span>-yr).countByValue()</span><br></pre></td></tr></table></figure>
-<p><img src="/images/spark_ml.3.3.png" alt="moive age distribution"></p>
-<h3 id="2-3-评级数据"><a href="#2-3-评级数据" class="headerlink" title="2.3 评级数据"></a>2.3 评级数据</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">Min rating: <span class="number">1</span></span><br><span class="line">Max rating: <span class="number">5</span></span><br><span class="line">Average rating: <span class="number">3.53</span></span><br><span class="line">Median rating: <span class="number">4</span></span><br><span class="line">Average of ratings per user: <span class="number">106.00</span></span><br><span class="line">Average of ratings per movie: <span class="number">59.00</span></span><br></pre></td></tr></table></figure>
-<p><img src="/images/spark_ml.3.4.png" alt="moive rating score"></p>
-<hr>
-<p>大部分用户的评级次数少于100。但该分布也表明仍然有较多用户做出过上百次的评级。</p>
-<p><img src="/images/spark_ml.3.5.png" alt="各用户的电影评级的分布"></p>
 ]]></content>
     </entry>
     
@@ -11142,16 +11064,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Markdown insert video for test]]></title>
-      <url>http://selfboot.org/2016/09/12/ops-markdown-insert-video/</url>
-      <content type="html"><![CDATA[<p>trailer</p>
-<video id="video" controls preload="none" poster="http://media.w3.org/2010/05/sintel/poster.png"><br>      <source id="mp4" src="http://media.w3.org/2010/05/sintel/trailer.mp4" type="video/mp4"><br>      <source id="webm" src="http://media.w3.org/2010/05/sintel/trailer.webm" type="video/webm"><br>      <source id="ogv" src="http://media.w3.org/2010/05/sintel/trailer.ogv" type="video/ogg"><br>      <p>Your user agent does not support the HTML5 Video element.</p><br></video>
-
-
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Jobs and companies L2 Introducing a new employee]]></title>
       <url>http://selfboot.org/2016/09/12/ef-l3u6-Jobs-and-companies-l2/</url>
       <content type="html"><![CDATA[<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
@@ -11316,8 +11228,8 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Spark Machine Learning 03 - Spark上数据的获取、处理与准备]]></title>
-      <url>http://selfboot.org/2016/09/09/spark-machine-learning-03/</url>
+      <title><![CDATA[Spark Machine Learning p3 - 数据的获取、处理与准备]]></title>
+      <url>http://selfboot.org/2016/09/09/spark-machine-learning-p3/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>《Spark Machine Learing》 Reading Notes</p>
 </blockquote>
@@ -11380,19 +11292,19 @@ img {
 <p>matplotlib的hist个直方图，以分析用户年龄的分布情况：</p>
 <p><strong>age distribution</strong></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ages = user_fields.map(lambda x: int(x[1])).collect()</span><br><span class="line">hist(ages, bins=20, color=&apos;lightblue&apos;, normed=True)</span><br><span class="line">fig = matplotlib.pyplot.gcf()</span><br><span class="line">fig.set_size_inches(16, 10)</span><br></pre></td></tr></table></figure>
-<p><img src="/images/ml-spark-ml-0301.png" alt="screenshow?key=15055650f47cff956148"></p>
+<p><img src="/images/spark/spark-ml-3.1.png" alt="screenshow?key=15055650f47cff956148"></p>
 <p><strong>occupation distribution</strong></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">count_by_occupation = user_fields.map(lambda fields: (fields[3], 1)).reduceByKey(lambda x, y: x + y).collect()</span><br><span class="line"></span><br><span class="line">x_axis1 = np.array([c[0] for c in count_by_occupation])</span><br><span class="line"></span><br><span class="line">y_axis1 = np.array([c[1] for c in count_by_occupation])</span><br><span class="line"></span><br><span class="line">print x_axis1</span><br><span class="line">[u&apos;administrator&apos; u&apos;retired&apos; u&apos;lawyer&apos; u&apos;none&apos; u&apos;student&apos; u&apos;technician&apos;</span><br><span class="line"> u&apos;programmer&apos; u&apos;salesman&apos; u&apos;homemaker&apos; u&apos;writer&apos; u&apos;doctor&apos;</span><br><span class="line"> u&apos;entertainment&apos; u&apos;marketing&apos; u&apos;executive&apos; u&apos;scientist&apos; u&apos;educator&apos;</span><br><span class="line"> u&apos;healthcare&apos; u&apos;librarian&apos; u&apos;artist&apos; u&apos;other&apos; u&apos;engineer&apos;]</span><br><span class="line"></span><br><span class="line">print y_axis1</span><br><span class="line">[ 79  14  12   9 196  27  66  12   7  45   7  18  26  32  31  95  16  51</span><br><span class="line">  28 105  67]</span><br></pre></td></tr></table></figure>
 <p>plt.xticks(rotation=30)之类的代码 是 美化条形图</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pos = np.arange(len(x_axis))</span><br><span class="line">width = 1.0</span><br><span class="line"></span><br><span class="line">ax = plt.axes()</span><br><span class="line">ax.set_xticks(pos + (width / 2))</span><br><span class="line">ax.set_xticklabels(x_axis)</span><br><span class="line"></span><br><span class="line">plt.bar(pos, y_axis, width, color=&apos;lightblue&apos;)</span><br><span class="line">plt.xticks(rotation=30)</span><br><span class="line">fig = matplotlib.pyplot.gcf()</span><br><span class="line">fig.set_size_inches(16, 10)</span><br></pre></td></tr></table></figure>
-<p><img src="/images/ml-spark-ml-0302.png" alt="screenshow?key=15057f015ac5712d9a83"></p>
+<p><img src="/images/spark/spark-ml-3.2.png" alt="screenshow?key=15057f015ac5712d9a83"></p>
 <p>Spark对RDD提供了一个名为countByValue的便捷函数</p>
 <figure class="highlight plain"><figcaption><span>python</span></figcaption><table><tr><td class="code"><pre><span class="line">count_by_occupation2 = user_fields.map(lambda fields: fields[3]).countByValue()</span><br><span class="line">print &quot;Map-reduce approach:&quot;</span><br><span class="line">print dict(count_by_occupation2)</span><br><span class="line">print &quot;&quot;</span><br><span class="line">print &quot;countByValue approach:&quot;</span><br><span class="line">print dict(count_by_occupation)</span><br></pre></td></tr></table></figure>
 <h3 id="2-2-探索电影数据"><a href="#2-2-探索电影数据" class="headerlink" title="2.2 探索电影数据"></a>2.2 探索电影数据</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">movie_data = sc.textFile(&quot;/PATH/ml-100k/u.item&quot;)</span><br><span class="line">print movie_data.first()</span><br><span class="line">num_movies = movie_data.count()</span><br><span class="line">print &quot;Movies: %d&quot; % num_movies</span><br></pre></td></tr></table></figure>
 <p>1|Toy Story (1995)|01-Jan-1995||<a href="http://us.imdb.com/M/title-exact?Toy%20Story%20(1995)|0|0|0|1|1|1|0|0|0|0|0|0|0|0|0|0|0|0|0" target="_blank" rel="external">http://us.imdb.com/M/title-exact?Toy%20Story%20(1995)|0|0|0|1|1|1|0|0|0|0|0|0|0|0|0|0|0|0|0</a><br>Movies: 1682</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">def convert_year(x):</span><br><span class="line">  try:</span><br><span class="line">    return int(x[-4:])</span><br><span class="line">  except:</span><br><span class="line">    return 1900</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">movie_fields = movie_data.map(lambda lines: lines.split(&quot;|&quot;))</span><br><span class="line">years = movie_fields.map(lambda fields: fields[2]).map(lambda x: convert_year(x))</span><br><span class="line"></span><br><span class="line">years_filtered = years.filter(lambda x: x != 1900)</span><br><span class="line"></span><br><span class="line">movie_ages = years_filtered.map(lambda yr: 1998-yr).countByValue()</span><br><span class="line">values = movie_ages.values()</span><br><span class="line">bins = movie_ages.keys()</span><br><span class="line">hist(values, bins=bins, color=&apos;lightblue&apos;, normed=True)</span><br><span class="line">fig = matplotlib.pyplot.gcf()</span><br><span class="line">fig.set_size_inches(16,10)</span><br></pre></td></tr></table></figure>
-<p><img src="/images/ml-spark-ml-0303.png" alt="screenshow?key=150556f33e22a36bb651"></p>
+<p><img src="/images/spark/spark-ml-3.3.png" alt="screenshow?key=150556f33e22a36bb651"></p>
 <h3 id="2-3-探索评级数据"><a href="#2-3-探索评级数据" class="headerlink" title="2.3 探索评级数据"></a>2.3 探索评级数据</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rating_data = sc.textFile(&quot;/Users/hp/ghome/ml/ml-100k/u.data&quot;)</span><br><span class="line">print rating_data.first()</span><br><span class="line">num_ratings = rating_data.count()</span><br><span class="line">print &quot;Ratings: %d&quot; % num_ratings</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">rating_data = rating_data.map(lambda line: line.split(&quot;\t&quot;))</span><br><span class="line">ratings = rating_data.map(lambda fields: int(fields[2]))</span><br><span class="line">max_rating = ratings.reduce(lambda x, y: max(x, y))</span><br><span class="line">min_rating = ratings.reduce(lambda x, y: min(x, y))</span><br><span class="line">mean_rating = ratings.reduce(lambda x, y: x + y) / num_ratings</span><br><span class="line">median_rating = np.median(ratings.collect())</span><br><span class="line">ratings_per_user = num_ratings / num_users</span><br><span class="line">ratings_per_movie = num_ratings / num_movies</span><br><span class="line">print &quot;Min rating: %d&quot; % min_rating</span><br><span class="line">print &quot;Max rating: %d&quot; % max_rating</span><br><span class="line">print &quot;Average rating: %2.2f&quot; % mean_rating</span><br><span class="line">print &quot;Median rating: %d&quot; % median_rating</span><br><span class="line">print &quot;Average # of ratings per user: %2.2f&quot; % ratings_per_user</span><br><span class="line">print &quot;Average # of ratings per movie: %2.2f&quot; % ratings_per_movie</span><br></pre></td></tr></table></figure>
 <blockquote>
@@ -11401,11 +11313,11 @@ img {
 <p>Spark对RDD也提供一个名为states的函数。该函数包含一个数值变量用于做类似的统计：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ratings.stats()</span><br><span class="line"></span><br><span class="line">其输出为：</span><br><span class="line">(count: 100000, mean: 3.52986, stdev: 1.12566797076, max: 5.0, min: 1.0)</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">count_by_rating = ratings.countByValue()</span><br><span class="line">x_axis = np.array(count_by_rating.keys())</span><br><span class="line">y_axis = np.array([float(c) for c in count_by_rating.values()])</span><br><span class="line"># 这里对y轴正则化，使它表示百分比</span><br><span class="line">y_axis_normed = y_axis / y_axis.sum()</span><br><span class="line">pos = np.arange(len(x_axis))</span><br><span class="line">width = 1.0</span><br><span class="line"></span><br><span class="line">ax = plt.axes()</span><br><span class="line">ax.set_xticks(pos + (width / 2))</span><br><span class="line">ax.set_xticklabels(x_axis)</span><br><span class="line"></span><br><span class="line">plt.bar(pos, y_axis_normed, width, color=&apos;lightblue&apos;)</span><br><span class="line">plt.xticks(rotation=30)</span><br><span class="line">fig = matplotlib.pyplot.gcf()</span><br><span class="line">fig.set_size_inches(16, 10)</span><br></pre></td></tr></table></figure>
-<p><img src="/images/ml-spark-ml-0304.png" alt="screenshow?key=1505422e3494afb95855"></p>
+<p><img src="/images/spark/spark-ml-3.4.png" alt="screenshow?key=1505422e3494afb95855"></p>
 <p><strong>各个用户评级次数的分布情况</strong></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user_ratings_grouped = rating_data.map(lambda fields: (int(fields[0]), int(fields[2]))).groupByKey()</span><br><span class="line"></span><br><span class="line">user_ratings_byuser = user_ratings_grouped.map(lambda (k, v): (k, len(v)))</span><br><span class="line">user_ratings_byuser.take(10)</span><br><span class="line"></span><br><span class="line">Out[91]:</span><br><span class="line">[(2, 62),</span><br><span class="line"> (4, 24),</span><br><span class="line"> (6, 211),</span><br><span class="line"> (8, 59),</span><br><span class="line"> (10, 184),</span><br><span class="line"> (12, 51),</span><br><span class="line"> (14, 98),</span><br><span class="line"> (16, 140),</span><br><span class="line"> (18, 277),</span><br><span class="line"> (20, 48)]</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">user_ratings_byuser_local = user_ratings_byuser.map(lambda (k, v): v).collect()</span><br><span class="line">hist(user_ratings_byuser_local, bins=200, color=&apos;lightblue&apos;, normed=True)</span><br><span class="line">fig = matplotlib.pyplot.gcf()</span><br><span class="line">fig.set_size_inches(16,10)</span><br></pre></td></tr></table></figure>
-<p><img src="/images/ml-spark-ml-0305.png" alt="screenshow?key=15056b5ffb7672cee5d1"></p>
+<p><img src="/images/spark/spark-ml-3.5.png" alt="screenshow?key=15056b5ffb7672cee5d1"></p>
 <h2 id="3-处理与转换数据"><a href="#3-处理与转换数据" class="headerlink" title="3. 处理与转换数据"></a>3. 处理与转换数据</h2><p><strong>非规整数据和缺失数据的填充</strong></p>
 <h2 id="4-从数据中提取有用特征"><a href="#4-从数据中提取有用特征" class="headerlink" title="4. 从数据中提取有用特征"></a>4. 从数据中提取有用特征</h2><p>在完成对数据的初步探索、处理和清理后，便可从中提取可供机器学习模型训练用的特征。</p>
 <p>特征（<code>feature</code>）指那些用于<strong><em>模型训练的变量</em></strong>。每一行数据包含可供提取到训练样本中的各种信息。</p>
@@ -11472,12 +11384,21 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Spark Machine Learning 02 - 设计机器学习系统]]></title>
-      <url>http://selfboot.org/2016/09/08/spark-machine-learning-02-design-machine-learning-system/</url>
+      <title><![CDATA[Spark Machine Learning p2 - 设计机器学习系统]]></title>
+      <url>http://selfboot.org/2016/09/08/spark-machine-learning-p2-design-ml-sys/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>Spark Machine Learing Reading Notes</p>
 </blockquote>
-<h2 id="1-原始-MovieStream-介绍"><a href="#1-原始-MovieStream-介绍" class="headerlink" title="1. 原始 MovieStream 介绍"></a>1. 原始 MovieStream 介绍</h2><p><img src="/images/ml-spark-ml-0201.jpg" alt="MovieStream"></p>
+<style>
+img {
+        display: block !important;
+        height: 400px;
+        width: 500px;
+        margin-left: 180px !important;
+}
+</style>
+
+<h2 id="1-原始-MovieStream-介绍"><a href="#1-原始-MovieStream-介绍" class="headerlink" title="1. 原始 MovieStream 介绍"></a>1. 原始 MovieStream 介绍</h2><p><img src="/images/spark/spark-ml-2.1.jpg" alt="MovieStream"></p>
 <h3 id="1-1-个性化"><a href="#1-1-个性化" class="headerlink" title="1.1 个性化"></a>1.1 个性化</h3><p><code>个性化</code> 是根据各因素来改变用户体验和<code>呈现给用户内容</code>。这些因素可能包括用户的行为数据和外部因素。</p>
 <p><code>推荐</code>（recommendation）, 常指向用户呈现一个他们可能感兴趣的物品列表。</p>
 <p>个性化和推荐十分相似, 根据因素改变搜索的呈现不同用户不同内容，这是隐式个性化</p>
@@ -11486,7 +11407,7 @@ img {
 <p>另外，我们也可使用分类模型（classificaiton model）来对只有部分数据的新电影自动分配标签、关键字或分类。</p>
 <h2 id="2-机器学习模型的种类"><a href="#2-机器学习模型的种类" class="headerlink" title="2. 机器学习模型的种类"></a>2. 机器学习模型的种类</h2><p><code>supervised learning</code>：这种方法使用已标记数据来学习。<code>推荐引擎</code>、<code>回归</code>和<code>分类</code>便是例子。它们所使用的标记数据可以是用户对电影的评级（对推荐来说）、电影标签（对上述分类例子来说）或是收入数字（对回归预测来说）.</p>
 <p><code>unsupervised learning</code>：一些模型的学习过程不需要标记数据，我们称其为无监督学习。这类模型试图学习或是提取数据背后的结构或从中抽取最为重要的特征。<code>聚类</code>、<code>降维</code>和<code>文本处理</code>的某些特征提取都是无监督学习.</p>
-<h2 id="3-数据驱动ML系统的组成"><a href="#3-数据驱动ML系统的组成" class="headerlink" title="3. 数据驱动ML系统的组成"></a>3. 数据驱动ML系统的组成</h2><p><img src="/images/ml-spark-ml-0202.png" alt="机器学习流程"></p>
+<h2 id="3-数据驱动ML系统的组成"><a href="#3-数据驱动ML系统的组成" class="headerlink" title="3. 数据驱动ML系统的组成"></a>3. 数据驱动ML系统的组成</h2><p><img src="/images/spark/spark-ml-2.2.jpg" alt="机器学习流程"></p>
 <h3 id="3-1-数据获取与存储"><a href="#3-1-数据获取与存储" class="headerlink" title="3.1 数据获取与存储"></a>3.1 数据获取与存储</h3><p>MovieStream 的数据通常来自用户活动.</p>
 <p>要存储的数据包括：原始数据、即时处理后的数据，以及可用于生产系统的最终建模结果。</p>
 <p><strong>数据存储</strong></p>
@@ -11524,7 +11445,7 @@ img {
 <p>模型反馈（<code>model feedback</code>），指通过用户的行为来对模型的预测进行反馈的过程。在现实系统中，模型的应用将影响用户的决策和潜在行为，从而反过来将从根本上改变模型自己将来的训练数据。</p>
 <h3 id="3-6-批处理-实时方案选择"><a href="#3-6-批处理-实时方案选择" class="headerlink" title="3.6 批处理/实时方案选择"></a>3.6 批处理/实时方案选择</h3><p>常见的批处理方法。模型用所有数据或一部分数据进行周期性的重新训练。由于上述流程会花费一定的时间，这就使得批处理方法难以在新数据到达时立即完成模型的更新。</p>
 <p>存在一类名为在线学习（online learning）的机器学习方法。它们在新数据到达时便能立即更新模型，从而使实时系统成为可能。常见的例子有对线性模型的在线优化算法，如<code>随机梯度下降法</code>。</p>
-<h2 id="4-机器学习系统架构"><a href="#4-机器学习系统架构" class="headerlink" title="4. 机器学习系统架构"></a>4. 机器学习系统架构</h2><p><img src="/images/ml-spark-ml-0203.png" alt="机器学习系统架构"></p>
+<h2 id="4-机器学习系统架构"><a href="#4-机器学习系统架构" class="headerlink" title="4. 机器学习系统架构"></a>4. 机器学习系统架构</h2><p><img src="/images/spark/spark-ml-2.3.jpg" alt="机器学习系统架构"></p>
 <p>机器学习流程示意图的内容：</p>
 <ul>
 <li>收集与用户、用户行为和电影标题有关的数据；</li>
@@ -18113,8 +18034,8 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Spark Machine Learning 01 - Spark编程入门]]></title>
-      <url>http://selfboot.org/2016/04/25/spark-machine-learning-01/</url>
+      <title><![CDATA[Spark Machine Learning p1 - Spark编程入门]]></title>
+      <url>http://selfboot.org/2016/04/25/spark-machine-learning-p1/</url>
       <content type="html"><![CDATA[<p><strong>Apache Spark</strong></p>
 <p>简化了海量数据的存储(HDFS) 和 计算 (MR–在集群多个节点进行并行计算的框架) 流程。MapReduce 缺点, 如: 启动任务时的高开销、对中间数据 和 计算结果 写入磁盘的依赖。这使得 Hadoop 不适合 <strong>迭代式</strong> 或 <strong>低延迟</strong> 的任务。</p>
 <p>机器学习 算法并非为并行架构而设计。 机器学习模型一般具有迭代式的特性, 这与 Spark 的设计目标一致。并行计算框架 很少能 兼顾 速度、扩展性、内存处理、容错性的同时，还提供灵活、表达力丰富的 API。<code>Spark</code> 全新的分布式计算框架, 注重 : 低延迟任务的优化、并将中间数据和结果保存在内存中。Spark 提供函数式API，并兼容 Hadoop Ecosystem</p>
@@ -18532,48 +18453,10 @@ img {
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 前面install的各种py相关, 为个这一步</span></span><br><span class="line"></span><br><span class="line">sudo pip install notebook</span><br></pre></td></tr></table></figure>
 <h2 id="8-start-up-notebook"><a href="#8-start-up-notebook" class="headerlink" title="8. start-up notebook"></a>8. start-up notebook</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">PYSPARK_DRIVER_PYTHON=ipython PYSPARK_DRIVER_PYTHON_OPTS=<span class="string">"notebook --ip=192.168.181.113"</span> /home/x/spark/bin/pyspark</span><br></pre></td></tr></table></figure>
 <p>浏览器访问 <a href="http://192.168.181.113:8888/notebooks" target="_blank" rel="external">http://192.168.181.113:8888/notebooks</a></p>
-<p><img src="/images/ops-ipython-01.png" alt="ipython"></p>
+<p><img src="/images/ops/ops-ipython-01.png" alt="ipython"></p>
 <h2 id="9-spark-notebook-example1"><a href="#9-spark-notebook-example1" class="headerlink" title="9. spark-notebook example1"></a>9. spark-notebook example1</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">%pylab inline</span><br><span class="line">%matplotlib inline</span><br><span class="line">import numpy as np</span><br><span class="line">import matplotlib.pyplot as plt</span><br><span class="line"></span><br><span class="line">data =[33,25,20,12,10]</span><br><span class="line">plt.figure(num=1, figsize=(6,6))</span><br><span class="line">plt.axes(aspect=1)</span><br><span class="line">plt.title(<span class="string">'Plot 3'</span>, size=14)</span><br><span class="line">plt.pie(data, labels=(<span class="string">'Group 1'</span>,<span class="string">'Group 2'</span>,<span class="string">'Group 3'</span>,<span class="string">'Group 4'</span>,<span class="string">'Group 5'</span>))</span><br><span class="line">plt.savefig(<span class="string">'/home/x/spark/test_libin/plot3.png'</span>, format=<span class="string">'png'</span>)</span><br></pre></td></tr></table></figure>
-<p><img src="/images/ops-ipython-02.png" alt="ipython"></p>
+<p><img src="/images/ops/ops-ipython-02.png" alt="ipython"></p>
 <h2 id="maybe-attention-point"><a href="#maybe-attention-point" class="headerlink" title="maybe attention point"></a>maybe attention point</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">python -V</span><br><span class="line"></span><br><span class="line"><span class="comment">#若系统默认是python2.6，需要升级到2.7</span></span><br><span class="line">tar xvf Python-2.7.tgz</span><br><span class="line">./configure --with-zlib=/usr/include --prefix=/usr/<span class="built_in">local</span>/python27 --prefix=/usr/<span class="built_in">local</span>/python27</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line">make install</span><br><span class="line">mv /usr/bin/python /usr/bin/python_old</span><br><span class="line">ln <span class="_">-s</span> /usr/<span class="built_in">local</span>/python27/bin/python /usr/bin/</span><br><span class="line">python</span><br><span class="line">此处已经可以正常使用python2.7了</span><br><span class="line">但是因为yum是使用的2.6的版本来用的，所以 还需要修改一下</span><br><span class="line">[root@wangyuelou Python-2.7.2]<span class="comment"># vim /usr/bin/yum</span></span><br><span class="line"><span class="comment">#!/usr/bin/python   #修改此处为2.6的位置</span></span><br></pre></td></tr></table></figure>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[BI Dev -- ETL introduce]]></title>
-      <url>http://selfboot.org/2016/03/07/etl-intro/</url>
-      <content type="html"><![CDATA[<p><strong>focus on :</strong></p>
-<ol>
-<li>Know What’s ETL? </li>
-<li>Know ETL 在 BI 开发中注意的细节</li>
-</ol>
-<p><strong>ETL 简介</strong></p>
-<ol>
-<li>ETL 是数据抽取（Extract）、清洗（Cleaning）、转换（Transform）、装载（Load）的过程。</li>
-<li>ETL 是构建 <strong>DW</strong> 的重要一环，用户从数据源抽取出数据，经 数据清洗,按照预定义好的 DW模型，将数据加载到 DW 中去。</li>
-<li>ETL 是将业务系统的数据经过抽取、清洗转换之后加载到 DW 的过程，目的是将企业中的分散零乱、标准不统一的数据到一起，为企业的决策提供分析依据。</li>
-<li>ETL 是 <strong>BI</strong> 项目中一个重要环节。</li>
-</ol>
-<p><strong>ETL的设计分三个部分：</strong></p>
-<ol>
-<li>数据抽取</li>
-<li>数据的清洗转换</li>
-<li>数据的加载</li>
-</ol>
-<p>下面看流程图：<br><img src="/images/pentaho-etl-01.png" alt="ETL Flow"></p>
-<h2 id="1-数据抽取"><a href="#1-数据抽取" class="headerlink" title="1. 数据抽取"></a>1. 数据抽取</h2><p>首先要搞清楚数据是从几个业务系统中来，各个业务系统的数据库服务器运行的是何种DBMS，是否存在手工数据， 非结构化数据等。</p>
-<h2 id="2-数据清洗与转换"><a href="#2-数据清洗与转换" class="headerlink" title="2. 数据清洗与转换"></a>2. 数据清洗与转换</h2><p>数据仓库分为ODS,DW连部分。通常的做法是从业务系统到ODS做清洗，将脏数据和不完整的数据过滤掉，在ODS到过程中转换，进行一些业务规则的计算和聚合。</p>
-<p> <strong>1. 数据清洗</strong> </p>
-<p>主要是过滤那些不符合要求的数据。</p>
-<ol>
-<li>不完整的数据</li>
-<li>错误的数据</li>
-<li>重复的数据</li>
-</ol>
-<p><strong> 2. 数据转换</strong></p>
-<p> 数据转换的任务主要进行不一致的数据转换、数据粒度的转换</p>
-<h2 id="3-数据的加载"><a href="#3-数据的加载" class="headerlink" title="3. 数据的加载"></a>3. 数据的加载</h2><p>一般在数据清洗完了之后直接写入DW</p>
-<h2 id="4-Refence-article"><a href="#4-Refence-article" class="headerlink" title="4. Refence article"></a>4. Refence article</h2><p>本文整理自网络</p>
 ]]></content>
     </entry>
     
@@ -18728,7 +18611,10 @@ img {
       <title><![CDATA[Spark Introduce and Install]]></title>
       <url>http://selfboot.org/2016/02/01/spark-introduce-and-install/</url>
       <content type="html"><![CDATA[<p>Spark 发源于 美国加州大学伯克利分校 AMPLap 大数据分析平台<br>Spark 立足于内存计算、从多迭代批量处理出发<br>Spark 兼顾数据仓库、流处理、图计算 等多种计算范式，大数据系统领域全栈计算平台  </p>
-<p> <a href="http://spark.apache.org" target="_blank" rel="external"> Spark官网 </a> </p>
+<p><a href="http://spark.apache.org" target="_blank" rel="external">spark.apache.org</a> </p>
+<blockquote>
+<p>University of California, Berkeley </p>
+</blockquote>
 <h2 id="1-Spark-的历史与发展"><a href="#1-Spark-的历史与发展" class="headerlink" title="1. Spark 的历史与发展"></a>1. Spark 的历史与发展</h2><ul>
 <li>2009 年 : Spark 诞生于 AMPLab  </li>
 <li>2014-02 : Apache 顶级项目  </li>
@@ -18740,17 +18626,17 @@ img {
 <li>中间结果输出</li>
 <li>数据格式和内存布局</li>
 <li>执行策略  </li>
-<li>任务调度的开销<br>(Spark用事件驱动类库AKKA来启动任务, 通过线程池复用线程避免进线程启动切换开销)</li>
+<li>任务调度的开销</li>
 </ol>
+<blockquote>
+<p>Spark用事件驱动类库AKKA来启动任务, 通过线程池复用线程避免进线程启动切换开销</p>
+</blockquote>
 <h2 id="3-Spark-能带来什么"><a href="#3-Spark-能带来什么" class="headerlink" title="3. Spark 能带来什么 ?"></a>3. Spark 能带来什么 ?</h2><ol>
-<li>打造全栈多计算范式的搞笑数据流水线 (高效)</li>
-<li>轻量级快速处理</li>
-<li>易于使用， Spark 支持多语言</li>
+<li>打造全栈多计算范式的高效数据流水线</li>
+<li>轻量级快速处理, 并支持多语言</li>
 <li>与 HDFS 等 存储层 兼容</li>
-<li>社区活跃度高</li>
 </ol>
-<h2 id="4-Spark-安装与部署"><a href="#4-Spark-安装与部署" class="headerlink" title="4. Spark 安装与部署"></a>4. Spark 安装与部署</h2><p>Spark 主要使用 HDFS 充当持久化层，所以完整的安装 Spark 需要先安装 Hadoop. (当然你测试，就不需要安装Hadoop)</p>
-<p>Spark 是计算框架, 它主要使用 HDFS 充当持久化层。如 hive etc..</p>
+<h2 id="4-Spark-安装与部署"><a href="#4-Spark-安装与部署" class="headerlink" title="4. Spark 安装与部署"></a>4. Spark 安装与部署</h2><p>Spark 主要使用 HDFS 充当持久化层，所以完整的安装 Spark 需要先安装 Hadoop.<br>Spark 是计算框架, 它主要使用 HDFS 充当持久化层。</p>
 <p><strong>Linux 集群安装 Spark</strong></p>
 <ol>
 <li>安装 JDK</li>
@@ -18789,7 +18675,7 @@ img {
 <li>Spark BDAS 项目及其子项目进行了简要介绍</li>
 <li>Spark 生态系统包含的多个子项目 : SparkSql、Spark Streaming、GraphX、MLlib</li>
 </ul>
-<p><img src="/images/spark-01.png" alt="Spark EcoSystem = BDAS = 伯克利数据分析栈"></p>
+<p><img src="/images/spark/spark-introduce-01.png" alt="Spark EcoSystem = BDAS = 伯克利数据分析栈"></p>
 <ul>
 <li>Spark 是 BDAS 核心, 是一 大数据分布式编程框架</li>
 </ul>
@@ -18798,53 +18684,126 @@ img {
 <li>Spark 的架构</li>
 <li>Spark 运行逻辑</li>
 </ul>
-<h3 id="6-1-Spark-的代码结构"><a href="#6-1-Spark-的代码结构" class="headerlink" title="6.1 Spark 的代码结构"></a>6.1 Spark 的代码结构</h3><p><img src="/images/spark-02.jpeg" alt="spark code"></p>
+<h3 id="6-1-Spark-的代码结构"><a href="#6-1-Spark-的代码结构" class="headerlink" title="6.1 Spark 的代码结构"></a>6.1 Spark 的代码结构</h3><p><img src="/images/spark/spark-introduce-02.jpeg" alt="spark code"></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scheduler：文件夹中含有负责整体的Spark应用、任务调度的代码。</span><br><span class="line">broadcast：含有Broadcast（广播变量）的实现代码，API中是Java和Python API的实现。</span><br><span class="line"></span><br><span class="line">deploy：含有Spark部署与启动运行的代码。</span><br><span class="line">common：不是一个文件夹，而是代表Spark通用的类和逻辑实现，有5000行代码。</span><br><span class="line"></span><br><span class="line">metrics：是运行时状态监控逻辑代码，Executor中含有Worker节点负责计算的逻辑代码。</span><br><span class="line">partial：含有近似评估代码。</span><br></pre></td></tr></table></figure>
-<h3 id="6-2-Spark-的架构"><a href="#6-2-Spark-的架构" class="headerlink" title="6.2 Spark 的架构"></a>6.2 Spark 的架构</h3><p>Spark架构采用了分布式计算中的Master-Slave模型。Master是对应集群中的含有Master进程的节点，Slave是集群中含有Worker进程的节点。Master作为整个集群的控制器，负责整个集群的正常运行；Worker相当于是计算节点，接收主节点命令与进行状态汇报；Executor负责任务的执行；Client作为用户的客户端负责提交应用，Driver负责控制一个应用的执行</p>
-<p><img src="/images/spark-03.jpeg" alt="spark"></p>
-<p>Spark 分别启动 Master进程 和 Worker进程，对整个集群进行控制。在一个 Spark应用 的执行过程中，Driver 和 Worker是两个重要角色。</p>
-<p>Driver 程序是应用逻辑执行的起点，负责作业的调度，即Task任务的分发。<br>Worker用来管理计算节点和创建Executor并行处理任务。</p>
+<h3 id="6-2-Spark-的架构"><a href="#6-2-Spark-的架构" class="headerlink" title="6.2 Spark 的架构"></a>6.2 Spark 的架构</h3><p>Spark架构采用了分布式计算中的Master-Slave模型。</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Master</td>
+<td>对应集群中的含有Master进程的节点, 集群的控制器</td>
+</tr>
+<tr>
+<td>Slave</td>
+<td>集群中含有Worker进程的节点</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Client</td>
+<td>作为用户的客户端负责提交应用</td>
+</tr>
+<tr>
+<td>Driver</td>
+<td>运行Application的main()函数并创建SparkContext。负责作业的调度，即Task任务的分发</td>
+</tr>
+<tr>
+<td>Worker</td>
+<td>管理计算节点和创建Executor，启动Executor 或 Driver. 接收主节点命令与进行状态汇报</td>
+</tr>
+<tr>
+<td>Executor</td>
+<td>Worker node执行任务的组件,负责 Task 的执行,用于启动线程池运行任务</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ClusterManager</td>
+<td>Standalone 模式中为 Master, 控制整个集群, 监控Worker</td>
+</tr>
+<tr>
+<td>SparkContext</td>
+<td>整个应用的上下文, 控制App的生命周期</td>
+</tr>
+<tr>
+<td>RDD</td>
+<td>Spark的基本计算单元，一组RDD可形成执行的 DAG</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/images/spark/spark-introduce-03.jpeg" alt="spark"></p>
+<table>
+<thead>
+<tr>
+<th>Spark App 流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Client 提交应用</td>
+<td></td>
+</tr>
+<tr>
+<td>2. Master找到一个 Worker 启动 Driver</td>
+<td></td>
+</tr>
+<tr>
+<td>3. Driver 向 Master 或者 资源管理器申请资源，之后将应用转化为 RDD Graph</td>
+<td></td>
+</tr>
+<tr>
+<td>4. DAGScheduler 将 RDD Graph 转化为 Stage的有向无环图 提交给 TaskScheduler</td>
+<td></td>
+</tr>
+<tr>
+<td>5. TaskScheduler 提交 task 给Executor执行</td>
+<td></td>
+</tr>
+<tr>
+<td>6. 在任务执行的过程中，其他组件协同工作，确保整个应用顺利执行</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
 <p>在执行阶段，Driver 会将 Task 和 Task所依赖的file 和 jar 序列化后传递给对应的 Worker机器，同时 Executor对相应数据分区的任务进行处理。</p>
-<p>Spark 架构中的基本组件 :</p>
-<ul>
-<li><p>ClusterManager : Standalone模式中为 Master, 控制整个集群，监控Worker。</p>
-</li>
-<li><p>Worker : 从节点，负责控制计算节点，启动Executor 或 Driver。在 YARN 模式中为 NodeManager，负责计算节点的控制。</p>
-</li>
-<li><p>Driver：运行Application的main()函数并创建SparkContext。</p>
-</li>
-<li><p>Executor：执行器，在worker node上执行任务的组件、用于启动线程池运行任务。每个Application拥有独立的一组Executors。</p>
-</li>
-<li><p>SparkContext：整个应用的上下文，控制应用的生命周期。</p>
-</li>
-<li><p>RDD：Spark的基本计算单元，一组RDD可形成执行的有向无环图RDD Graph。</p>
-</li>
-<li><p>DAG Scheduler：根据作业（Job）构建基于Stage的DAG，并提交Stage给TaskScheduler。</p>
-</li>
-<li><p>TaskScheduler：将任务（Task）分发给Executor执行。</p>
-</li>
-<li><p>SparkEnv：线程级别的上下文，存储运行时的重要组件的引用。SparkEnv内创建并包含如下一些重要组件的引用。</p>
-</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">MapOutPutTracker：负责Shuffle元信息的存储。</span><br><span class="line">BroadcastManager：负责广播变量的控制与元信息的存储。</span><br><span class="line"></span><br><span class="line">BlockManager：负责存储管理、创建和查找块。</span><br><span class="line">MetricsSystem：监控运行时性能指标信息。</span><br><span class="line">SparkConf：负责存储配置信息。</span><br></pre></td></tr></table></figure>
-<p>Spark 的整体流程为 : Client 提交应用，Master找到一个 Worker 启动 Driver，Driver 向 Master 或者 资源管理器申请资源，之后将应用转化为 RDD Graph，再由 DAGScheduler 将 RDD Graph 转化为 Stage的有向无环图 提交给TaskScheduler，由TaskScheduler提交任务给Executor执行。在任务执行的过程中，其他组件协同工作，确保整个应用顺利执行。</p>
-<h3 id="6-3-Spark-运行逻辑"><a href="#6-3-Spark-运行逻辑" class="headerlink" title="6.3 Spark 运行逻辑"></a>6.3 Spark 运行逻辑</h3><p>Spark应用，整个执行流程在逻辑上会形成有向无环图（DAG）。</p>
-<p>Action 算子触发之后，将所有累积的算子形成一个有向无环图，然后由调度器调度该图上的任务进行运算。</p>
-<p>Spark 的调度方式与 MapReduce 有所不同。Spark 根据 RDD 之间不同的依赖关系切分形成不同的阶段（Stage），一个阶段包含一系列函数执行流水线。图中的A、B、C、D、E、F 分别代表不同的 RDD，RDD内的方框代表分区。数据从 HDFS输入Spark，形成RDD A 和 RDD C，RDD C上执行 map操作，转换为RDD D， RDD B 和 RDD E 执行join 操作，转换为F，而在 B 和 E 连接转化为 F 的过程中又会 执行Shuffle，最后RDD F 通过 函数saveAsSequenceFile输出 并保存到 HDFS 中。</p>
-<p><img src="/images/spark-04.jpeg" alt="spark rdd"></p>
+</blockquote>
 <h2 id="7-小结"><a href="#7-小结" class="headerlink" title="7. 小结"></a>7. 小结</h2><p>由于 Spark 主要使用 HDFS 充当持久化层，所以完整的使用 Spark 需要预先安装 Hadoop.</p>
 <p>Spark 将分布式的内存数据抽象为弹性分布式数据集 (RDD), 并在其上实现了丰富的算子，从而对 RDD 进行计算，最后将 算子序列 转化为 DAG 进行执行和调度。</p>
 <blockquote>
 <p>Spark的Python API几乎覆盖了所有Scala API所能提供的功能. 但的确有些特性，比如Spark Streaming和个别的API方法，暂不支持。<br><a href="http://spark.apache.org/docs/latest/programming-guide.html" target="_blank" rel="external">具体参见《Spark编程指南》的Python部分</a></p>
 </blockquote>
-<p>体会了 函数式 编程的威力， scala、python 都可以。java 不适合写 spark 程序</p>
+<p>体会了 函数式 编程. 个人认为 scala、python 比较适合写 spark 程序.</p>
 ]]></content>
     </entry>
     
     <entry>
       <title><![CDATA[Kettle ETL]]></title>
-      <url>http://selfboot.org/2016/01/22/etl-kettle/</url>
-      <content type="html"><![CDATA[<h2 id="1-Kettle-开源的-ETL-工具"><a href="#1-Kettle-开源的-ETL-工具" class="headerlink" title="1. Kettle 开源的 ETL 工具"></a>1. Kettle 开源的 ETL 工具</h2><h3 id="1-1-Kettle-的介绍"><a href="#1-1-Kettle-的介绍" class="headerlink" title="1-1. Kettle 的介绍"></a>1-1. Kettle 的介绍</h3><p>  ETL（Extract-Transform-Load的缩写，即数据抽取、转换、装载的过程， 我们经常会遇到各种数据的处理，转换，迁移，所以掌握一种 ETL 工具的使用必不可少。</p>
+      <url>http://selfboot.org/2016/01/22/db-etl-kettle/</url>
+      <content type="html"><![CDATA[<p><strong>ETL 简介</strong></p>
+<ol>
+<li>ETL 是数据抽取（Extract）、清洗（Cleaning）、转换（Transform）、装载（Load）的过程。</li>
+<li>ETL 是构建 <strong>DW</strong> 的重要一环，用户从数据源抽取出数据，经 数据清洗,按照预定义好的 DW模型，将数据加载到 DW 中去。</li>
+<li>ETL 是将业务系统的数据经过抽取、清洗转换之后加载到 DW 的过程，目的是将企业中的分散零乱、标准不统一的数据到一起，为企业的决策提供分析依据。</li>
+<li>ETL 是 <strong>BI</strong> 项目中一个重要环节。</li>
+</ol>
+<p><strong>ETL的设计分三个部分：</strong></p>
+<ol>
+<li>数据抽取</li>
+<li>数据的清洗转换</li>
+<li>数据的加载</li>
+</ol>
+<h2 id="1-Kettle-开源的-ETL-工具"><a href="#1-Kettle-开源的-ETL-工具" class="headerlink" title="1. Kettle 开源的 ETL 工具"></a>1. Kettle 开源的 ETL 工具</h2><h3 id="1-1-Kettle-的介绍"><a href="#1-1-Kettle-的介绍" class="headerlink" title="1-1. Kettle 的介绍"></a>1-1. Kettle 的介绍</h3><p>  ETL（Extract-Transform-Load的缩写，即数据抽取、转换、装载的过程， 我们经常会遇到各种数据的处理，转换，迁移，所以掌握一种 ETL 工具的使用必不可少。</p>
 <p>  Kettle 支持图形化的GUI设计界面，然后可以以工作流的形式流转，熟练它可以减少非常多的研发工作量，提高工作效率。</p>
 <p>  Kettle 允许你管理来自不同数据库的数据，通过提供一个图形化的用户环境来描述你想做什么。</p>
 <p>  Kettle 中有两种脚本文件，transformation 和 job.</p>
