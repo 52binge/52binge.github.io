@@ -11,7 +11,7 @@
 <meta property="og:url" content="http://selfboot.org/2016/04/25/spark-machine-learning-p1/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="介绍 Spark 的环境搭建与运行, 接触了 RDD 与 SparkContext, 启动 Spark-Shell 以及如何使用 Scala、Python 编写 Spark 程序.">
-<meta property="og:updated_time" content="2017-01-14T11:20:15.000Z">
+<meta property="og:updated_time" content="2017-01-15T05:06:32.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Spark Machine Learning p1 - Spark编程入门">
 <meta name="twitter:description" content="介绍 Spark 的环境搭建与运行, 接触了 RDD 与 SparkContext, 启动 Spark-Shell 以及如何使用 Scala、Python 编写 Spark 程序.">
@@ -98,16 +98,16 @@
     <div class="article-entry" itemprop="articleBody">
       
         <p><strong>Apache Spark</strong></p>
-<p>简化了海量数据的存储(HDFS) 和 计算 (MR–在集群多个节点进行并行计算的框架) 流程。MapReduce 缺点, 如: 启动任务时的高开销、对中间数据 和 计算结果 写入磁盘的依赖。这使得 Hadoop 不适合 <strong>迭代式</strong> 或 <strong>低延迟</strong> 的任务。</p>
-<p>机器学习 算法并非为并行架构而设计。 机器学习模型一般具有迭代式的特性, 这与 Spark 的设计目标一致。并行计算框架 很少能 兼顾 速度、扩展性、内存处理、容错性的同时，还提供灵活、表达力丰富的 API。<code>Spark</code> 全新的分布式计算框架, 注重 : 低延迟任务的优化、并将中间数据和结果保存在内存中。Spark 提供函数式API，并兼容 Hadoop Ecosystem</p>
-<p>Spark 提供了对 Scala、Java、Python 语言的原生 API。</p>
-<p>Spark 框架对 资源调度、任务提交、执行、跟踪， 节点间通信以及数据并行处理的内在底层操作都进行了抽象。它提供了高级别 API 用于处理分布式数据。</p>
+<p>Spark 的设计目标 即: <code>迭代式+低延迟</code> 适合 Machine Learning 算法的特性<br>Spark 分布式计算框架, 将中间数据和结果保存在内存中<br>Spark 提供函数式API, 并兼容 Hadoop 生态<br>Spark 框架对 资源调度、任务提交、执行、跟踪， 节点间通信以及数据并行处理的内在底层操作都进行了抽象</p>
+<blockquote>
+<p>简化了海量数据的存储(HDFS) 和 计算(MR) 流程。MapReduce 缺点, 如: 启动任务时的高开销、对中间数据 和 计算结果 写入磁盘的依赖。这使得 Hadoop 不适合 迭代式 或 低延迟 的任务。</p>
+</blockquote>
 <p><strong>Spark 的四种运行模式</strong></p>
 <ol>
-<li>本地单机模式 – Spark 进程 all run in One JVM</li>
+<li>本地单机模式 – Spark 进程 all run in one JVM</li>
 <li>集群单机模式 – 使用 Spark 自己内置的 任务调度框架</li>
-<li>基于 Mesos</li>
-<li>基于 YARN</li>
+<li>基于 Mesos 一个开源集群计算框架</li>
+<li>基于 YARN 与 Hadoop2 关联形成集群计算和资源调度框架</li>
 </ol>
 <h2 id="1-Spark运行"><a href="#1-Spark运行" class="headerlink" title="1. Spark运行"></a>1. Spark运行</h2><p>运行示例程序来测试是否一切正常：</p>
 <blockquote>
@@ -118,17 +118,23 @@
 <blockquote>
 <p>MASTER=local[2] ./bin/run-example org.apache.spark.examples.SparkPi</p>
 </blockquote>
-<h2 id="2-Spark集群"><a href="#2-Spark集群" class="headerlink" title="2. Spark集群"></a>2. Spark集群</h2><p>Spark集群由两类程序构成：一个驱动程序和多个执行程序。本地模式时所有的处理都运行在同一个JVM内，而在集群模式时它们通常运行在不同的节点上。</p>
-<p>举例来说，一个采用单机模式的Spark集群包括：</p>
+<h2 id="2-Spark集群"><a href="#2-Spark集群" class="headerlink" title="2. Spark集群"></a>2. Spark集群</h2><p>Spark集群由两类程序构成: </p>
 <ol>
-<li>一个运行Spark单机主进程和驱动程序的主节点；</li>
-<li>各自运行一个执行程序进程的多个工作节点。</li>
+<li>一个驱动程序</li>
+<li>多个执行程序</li>
+</ol>
+<blockquote>
+<p>本地模式下所有的处理都运行在同一个JVM内，而在集群模式时它们通常运行在不同的节点上。</p>
+</blockquote>
+<p>一个采用单机模式的Spark集群包括：</p>
+<ol>
+<li>一个运行Spark单机主进程和驱动程序的 Master；</li>
+<li>各自运行一个执行程序进程的多个 Worker。</li>
 </ol>
 <p>比如在一个Spark单机集群上运行，只需传入主节点的URL即可：</p>
 <blockquote>
 <p>MASTER=spark://IP:PORT ./bin/run-example org.apache.spark.examples.SparkPi<br>其中的IP和PORT分别是主节点IP地址和端口号。这是告诉Spark让示例程序运行在主节点所对应的集群上</p>
 </blockquote>
-<p>(？ 貌似和单机效果一样)</p>
 <h2 id="3-Spark编程模型"><a href="#3-Spark编程模型" class="headerlink" title="3. Spark编程模型"></a>3. Spark编程模型</h2><h3 id="3-1-SparkContext类"><a href="#3-1-SparkContext类" class="headerlink" title="3.1 SparkContext类"></a>3.1 SparkContext类</h3><p><strong>SparkContext类与SparkConf类</strong></p>
 <p>任何Spark程序的编写都是从SparkContext开始的。SparkContext的初始化需要一个SparkConf对象，后者包含了Spark集群配置的各种参数（比如主节点的URL）。</p>
 <p>初始化后，我们便可用SparkContext对象所包含的各种方法来创建和操作RDD。Spark shell（在Scala和Python下可以，但不支持Java）能自动完成上述初始化。若要用Scala代码来实现的话，可参照下面的代码：</p>
@@ -254,8 +260,8 @@
     </a>
   
   
-    <a href="/2016/04/19/ops-centos-and-redhat/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">CentOS and RedHat Linux&nbsp;<span>&gt;</span></div>
+    <a href="/2016/04/19/ops-centos7-install-common-software/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">CentOS 7.1 install Common software&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
