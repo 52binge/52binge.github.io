@@ -59,6 +59,184 @@
 </header>
     <br>
     <section id="main" class="outer">
+      <article id="post-db-greenplum-mysql-ext-ods" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/01/20/db-greenplum-mysql-ext-ods/"><strong>Automation pull data to greenplum ods</strong></a>
+      <small class=article-date-index>&nbsp; 2017-01-20</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/01/20/db-greenplum-mysql-ext-ods/" class="article-date">
+  <time datetime="2017-01-20T07:28:21.000Z" itemprop="datePublished">2017-01-20</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      automation programmed pull data by datax -&gt; ext -&gt; ods <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/database/">database</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2017/01/20/db-greenplum-mysql-ext-ods/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Preface"><a href="#Preface" class="headerlink" title="Preface"></a>Preface</h2><p><a href="https://github.com/blairchan/bigdata/tree/master/greenplum/ext_ods_table" target="_blank" rel="external">code : github ext_ods_table</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">运行本模块之前 :</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ext_ods_table</span><br><span class="line">mkdir <span class="built_in">log</span> flag</span><br><span class="line">mkdir -p <span class="built_in">log</span>/crontab</span><br><span class="line">mkdir data</span><br><span class="line"></span><br><span class="line">构造 datax json file， put it to **data** 目录</span><br></pre></td></tr></table></figure>
+<h2 id="1-Needs"><a href="#1-Needs" class="headerlink" title="1. Needs"></a>1. Needs</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;程序自动化拉取数据进入原始层 ODS</p>
+<h2 id="2-Data-Flow"><a href="#2-Data-Flow" class="headerlink" title="2. Data Flow"></a>2. Data Flow</h2><p><img src="/images/db/greenplum-ods-flow.png" alt="ods flow"></p>
+<blockquote>
+<p>具体请以实际线上代码 为准</p>
+</blockquote>
+<h2 id="3-Involved-technology"><a href="#3-Involved-technology" class="headerlink" title="3. Involved technology"></a>3. Involved technology</h2><ol>
+<li><a href="https://zh.wikipedia.org/zh-hans/Unix_shell" target="_blank" rel="external">Shell</a></li>
+<li><a href="https://github.com/alibaba/DataX/" target="_blank" rel="external">Datax</a></li>
+<li><a href="https://en.wikipedia.org/wiki/PostgreSQL" target="_blank" rel="external">PostgreSQL</a></li>
+<li><a href="http://dbaplus.cn/news-21-341-1.html" target="_blank" rel="external">Greenplum</a></li>
+<li><a href="http://www.pentaho.com/" target="_blank" rel="external">Pentaho kettle</a></li>
+</ol>
+<blockquote>
+<p><a href="http://www.greenplumdba.com/gpfdist" target="_blank" rel="external">gpfdist protocol</a></p>
+</blockquote>
+<h2 id="4-Main-Code-Flow"><a href="#4-Main-Code-Flow" class="headerlink" title="4. Main Code Flow"></a>4. Main Code Flow</h2><p>(1). linux crontab</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">*/5 00-19 * * * <span class="built_in">source</span> /etc/bashrc; sh /data0/dm/online/ext_ods_table/crontab_job/crontab_job_ods_shop.sh</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>source /etc/bashrc; 环境设置</p>
+</blockquote>
+<p>(2). crontab_job_ods_shop.sh</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">sh ods_dm_shop.sh <span class="variable">$&#123;d1&#125;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>(3). ods_dm_shop.sh</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"><span class="comment">#                                                                             </span></span><br><span class="line"><span class="comment"># @date:   2017.01.19</span></span><br><span class="line"><span class="comment"># @desc:   mysql data -&gt; ext shop -&gt; ods shop</span></span><br><span class="line"><span class="comment">#                                                                            </span></span><br><span class="line"><span class="comment">############################################################################### </span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"></span><br><span class="line">python <span class="variable">$&#123;datax_home&#125;</span>/bin/datax.py -p <span class="string">"-Dbegin_time='2010-01-01' -Dend_time='<span class="variable">$&#123;d1&#125;</span>' -Dgpextdata='<span class="variable">$&#123;gpextdata&#125;</span>'"</span> <span class="variable">$&#123;data_dir&#125;</span>/your_company_name_com.ext/mysql2textfile-shop.json</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;data_integration&#125;</span>/kitchen.sh -file=<span class="variable">$&#123;ktrs_dir&#125;</span>/ods_shop.kjb</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
+<h2 id="5-Code-Deploy"><a href="#5-Code-Deploy" class="headerlink" title="5. Code Deploy"></a>5. Code Deploy</h2><blockquote>
+<p>/data0/dm/online/ext_ods_table  </p>
+<p>注意： 版本控制中，涉及的敏感 库地址，用户名，密码 等 不上传。</p>
+</blockquote>
+<h2 id="6-Frnd-Link"><a href="#6-Frnd-Link" class="headerlink" title="6. Frnd Link"></a>6. Frnd Link</h2><ol>
+<li><a href="https://github.com/blairchan/bigdata/tree/master/greenplum/ext_ods_table/doc" target="_blank" rel="external">pull data detail flow</a></li>
+<li><a href="https://github.com/blairchan/bigdata/blob/master/greenplum/ext_ods_table/doc/scheduling-framework.md" target="_blank" rel="external">scheduling-framework</a></li>
+</ol>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-health-weight-loss-exercise" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/01/15/health-weight-loss-exercise/"><strong>Exercise - thin belly thin waist exercise</strong></a>
+      <small class=article-date-index>&nbsp; 2017-01-15</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/01/15/health-weight-loss-exercise/" class="article-date">
+  <time datetime="2017-01-14T22:24:16.000Z" itemprop="datePublished">2017-01-15</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      building body - thin belly thin waist exercise <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/health/">health</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2017/01/15/health-weight-loss-exercise/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <div class="video-container"><iframe src="//www.youtube.com/embed/VU6OEllfzMM" frameborder="0" allowfullscreen></iframe></div>
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-db-greenplum-manual-dev-steps" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -122,6 +300,7 @@
 <h2 id="3-ods-table"><a href="#3-ods-table" class="headerlink" title="3. ods table"></a>3. ods table</h2><p>创建 ods_dm_e_coupon 表，并向其中导入数据</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> ods_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ods_dm_e_coupon <span class="keyword">AS</span> <span class="keyword">SELECT</span></span><br><span class="line">	*</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	ext_dm_e_coupon <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
 <blockquote>
+<p>注意 : 这样建表 ods table id，不是 primary key</p>
 <p>显示指定 distributed BY (id)，可读性更好</p>
 </blockquote>
 <h2 id="4-mds-table"><a href="#4-mds-table" class="headerlink" title="4. mds table"></a>4. mds table</h2><p>创建 mds_dm_e_coupon_profile 表</p>
@@ -153,7 +332,7 @@
 
 
     
-      <article id="post-voa-32-Tak" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-voa-32-Welcome-to-the-Treehouse" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -161,8 +340,8 @@
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/01/11/voa-32-Tak/"><strong>VOA 32 Welcome to the Treehouse!</strong></a>
-      <small class=article-date-index>&nbsp; 2017-01-11</small>
+      <a class="article-title-index" href="/2017/01/12/voa-32-Welcome-to-the-Treehouse/"><strong>VOA 32 Welcome to the Treehouse!</strong></a>
+      <small class=article-date-index>&nbsp; 2017-01-12</small>
       <!--<a>
       <div = post.date  </div>
       </a>-->
@@ -173,8 +352,8 @@
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/01/11/voa-32-Tak/" class="article-date">
-  <time datetime="2017-01-11T14:15:16.000Z" itemprop="datePublished">2017-01-11</time>
+      <!--<a href="/2017/01/12/voa-32-Welcome-to-the-Treehouse/" class="article-date">
+  <time datetime="2017-01-12T02:15:16.000Z" itemprop="datePublished">2017-01-12</time>
 </a>-->
       
   
@@ -197,7 +376,7 @@
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2017/01/11/voa-32-Tak/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://selfboot.org/2017/01/12/voa-32-Welcome-to-the-Treehouse/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -212,7 +391,7 @@
 <li>massive info navigation device</li>
 <li>yell, whoa</li>
 </ul>
-<div class="video-container"><iframe src="//www.youtube.com/embed/aB6AS3VgjNA" frameborder="0" allowfullscreen></iframe></div>
+<div class="video-container"><iframe src="//www.youtube.com/embed/1egFRwUFc48" frameborder="0" allowfullscreen></iframe></div>
 <table>
 <thead>
 <tr>
@@ -1289,6 +1468,12 @@ img {
 <td>nolimit</td>
 </tr>
 <tr>
+<td>numeric</td>
+<td>变长</td>
+<td></td>
+<td>nolimit</td>
+</tr>
+<tr>
 <td>double precision</td>
 <td>4</td>
 <td></td>
@@ -2304,278 +2489,6 @@ img {
 <h2 id="5-Writing"><a href="#5-Writing" class="headerlink" title="5. Writing"></a>5. Writing</h2><p>I had an accident last winter when I was arriving at work. I was coming into the building, climbing the steps, when I slipped on the icy floor. I fell down the steps and <code>broke my ankle</code>. I also <code>sprained my left wrist and bruised my back badly</code>. I had to go to the hospital, and I stayed there for three days. I hurt a lot! I had to stay at home for two more weeks before I could go back to work.</p>
 <hr>
 <div class="video-container"><iframe src="//www.youtube.com/embed/XDm4bNQGwWE" frameborder="0" allowfullscreen></iframe></div>
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-markdown-test" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/12/26/markdown-test/"><strong>VOA 38 She’s my best friend!</strong></a>
-      <small class=article-date-index>&nbsp; 2016-12-26</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/12/26/markdown-test/" class="article-date">
-  <time datetime="2016-12-26T07:28:21.000Z" itemprop="datePublished">2016-12-26</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      VOA 38 - She’s my best friend! <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/English/">English</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/12/26/markdown-test/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <style>
-iframe {
-        display: block !important;
-        width: 800px;
-        margin-left: 30px !important;
-}
-
-video {
-        display: block !important;
-        width: 200px;
-        margin-left: 30px !important;
-}
-
-audio {
-        display: block !important;
-        width: 200px;
-        margin-left: 30px !important;
-}
-
-</style>
-
-
-
-<p>She’s my best friend!</p>
-<h3 id="I-can’t-wait-to-catch-up-with-her"><a href="#I-can’t-wait-to-catch-up-with-her" class="headerlink" title="I can’t wait to catch up with her."></a>I can’t wait to catch up with her.</h3><h3 id="Is-your-roommate-nice"><a href="#Is-your-roommate-nice" class="headerlink" title="Is your roommate nice?"></a>Is your roommate nice?</h3><div class="video-container"><iframe src="//www.youtube.com/embed/oPEzfd7ZKQs" frameborder="0" allowfullscreen></iframe></div>
-<h2 id="me"><a href="#me" class="headerlink" title="me"></a>me</h2><div class="video-container"><iframe src="//www.youtube.com/embed/J960uNW71K0" frameborder="0" allowfullscreen></iframe></div>
-<h2 id="1"><a href="#1" class="headerlink" title="1"></a>1</h2><iframe width="640" height="360" src="https://www.youtube-nocookie.com/embed/rYEDA3JcQqw?rel=0" frameborder="0" allowfullscreen></iframe>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ef-l6u2-Going-to-the-doctor&#39;s-l3" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/12/16/ef-l6u2-Going-to-the-doctor's-l3/"><strong>Going to the doctor&#39;s L3 Filling a prescription</strong></a>
-      <small class=article-date-index>&nbsp; 2016-12-16</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/12/16/ef-l6u2-Going-to-the-doctor's-l3/" class="article-date">
-  <time datetime="2016-12-15T23:15:16.000Z" itemprop="datePublished">2016-12-16</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      level 6 unit 2 lesson 3,  filling a prescription <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/English/">English</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/12/16/ef-l6u2-Going-to-the-doctor's-l3/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <style>
-img {
-        display: block !important;
-        width: 500px;
-        margin-left: 200px !important;
-}
-</style>
-
-<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
-<li>I’m going to the pharmacy.</li>
-<li>He talked to the pharmacist.</li>
-<li>teaspoons</li>
-</ul>
-<table>
-<thead>
-<tr>
-<th>allergic to</th>
-<th>medications</th>
-<th>dosage </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>tablets</td>
-<td>spicy</td>
-<td>capsules</td>
-</tr>
-</tbody>
-</table>
-<p><img src="/images/english/ef-l6u2l3.png" alt=""></p>
-<table>
-<thead>
-<tr>
-<th>A: PAM - B: PHARMACIST</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[A] Hi. I’d like to fill a prescription. James. My first name is Pam. Does my insurance cover this?</td>
-<td></td>
-</tr>
-<tr>
-<td>[B] Yes, it does. I’ll be right back. Are you allergic to any other medications?</td>
-<td></td>
-</tr>
-<tr>
-<td>[A] Uh, no, I’m not.</td>
-<td></td>
-</tr>
-<tr>
-<td>[B] Okay. So this will help stop the diarrhea. The dosage is two tablets every six hours.</td>
-<td></td>
-</tr>
-<tr>
-<td>[A] Okay.</td>
-<td></td>
-</tr>
-<tr>
-<td>[B] It’s better if you take it with some plain food, like rice or scrambled eggs. Nothing spicy.</td>
-<td></td>
-</tr>
-<tr>
-<td>[A] I understand.</td>
-<td></td>
-</tr>
-<tr>
-<td>[B] And this is for the nausea and the vomiting. Take two capsules twice a day for three days.</td>
-<td></td>
-</tr>
-<tr>
-<td>[B] I hope you feel better.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><table>
-<thead>
-<tr>
-<th>PAM</th>
-<th>PHARMACIST</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>I’d like to fill a prescription.</td>
-<td>Take two capsules twice a day for three days</td>
-</tr>
-<tr>
-<td>I’m here to pick up my medication</td>
-<td>It’s better if you take it with some plain food.</td>
-</tr>
-<tr>
-<td>Does my insurance cover this?</td>
-<td>Yes, it does.</td>
-</tr>
-<tr>
-<td>I’m not currently taking any medication.</td>
-<td>I hope you feel better. </td>
-</tr>
-</tbody>
-</table>
-
       
     </div>
     -->
