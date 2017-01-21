@@ -59,6 +59,411 @@
 </header>
     <br>
     <section id="main" class="outer">
+      <article id="post-hadoop-hive-brief" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/02/15/hadoop-hive-brief/"><strong>Hive Introduce 1</strong></a>
+      <small class=article-date-index>&nbsp; 2016-02-15</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/02/15/hadoop-hive-brief/" class="article-date">
+  <time datetime="2016-02-15T07:07:21.000Z" itemprop="datePublished">2016-02-15</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      关于 Hive 的介绍, 简单介绍 Hive 的工作流、架构组件 等。 <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/bigdata/">bigdata</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2016/02/15/hadoop-hive-brief/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>focus on :</strong></p>
+<ol>
+<li>初步了解 Hadoop 生态圈</li>
+<li>初步了解 Hive 架构图</li>
+</ol>
+<h2 id="1-Hive-Introduce"><a href="#1-Hive-Introduce" class="headerlink" title="1. Hive Introduce"></a>1. Hive Introduce</h2><h3 id="1-1-Hive-Preface"><a href="#1-1-Hive-Preface" class="headerlink" title="1.1 Hive Preface"></a>1.1 Hive Preface</h3><p><strong>Hadoop</strong></p>
+<ol>
+<li>Hadoop 生态系统 是 处理大数据集而产生的解决方案。</li>
+<li>Hadoop 实现计算模型 MapReduce, 可将计算任务分割成多个处理单元，这个计算模型下面是一个 HDFS。</li>
+</ol>
+<p><strong>Hive</strong></p>
+<ol>
+<li>Hive 提供了一个 Hive查询语言 HiveQL, 查询转换为 MapReduce job</li>
+<li>Hive 适合做数据仓库，可离线维护海量数据，可对数据进行挖掘, 形成报告等</li>
+<li>Hadoop、HDFS 设计本身限制了 Hive 所能胜任的工作, Hive 不支持记录级别的更新、插入 或者 删除 操作。</li>
+</ol>
+<p><strong>Hive 运行架构</strong></p>
+<ol>
+<li>使用 HQL 作为查询接口；</li>
+<li>使用 MapReduce 作为执行层；</li>
+<li>使用 HDFS 作为存储层；</li>
+</ol>
+<h3 id="1-2-Hadoop-Mapreduce"><a href="#1-2-Hadoop-Mapreduce" class="headerlink" title="1.2 Hadoop / Mapreduce"></a>1.2 Hadoop / Mapreduce</h3><p><code>Input -&gt; Mappers -&gt; Sort,Shuffle -&gt; Reducers -&gt; Output</code></p>
+<h3 id="1-3-Hive-系统架构"><a href="#1-3-Hive-系统架构" class="headerlink" title="1.3 Hive 系统架构"></a>1.3 Hive 系统架构</h3><p><img src="/images/hadoop/hive-02.png" alt="Hive 系统架构"></p>
+<h2 id="2-Hive-架构组件分析"><a href="#2-Hive-架构组件分析" class="headerlink" title="2. Hive 架构组件分析"></a>2. Hive 架构组件分析</h2><p><strong>本章重点 :</strong></p>
+<ol>
+<li>初步了解 Hive 的工作流</li>
+<li>初步了解 hive 的工作组件</li>
+</ol>
+<h3 id="2-1-元数据存储Metastore"><a href="#2-1-元数据存储Metastore" class="headerlink" title="2.1 元数据存储Metastore"></a>2.1 元数据存储Metastore</h3><ul>
+<li><p>Hive的数据由两部分组成：数据文件 和 元数据</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">元数据存储，Derby只能用于一个Hive连接，一般存储在MySQL。</span><br><span class="line"></span><br><span class="line">元数据包括表的名字，表的列和分区及其属性，表的属性（是否为外部表等），表的数据所在目录等。</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="2-2-驱动-Driver"><a href="#2-2-驱动-Driver" class="headerlink" title="2.2 驱动 (Driver)"></a>2.2 驱动 (Driver)</h3><ul>
+<li>编译器</li>
+<li>优化器</li>
+<li>执行器</li>
+</ul>
+<p>用户通过下面的接口提交Hive给Driver，由Driver进行HQL语句解析，此时从Metastore中获取表的信息，先生成逻辑计划，再生成物理计划，再由Executor生成Job交给Hadoop运行，然后由Driver将结果返回给用户。</p>
+<p>编译器（Hive的核心）：1，语义解析器（ParseDriver），将查询字符串转换成解析树表达式；2，语法解析器（SemanticAnalyzer），将解析树转换成基于语句块的内部查询表达式；3，逻辑计划生成器（Logical Plan Generator），将内部查询表达式转换为逻辑计划，这些计划由逻辑操作树组成，操作符是Hive的最小处理单元，每个操作符处理代表一道HDFS操作或者是MR作业；4，查询计划生成器（QueryPlan Generator），将逻辑计划转化成物理计划（MR Job）。</p>
+<p>优化器：优化器是一个演化组件，当前它的规则是：列修剪，谓词下压。</p>
+<p>执行器：编译器将操作树切分成一个Job链（DAG），执行器会顺序执行其中所有的Job；如果Task链不存在依赖关系，可以采用并发执行的方式进行Job的执行。</p>
+<h3 id="2-3-接口"><a href="#2-3-接口" class="headerlink" title="2.3 接口"></a>2.3 接口</h3><p><strong>CLI、HWI、ThriftServer</strong></p>
+<ol>
+<li><p>CLI：为命令行工具，默认服务。bin/hive或bin/hive–service cli；</p>
+</li>
+<li><p>HWI：为Web接口，可以用过浏览器访问Hive，默认端口9999，启动方式为bin/hive –service hwi;</p>
+</li>
+<li><p>ThriftServer：通过Thrift对外提供服务，默认端口是10000，启动方式为bin/hive –service hiveserver;</p>
+</li>
+</ol>
+<p><strong> 连接hive-metastore(如mysql)的三种方式 </strong></p>
+<ol>
+<li>单用户模式。此模式连到数据库Derby，一般用于Unit Test。<br><img src="/images/hadoop/hive-longdis-model.jpeg" alt="单用户模式"></li>
+<li>多用户模式。通过网络连接到一个数据库中，是最经常使用到的模式。<br><img src="/images/hadoop/hive-more-user-model.jpeg" alt="多用户模式"></li>
+<li>远程服务器模式。用于非Java客户端访问元数据库，在服务器端启动MetaStoreServer，客户端利用Thrift协议通过MetaStoreServer访问元数据库。<br><img src="/images/hadoop/hive-longdis-model.jpeg" alt="远程服务器模式"></li>
+</ol>
+<h3 id="2-4-其他服务"><a href="#2-4-其他服务" class="headerlink" title="2.4 其他服务"></a>2.4 其他服务</h3><p><strong>bin/hive –service -help</strong></p>
+<ol>
+<li><p>metastore   (bin/hive –service metastore)</p>
+</li>
+<li><p>hiveserver2（bin/hive –service hiveserver2）</p>
+</li>
+</ol>
+<p><strong>HiveServer2</strong></p>
+<ol>
+<li><p>HiveServer2是HieServer改进版本，它提供给新的ThriftAPI来处理JDBC或者ODBC客户端，进行Kerberos身份验证，多个客户端并发</p>
+</li>
+<li><p>HS2还提供了新的CLI：BeeLine，是Hive 0.11引入的新的交互式CLI，基于SQLLine，可以作为Hive JDBC Client 端访问HievServer2，启动一个beeline就是维护了一个session.</p>
+</li>
+</ol>
+<p><strong>Hive下载地址</strong></p>
+<ol>
+<li><p>cdh-hive : <a href="https://repository.cloudera.com/artifactory/cloudera-repos/org/apache/hive/hive-exec/0.13.1-cdh5.3.6/" target="_blank" rel="external">hive0.13.1-cdh5.3.6 jar 包</a> (没用)</p>
+</li>
+<li><p>apache-hive : <a href="http://archive.apache.org/dist/hive/" target="_blank" rel="external">Apache-Hive</a></p>
+</li>
+</ol>
+<p><strong>Hive-Beeline 试验成功</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">下载 apache-hive-0.13.1-bin, apache-hadoop2.5，配置 HADOOP_HOME, 启动 </span><br><span class="line"></span><br><span class="line">➜  ./apache-hive-0.13.1-bin/bin/beeline</span><br><span class="line">Beeline version 0.13.1 by Apache Hive</span><br><span class="line">beeline&gt; !connect jdbc:hive2://node190:10000 hdfs 1</span><br><span class="line">scan complete in 3ms</span><br><span class="line">Connecting to jdbc:hive2://node190:10000</span><br><span class="line">Connected to: Apache Hive (version 0.13.1-cdh5.3.6)</span><br><span class="line">Driver: Hive JDBC (version 0.13.1)</span><br><span class="line">Transaction isolation: TRANSACTION_REPEATABLE_READ</span><br><span class="line">0: jdbc:hive2://node190:10000&gt; select count(*) from ods_dm_shop_tmp;</span><br><span class="line">+-------+</span><br><span class="line">|  _c0  |</span><br><span class="line">+-------+</span><br><span class="line">| 1091  |</span><br><span class="line">+-------+</span><br><span class="line">1 row selected (24.815 seconds)</span><br><span class="line">0: jdbc:hive2://node190:10000&gt;</span><br><span class="line"></span><br><span class="line">说明 : beeline 可以成功，用代码 jdbc 就可以成功</span><br><span class="line"></span><br><span class="line">安装 hadoop 参考了 《Spark大数据处理》高彦杰@著, 不用配置直接绿色简单版</span><br></pre></td></tr></table></figure>
+<p><strong>Hive table</strong></p>
+<p>  table 中的一个 Partition 对应表下的一个子目录<br>  每一个 Bucket 对应一个文件；<br>  Hive的默认数据仓库目录是/user/hive/warehouse<br>  在hive-site.xml中由hive.metastore.warehouse.dir项定义；</p>
+<h2 id="reference-article"><a href="#reference-article" class="headerlink" title="reference article"></a>reference article</h2><p>参考 : <a href="http://blog.csdn.net/lalaguozhe/article/details/11776055" target="_blank" rel="external">CSDN - Hive Server 2 调研，安装和部署</a><br>参考 : <a href="http://www.geedoo.info/beeline-abnormal-connection-hiveserver2.html" target="_blank" rel="external">极豆技术博客 - Beeline连接hiveserver2异常</a><br>参考 : <a href="http://blog.csdn.net/skywalker_only/article/details/38366347" target="_blank" rel="external">Hive学习之HiveServer2 JDBC客户端</a><br>参考 : <a href="https://cwiki.apache.org/confluence/display/Hive/HiveServer2+Clients#HiveServer2Clients-Beeline" target="_blank" rel="external">HiveServer2 Clients beeline</a><br>参考 : <a href="http://www.aboutyun.com/blog-6-1855.html" target="_blank" rel="external">Beeline连接hiveserver2异常</a><br>参考 : <a href="http://blog.csdn.net/skywalker_only/article/details/38335235" target="_blank" rel="external">Hive学习之HiveServer2服务端配置与启动</a></p>
+<p><strong>other tmp</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">## Chap 7 HiveQL 视图 ##</span><br><span class="line">## Chap 8 HiveQL 索引 ##</span><br><span class="line">## Chap 9 模式设计 ##</span><br><span class="line">## Chap 10 调优 ##</span><br><span class="line">## Chap 11 其他文件格式和压缩方法 ##</span><br><span class="line">## Chap 12 开发 ##</span><br><span class="line">## Chap 13 函数 ##</span><br><span class="line">## Chap 14 Streaming ##</span><br><span class="line">## Chap 15 自定义Hive文件和记录格式 ##</span><br><span class="line">## Chap 16 Hive 的 Thrift 服务 ##</span><br><span class="line">## Chap 11 其他文件格式和压缩方法 ##</span><br></pre></td></tr></table></figure>
+<hr>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-spark-introduce-and-install" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/02/01/spark-introduce-and-install/"><strong>Spark Introduce and Install</strong></a>
+      <small class=article-date-index>&nbsp; 2016-02-01</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/02/01/spark-introduce-and-install/" class="article-date">
+  <time datetime="2016-02-01T02:07:21.000Z" itemprop="datePublished">2016-02-01</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      介绍 Spark 的历史，介绍 Spark 的安装与部署，介绍 Spark 的代码架构 等 <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/spark/">spark</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2016/02/01/spark-introduce-and-install/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Spark 发源于 美国加州大学伯克利分校 AMPLap 大数据分析平台<br>Spark 立足于内存计算、从多迭代批量处理出发<br>Spark 兼顾数据仓库、流处理、图计算 等多种计算范式，大数据系统领域全栈计算平台  </p>
+<p><a href="http://spark.apache.org" target="_blank" rel="external">spark.apache.org</a> </p>
+<blockquote>
+<p>University of California, Berkeley </p>
+</blockquote>
+<h2 id="1-Spark-的历史与发展"><a href="#1-Spark-的历史与发展" class="headerlink" title="1. Spark 的历史与发展"></a>1. Spark 的历史与发展</h2><ul>
+<li>2009 年 : Spark 诞生于 AMPLab  </li>
+<li>2014-02 : Apache 顶级项目  </li>
+<li>2014-05 : Spark 1.0.0 发布</li>
+</ul>
+<h2 id="2-Spark-之于-Hadoop"><a href="#2-Spark-之于-Hadoop" class="headerlink" title="2. Spark 之于 Hadoop"></a>2. Spark 之于 Hadoop</h2><p> Spark 是 MapReduce 的替代方案, 且兼容 HDFS、Hive 等分布式存储层。</p>
+<p> Spark 相比 Hadoop MapReduce 的优势如下 :</p>
+<ol>
+<li>中间结果输出</li>
+<li>数据格式和内存布局</li>
+<li>执行策略  </li>
+<li>任务调度的开销</li>
+</ol>
+<blockquote>
+<p>Spark用事件驱动类库AKKA来启动任务, 通过线程池复用线程避免进线程启动切换开销</p>
+</blockquote>
+<h2 id="3-Spark-能带来什么"><a href="#3-Spark-能带来什么" class="headerlink" title="3. Spark 能带来什么 ?"></a>3. Spark 能带来什么 ?</h2><ol>
+<li>打造全栈多计算范式的高效数据流水线</li>
+<li>轻量级快速处理, 并支持 Scala、Python、Java</li>
+<li>与 HDFS 等 存储层 兼容</li>
+</ol>
+<h2 id="4-Spark-安装与部署"><a href="#4-Spark-安装与部署" class="headerlink" title="4. Spark 安装与部署"></a>4. Spark 安装与部署</h2><p>Spark 主要使用 HDFS 充当持久化层，所以完整的安装 Spark 需要先安装 Hadoop.<br>Spark 是计算框架, 它主要使用 HDFS 充当持久化层。</p>
+<p><strong>Linux 集群安装 Spark</strong></p>
+<ol>
+<li>安装 JDK</li>
+<li>安装 Scala</li>
+<li>配置 SSH 免密码登陆 (可选)</li>
+<li>安装 Hadoop</li>
+<li>安装 Spark</li>
+<li>启动 Spark 集群</li>
+</ol>
+<p><a href="http://spark.apache.org/downloads.html" target="_blank" rel="external">Spark官网下载</a></p>
+<h3 id="4-1-安装-Spark"><a href="#4-1-安装-Spark" class="headerlink" title="4.1 安装 Spark"></a>4.1 安装 Spark</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">(1). download  spark-1.5.2-bin-hadoop2.6.tgz</span><br><span class="line"></span><br><span class="line">(2). tar -xzvf spark-1.5.2-bin-hadoop2.6.tgz</span><br><span class="line"></span><br><span class="line">(3). 配置 conf/spark-env.sh</span><br><span class="line">    1) 详细复杂参数配置参见 官网 Configuration</span><br><span class="line">    2) vim conf/spark-env.sh</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">export</span> JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">    <span class="built_in">export</span> SCALA_HOME=/usr/<span class="built_in">local</span>/Cellar/scala/2.11.5</span><br><span class="line">    <span class="built_in">export</span> SPARK_HOME=/usr/<span class="built_in">local</span>/xSoft/spark</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">export</span> SPARK_MASTER_IP=ip</span><br><span class="line">    <span class="built_in">export</span> MASTER=spark://ip:7077</span><br><span class="line"></span><br><span class="line">    <span class="built_in">export</span> SPARK_EXECUTOR_INSTANCES=2</span><br><span class="line">    <span class="built_in">export</span> SPARK_EXECUTOR_CORES=1</span><br><span class="line"></span><br><span class="line">    <span class="built_in">export</span> SPARK_WORKER_MEMORY=1000m</span><br><span class="line">    <span class="built_in">export</span> SPARK_EXECUTOR_MEMORY=300m</span><br><span class="line"></span><br><span class="line">    <span class="built_in">export</span> SPARK_LIBRARY_PATH=<span class="variable">$&#123;SPARK_HOME&#125;</span>/lib</span><br><span class="line"></span><br><span class="line">(4). 配置 conf/slaves (测试可选)</span><br><span class="line">(5). 一般需要 startup ssh server.</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-启动-Spark-集群"><a href="#4-2-启动-Spark-集群" class="headerlink" title="4.2 启动 Spark 集群"></a>4.2 启动 Spark 集群</h3><p>在 Spark 根目录启动 Spark</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./sbin/start-all.sh</span><br><span class="line">./sbin/stop-all.sh</span><br></pre></td></tr></table></figure>
+<p>启动后 jps 查看 会有 Master 进程存在</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  spark-1.5.2-bin-hadoop2.6  jps</span><br><span class="line">11262 Jps</span><br><span class="line">11101 Master</span><br><span class="line">11221 Worker</span><br></pre></td></tr></table></figure>
+<h3 id="4-3-Spark-集群初试"><a href="#4-3-Spark-集群初试" class="headerlink" title="4.3 Spark 集群初试"></a>4.3 Spark 集群初试</h3><p>可以通过两种方式运行 Spark 样例 :</p>
+<ul>
+<li>以 ./run-example 的方式执行</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  <span class="built_in">cd</span> /usr/<span class="built_in">local</span>/xSoft/spark</span><br><span class="line">➜  spark ./sbin/start-all.sh</span><br><span class="line">➜  spark ./bin/run-example org.apache.spark.examples.SparkPi</span><br></pre></td></tr></table></figure>
+<ul>
+<li>以 ./Spark Shell 方式执行</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scala&gt; import org.apache.spark._</span><br><span class="line">import org.apache.spark._</span><br><span class="line"></span><br><span class="line">scala&gt; object SparkPi &#123;</span><br><span class="line">     |</span><br><span class="line">     |   def main(args: Array[String]) &#123;</span><br><span class="line">     |</span><br><span class="line">     |     val slices = 2</span><br><span class="line">     |     val n = 100000 * slices</span><br><span class="line">     |</span><br><span class="line">     |     val count = sc.parallelize(1 to n, slices).map &#123; i =&gt;</span><br><span class="line">     |</span><br><span class="line">     |       val x = math.random * 2 - 1</span><br><span class="line">     |       val y = math.random * 2 - 1</span><br><span class="line">     |</span><br><span class="line">     |       if (x * x + y * y &lt; 1) 1 else 0</span><br><span class="line">     |</span><br><span class="line">     |     &#125;.reduce(_ + _)</span><br><span class="line">     |</span><br><span class="line">     |     println(&quot;Pi is rounghly &quot; + 4.0 * count / n)</span><br><span class="line">     |</span><br><span class="line">     |   &#125;</span><br><span class="line">     | &#125;</span><br><span class="line">defined module SparkPi</span><br><span class="line">scala&gt;</span><br><span class="line"></span><br><span class="line">// Spark Shell 已默认将 SparkContext 类初始化为对象 sc, 用户代码可直接使用。</span><br><span class="line">// Spark 自带的交互式的 Shell 程序，方便进行交互式编程。</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>通过 Web UI 查看集群状态</p>
+<pre><code>http：//masterIp:8080
+</code></pre></li>
+</ul>
+<p><img src="/images/spark/spark-introduce-05.png" width="740" height="400" img=""></p>
+<h3 id="4-4-Spark-quick-start"><a href="#4-4-Spark-quick-start" class="headerlink" title="4.4 Spark quick start"></a>4.4 Spark quick start</h3><p>quick-start : <a href="https://spark.apache.org/docs/latest/quick-start.html" target="_blank" rel="external">https://spark.apache.org/docs/latest/quick-start.html</a></p>
+<p>./bin/spark-shell</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scala&gt; val textFile = sc.textFile(&quot;README.md&quot;)</span><br><span class="line">textFile: spark.RDD[String] = spark.MappedRDD@2ee9b6e3</span><br><span class="line">RDDs have actions, which return values, and transformations, which return pointers to new RDDs. Let’s start with a few actions:</span><br><span class="line"></span><br><span class="line">scala&gt; textFile.count() // Number of items in this RDD</span><br><span class="line">res0: Long = 126</span><br><span class="line"></span><br><span class="line">scala&gt; textFile.first() // First item in this RDD</span><br><span class="line">res1: String = # Apache Spark</span><br></pre></td></tr></table></figure>
+<h2 id="5-Spark-生态-BDAS"><a href="#5-Spark-生态-BDAS" class="headerlink" title="5. Spark 生态 BDAS"></a>5. Spark 生态 BDAS</h2><ul>
+<li>Spark 框架、架构、计算模型、数据管理策略</li>
+<li>Spark BDAS 项目及其子项目进行了简要介绍</li>
+<li>Spark 生态系统包含的多个子项目 : SparkSql、Spark Streaming、GraphX、MLlib</li>
+</ul>
+<p><img src="/images/spark/spark-introduce-01.png" alt="Spark EcoSystem = BDAS = 伯克利数据分析栈"></p>
+<ul>
+<li>Spark 是 BDAS 核心, 是一 大数据分布式编程框架</li>
+</ul>
+<h2 id="6-Spark-架构"><a href="#6-Spark-架构" class="headerlink" title="6. Spark 架构"></a>6. Spark 架构</h2><ul>
+<li>Spark 的代码结构</li>
+<li>Spark 的架构</li>
+<li>Spark 运行逻辑</li>
+</ul>
+<h3 id="6-1-Spark-的代码结构"><a href="#6-1-Spark-的代码结构" class="headerlink" title="6.1 Spark 的代码结构"></a>6.1 Spark 的代码结构</h3><p><img src="/images/spark/spark-introduce-02.jpeg" alt="spark code"></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">scheduler：文件夹中含有负责整体的Spark应用、任务调度的代码。</span><br><span class="line">broadcast：含有Broadcast（广播变量）的实现代码，API中是Java和Python API的实现。</span><br><span class="line"></span><br><span class="line">deploy：含有Spark部署与启动运行的代码。</span><br><span class="line">common：不是一个文件夹，而是代表Spark通用的类和逻辑实现，有5000行代码。</span><br><span class="line"></span><br><span class="line">metrics：是运行时状态监控逻辑代码，Executor中含有Worker节点负责计算的逻辑代码。</span><br><span class="line">partial：含有近似评估代码。</span><br></pre></td></tr></table></figure>
+<h3 id="6-2-Spark-的架构"><a href="#6-2-Spark-的架构" class="headerlink" title="6.2 Spark 的架构"></a>6.2 Spark 的架构</h3><p>Spark架构采用了分布式计算中的Master-Slave模型。</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Master</td>
+<td>对应集群中的含有Master进程的节点, 集群的控制器</td>
+</tr>
+<tr>
+<td>Slave</td>
+<td>集群中含有Worker进程的节点</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Client</td>
+<td>作为用户的客户端负责提交应用</td>
+</tr>
+<tr>
+<td>Driver</td>
+<td>运行Application的main()函数并创建SparkContext。负责作业的调度，即Task任务的分发</td>
+</tr>
+<tr>
+<td>Worker</td>
+<td>管理计算节点和创建Executor，启动Executor 或 Driver. 接收主节点命令与进行状态汇报</td>
+</tr>
+<tr>
+<td>Executor</td>
+<td>Worker node执行任务的组件,负责 Task 的执行,用于启动线程池运行任务</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>ClusterManager</td>
+<td>Standalone 模式中为 Master, 控制整个集群, 监控Worker</td>
+</tr>
+<tr>
+<td>SparkContext</td>
+<td>整个应用的上下文, 控制App的生命周期</td>
+</tr>
+<tr>
+<td>RDD</td>
+<td>Spark的基本计算单元，一组RDD可形成执行的 DAG</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/images/spark/spark-introduce-03.jpeg" alt="spark"></p>
+<table>
+<thead>
+<tr>
+<th>Spark App 流程</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Client 提交应用</td>
+<td></td>
+</tr>
+<tr>
+<td>2. Master 找到一个 Worker 启动 Driver</td>
+<td></td>
+</tr>
+<tr>
+<td>3. Driver 向 Master 或者 资源管理器申请资源，之后将应用转化为 RDD Graph</td>
+<td></td>
+</tr>
+<tr>
+<td>4. DAGScheduler 将 RDD Graph 转化为 Stage的有向无环图 提交给 TaskScheduler</td>
+<td></td>
+</tr>
+<tr>
+<td>5. TaskScheduler 提交 task 给Executor执行</td>
+<td></td>
+</tr>
+<tr>
+<td>6. 在任务执行的过程中，其他组件协同工作，确保整个应用顺利执行</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>在执行阶段，Driver 会将 Task 和 Task所依赖的file 和 jar 序列化后传递给对应的 Worker机器，同时 Executor对相应数据分区的任务进行处理。</p>
+</blockquote>
+<h2 id="7-小结"><a href="#7-小结" class="headerlink" title="7. 小结"></a>7. 小结</h2><p>由于 Spark 主要使用 HDFS 充当持久化层，所以完整的使用 Spark 需要预先安装 Hadoop.</p>
+<p>Spark 将分布式的内存数据抽象为弹性分布式数据集 (RDD), 并在其上实现了丰富的算子，从而对 RDD 进行计算，最后将 算子序列 转化为 DAG 进行执行和调度。</p>
+<blockquote>
+<p>Spark的Python API几乎覆盖了所有Scala API所能提供的功能. 但的确有些特性，比如Spark Streaming和个别的API方法，暂不支持。<br><a href="http://spark.apache.org/docs/latest/programming-guide.html" target="_blank" rel="external">具体参见《Spark编程指南》的Python部分</a></p>
+</blockquote>
+<p>体会了 函数式 编程. 个人认为 scala、python 比较适合写 spark 程序.</p>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-db-etl-kettle" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
