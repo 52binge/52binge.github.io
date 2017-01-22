@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Automation pull data to greenplum ods - Home</title>
+  <title>Greenplum ods - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="automation programmed pull data by datax -&amp;gt; ext -&amp;gt; ods">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Automation pull data to greenplum ods">
+<meta property="og:title" content="Greenplum ods">
 <meta property="og:url" content="http://selfboot.org/2017/01/20/db-greenplum-mysql-ext-ods/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="automation programmed pull data by datax -&amp;gt; ext -&amp;gt; ods">
 <meta property="og:image" content="http://selfboot.org/images/db/greenplum-ods-flow.png">
-<meta property="og:updated_time" content="2017-01-20T07:57:17.000Z">
+<meta property="og:updated_time" content="2017-01-22T07:45:26.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Automation pull data to greenplum ods">
+<meta name="twitter:title" content="Greenplum ods">
 <meta name="twitter:description" content="automation programmed pull data by datax -&amp;gt; ext -&amp;gt; ods">
 <meta name="twitter:image" content="http://selfboot.org/images/db/greenplum-ods-flow.png">
   
@@ -69,7 +69,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Automation pull data to greenplum ods
+      Greenplum ods
       <small class=article-detail-date-index>&nbsp; 2017-01-20</small>
     </h1>
   
@@ -124,7 +124,7 @@
 <p>(2). crontab_job_ods_shop.sh</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">sh ods_dm_shop.sh <span class="variable">$&#123;d1&#125;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 <p>(3). ods_dm_shop.sh</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"><span class="comment">#                                                                             </span></span><br><span class="line"><span class="comment"># @date:   2017.01.19</span></span><br><span class="line"><span class="comment"># @desc:   mysql data -&gt; ext shop -&gt; ods shop</span></span><br><span class="line"><span class="comment">#                                                                            </span></span><br><span class="line"><span class="comment">############################################################################### </span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"></span><br><span class="line">python <span class="variable">$&#123;datax_home&#125;</span>/bin/datax.py -p <span class="string">"-Dbegin_time='2010-01-01' -Dend_time='<span class="variable">$&#123;d1&#125;</span>' -Dgpextdata='<span class="variable">$&#123;gpextdata&#125;</span>'"</span> <span class="variable">$&#123;data_dir&#125;</span>/your_company_name_com.ext/mysql2textfile-shop.json</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;data_integration&#125;</span>/kitchen.sh -file=<span class="variable">$&#123;ktrs_dir&#125;</span>/ods_shop.kjb</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># @date:   2017.01.20</span></span><br><span class="line"><span class="comment"># @desc:   mysql data -&gt; ext shop -&gt; ods shop</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;util_dir&#125;</span>/my_<span class="built_in">functions</span></span><br><span class="line"></span><br><span class="line">begin_time=<span class="string">"2010-01-01"</span></span><br><span class="line">end_time=<span class="variable">$&#123;d1&#125;</span></span><br><span class="line"></span><br><span class="line">import_gpdata_from_rds1 <span class="variable">$&#123;begin_time&#125;</span> <span class="variable">$&#123;end_time&#125;</span> <span class="variable">$&#123;data_dir&#125;</span>/xkeshi_com.ext/mysql2textfile-shop.json</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span>_ex <span class="string">"<span class="variable">$&#123;data_integration&#125;</span>/kitchen.sh -file=<span class="variable">$&#123;ktrs_dir&#125;</span>/ods_shop.kjb"</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;data_integration&#125;</span>/kitchen.sh -file=<span class="variable">$&#123;ktrs_dir&#125;</span>/ods_shop.kjb</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span>_ex <span class="string">"import shop end"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
 <h2 id="5-Code-Deploy"><a href="#5-Code-Deploy" class="headerlink" title="5. Code Deploy"></a>5. Code Deploy</h2><blockquote>
 <p>/data0/dm/online/ext_ods_table  </p>
 <p>注意： 版本控制中，涉及的敏感 库地址，用户名，密码 等 不上传。</p>
@@ -178,8 +178,16 @@
     
 <nav id="article-nav">
   
+    <a href="/2017/01/21/society-China-modern-history/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          biggest bandit spy
+        
+      </div>
+    </a>
   
-    <a href="/2017/01/15/health-weight-loss-exercise/" id="article-nav-older" class="article-nav-link-wrap">
+  
+    <a href="/2017/01/15/society-health-weight-loss-exercise/" id="article-nav-older" class="article-nav-link-wrap">
       <div class="article-nav-title">Exercise - thin belly thin waist exercise&nbsp;<span>&gt;</span></div>
     </a>
   
