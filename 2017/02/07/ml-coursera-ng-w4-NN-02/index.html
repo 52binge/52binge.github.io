@@ -13,7 +13,7 @@
 <meta property="og:description" content="coursera week 4 - ML Neural Networks Representation">
 <meta property="og:image" content="http://selfboot.org/images/ml/ml-ng-w4-02-02.png">
 <meta property="og:image" content="http://selfboot.org/images/ml/ml-ng-w4-02-03.png">
-<meta property="og:updated_time" content="2017-02-07T09:31:27.000Z">
+<meta property="og:updated_time" content="2017-02-07T14:38:31.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Coursera Week 4 - Neural Networks">
 <meta name="twitter:description" content="coursera week 4 - ML Neural Networks Representation">
@@ -140,7 +140,33 @@
 <p>In other words, for layer $j=2$ and node $k$, the variable $z$ will be:</p>
 <p>$$<br>z_k^{(2)} = \Theta_{k,0}^{(1)}x_0 + \Theta_{k,1}^{(1)}x_1 + \cdots + \Theta_{k,n}^{(1)}x_n<br>$$</p>
 <p>The vector representation of $x$ and $z^{j}$ is:</p>
-<p>$$<br>\begin{align<em>}x = \begin{bmatrix}x_0 \newline x_1 \newline\cdots \newline x_n\end{bmatrix} &amp;z^{(j)} = \begin{bmatrix}z_1^{(j)} \newline z_2^{(j)} \newline\cdots \newline z_n^{(j)}\end{bmatrix}\end{align</em>}<br>$$</p>
+<p>$$<br>\begin{align}x = \begin{bmatrix}x_0 \newline x_1 \newline\cdots \newline x_n\end{bmatrix} &amp;z^{(j)} = \begin{bmatrix}z_1^{(j)} \newline z_2^{(j)} \newline\cdots \newline z_n^{(j)}\end{bmatrix}\end{align}<br>$$</p>
+<p>Setting $x = a^{(1)}$, we can rewrite the equation as:</p>
+<p>$$<br>z^{(j)} = \Theta^{(j-1)}a^{(j-1)}<br>$$</p>
+<p>We are multiplying our matrix $\Theta^{(j-1)}$ with dimensions $s_j\times (n+1)$ (where $s_j$ is the number of our activation nodes) by our vector $a^{(j-1)}$ with height (n+1). This gives us our vector $z^{(j)}$ with height $s_j$. Now we can get a vector of our activation nodes for layer $j$ as follows:</p>
+<p>$$<br>a^{(j)} = g(z^{(j)})<br>$$</p>
+<p>Where our function $g$ can be applied element-wise to our vector $z^{(j)}$.</p>
+<p>We can then add a bias unit (equal to 1) to layer j after we have computed $a^{(j)}$. This will be element $a_0^{(j)}$ and will be equal to 1. To compute our final hypothesis, let’s first compute another $z$ vector:</p>
+<p>$$<br>z^{(j+1)} = \Theta^{(j)}a^{(j)}<br>$$</p>
+<p>We get this final z vector by multiplying the next theta matrix after $\Theta^{(j-1)}$ with the values of all the activation nodes we just got. This last theta matrix $\Theta^{(j)}$ will have only one row which is multiplied by one column $a^{(j)}$ so that our result is a single number. We then get our final result with:</p>
+<p>$$<br>h_\Theta(x) = a^{(j+1)} = g(z^{(j+1)})<br>$$</p>
+<h2 id="3-Cost-Function"><a href="#3-Cost-Function" class="headerlink" title="3. Cost Function"></a>3. Cost Function</h2><p>Let’s first define a few variables that we will need to use:</p>
+<ul>
+<li>$L$ = total number of layers in the network</li>
+<li>$s_l$ = number of units (not counting bias unit) in layer l</li>
+<li>$K$ = number of output units/classes</li>
+</ul>
+<p>Recall that in neural networks, we may have many output nodes. We denote $h_\Theta(x)_k$ as being a hypothesis that results in the $k^{th}$ output. Our cost function for neural networks is going to be a generalization of the one we used for logistic regression. Recall that the cost function for regularized logistic regression was:</p>
+<p>$$<br>J(\theta) = - \frac{1}{m} \sum_{i=1}^m [ y^{(i)}\ \log (h_\theta (x^{(i)})) + (1 - y^{(i)})\ \log (1 - h_\theta(x^{(i)}))] + \frac{\lambda}{2m}\sum_{j=1}^n \theta_j^2<br>$$</p>
+<p>For neural networks, it is going to be slightly more complicated:</p>
+<p>$$<br>\begin{gather} J(\Theta) = - \frac{1}{m} \sum_{i=1}^m \sum_{k=1}^K \left[y^{(i)}_k \log ((h_\Theta (x^{(i)}))_k) + (1 - y^{(i)}_k)\log (1 - (h_\Theta(x^{(i)}))_k)\right] + \frac{\lambda}{2m}\sum_{l=1}^{L-1} \sum_{i=1}^{s_l} \sum_{j=1}^{s_{l+1}} ( \Theta_{j,i}^{(l)})^2\end{gather}<br>$$</p>
+<p>We have added a few nested summations to account for our multiple output nodes. In the first part of the equation, before the square brackets, we have an additional nested summation that loops through the number of output nodes.</p>
+<p>In the regularization part, after the square brackets, we must account for multiple theta matrices. The number of columns in our current theta matrix is equal to the number of nodes in our current layer (including the bias unit). The number of rows in our current theta matrix is equal to the number of nodes in the next layer (excluding the bias unit). As before with logistic regression, we square every term.</p>
+<h2 id="4-Backpropagation-Algorithm"><a href="#4-Backpropagation-Algorithm" class="headerlink" title="4. Backpropagation Algorithm"></a>4. Backpropagation Algorithm</h2><p>“Backpropagation” is neural-network terminology for minimizing our cost function, just like what we were doing with gradient descent in logistic and linear regression. Our goal is to compute:</p>
+<p>$$<br>\min_\Theta J(\Theta)<br>$$</p>
+<p>That is, we want to minimize our cost function $J$ using an optimal set of parameters in theta. In this section we’ll look at the equations we use to compute the partial derivative of J(Θ):</p>
+<p>$$<br>\dfrac{\partial}{\partial \Theta_{i,j}^{(l)}}J(\Theta)<br>$$</p>
+<p>To do so, we use the following algorithm:</p>
 <h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><table>
 <thead>
 <tr>
@@ -234,7 +260,7 @@
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Model-Representation-I"><span class="toc-number"></span> <span class="toc-text">1. Model Representation I</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Model-Representation-II"><span class="toc-number"></span> <span class="toc-text">2. Model Representation II</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Model-Representation-I"><span class="toc-number"></span> <span class="toc-text">1. Model Representation I</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Model-Representation-II"><span class="toc-number"></span> <span class="toc-text">2. Model Representation II</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Cost-Function"><span class="toc-number"></span> <span class="toc-text">3. Cost Function</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Backpropagation-Algorithm"><span class="toc-number"></span> <span class="toc-text">4. Backpropagation Algorithm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
       </div>
     
     
