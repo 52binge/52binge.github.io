@@ -4,6 +4,222 @@
   
     
     <entry>
+      <title><![CDATA[Kaggle_Titanic]]></title>
+      <url>http://selfboot.org/2017/02/16/pybrain-NN-BPNN-Titanic-2017-02-16-1732-ipynb/</url>
+      <content type="html"><![CDATA[<h2 id="泰坦尼克号"><a href="#泰坦尼克号" class="headerlink" title="泰坦尼克号"></a><a href="https://www.kaggle.com/c/titanic" target="_blank" rel="external">泰坦尼克号</a></h2><p>『Jack and Rose』的故事，豪华游艇倒了，大家都惊恐逃生，可是救生艇的数量有限，无法人人都有，副船长发话了『lady and kid first！』，所以是否获救其实并非随机，而是基于一些背景有rank先后的。<br><br>训练和测试数据是一些乘客的个人信息以及存活状况，要尝试根据它生成合适的模型并预测其他人的存活状况。<br></p>
+<p>这是一个二分类问题，很多分类算法都可以解决。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">构建Pybrain神经网络的基本步骤：</span><br><span class="line"></span><br><span class="line">1. 构建神经网路</span><br><span class="line">2. 构造数据集</span><br><span class="line">3. 训练神经网络</span><br><span class="line">4. 预测测试集结果</span><br><span class="line">5. 验证和分析</span><br></pre></td></tr></table></figure>
+<h2 id="1-分析问题"><a href="#1-分析问题" class="headerlink" title="1. 分析问题"></a>1. 分析问题</h2><blockquote>
+<p>分析什么特征是更重要的</p>
+</blockquote>
+<p>先看看数据长什么样？ 还是用pandas加载数据</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这个ipython notebook主要是我解决Kaggle Titanic问题的思路和过程</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment">#数据分析</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np <span class="comment">#科学计算</span></span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> Series,DataFrame</span><br><span class="line"></span><br><span class="line">data_train = pd.read_csv(<span class="string">"Train.csv"</span>)</span><br><span class="line"><span class="keyword">print</span> data_train.columns</span><br><span class="line"><span class="keyword">print</span> <span class="string">"============ df info ============"</span></span><br><span class="line">data_train.info()</span><br></pre></td></tr></table></figure>
+<pre><code>Index([u&apos;PassengerId&apos;, u&apos;Survived&apos;, u&apos;Pclass&apos;, u&apos;Name&apos;, u&apos;Sex&apos;, u&apos;Age&apos;,
+       u&apos;SibSp&apos;, u&apos;Parch&apos;, u&apos;Ticket&apos;, u&apos;Fare&apos;, u&apos;Cabin&apos;, u&apos;Embarked&apos;],
+      dtype=&apos;object&apos;)
+============ df info ============
+&lt;class &apos;pandas.core.frame.DataFrame&apos;&gt;
+RangeIndex: 891 entries, 0 to 890
+Data columns (total 12 columns):
+PassengerId    891 non-null int64
+Survived       891 non-null int64
+Pclass         891 non-null int64
+Name           891 non-null object
+Sex            891 non-null object
+Age            714 non-null float64
+SibSp          891 non-null int64
+Parch          891 non-null int64
+Ticket         891 non-null object
+Fare           891 non-null float64
+Cabin          204 non-null object
+Embarked       889 non-null object
+dtypes: float64(2), int64(5), object(5)
+memory usage: 83.6+ KB
+</code></pre><p>我们看大概有以下这些字段</p>
+<p>PassengerId =&gt; 乘客ID<br>Pclass =&gt; 乘客等级(1/2/3等舱位)<br>Name =&gt; 乘客姓名<br>Sex =&gt; 性别<br>Age =&gt; 年龄<br>SibSp =&gt; 堂兄弟/妹个数<br>Parch =&gt; 父母与小孩个数<br>Ticket =&gt; 船票信息<br>Fare =&gt; 票价<br>Cabin =&gt; 客舱<br>Embarked =&gt; 登船港口</p>
+<p>上面的数据说什么了？它告诉我们，训练数据中总共有891名乘客，但是很不幸，我们有些属性的数据不全，比如说：</p>
+<ul>
+<li>Age（年龄）属性只有714名乘客有记录</li>
+<li>Cabin（客舱）更是只有204名乘客是已知的</li>
+</ul>
+<p>再瞄一眼具体数据数值情况，得到数值型数据的一些分布(因为有些属性，比如姓名，是文本型；而另外一些属性，比如登船港口，是类目型。这些我们用下面的函数是看不到的)</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_train.describe()</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>-</th>
+<th>PassengerId</th>
+<th>Survived</th>
+<th>Pclass</th>
+<th>Age</th>
+<th>SibSp</th>
+<th>Parch</th>
+<th>Fare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>891.000000</td>
+<td>891.000000</td>
+<td>891.000000</td>
+<td>714.000000</td>
+<td>891.000000</td>
+<td>891.000000</td>
+<td>891.000000</td>
+</tr>
+<tr>
+<td>mean</td>
+<td>446.000000</td>
+<td>0.383838</td>
+<td>2.308642</td>
+<td>29.699118</td>
+<td>0.523008</td>
+<td>0.381594</td>
+<td>32.204208</td>
+</tr>
+</tbody>
+</table>
+<p><font color="red">mean字段告诉我们，大概0.383838的人最后获救了，2/3等舱的人数比1等舱要多，平均乘客年龄大概是29.7岁(计算这个时候会略掉无记录的)等等…<font></font></font></p>
+<ul>
+<li><font color="blue">『对数据的认识太重要了！』<font></font></font></li>
+<li><font color="red">『对数据的认识太重要了！』<font></font></font></li>
+<li><font color="green">『对数据的认识太重要了！』<font></font></font></li>
+</ul>
+<p>总结 : </p>
+<ol>
+<li>Cabin，没看出什么明显特征，缺失值又太多</li>
+<li>Age：可以尝试补全缺失的数据</li>
+</ol>
+<p><strong>通常遇到缺值的情况，我们会有几种常见的处理方式</strong><br><br></p>
+<ol>
+<li>如果缺值的样本占总数比例极高，我们可能就直接舍弃了，作为特征加入的话，可能反倒带入noise，影响最后的结果了</li>
+<li>如果缺值的样本适中，而该属性非连续值特征属性(比如说类目属性)，那就把NaN作为一个新类别，加到类别特征中</li>
+<li>如果缺值的样本适中，而该属性为连续值特征属性，有时候我们会考虑给定一个step(比如这里的age，我们可以考虑每隔2/3岁为一个步长)，然后把它离散化，之后把NaN作为一个type加到属性类目中。</li>
+<li>有些情况下，缺失的值个数并不是特别多，那我们也可以试着根据已有的值，拟合一下数据，补充上。</li>
+</ol>
+<p>本例中，后两种处理方式应该都是可行的，我们先试试拟合补全吧(没有特别多的背景可供我们拟合，这不一定是一个好的选择)</p>
+<p>我们这里用scikit-learn中的RandomForest来拟合一下缺失的年龄数据<br></p>
+<ol>
+<li>从数据来估计 Age 应该是比较重要的, 还有毕竟 副船长发话了『lady and kid first！』</li>
+<li>Cabin 缺失值太多了，先按Cabin有无数据，将这个属性处理成Yes和No两种类型吧</li>
+</ol>
+<h2 id="2-准备数据"><a href="#2-准备数据" class="headerlink" title="2. 准备数据"></a>2. 准备数据</h2><ol>
+<li>Age 与 cabin 补全</li>
+<li>one-hot 编码</li>
+<li>Feature Scaling</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 我们这里用scikit-learn中的RandomForest来拟合一下缺失的年龄数据</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestRegressor</span><br><span class="line"> </span><br><span class="line"><span class="comment">### 使用 RandomForestClassifier 填补缺失的年龄属性</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_missing_ages</span><span class="params">(df)</span>:</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 把已有的数值型特征取出来丢进Random Forest Regressor中</span></span><br><span class="line">    age_df = df[[<span class="string">'Age'</span>,<span class="string">'Fare'</span>, <span class="string">'Parch'</span>, <span class="string">'SibSp'</span>, <span class="string">'Pclass'</span>]]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 乘客分成已知年龄和未知年龄两部分</span></span><br><span class="line">    known_age = age_df[age_df.Age.notnull()].as_matrix()</span><br><span class="line">    unknown_age = age_df[age_df.Age.isnull()].as_matrix()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># y即目标年龄</span></span><br><span class="line">    y = known_age[:, <span class="number">0</span>] <span class="comment">## Age ‘s value list</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># X即特征属性值</span></span><br><span class="line">    X = known_age[:, <span class="number">1</span>:] <span class="comment">## Fare 的值 list</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># fit到RandomForestRegressor之中</span></span><br><span class="line">    rfr = RandomForestRegressor(random_state=<span class="number">0</span>, n_estimators=<span class="number">2000</span>, n_jobs=<span class="number">-1</span>)</span><br><span class="line">    rfr.fit(X, y)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 用得到的模型进行未知年龄结果预测</span></span><br><span class="line">    predictedAges = rfr.predict(unknown_age[:, <span class="number">1</span>::])</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 用得到的预测结果填补原缺失数据</span></span><br><span class="line">    df.loc[ (df.Age.isnull()), <span class="string">'Age'</span> ] = predictedAges </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> df, rfr</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_Cabin_type</span><span class="params">(df)</span>:</span></span><br><span class="line">    df.loc[ (df.Cabin.notnull()), <span class="string">'Cabin'</span> ] = <span class="string">"Yes"</span></span><br><span class="line">    df.loc[ (df.Cabin.isnull()), <span class="string">'Cabin'</span> ] = <span class="string">"No"</span></span><br><span class="line">    <span class="keyword">return</span> df</span><br><span class="line"></span><br><span class="line">data_train, rfr = set_missing_ages(data_train)</span><br><span class="line">data_train = set_Cabin_type(data_train)</span><br><span class="line">data_train</span><br></pre></td></tr></table></figure>
+<p><strong>one-hot 编码</strong></p>
+<p>因为逻辑回归建模时，需要输入的特征都是数值型特征，我们通常会先对类目型的特征因子化/one-hot编码。 <br><br>什么叫做因子化/one-hot编码？举个例子：<font><br></font></p>
+<p>以Embarked为例，原本一个属性维度，因为其取值可以是[‘S’,’C’,’Q‘]，而将其平展开为’Embarked_C’,’Embarked_S’, ‘Embarked_Q’三个属性<font><br></font></p>
+<ol>
+<li>原Embarked取S的，在此处的”Embarked_S”下取值为1，在’Embarked_C’, ‘Embarked_Q’下取值为0<br></li>
+<li>原Embarked取C的，在此处的”Embarked_C”下取值为1，在’Embarked_S’, ‘Embarked_Q’下取值为0<br></li>
+<li>原Embarked取Q的，在此处的”Embarked_Q”下取值为1，在’Embarked_C’, ‘Embarked_S’下取值为0<br></li>
+</ol>
+<p>我们使用pandas的”get_dummies”来完成这个工作，并拼接在原来的”data_train”之上，如下所示。<br></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 因为逻辑回归建模时，需要输入的特征都是数值型特征</span></span><br><span class="line"><span class="comment"># 我们先对类目型的特征离散/因子化</span></span><br><span class="line"><span class="comment"># 以Cabin为例，原本一个属性维度，因为其取值可以是['yes','no']，而将其平展开为'Cabin_yes','Cabin_no'两个属性</span></span><br><span class="line"><span class="comment"># 原本Cabin取值为yes的，在此处的'Cabin_yes'下取值为1，在'Cabin_no'下取值为0</span></span><br><span class="line"><span class="comment"># 原本Cabin取值为no的，在此处的'Cabin_yes'下取值为0，在'Cabin_no'下取值为1</span></span><br><span class="line"><span class="comment"># 我们使用pandas的get_dummies来完成这个工作，并拼接在原来的data_train之上，如下所示</span></span><br><span class="line">dummies_Cabin = pd.get_dummies(data_train[<span class="string">'Cabin'</span>], prefix= <span class="string">'Cabin'</span>)</span><br><span class="line"></span><br><span class="line">dummies_Embarked = pd.get_dummies(data_train[<span class="string">'Embarked'</span>], prefix= <span class="string">'Embarked'</span>)</span><br><span class="line"></span><br><span class="line">dummies_Sex = pd.get_dummies(data_train[<span class="string">'Sex'</span>], prefix= <span class="string">'Sex'</span>)</span><br><span class="line"></span><br><span class="line">dummies_Pclass = pd.get_dummies(data_train[<span class="string">'Pclass'</span>], prefix= <span class="string">'Pclass'</span>)</span><br><span class="line">df = pd.concat([data_train, dummies_Cabin, dummies_Embarked, dummies_Sex, dummies_Pclass], axis=<span class="number">1</span>)</span><br><span class="line">df.drop([<span class="string">'Pclass'</span>, <span class="string">'Name'</span>, <span class="string">'Sex'</span>, <span class="string">'Ticket'</span>, <span class="string">'Cabin'</span>, <span class="string">'Embarked'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">df</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>PassengerId</th>
+<th>…</th>
+<th>Embarked_C</th>
+<th>Embarked_Q</th>
+<th>Embarked_S</th>
+<th>Sex_female</th>
+<th>Sex_male</th>
+<th>Pclass_1</th>
+<th>Pclass_2</th>
+<th>Pclass_3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>…</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Feature Scaling</strong></p>
+<p><font color="red">Age和Fare两个属性，乘客的数值幅度变化，scaling，其实就是将一些变化幅度较大的特征化到[-1,1]之内。<font></font></font></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 接下来我们要接着做一些数据预处理的工作，比如scaling，将一些变化幅度较大的特征化到[-1,1]之内</span></span><br><span class="line"><span class="comment"># 这样可以加速logistic regression的收敛</span></span><br><span class="line"><span class="keyword">import</span> sklearn.preprocessing <span class="keyword">as</span> preprocessing</span><br><span class="line">scaler = preprocessing.StandardScaler()</span><br><span class="line">age_scale_param = scaler.fit(df[<span class="string">'Age'</span>])</span><br><span class="line">df[<span class="string">'Age_scaled'</span>] = scaler.fit_transform(df[<span class="string">'Age'</span>], age_scale_param)</span><br><span class="line">fare_scale_param = scaler.fit(df[<span class="string">'Fare'</span>])</span><br><span class="line">df[<span class="string">'Fare_scaled'</span>] = scaler.fit_transform(df[<span class="string">'Fare'</span>], fare_scale_param)</span><br><span class="line">df</span><br><span class="line">train_df = df.filter(regex=<span class="string">'Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*'</span>)</span><br><span class="line">train_df</span><br></pre></td></tr></table></figure>
+<h2 id="3-构造神经网络"><a href="#3-构造神经网络" class="headerlink" title="3. 构造神经网络"></a>3. 构造神经网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> Series,DataFrame</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas.io.data <span class="keyword">as</span> wb</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pybrain.structure <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> pybrain.datasets <span class="keyword">import</span> SupervisedDataSet</span><br><span class="line"><span class="keyword">from</span> pybrain.supervised.trainers <span class="keyword">import</span> BackpropTrainer</span><br><span class="line"></span><br><span class="line"><span class="comment"># createa neural network</span></span><br><span class="line">fnn = FeedForwardNetwork()</span><br><span class="line"></span><br><span class="line"><span class="comment"># create three layers, input layer:2 input unit; hidden layer: 10 units; output layer: 1 output</span></span><br><span class="line">inLayer = LinearLayer(<span class="number">9</span>, name=<span class="string">'inLayer'</span>)</span><br><span class="line">hiddenLayer0 = SigmoidLayer(<span class="number">1</span>, name=<span class="string">'hiddenLayer0'</span>)</span><br><span class="line">outLayer = LinearLayer(<span class="number">1</span>, name=<span class="string">'outLayer'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add three layers to the neural network</span></span><br><span class="line">fnn.addInputModule(inLayer)</span><br><span class="line">fnn.addModule(hiddenLayer0)</span><br><span class="line">fnn.addOutputModule(outLayer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># link three layers</span></span><br><span class="line">in_to_hidden0 = FullConnection(inLayer,hiddenLayer0)</span><br><span class="line">hidden0_to_out = FullConnection(hiddenLayer0, outLayer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the links to neural network</span></span><br><span class="line">fnn.addConnection(in_to_hidden0)</span><br><span class="line">fnn.addConnection(hidden0_to_out)</span><br><span class="line"></span><br><span class="line"><span class="comment"># make neural network come into effect</span></span><br><span class="line">fnn.sortModules()</span><br></pre></td></tr></table></figure>
+<h2 id="4-构造数据集"><a href="#4-构造数据集" class="headerlink" title="4. 构造数据集"></a>4. 构造数据集</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># obtain the original data</span></span><br><span class="line"></span><br><span class="line">x1 = train_df[<span class="string">'SibSp'</span>]</span><br><span class="line">x2 = train_df[<span class="string">'Parch'</span>]</span><br><span class="line">x3 = train_df[<span class="string">'Sex_female'</span>]</span><br><span class="line">x4 = train_df[<span class="string">'Sex_male'</span>]</span><br><span class="line">x5 = train_df[<span class="string">'Pclass_1'</span>]</span><br><span class="line">x6 = train_df[<span class="string">'Pclass_2'</span>]</span><br><span class="line">x7 = train_df[<span class="string">'Pclass_3'</span>]</span><br><span class="line">x8 = train_df[<span class="string">'Age_scaled'</span>]</span><br><span class="line">x9 = train_df[<span class="string">'Fare_scaled'</span>]</span><br><span class="line"></span><br><span class="line">y = train_df[<span class="string">'Survived'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># definite the dataset as two input , one output</span></span><br><span class="line">DS = SupervisedDataSet(<span class="number">9</span>,<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add data element to the dataset</span></span><br><span class="line"><span class="comment"># 往数据集内加样本点</span></span><br><span class="line"><span class="comment"># 假设x1，x2，x3是输入的三个维度向量，y是输出向量，并且它们的长度相同</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(len(train_df)):</span><br><span class="line">    DS.addSample([x1[i],x2[i],x3[i],x4[i],x5[i],x6[i],x7[i],x8[i],x9[i]],[y[i]])</span><br><span class="line"></span><br><span class="line"><span class="comment"># you can get your input/output this way</span></span><br><span class="line"><span class="comment"># 如果要获得里面的输入／输出时，可以用</span></span><br><span class="line">X = DS[<span class="string">'input'</span>]</span><br><span class="line">Y = DS[<span class="string">'target'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># split the dataset into train dataset and test dataset</span></span><br><span class="line"><span class="comment"># 如果要把数据集切分成训练集和测试集，可以用下面的语句，训练集：测试集＝8:2</span></span><br><span class="line"><span class="comment"># 为了方便之后的调用，可以把输入和输出拎出来</span></span><br><span class="line">dataTrain, dataTest = DS.splitWithProportion(<span class="number">0.8</span>)</span><br><span class="line">xTrain, yTrain = dataTrain[<span class="string">'input'</span>],dataTrain[<span class="string">'target'</span>]</span><br><span class="line">xTest, yTest = dataTest[<span class="string">'input'</span>], dataTest[<span class="string">'target'</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"bulid data sets end ！"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#print xTest[1]</span></span><br><span class="line">type(xTest)</span><br></pre></td></tr></table></figure>
+<pre><code>bulid data sets end ！
+numpy.ndarray
+</code></pre><h2 id="5-训练神经网络"><a href="#5-训练神经网络" class="headerlink" title="5. 训练神经网络"></a>5. 训练神经网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># train the NN</span></span><br><span class="line"><span class="comment"># we use BP Algorithm</span></span><br><span class="line"><span class="comment"># verbose = True means print th total error</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"trainer start..."</span></span><br><span class="line">trainer = BackpropTrainer(fnn, dataTrain, verbose=<span class="keyword">False</span>,learningrate=<span class="number">0.01</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"run..."</span></span><br><span class="line"><span class="comment"># set the epoch times to make the NN  fit</span></span><br><span class="line">trainer.trainUntilConvergence(maxEpochs=<span class="number">500</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"trainer end!"</span></span><br></pre></td></tr></table></figure>
+<pre><code>trainer start...
+run...
+trainer end!
+</code></pre><h2 id="6-预测-test-csv"><a href="#6-预测-test-csv" class="headerlink" title="6. 预测 test.csv"></a>6. 预测 test.csv</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_test = pd.read_csv(<span class="string">"test.csv"</span>)</span><br><span class="line">data_test.loc[ (data_test.Fare.isnull()), <span class="string">'Fare'</span> ] = <span class="number">0</span></span><br><span class="line"><span class="comment"># 接着我们对test_data做和train_data中一致的特征变换</span></span><br><span class="line"><span class="comment"># 首先用同样的RandomForestRegressor模型填上丢失的年龄</span></span><br><span class="line">tmp_df = data_test[[<span class="string">'Age'</span>,<span class="string">'Fare'</span>, <span class="string">'Parch'</span>, <span class="string">'SibSp'</span>, <span class="string">'Pclass'</span>]]</span><br><span class="line">null_age = tmp_df[data_test.Age.isnull()].as_matrix()</span><br><span class="line"><span class="comment"># 根据特征属性X预测年龄并补上</span></span><br><span class="line">X = null_age[:, <span class="number">1</span>:]</span><br><span class="line">predictedAges = rfr.predict(X)</span><br><span class="line">data_test.loc[ (data_test.Age.isnull()), <span class="string">'Age'</span> ] = predictedAges</span><br><span class="line"></span><br><span class="line">data_test = set_Cabin_type(data_test)</span><br><span class="line">dummies_Cabin = pd.get_dummies(data_test[<span class="string">'Cabin'</span>], prefix= <span class="string">'Cabin'</span>)</span><br><span class="line">dummies_Embarked = pd.get_dummies(data_test[<span class="string">'Embarked'</span>], prefix= <span class="string">'Embarked'</span>)</span><br><span class="line">dummies_Sex = pd.get_dummies(data_test[<span class="string">'Sex'</span>], prefix= <span class="string">'Sex'</span>)</span><br><span class="line">dummies_Pclass = pd.get_dummies(data_test[<span class="string">'Pclass'</span>], prefix= <span class="string">'Pclass'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">df_test = pd.concat([data_test, dummies_Cabin, dummies_Embarked, dummies_Sex, dummies_Pclass], axis=<span class="number">1</span>)</span><br><span class="line">df_test.drop([<span class="string">'Pclass'</span>, <span class="string">'Name'</span>, <span class="string">'Sex'</span>, <span class="string">'Ticket'</span>, <span class="string">'Cabin'</span>, <span class="string">'Embarked'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">df_test[<span class="string">'Age_scaled'</span>] = scaler.fit_transform(df_test[<span class="string">'Age'</span>], age_scale_param)</span><br><span class="line">df_test[<span class="string">'Fare_scaled'</span>] = scaler.fit_transform(df_test[<span class="string">'Fare'</span>], fare_scale_param)</span><br><span class="line">df_test</span><br><span class="line"></span><br><span class="line">test = df_test.filter(regex=<span class="string">'SibSp|Parch|Sex_female|Sex_male|Pclass_1|Pclass_2|Pclass_3|Age_scaled|Fare_scaled'</span>)</span><br><span class="line">xTest = test.as_matrix()</span><br><span class="line"><span class="comment"># prediction = fnn.activate(xTest[1])</span></span><br><span class="line"><span class="comment"># print("the prediction number is :",prediction," the real number is:  ",yTest[1])</span></span><br><span class="line">predict_resutl=[]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(len(xTest)):</span><br><span class="line">    res = fnn.activate(xTest[i])[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">if</span> (res &gt; <span class="number">0.5</span>) :</span><br><span class="line">        res = <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span> :</span><br><span class="line">        res = <span class="number">0</span></span><br><span class="line">    predict_resutl.append(res)</span><br><span class="line"></span><br><span class="line">final_res = np.array(predict_resutl).T</span><br><span class="line"></span><br><span class="line">result = pd.DataFrame(&#123;<span class="string">'PassengerId'</span>:data_test[<span class="string">'PassengerId'</span>].as_matrix(), <span class="string">'Survived'</span>:final_res&#125;)</span><br><span class="line">result</span><br></pre></td></tr></table></figure>
+<h2 id="7-结果写入文件"><a href="#7-结果写入文件" class="headerlink" title="7. 结果写入文件"></a>7. 结果写入文件</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result.to_csv(<span class="string">"logistic_regression_predictions.csv"</span>, index=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="8-验证和分析"><a href="#8-验证和分析" class="headerlink" title="8. 验证和分析"></a>8. 验证和分析</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> mod <span class="keyword">in</span> fnn.modules:</span><br><span class="line">  <span class="keyword">print</span> (<span class="string">"Module:"</span>, mod.name)</span><br><span class="line">  <span class="keyword">if</span> mod.paramdim &gt; <span class="number">0</span>:</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"--parameters:"</span>, mod.params)</span><br><span class="line">  <span class="keyword">for</span> conn <span class="keyword">in</span> fnn.connections[mod]:</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"-connection to"</span>, conn.outmod.name)</span><br><span class="line">    <span class="keyword">if</span> conn.paramdim &gt; <span class="number">0</span>:</span><br><span class="line">       <span class="keyword">print</span> (<span class="string">"- parameters"</span>, conn.params)</span><br><span class="line">  <span class="keyword">if</span> hasattr(fnn, <span class="string">"recurrentConns"</span>):</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"Recurrent connections"</span>)</span><br><span class="line">    <span class="keyword">for</span> conn <span class="keyword">in</span> fnn.recurrentConns:</span><br><span class="line">       <span class="keyword">print</span> (<span class="string">"-"</span>, conn.inmod.name, <span class="string">" to"</span>, conn.outmod.name)</span><br><span class="line">       <span class="keyword">if</span> conn.paramdim &gt; <span class="number">0</span>:</span><br><span class="line">          <span class="keyword">print</span> (<span class="string">"- parameters"</span>, conn.params)</span><br></pre></td></tr></table></figure>
+<pre><code>(&apos;Module:&apos;, &apos;outLayer&apos;)
+(&apos;Module:&apos;, &apos;inLayer&apos;)
+(&apos;-connection to&apos;, &apos;hiddenLayer0&apos;)
+(&apos;- parameters&apos;, array([-0.47294263, -0.04334279,  0.77615167, -2.03865708,  2.38243634,
+        0.69678661, -0.82062356, -0.70921933, -0.12044558]))
+(&apos;Module:&apos;, &apos;hiddenLayer0&apos;)
+(&apos;-connection to&apos;, &apos;outLayer&apos;)
+(&apos;- parameters&apos;, array([ 1.08050317]))
+</code></pre>]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Python pandas.DataFrame 类型数据操作函数 (not finish)]]></title>
+      <url>http://selfboot.org/2017/02/15/ml-python-pandas-2/</url>
+      <content type="html"><![CDATA[<table>
+<thead>
+<tr>
+<th>Extension lib</th>
+<th>introduction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Numpy</td>
+<td>提供数组支持，以及相应的高效处理函数</td>
+</tr>
+<tr>
+<td>Scipy</td>
+<td>提供矩阵支持，以及矩阵相关的数值计算模块</td>
+</tr>
+<tr>
+<td>Matplotlib</td>
+<td>数据可视化工具，作图库</td>
+</tr>
+<tr>
+<td>Pandas</td>
+<td>数据分析和探索工具</td>
+</tr>
+<tr>
+<td>Scikit-Learn</td>
+<td>支持回归，分类，聚类 等强大的机器学习库</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Python数据分析工具pandas中DataFrame和Series作为主要的数据结构. 本文主要是介绍如何对DataFrame数据进行操作并结合一个实例测试操作函数。</p>
+</blockquote>
+<h2 id="1-查看DataFrame数据及属性"><a href="#1-查看DataFrame数据及属性" class="headerlink" title="1. 查看DataFrame数据及属性"></a>1. 查看DataFrame数据及属性</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df_obj = DataFrame() <span class="comment">#创建DataFrame对象</span></span><br><span class="line">df_obj.dtypes <span class="comment">#查看各行的数据格式</span></span><br><span class="line">df_obj[<span class="string">'列名'</span>].astype(int)<span class="comment">#转换某列的数据类型</span></span><br><span class="line">df_obj.head() <span class="comment">#查看前几行的数据,默认前5行</span></span><br><span class="line">df_obj.tail() <span class="comment">#查看后几行的数据,默认后5行</span></span><br><span class="line">df_obj.index <span class="comment">#查看索引</span></span><br><span class="line">df_obj.columns <span class="comment">#查看列名</span></span><br><span class="line">df_obj.values <span class="comment">#查看数据值</span></span><br><span class="line">df_obj.describe() <span class="comment">#描述性统计</span></span><br><span class="line">df_obj.T <span class="comment">#转置</span></span><br><span class="line">df_obj.sort_values(by=[<span class="string">''</span>,<span class="string">''</span>])<span class="comment">#同上</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-DataFrame选择数据"><a href="#2-DataFrame选择数据" class="headerlink" title="2. DataFrame选择数据"></a>2. DataFrame选择数据</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df_obj.ix[<span class="number">1</span>:<span class="number">3</span>] <span class="comment">#获取1-3行的数据,该操作叫切片操作,获取行数据</span></span><br><span class="line">df_obj.ix[columns_index] <span class="comment">#获取列的数据</span></span><br><span class="line">df_obj.ix[<span class="number">1</span>:<span class="number">3</span>，[<span class="number">1</span>,<span class="number">3</span>]]<span class="comment">#获取1列3列的1~3行数据</span></span><br><span class="line">df_obj[columns].drop_duplicates() <span class="comment">#剔除重复行数据</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-DataFrame重置数据"><a href="#3-DataFrame重置数据" class="headerlink" title="3. DataFrame重置数据"></a>3. DataFrame重置数据</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df_obj.ix[<span class="number">1</span>:<span class="number">3</span>，[<span class="number">1</span>,<span class="number">3</span>]]=<span class="number">1</span> <span class="comment">#所选位置数据替换为1</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-DataFrame筛选数据"><a href="#4-DataFrame筛选数据" class="headerlink" title="4. DataFrame筛选数据"></a>4. DataFrame筛选数据</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">alist = [<span class="string">'023-18996609823'</span>]</span><br><span class="line">df_obj[<span class="string">'用户号码'</span>].isin(alist) <span class="comment">#将要过滤的数据放入字典中,使用isin对数据进行筛选,返回行索引以及每行筛选的结果,若匹配则返回ture</span></span><br><span class="line">df_obj[df_obj[<span class="string">'用户号码'</span>].isin(alist)] <span class="comment">#获取匹配结果为ture的行</span></span><br></pre></td></tr></table></figure>
+<h2 id="Refence-article"><a href="#Refence-article" class="headerlink" title="Refence article"></a>Refence article</h2><p><a href="http://blog.csdn.net/ly_ysys629/article/details/54428838" target="_blank" rel="external">csdn-LY_ysys629</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Coursera Week 5 - Neural Networks II]]></title>
       <url>http://selfboot.org/2017/02/13/ml-coursera-ng-w4-NN-03/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -1977,43 +2193,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://selfboot.org/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://selfboot.org/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -2055,6 +2234,43 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://selfboot.org/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
