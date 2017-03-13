@@ -14,7 +14,7 @@
 <meta property="og:image" content="http://selfboot.org/images/ml/rs-six-month-01.png">
 <meta property="og:image" content="http://selfboot.org/images/ml/rs-six-month-02.png">
 <meta property="og:image" content="http://selfboot.org/images/ml/rs-six-month-03.png">
-<meta property="og:updated_time" content="2017-03-02T09:33:36.000Z">
+<meta property="og:updated_time" content="2017-03-13T06:55:07.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Recommendation System and Application (not finish)">
 <meta name="twitter:description" content="recommendation system and application">
@@ -152,6 +152,7 @@
 <li>准确度</li>
 <li>覆盖度</li>
 <li>多样性</li>
+<li>评估标准</li>
 </ul>
 <h3 id="3-1-准确度-Top-N"><a href="#3-1-准确度-Top-N" class="headerlink" title="3.1 准确度 Top N"></a>3.1 准确度 Top N</h3><p>设 $R(u)$ 为根据训练建立的模型在测试集上的推荐, $T(u)$ 为测试集上用户的选择。</p>
 <p>$$<br>Precision =  \frac{\sum_{u∈U} | R(u) \bigcap T(u) | }{\sum_{u∈U} R(u)}<br>$$</p>
@@ -162,14 +163,23 @@
 <h3 id="3-2-覆盖率"><a href="#3-2-覆盖率" class="headerlink" title="3.2 覆盖率"></a>3.2 覆盖率</h3><p>表示对物品长尾的发掘能力 (推荐系统希望消除马太效应)</p>
 <p>$$<br>Coverage = \frac{|U_{u∈U} R(u)|}{|I|}<br>$$</p>
 <blockquote>
-<p>覆盖率是对平台所有物品所言</p>
+<p>覆盖率是对平台所有物品所言，淘宝推荐等会关切这个指标。</p>
 <p>非常独特的商品和新闻, 被看到的量, 是一条下滑曲线</p>
 <p>希望个性化推荐，把小众的商品 也推荐展示出来</p>
 </blockquote>
 <h3 id="3-3-多样性"><a href="#3-3-多样性" class="headerlink" title="3.3 多样性"></a>3.3 多样性</h3><p>表示推荐列表中物品两两之间的不相似性.</p>
+<p>$$<br>Diversity(R(u)) = 1 - \frac {\sum_{i, j \in R(u), {i \neq j}, {s(i, j)} }} {\frac {1}{2} |R(u)|(|R(u) - 1|)}<br>$$</p>
+<p>$$<br>Diversity = \frac {1} {|U|} {\sum_{u \in U} {Diversity(R(u))}}<br>$$</p>
 <blockquote>
-<p>全是牛仔裤的话，用户审美疲劳</p>
+<p>全是牛仔裤的话，用户审美疲劳, tag(纯棉 0，圆领 1) 连衣裙, 计算 vector 距离。品类不同，相似度设为 0.</p>
 </blockquote>
+<h3 id="3-4-评估标准"><a href="#3-4-评估标准" class="headerlink" title="3.4 评估标准"></a>3.4 评估标准</h3><ul>
+<li>新颖度 : 给用户 Surprise</li>
+<li>惊喜度 : 推荐和用户历史兴趣不相似，却满意的</li>
+<li>信任度 : 提供可靠的推荐理由</li>
+<li>实时性 : 实时更新程度 (context, session …)</li>
+<li>…</li>
+</ul>
 <h2 id="4-推荐算法"><a href="#4-推荐算法" class="headerlink" title="4. 推荐算法"></a>4. 推荐算法</h2><ol>
 <li>基于内容的推荐</li>
 <li>协同过滤CF</li>
@@ -181,16 +191,21 @@
 <li>通常使用在 <code>文本相关</code> 的产品上进行推荐</li>
 <li>Item 通过内容 (比如 关键词) 关联</li>
 </ul>
+<p>在推荐电影中，也可以使用，但是效果不见得好. 你需要手动对 Item 进行离线挖掘，拿出 tag</p>
 <blockquote>
 <p>电影题材 : 爱情 / 探险 / 动作  / 喜剧<br>标志特征 : 黄晓明 / 王宝强<br>年代 : 1995, 2016 …<br>关键词</p>
 </blockquote>
-<p>对于每个要推荐的内容,我们需要建立一份资料 :</p>
+<p>两个Item根据 tag 的分值，进行求 距离.</p>
+<hr>
+<p><strong>举例文本挖掘 :</strong></p>
+<p>One : 对于每个要推荐的内容,我们需要建立一份资料 :</p>
 <blockquote>
-<p>比如词 $k_j$ 在文档 $d_j$ 中的权重 $w_{ij}$ (常用的方法比如 TF-IDF)</p>
+<p>比如词 $k_i$ 在文档 $d_j$ 中的权重 $w_{ij}$ (常用的方法比如 TF-IDF)</p>
+<p>有一个词表 Item [$w_1$, $w_2$, … ,$w_{4000}$], 对每个 document 建立一个词表 vector。</p>
 </blockquote>
-<p>需要对用户也建立一份资料 :</p>
+<p>Two : 需要对用户也建立一份资料 :</p>
 <blockquote>
-<p>比如说定义一个权重向量 ($w_{c1},…,w_{ck}$) , 其中 $w_{ci}$ 表示第 $k_i$ 个词对用户 $c$ 的重要度</p>
+<p>比如说定义一个权重向量 ($w_{c1},…,w_{ck}$) , 其中 $w_{ci}$ 表示第 $k_i$ 个词对用户 $c$ 的重要度<br>user 之前有看过的 小说 或 文档。(看过的文档放在一起搞一个doc_vector，或者 将 doc_vector 加权平均)</p>
 </blockquote>
 <p>计算匹配度 </p>
 <blockquote>
@@ -204,6 +219,7 @@
 <li>对 每个 user 建立 vector</li>
 <li>比对 user 向量，与 该user 没有看过的 document 向量 之间的相似度</li>
 </ol>
+<p>TF-IDF : 评估一个 word 对当前 document 的重要性。 当前升高而升高，所有doc中，升高而下降。</p>
 </blockquote>
 <p><strong>Sample Example : 基于书名进行书推荐</strong></p>
 <p>一个用户对《Building data mining applications for CRM》感兴趣，从以下书中进行推荐 :</p>
@@ -219,8 +235,8 @@
 </ol>
 <p><img src="/images/ml/rs-six-month-01.png" alt="基于内容的推荐"></p>
 <blockquote>
-<p>值 (0.187、0.316) 代表 <code>Data</code> 对于当前 <code>标题</code> 的重要程度. </p>
-<p>根据 TF-IDF，当前书名 与 图书馆所有书名 出现的次数, (去掉停用词) 计算出来的权重。</p>
+<p>TF-IDF Normed Vectors 值 (0.187、0.316) 代表 <code>Data</code> 对于当前 <code>标题</code> 的重要程度. </p>
+<p>根据 TF-IDF，当前书名 与 图书馆所有书名 出现的次数, (去掉停用词, 如 and) 计算出来的权重。</p>
 <p>所以 <code>《Building data mining applications for CRM》</code> 已经有一个列 vector， 与 其他所有 书 计算 相似度，相似度 高的，为推荐最好的。</p>
 <p>This is only a sample show example， not the real method of thing.</p>
 </blockquote>
@@ -228,11 +244,15 @@
 <blockquote>
 <p>rank 1 : Data Mining Your Website<br>􏰅rank 2 : Accelerating Custom Relationships: Using CRM …<br>rank 3 : Mastering Data Mining: The Art and Science… 􏰬􏰭􏰮􏰀􏰁…</p>
 </blockquote>
+<p>结论 : 基于内容的推荐，无需用户行为的交互关联。</p>
 <h3 id="4-2-协同过滤-User-based"><a href="#4-2-协同过滤-User-based" class="headerlink" title="4.2 协同过滤 (User-based)"></a>4.2 协同过滤 (User-based)</h3><p>找到和 User 最近的 其他 User􏰼􏰽􏰟􏰲􏰳􏰧􏰨􏰒􏰠􏰾􏰲􏰳 􏱅􏰲􏰳􏱆􏱀􏱁􏱂􏰕, 找到他们 看/买过但当前 User 没看/买过的 item，根据距离加权打分<br>找得分最高的推荐</p>
 <p><img src="/images/ml/rs-six-month-02.png" alt="User-based CF"></p>
-<h3 id="4-3-协同过滤-Item-based"><a href="#4-3-协同过滤-Item-based" class="headerlink" title="4.3 协同过滤 (Item-based)"></a>4.3 协同过滤 (Item-based)</h3><p>根据 User 对 Item 的行为，计算 item 和 item 相似度，找到和当前 item 最近的进行推荐。</p>
+<h3 id="4-3-协同过滤-Item-based"><a href="#4-3-协同过滤-Item-based" class="headerlink" title="4.3 协同过滤 (Item-based)"></a>4.3 协同过滤 (Item-based)</h3><blockquote>
+<p>据现有 User 对 Item 的评级情况，来计算 Item 之间的某种相似度。已有Item 相似的 Item 被用来生成一个综合得分，而该得分用于评估未知物品的相似度。</p>
+</blockquote>
+<p>根据 User 对 Item 的行为，计算 item 和 item 相似度，找到和当前 item 最近的进行推荐。</p>
 <p><img src="/images/ml/rs-six-month-03.png" alt="Item-based CF"></p>
-<h2 id="5-相似度-距离定义"><a href="#5-相似度-距离定义" class="headerlink" title="5. 相似度/距离定义"></a>5. 相似度/距离定义</h2><ul>
+<h3 id="4-4-隐语义模型"><a href="#4-4-隐语义模型" class="headerlink" title="4.4 隐语义模型"></a>4.4 隐语义模型</h3><h2 id="5-相似度-距离定义"><a href="#5-相似度-距离定义" class="headerlink" title="5. 相似度/距离定义"></a>5. 相似度/距离定义</h2><ul>
 <li>欧氏距离</li>
 <li>Jaccard 相似度</li>
 <li>余弦相似度</li>
@@ -240,6 +260,9 @@
 </ul>
 <h3 id="5-1-欧氏距离"><a href="#5-1-欧氏距离" class="headerlink" title="5.1 欧氏距离"></a>5.1 欧氏距离</h3><p>$$<br>dist(X, Y) = \left( \sum_{i=1}^n {| x_i - y_i|}^p \right)^{\frac {1}{p}}<br>$$</p>
 <h3 id="5-2-Jaccard-相似度"><a href="#5-2-Jaccard-相似度" class="headerlink" title="5.2 Jaccard 相似度"></a>5.2 Jaccard 相似度</h3><p>$$<br>J(A, B) = \frac {|A \bigcap B|}{|A \bigcup B|}<br>$$</p>
+<blockquote>
+<p>适用于 top N 推荐，要么 看，要么 没看</p>
+</blockquote>
 <h3 id="5-3-余弦相似度"><a href="#5-3-余弦相似度" class="headerlink" title="5.3 余弦相似度"></a>5.3 余弦相似度</h3><p>$$<br>\cos(\theta) = \frac {a^Tb}{|a| \cdot |b|}<br>$$</p>
 <h3 id="5-4-Pearson-相似度"><a href="#5-4-Pearson-相似度" class="headerlink" title="5.4 Pearson 相似度"></a>5.4 Pearson 相似度</h3><p>$$<br>\frac { \sum_{i=1}^n (X_i - {\mu}_x) (Y_i - {\mu}_y)} {\sqrt{ \sum_{i=1}^n (X_i - {\mu}_x)} \sqrt{ \sum_{i=1}^n (Y_i - {\mu}_y)}}<br>$$</p>
 <blockquote>
@@ -262,7 +285,7 @@
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-推荐系统-What"><span class="toc-number"></span> <span class="toc-text">1. 推荐系统 What?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-数学定义"><span class="toc-number"></span> <span class="toc-text">1.1 数学定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-人话版本"><span class="toc-number"></span> <span class="toc-text">1.2 人话版本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-推荐系统-Why"><span class="toc-number"></span> <span class="toc-text">2. 推荐系统 Why?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-对用户"><span class="toc-number"></span> <span class="toc-text">2.1 对用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-对商家"><span class="toc-number"></span> <span class="toc-text">2.2 对商家</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-评定标准"><span class="toc-number"></span> <span class="toc-text">3. 评定标准</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-准确度-Top-N"><span class="toc-number"></span> <span class="toc-text">3.1 准确度 Top N</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-覆盖率"><span class="toc-number"></span> <span class="toc-text">3.2 覆盖率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-多样性"><span class="toc-number"></span> <span class="toc-text">3.3 多样性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-推荐算法"><span class="toc-number"></span> <span class="toc-text">4. 推荐算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-基于内容推荐"><span class="toc-number"></span> <span class="toc-text">4.1 基于内容推荐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-协同过滤-User-based"><span class="toc-number"></span> <span class="toc-text">4.2 协同过滤 (User-based)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-协同过滤-Item-based"><span class="toc-number"></span> <span class="toc-text">4.3 协同过滤 (Item-based)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-相似度-距离定义"><span class="toc-number"></span> <span class="toc-text">5. 相似度/距离定义</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-欧氏距离"><span class="toc-number"></span> <span class="toc-text">5.1 欧氏距离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Jaccard-相似度"><span class="toc-number"></span> <span class="toc-text">5.2 Jaccard 相似度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-余弦相似度"><span class="toc-number"></span> <span class="toc-text">5.3 余弦相似度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-Pearson-相似度"><span class="toc-number"></span> <span class="toc-text">5.4 Pearson 相似度</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-推荐系统-What"><span class="toc-number"></span> <span class="toc-text">1. 推荐系统 What?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-数学定义"><span class="toc-number"></span> <span class="toc-text">1.1 数学定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-人话版本"><span class="toc-number"></span> <span class="toc-text">1.2 人话版本</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-推荐系统-Why"><span class="toc-number"></span> <span class="toc-text">2. 推荐系统 Why?</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-对用户"><span class="toc-number"></span> <span class="toc-text">2.1 对用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-对商家"><span class="toc-number"></span> <span class="toc-text">2.2 对商家</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-评定标准"><span class="toc-number"></span> <span class="toc-text">3. 评定标准</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-准确度-Top-N"><span class="toc-number"></span> <span class="toc-text">3.1 准确度 Top N</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-覆盖率"><span class="toc-number"></span> <span class="toc-text">3.2 覆盖率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-多样性"><span class="toc-number"></span> <span class="toc-text">3.3 多样性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-评估标准"><span class="toc-number"></span> <span class="toc-text">3.4 评估标准</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-推荐算法"><span class="toc-number"></span> <span class="toc-text">4. 推荐算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-基于内容推荐"><span class="toc-number"></span> <span class="toc-text">4.1 基于内容推荐</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-协同过滤-User-based"><span class="toc-number"></span> <span class="toc-text">4.2 协同过滤 (User-based)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-协同过滤-Item-based"><span class="toc-number"></span> <span class="toc-text">4.3 协同过滤 (Item-based)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-隐语义模型"><span class="toc-number"></span> <span class="toc-text">4.4 隐语义模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-相似度-距离定义"><span class="toc-number"></span> <span class="toc-text">5. 相似度/距离定义</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-欧氏距离"><span class="toc-number"></span> <span class="toc-text">5.1 欧氏距离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Jaccard-相似度"><span class="toc-number"></span> <span class="toc-text">5.2 Jaccard 相似度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-余弦相似度"><span class="toc-number"></span> <span class="toc-text">5.3 余弦相似度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-Pearson-相似度"><span class="toc-number"></span> <span class="toc-text">5.4 Pearson 相似度</span></a></li></ol></li></ol>
       </div>
     
     

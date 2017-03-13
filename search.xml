@@ -59,6 +59,7 @@
 <li>准确度</li>
 <li>覆盖度</li>
 <li>多样性</li>
+<li>评估标准</li>
 </ul>
 <h3 id="3-1-准确度-Top-N"><a href="#3-1-准确度-Top-N" class="headerlink" title="3.1 准确度 Top N"></a>3.1 准确度 Top N</h3><p>设 $R(u)$ 为根据训练建立的模型在测试集上的推荐, $T(u)$ 为测试集上用户的选择。</p>
 <p>$$<br>Precision =  \frac{\sum_{u∈U} | R(u) \bigcap T(u) | }{\sum_{u∈U} R(u)}<br>$$</p>
@@ -69,14 +70,23 @@
 <h3 id="3-2-覆盖率"><a href="#3-2-覆盖率" class="headerlink" title="3.2 覆盖率"></a>3.2 覆盖率</h3><p>表示对物品长尾的发掘能力 (推荐系统希望消除马太效应)</p>
 <p>$$<br>Coverage = \frac{|U_{u∈U} R(u)|}{|I|}<br>$$</p>
 <blockquote>
-<p>覆盖率是对平台所有物品所言</p>
+<p>覆盖率是对平台所有物品所言，淘宝推荐等会关切这个指标。</p>
 <p>非常独特的商品和新闻, 被看到的量, 是一条下滑曲线</p>
 <p>希望个性化推荐，把小众的商品 也推荐展示出来</p>
 </blockquote>
 <h3 id="3-3-多样性"><a href="#3-3-多样性" class="headerlink" title="3.3 多样性"></a>3.3 多样性</h3><p>表示推荐列表中物品两两之间的不相似性.</p>
+<p>$$<br>Diversity(R(u)) = 1 - \frac {\sum_{i, j \in R(u), {i \neq j}, {s(i, j)} }} {\frac {1}{2} |R(u)|(|R(u) - 1|)}<br>$$</p>
+<p>$$<br>Diversity = \frac {1} {|U|} {\sum_{u \in U} {Diversity(R(u))}}<br>$$</p>
 <blockquote>
-<p>全是牛仔裤的话，用户审美疲劳</p>
+<p>全是牛仔裤的话，用户审美疲劳, tag(纯棉 0，圆领 1) 连衣裙, 计算 vector 距离。品类不同，相似度设为 0.</p>
 </blockquote>
+<h3 id="3-4-评估标准"><a href="#3-4-评估标准" class="headerlink" title="3.4 评估标准"></a>3.4 评估标准</h3><ul>
+<li>新颖度 : 给用户 Surprise</li>
+<li>惊喜度 : 推荐和用户历史兴趣不相似，却满意的</li>
+<li>信任度 : 提供可靠的推荐理由</li>
+<li>实时性 : 实时更新程度 (context, session …)</li>
+<li>…</li>
+</ul>
 <h2 id="4-推荐算法"><a href="#4-推荐算法" class="headerlink" title="4. 推荐算法"></a>4. 推荐算法</h2><ol>
 <li>基于内容的推荐</li>
 <li>协同过滤CF</li>
@@ -88,16 +98,21 @@
 <li>通常使用在 <code>文本相关</code> 的产品上进行推荐</li>
 <li>Item 通过内容 (比如 关键词) 关联</li>
 </ul>
+<p>在推荐电影中，也可以使用，但是效果不见得好. 你需要手动对 Item 进行离线挖掘，拿出 tag</p>
 <blockquote>
 <p>电影题材 : 爱情 / 探险 / 动作  / 喜剧<br>标志特征 : 黄晓明 / 王宝强<br>年代 : 1995, 2016 …<br>关键词</p>
 </blockquote>
-<p>对于每个要推荐的内容,我们需要建立一份资料 :</p>
+<p>两个Item根据 tag 的分值，进行求 距离.</p>
+<hr>
+<p><strong>举例文本挖掘 :</strong></p>
+<p>One : 对于每个要推荐的内容,我们需要建立一份资料 :</p>
 <blockquote>
-<p>比如词 $k_j$ 在文档 $d_j$ 中的权重 $w_{ij}$ (常用的方法比如 TF-IDF)</p>
+<p>比如词 $k_i$ 在文档 $d_j$ 中的权重 $w_{ij}$ (常用的方法比如 TF-IDF)</p>
+<p>有一个词表 Item [$w_1$, $w_2$, … ,$w_{4000}$], 对每个 document 建立一个词表 vector。</p>
 </blockquote>
-<p>需要对用户也建立一份资料 :</p>
+<p>Two : 需要对用户也建立一份资料 :</p>
 <blockquote>
-<p>比如说定义一个权重向量 ($w_{c1},…,w_{ck}$) , 其中 $w_{ci}$ 表示第 $k_i$ 个词对用户 $c$ 的重要度</p>
+<p>比如说定义一个权重向量 ($w_{c1},…,w_{ck}$) , 其中 $w_{ci}$ 表示第 $k_i$ 个词对用户 $c$ 的重要度<br>user 之前有看过的 小说 或 文档。(看过的文档放在一起搞一个doc_vector，或者 将 doc_vector 加权平均)</p>
 </blockquote>
 <p>计算匹配度 </p>
 <blockquote>
@@ -111,6 +126,7 @@
 <li>对 每个 user 建立 vector</li>
 <li>比对 user 向量，与 该user 没有看过的 document 向量 之间的相似度</li>
 </ol>
+<p>TF-IDF : 评估一个 word 对当前 document 的重要性。 当前升高而升高，所有doc中，升高而下降。</p>
 </blockquote>
 <p><strong>Sample Example : 基于书名进行书推荐</strong></p>
 <p>一个用户对《Building data mining applications for CRM》感兴趣，从以下书中进行推荐 :</p>
@@ -126,8 +142,8 @@
 </ol>
 <p><img src="/images/ml/rs-six-month-01.png" alt="基于内容的推荐"></p>
 <blockquote>
-<p>值 (0.187、0.316) 代表 <code>Data</code> 对于当前 <code>标题</code> 的重要程度. </p>
-<p>根据 TF-IDF，当前书名 与 图书馆所有书名 出现的次数, (去掉停用词) 计算出来的权重。</p>
+<p>TF-IDF Normed Vectors 值 (0.187、0.316) 代表 <code>Data</code> 对于当前 <code>标题</code> 的重要程度. </p>
+<p>根据 TF-IDF，当前书名 与 图书馆所有书名 出现的次数, (去掉停用词, 如 and) 计算出来的权重。</p>
 <p>所以 <code>《Building data mining applications for CRM》</code> 已经有一个列 vector， 与 其他所有 书 计算 相似度，相似度 高的，为推荐最好的。</p>
 <p>This is only a sample show example， not the real method of thing.</p>
 </blockquote>
@@ -135,11 +151,15 @@
 <blockquote>
 <p>rank 1 : Data Mining Your Website<br>􏰅rank 2 : Accelerating Custom Relationships: Using CRM …<br>rank 3 : Mastering Data Mining: The Art and Science… 􏰬􏰭􏰮􏰀􏰁…</p>
 </blockquote>
+<p>结论 : 基于内容的推荐，无需用户行为的交互关联。</p>
 <h3 id="4-2-协同过滤-User-based"><a href="#4-2-协同过滤-User-based" class="headerlink" title="4.2 协同过滤 (User-based)"></a>4.2 协同过滤 (User-based)</h3><p>找到和 User 最近的 其他 User􏰼􏰽􏰟􏰲􏰳􏰧􏰨􏰒􏰠􏰾􏰲􏰳 􏱅􏰲􏰳􏱆􏱀􏱁􏱂􏰕, 找到他们 看/买过但当前 User 没看/买过的 item，根据距离加权打分<br>找得分最高的推荐</p>
 <p><img src="/images/ml/rs-six-month-02.png" alt="User-based CF"></p>
-<h3 id="4-3-协同过滤-Item-based"><a href="#4-3-协同过滤-Item-based" class="headerlink" title="4.3 协同过滤 (Item-based)"></a>4.3 协同过滤 (Item-based)</h3><p>根据 User 对 Item 的行为，计算 item 和 item 相似度，找到和当前 item 最近的进行推荐。</p>
+<h3 id="4-3-协同过滤-Item-based"><a href="#4-3-协同过滤-Item-based" class="headerlink" title="4.3 协同过滤 (Item-based)"></a>4.3 协同过滤 (Item-based)</h3><blockquote>
+<p>据现有 User 对 Item 的评级情况，来计算 Item 之间的某种相似度。已有Item 相似的 Item 被用来生成一个综合得分，而该得分用于评估未知物品的相似度。</p>
+</blockquote>
+<p>根据 User 对 Item 的行为，计算 item 和 item 相似度，找到和当前 item 最近的进行推荐。</p>
 <p><img src="/images/ml/rs-six-month-03.png" alt="Item-based CF"></p>
-<h2 id="5-相似度-距离定义"><a href="#5-相似度-距离定义" class="headerlink" title="5. 相似度/距离定义"></a>5. 相似度/距离定义</h2><ul>
+<h3 id="4-4-隐语义模型"><a href="#4-4-隐语义模型" class="headerlink" title="4.4 隐语义模型"></a>4.4 隐语义模型</h3><h2 id="5-相似度-距离定义"><a href="#5-相似度-距离定义" class="headerlink" title="5. 相似度/距离定义"></a>5. 相似度/距离定义</h2><ul>
 <li>欧氏距离</li>
 <li>Jaccard 相似度</li>
 <li>余弦相似度</li>
@@ -147,6 +167,9 @@
 </ul>
 <h3 id="5-1-欧氏距离"><a href="#5-1-欧氏距离" class="headerlink" title="5.1 欧氏距离"></a>5.1 欧氏距离</h3><p>$$<br>dist(X, Y) = \left( \sum_{i=1}^n {| x_i - y_i|}^p \right)^{\frac {1}{p}}<br>$$</p>
 <h3 id="5-2-Jaccard-相似度"><a href="#5-2-Jaccard-相似度" class="headerlink" title="5.2 Jaccard 相似度"></a>5.2 Jaccard 相似度</h3><p>$$<br>J(A, B) = \frac {|A \bigcap B|}{|A \bigcup B|}<br>$$</p>
+<blockquote>
+<p>适用于 top N 推荐，要么 看，要么 没看</p>
+</blockquote>
 <h3 id="5-3-余弦相似度"><a href="#5-3-余弦相似度" class="headerlink" title="5.3 余弦相似度"></a>5.3 余弦相似度</h3><p>$$<br>\cos(\theta) = \frac {a^Tb}{|a| \cdot |b|}<br>$$</p>
 <h3 id="5-4-Pearson-相似度"><a href="#5-4-Pearson-相似度" class="headerlink" title="5.4 Pearson 相似度"></a>5.4 Pearson 相似度</h3><p>$$<br>\frac { \sum_{i=1}^n (X_i - {\mu}_x) (Y_i - {\mu}_y)} {\sqrt{ \sum_{i=1}^n (X_i - {\mu}_x)} \sqrt{ \sum_{i=1}^n (Y_i - {\mu}_y)}}<br>$$</p>
 <blockquote>
@@ -1574,6 +1597,16 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://selfboot.org/2016/10/27/ds-mst/</url>
+      <content type="html"><![CDATA[<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Sort algorithms]]></title>
       <url>http://selfboot.org/2016/10/27/ds-sort/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -1586,16 +1619,6 @@ img {
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://selfboot.org/2016/10/27/ds-mst/</url>
-      <content type="html"><![CDATA[<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
@@ -4705,6 +4728,106 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Elasticsearch installation plugins]]></title>
+      <url>http://selfboot.org/2016/05/17/elasticsearch-install-plugins/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
+</blockquote>
+<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
+<p><strong>Install es</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Config es</strong></p>
+<p>$ES_HOME/config/elasticsearch.yml</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
+<p><strong>Startup</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行之后，会产生 data 和 logs 目录</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
+<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
+<p>ES-Head的主要作用</p>
+<ul>
+<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
+<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
+<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
+</ul>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
+<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
+<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
+<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
+<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
+<p>service log 在 logs/service.log 中。</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
+<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
+</blockquote>
+<hr>
+<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
+<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
+<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
+<p><strong>Install-Verify</strong></p>
+<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
+<p><strong>Config http-basic param</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
+<p><strong>./bin/plugin –list</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
+<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
+<p>download and add mysql-driver</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
+<p>停止river</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
+<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
+<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>XPUT data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p><strong>XGET data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p>output</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
+<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
+<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
+<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
+<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
+<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
+<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
+</ol>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Elasticsearch * 入门]]></title>
       <url>http://selfboot.org/2016/05/17/elasticsearch1-indoor/</url>
       <content type="html"><![CDATA[<h2 id="1-Elasticsearch-前言"><a href="#1-Elasticsearch-前言" class="headerlink" title="1. Elasticsearch 前言"></a>1. Elasticsearch 前言</h2><p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎、<code>实时分布式搜索</code>和<code>分析引擎</code>。</p>
@@ -4832,106 +4955,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Elasticsearch installation plugins]]></title>
-      <url>http://selfboot.org/2016/05/17/elasticsearch-install-plugins/</url>
-      <content type="html"><![CDATA[<blockquote>
-<p>Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
-</blockquote>
-<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
-<p><strong>Install es</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Config es</strong></p>
-<p>$ES_HOME/config/elasticsearch.yml</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
-<p><strong>Startup</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>运行之后，会产生 data 和 logs 目录</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
-<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
-<p>ES-Head的主要作用</p>
-<ul>
-<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
-<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
-<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
-</ul>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
-<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
-<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
-<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
-<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
-<p>service log 在 logs/service.log 中。</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
-<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
-</blockquote>
-<hr>
-<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
-<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
-<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
-<p><strong>Install-Verify</strong></p>
-<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
-<p><strong>Config http-basic param</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
-<p><strong>./bin/plugin –list</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
-<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
-<p>download and add mysql-driver</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
-<p>停止river</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
-<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
-<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>XPUT data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p><strong>XGET data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p>output</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
-<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
-<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
-<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
-<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
-<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
-<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
-</ol>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Distance formula of point to plane]]></title>
       <url>http://selfboot.org/2016/05/17/math-distance-formula-of-point-to-plain/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -4969,128 +4992,6 @@ img {
 <blockquote>
 <p>如果法向量是单位向量的话，那么分母为1</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Machine Learning Introduce]]></title>
-      <url>http://selfboot.org/2016/05/10/ml-introduce/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p><strong>Content List</strong></p>
-<ul>
-<li>machine-learning<ul>
-<li>1.1. learning object data</li>
-<li>1.2. main machine-learning</li>
-<li>1.3. machine-learning steps</li>
-<li>1.4. importance of machine-learning</li>
-</ul>
-</li>
-<li>supervised-learning introduce<ul>
-<li>2.1 basic concept</li>
-<li>2.2 formalization of problem</li>
-</ul>
-</li>
-<li>three factors of machine learning<ul>
-<li>3.1. model</li>
-<li>3.2. strategy</li>
-<li>3.3. algorithm</li>
-</ul>
-</li>
-</ul>
-<h2 id="1-statistical-machine-learning"><a href="#1-statistical-machine-learning" class="headerlink" title="1. statistical machine learning"></a>1. statistical machine learning</h2><h3 id="1-1-learning-object-data"><a href="#1-1-learning-object-data" class="headerlink" title="1.1 learning object data"></a>1.1 learning object data</h3><p>它从 数据 出发，提取数据特征， 抽象出数据模型, 发现数据中的知识，又回到数据的分析与预测。</p>
-<h3 id="1-2-main-machine-learning"><a href="#1-2-main-machine-learning" class="headerlink" title="1.2 main machine learning"></a>1.2 main machine learning</h3><ol>
-<li>supervised learning</li>
-<li>unsupervised learning</li>
-<li>semi-supervised learning</li>
-<li>reinforcemnt learning</li>
-</ol>
-<h3 id="1-3-machine-learning-steps"><a href="#1-3-machine-learning-steps" class="headerlink" title="1.3 machine learning steps"></a>1.3 machine learning steps</h3><ol>
-<li>得到一个有限的训练数据集合</li>
-<li>确定 包含所有可能的 模型的假设空间 model hypothesis space</li>
-<li>确定 模型选择的准则 model strategy</li>
-<li>实现求解最优 模型学习的算法 model algorithm</li>
-<li>通过学习方法选择 best model</li>
-<li>利用learning best model 对新数据进行 预测 或 分析</li>
-</ol>
-<h3 id="1-4-importance-of-ml"><a href="#1-4-importance-of-ml" class="headerlink" title="1.4 importance of ml"></a>1.4 importance of ml</h3><ol>
-<li>处理海量数据的有效手段</li>
-<li>计算机智能化的有效手段</li>
-<li>计算机科学发展的重要部分</li>
-</ol>
-<p><strong>应用领域 :</strong> 人工智能、模式识别、数据挖掘、NLP、图像识别、信息检索、生物信息 …</p>
-<h2 id="2-supervised-learning"><a href="#2-supervised-learning" class="headerlink" title="2. supervised-learning"></a>2. supervised-learning</h2><blockquote>
-<p>监督学习是学习模型，使模型能对 任何输入(input) 都能产生一个预测性的 输出 (output)。</p>
-</blockquote>
-<h3 id="2-1-basic-concept"><a href="#2-1-basic-concept" class="headerlink" title="2.1 basic concept"></a>2.1 basic concept</h3><ul>
-<li>feature space</li>
-<li>output space</li>
-</ul>
-<p>每个具体的 <code>input</code> 是一个实例 instance, 通常由 feature vector 表示. 这时，所有 <code>feature vector</code> 存在的空间成为 <code>feature space</code>, feature space 的每一维对应于一个 <code>feature</code>.</p>
-<p>将 input, output 看作是定义在 input(feature) space 与 output space 上随机变量的取值.</p>
-<p><strong>(1) input instane feature vector 记作 :</strong></p>
-<p>$$<br>x = (x_i^1, x_i^2, …, x_i^i, …, x_i^n)^T<br>$$</p>
-<blockquote>
-<p>$x_i^{(i)}$ 表示 x 的第 i 个 feature</p>
-</blockquote>
-<p><code>supervised learning</code> learning <code>model</code> from <code>training data sets</code>， then to predict the <code>test data</code>, training data by input(<code>feature vector</code>) and <code>output</code> composition.</p>
-<p><strong>training sets 训练集表示为 :</strong></p>
-<p>$$<br>T = { (x_1, y_1), (x_2, y_2), … , (x_N, y_N) }<br>$$</p>
-<p>test data <code>input、output对</code> 成为 <code>sample(样本) and 样本点</code></p>
-<p><strong>classification、regression、tagging</strong></p>
-<ul>
-<li>input、output 都为 <strong>离散变量</strong> 的 prediction problem，称为 <code>classification</code>(分类) 问题 </li>
-<li>input、output 都为 <strong>连续变量</strong> 的 prediction problem，称为 <code>regression</code>(回归) 问题</li>
-<li>input、output 都为 <strong>变量序列</strong> 的 prediction problem，称为 <code>tagging</code>(标注) 问题</li>
-</ul>
-<p><strong>(2) 联合概率分布</strong></p>
-<p>supervised learning 假设 input、output 的随机变量 X 和 Y 遵循 联合概率分布 P(X, Y)</p>
-<p><a href="https://zh.wikipedia.org/wiki/%E8%81%94%E5%90%88%E5%88%86%E5%B8%83" target="_blank" rel="external">联合分布 more_info</a></p>
-<blockquote>
-<p>在学习的过程中，假设 P(X, Y) 存在，但对学习系统而言 P(X, Y) 具体定义是未知的。training data、test data 被看作是 依 联合概率分布 P(X, Y) 独立同分布产生的。这就是 supervised learning 关于数据的基本假设。</p>
-</blockquote>
-<p><strong>hypothesis space</strong> [haɪ’pɒθɪsɪs]</p>
-<p>supervised learning. model 属于由 input-space to output-space 的映射的集合, 这个集合就是 <code>hypothesis space</code> 假设空间.  </p>
-<blockquote>
-<p>y的集合么 ??</p>
-</blockquote>
-<p>model of supervised learning 可以是 概率模型 或 非概率模型。由 条件概率分布 $P(X|Y)$ 或 <code>decision function</code> 决策函数 $Y = f(X)$ 表示. 对具体的 输入 进行输出预测 $P(y|x)$ or $y = f(x)$</p>
-<h3 id="2-2-formalization-of-problem"><a href="#2-2-formalization-of-problem" class="headerlink" title="2.2 formalization of problem"></a>2.2 formalization of problem</h3><p><img src="https://sfault-image.b0.upaiyun.com/118/814/1188144489-5732c82624eff_articlex" alt="ml-steps"></p>
-<p><strong>训练集 :</strong></p>
-<p>$$<br>T = { (x_1, y_1), (x_2, y_2), … , (x_N, y_N) }<br>$$</p>
-<p>$(x_i, y_i)$ 称为 样本点 sample</p>
-<p>$x_i \in \chi \subseteq R^n$ 输入观测值</p>
-<p>$y_i \in Y$ 输出观测值</p>
-<h2 id="3-three-factors-of-ml"><a href="#3-three-factors-of-ml" class="headerlink" title="3. three factors of ml"></a>3. three factors of ml</h2><p>method = model + strategy + algorithm</p>
-<h3 id="3-1-model"><a href="#3-1-model" class="headerlink" title="3.1 model"></a>3.1 model</h3><p>supervised learning，model 就是所要学习的 <code>条件概率分布</code> (conditional probability) 或 <code>决策函数</code>（decision function）</p>
-<p><code>hypothesis space</code> 可以定义为 <code>decision function</code> 的集合</p>
-<p>$$<br>F = { f | Y = f(x) }<br>$$</p>
-<p>$$<br>F = { f | Y = f_\theta(x) , \theta \in R^n }<br>$$</p>
-<p><code>hypothesis space</code> 可以定义为 <code>conditional probability</code> 的集合</p>
-<p>$$<br>F = { P | P(Y|X) }<br>$$</p>
-<p>$$<br>F = { P | P_\theta(Y|X) , \theta \in R^n }<br>$$</p>
-<h3 id="3-2-strategy"><a href="#3-2-strategy" class="headerlink" title="3.2 strategy"></a>3.2 strategy</h3><p>machine-learning 的目标 在于 从 hypothesis space 选取 best model。</p>
-<p><strong>loss function</strong></p>
-<p>supervised-learning 问题是在 <strong>hypothesis-space</strong> F select model $f$ as <code>decision-function</code>, 输出的预测值  $f(X)$ 与 真实值 $Y$， 可能不一致。loss function 记作 : $L(Y, f(X))$</p>
-<ul>
-<li>0-1 loss function</li>
-<li>quadratic loss function</li>
-<li>absolute loss function</li>
-<li>logarithmic loss function / log-likelihood loss function</li>
-</ul>
-<h3 id="3-3-algorithm"><a href="#3-3-algorithm" class="headerlink" title="3.3 algorithm"></a>3.3 algorithm</h3><p>algorithm is learning model concrete [ˈkɑ:ŋkri:t]  method. learning model from training data sets，by learning strategy， select best-model from hypothesis space.</p>
 ]]></content>
     </entry>
     
