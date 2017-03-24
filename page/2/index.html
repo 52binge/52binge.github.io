@@ -57,6 +57,427 @@
 </header>
     <br>
     <section id="main" class="outer">
+      <article id="post-db-greenplum-manual-dev-steps" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/01/12/db-greenplum-manual-dev-steps/"><strong>Greenplum dev Flow</strong></a>
+      <small class=article-date-index>&nbsp; 2017-01-12</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/01/12/db-greenplum-manual-dev-steps/" class="article-date">
+  <time datetime="2017-01-12T07:28:21.000Z" itemprop="datePublished">2017-01-12</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      greenplum manual dev steps <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/database/">database</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2017/01/12/db-greenplum-manual-dev-steps/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/db/greenplum-flow.png" alt=""></p>
+<h2 id="1-Rds-import-oss"><a href="#1-Rds-import-oss" class="headerlink" title="1. Rds import oss"></a>1. Rds import oss</h2><p>通过 datax 从 mysql 导出数据到 OSS</p>
+<p>组装 : mysql2oss-e_coupon.json</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "job": &#123;</span><br><span class="line">        "content": [</span><br><span class="line">        &#123;</span><br><span class="line">            "reader": &#123;</span><br><span class="line">                "name": "mysqlreader",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "username": "xx",</span><br><span class="line">                        "password": "xx",</span><br><span class="line">                        "connection": [</span><br><span class="line">                        &#123;</span><br><span class="line">                            "jdbcUrl": [</span><br><span class="line">                                "jdbc:mysql://192.168.184.xx:port"</span><br><span class="line">                                ],</span><br><span class="line">                            "table": [</span><br><span class="line">                                "rds-lib-name.e_coupon"</span><br><span class="line">                                ]</span><br><span class="line">                        &#125;</span><br><span class="line">                        ],</span><br><span class="line">                        "column":[</span><br><span class="line">                            "id",</span><br><span class="line">                            "x_card_user_id",</span><br><span class="line">                            "coupon_discount_code",</span><br><span class="line">                            ...</span><br><span class="line">                            "order_merchant_id"</span><br><span class="line">                        ],</span><br><span class="line">                        "where": "created_time BETWEEN '2016-01-01 00:00:00' AND '2017-01-05 23:59:59'"</span><br><span class="line">                    &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">                "writer": &#123;</span><br><span class="line">                    "name": "osswriter",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "accessId": "xx",</span><br><span class="line">                        "accessKey": "xx",</span><br><span class="line">                        "bucket": "company-name-data",</span><br><span class="line">                        "encoding": "UTF-8",</span><br><span class="line">                        "endpoint": "http://oss-cn-hangzhou.aliyuncs.com",</span><br><span class="line">                        "fieldDelimiter": "\t",</span><br><span class="line">                        "object": "datax_dev/libin/e_coupon",</span><br><span class="line">                        "writeMode": "truncate"</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ],</span><br><span class="line">        "setting": &#123;</span><br><span class="line">            "speed": &#123;</span><br><span class="line">                "channel": 1</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>触发执行 :</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">python datax.py mysql2oss-e_coupon.json</span><br></pre></td></tr></table></figure>
+<h2 id="2-ext-table"><a href="#2-ext-table" class="headerlink" title="2. ext table"></a>2. ext table</h2><p>创建外部表，ext_dm_e_coupon，并将 location 指向为 oss</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">bigint</span>,</span><br><span class="line">    x_card_user_id <span class="built_in">varchar</span>,</span><br><span class="line">    coupon_discount_code <span class="built_in">varchar</span>,</span><br><span class="line">    ...</span><br><span class="line">    order_merchant_id <span class="built_in">bigint</span></span><br><span class="line">) LOCATION(</span><br><span class="line">    <span class="string">'oss://oss-cn-hangzhou.aliyuncs.com</span><br><span class="line">        dir=datax_dev/libin/</span><br><span class="line">        id=xx</span><br><span class="line">        key=xx</span><br><span class="line">        bucket=xkeshi-data'</span></span><br><span class="line">) <span class="keyword">FORMAT</span> <span class="string">'text'</span> (<span class="literal">NULL</span> <span class="keyword">AS</span> <span class="string">'null'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 45596 id comment 字段有回车 ,So del comment varchar, don't imported.</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-ods-table"><a href="#3-ods-table" class="headerlink" title="3. ods table"></a>3. ods table</h2><p>创建 ods_dm_e_coupon 表，并向其中导入数据</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> ods_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ods_dm_e_coupon <span class="keyword">AS</span> <span class="keyword">SELECT</span></span><br><span class="line">	*</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	ext_dm_e_coupon <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意 : 这样建表 ods table id，不是 primary key</p>
+<p>显示指定 distributed BY (id)，可读性更好</p>
+</blockquote>
+<h2 id="4-mds-table"><a href="#4-mds-table" class="headerlink" title="4. mds table"></a>4. mds table</h2><p>创建 mds_dm_e_coupon_profile 表</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile (</span><br><span class="line">	<span class="keyword">id</span> bigserial,</span><br><span class="line">	coupon_info_code <span class="built_in">VARCHAR</span>,</span><br><span class="line">	shop_id <span class="built_in">BIGINT</span>,</span><br><span class="line">	collected_avg_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_sum_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_rate <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>)</span><br><span class="line">) <span class="keyword">WITH</span> (</span><br><span class="line">	appendonly = <span class="literal">TRUE</span>,</span><br><span class="line">	compresslevel = <span class="number">5</span></span><br><span class="line">) <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建表的时候，给一个自增 id. 每一个表都有一个自增 id，是一个比较好的规范</p>
+</blockquote>
+<h2 id="5-insert-mds-table"><a href="#5-insert-mds-table" class="headerlink" title="5. insert mds table"></a>5. insert mds table</h2><p>insert data to mds_dm_e_coupon_profile</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> mds_dm_e_coupon_profile (</span><br><span class="line">	coupon_info_code,</span><br><span class="line">	shop_id,</span><br><span class="line">	collected_avg_actual_price,</span><br><span class="line">	collected_sum_actual_price,</span><br><span class="line">	collected_count,</span><br><span class="line">	verified_count,</span><br><span class="line">	verified_rate</span><br><span class="line">) <span class="keyword">SELECT</span></span><br><span class="line">	tt1.coupon_info_code,</span><br><span class="line">	tt1.shop_id,</span><br><span class="line">	tt1.avg_actual_price <span class="keyword">AS</span> collected_avg_actual_price,</span><br><span class="line">	tt1.sum_actual_price <span class="keyword">AS</span> collected_sum_actual_price,</span><br><span class="line">	tt1.collected_count,</span><br><span class="line">	<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">	<span class="keyword">round</span>(</span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) * <span class="number">1.0</span></span><br><span class="line">		) / (tt1.collected_count * <span class="number">1.0</span>),</span><br><span class="line">		<span class="number">2</span></span><br><span class="line">	) <span class="keyword">AS</span> verified_rate</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	(</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			t1.coupon_info_code,</span><br><span class="line">			t1.shop_id,</span><br><span class="line">			<span class="keyword">COUNT</span> (t1.<span class="keyword">ID</span>) <span class="keyword">AS</span> collected_count,</span><br><span class="line">			<span class="keyword">round</span>(<span class="keyword">AVG</span>(t1.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">			<span class="keyword">SUM</span> (t1.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">		<span class="keyword">FROM</span></span><br><span class="line">			(</span><br><span class="line">				<span class="keyword">SELECT</span></span><br><span class="line">					*</span><br><span class="line">				<span class="keyword">FROM</span></span><br><span class="line">					ods_dm_e_coupon</span><br><span class="line">				<span class="keyword">WHERE</span></span><br><span class="line">					<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			) t1</span><br><span class="line">		<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">			(t1.coupon_info_code, t1.shop_id)</span><br><span class="line">		<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">			t1.shop_id</span><br><span class="line">	) tt1</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> (</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		t2.coupon_info_code,</span><br><span class="line">		t2.shop_id,</span><br><span class="line">		<span class="keyword">COUNT</span> (t2.<span class="keyword">ID</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">		<span class="keyword">round</span>(<span class="keyword">AVG</span>(t2.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">		<span class="keyword">SUM</span> (t2.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">	<span class="keyword">FROM</span></span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">SELECT</span></span><br><span class="line">				*</span><br><span class="line">			<span class="keyword">FROM</span></span><br><span class="line">				ods_dm_e_coupon</span><br><span class="line">			<span class="keyword">WHERE</span></span><br><span class="line">				<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			<span class="keyword">AND</span> <span class="keyword">RESULT</span> = <span class="number">2</span></span><br><span class="line">		) t2</span><br><span class="line">	<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">		(t2.coupon_info_code, t2.shop_id)</span><br><span class="line">	<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">		t2.shop_id</span><br><span class="line">) tt2 <span class="keyword">ON</span> tt1.coupon_info_code = tt2.coupon_info_code</span><br><span class="line"><span class="keyword">AND</span> tt1.shop_id = tt2.shop_id</span><br></pre></td></tr></table></figure>
+<h2 id="6-validation-results"><a href="#6-validation-results" class="headerlink" title="6. validation results"></a>6. validation results</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mds_dm_e_coupon_profile <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">id</span> <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/db/greenplum-man-1.png" alt=""></p>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-db-greenplum-short-introduce" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/01/04/db-greenplum-short-introduce/"><strong>Greenplum 学习笔记</strong></a>
+      <small class=article-date-index>&nbsp; 2017-01-04</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/01/04/db-greenplum-short-introduce/" class="article-date">
+  <time datetime="2017-01-04T07:28:21.000Z" itemprop="datePublished">2017-01-04</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      greenplum short introduce <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/database/">database</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2017/01/04/db-greenplum-short-introduce/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <style>
+img {
+        display: block !important;
+        width: 500px;
+        margin-left: 180px !important;
+}
+</style>
+
+<p><img src="/images/db/greenplum-1.1.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>No.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+<th>OLTP</th>
+<th>OLAP</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.</td>
+<td>数据在系统中产生</td>
+<td>本身不产生数据，基础数据来源于产生系统</td>
+</tr>
+<tr>
+<td>2.</td>
+<td>基于交易的处理系统</td>
+<td>基于查询的分析系统</td>
+</tr>
+<tr>
+<td>3.</td>
+<td>牵扯的数据量很小</td>
+<td>牵扯的数据量庞大 (复杂查询经常使用全表扫描等)</td>
+</tr>
+<tr>
+<td>4.</td>
+<td>对响应时间要求非常高</td>
+<td>响应时间与具体查询有很大关系</td>
+</tr>
+<tr>
+<td>5.</td>
+<td>用户数量大，为操作用户</td>
+<td>用户数量少，主要有技术人员与业务人员</td>
+</tr>
+<tr>
+<td>6.</td>
+<td>各种操作主要基于索引进行</td>
+<td>业务问题不固定，数据库的各种操作不能完全基于索引进行</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-Greenplum-介绍"><a href="#1-Greenplum-介绍" class="headerlink" title="1. Greenplum 介绍"></a>1. Greenplum 介绍</h2><p>Greenplum 是 基于数据库的分布式数据存储和并行计算 框架</p>
+<blockquote>
+<p>Greenplum TB级别表现非常优秀，单机性能比Hadoop快好几倍</p>
+</blockquote>
+<h3 id="1-1-Greenplum-历程"><a href="#1-1-Greenplum-历程" class="headerlink" title="1.1 Greenplum 历程"></a>1.1 Greenplum 历程</h3><ul>
+<li>2003 年 诞生 greenplum</li>
+<li>2010 年 收购 被 EMC 整合</li>
+<li>2014 年 发布 4.3 version</li>
+<li>2015 年 重回 open source, apache</li>
+</ul>
+<h3 id="1-2-Greenplum-架构"><a href="#1-2-Greenplum-架构" class="headerlink" title="1.2 Greenplum 架构"></a>1.2 Greenplum 架构</h3><p><img src="/images/db/greenplum-1.2.png" alt=""></p>
+<blockquote>
+<p>Greenplum实现了基于<code>数据库的分布式</code>数据存储和并行计算<br>GoogleMapReduce实现的是基于<code>文件的分布式</code>数据存储和计算</p>
+</blockquote>
+<h3 id="1-3-Greenplum-amp-Pg"><a href="#1-3-Greenplum-amp-Pg" class="headerlink" title="1.3 Greenplum &amp; Pg"></a>1.3 Greenplum &amp; Pg</h3><p>PostgreSQL 非常先进的 ORDBMS， PostgreSQL 天生为扩展而生。</p>
+<p>Mysql 查询优化器对于子查询、复制查询如多表关联、外关联的支持等较弱，Mysql 目前不支持<a href="https://en.wikipedia.org/wiki/Hash_join" target="_blank" rel="external">hash join</a>，缺少这关键功能非常致命，将难于在OLAP领域充当大任。基于MYSQL一到复杂多表关联性能就立马下降。</p>
+<h3 id="1-4-Greenplum-应用"><a href="#1-4-Greenplum-应用" class="headerlink" title="1.4 Greenplum 应用"></a>1.4 Greenplum 应用</h3><p>Greenplum 数据引擎是为新一代数据仓库和<code>大规模分析处理</code>而建立的软件解决方案。 (Alibaba 2008年使用Greenplum)</p>
+<blockquote>
+<p>MPP : Massively Parallel Processing<br>OLTP: On-Line Transaction Processing<br>OLAP: On-Line Analytical Processing </p>
+</blockquote>
+<h3 id="1-5-MPP-与-Hadoop"><a href="#1-5-MPP-与-Hadoop" class="headerlink" title="1.5 MPP 与 Hadoop"></a>1.5 MPP 与 Hadoop</h3><table>
+<thead>
+<tr>
+<th>&nbsp;&nbsp;Type &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</th>
+<th>Greenplum MPP</th>
+<th>Hadoop</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储模式</td>
+<td>关系数据库行列表存储数据（有模式）</td>
+<td>文件切片分布式存储（无模式）</td>
+</tr>
+<tr>
+<td>数据耦合</td>
+<td>Hash分布, 计算节点和存储紧密耦合</td>
+<td>hdfs文件切块后随机分配，节点数据无耦合</td>
+</tr>
+<tr>
+<td>数据粒度</td>
+<td>记录级的更小粒度（一般在1k以下）</td>
+<td>文件块级（缺省64MB）</td>
+</tr>
+<tr>
+<td>查询计划</td>
+<td>MPP采用SQL并行查询计划</td>
+<td>Hadoop采用Mapreduce框架</td>
+</tr>
+</tbody>
+</table>
+<p>为保证数据的高性能计算，MPP数据库节点和数据之间是紧耦合的，相反，Hadoop的节点和数据是没有耦合关系的. Hadoop的架构更加灵活-存储节点和计算节点的无关性</p>
+<p>Hadoop架构，需要在原生的Mapreduce开发框架基础上的开发，需要技术人员谙熟于JAVA开发和并行原理，不仅业务分析人员无法使用，甚至技术人员也难以学习和操控。为了解决易用性的问题，近年来SQL-0N-HADOOP技术大量涌现出来，几乎成为当前Hadoop开发使用的一个技术热点趋势。</p>
+<p>这些技术包括：Hive、Pivotal HAWQ、SPARK SQL、Impala、Prest、Drill、Tajo等等很多，这些技术有些是在Mapreduce上做了优化，例如Spark采用内存中的Mapreduce技术，号称性能比基于文件的的Mapreduce提高10倍；而有些则直接绕开了Mapreduce另起炉灶，如Impala、hawq采用借鉴MPP计算思想来做查询优化和内存数据Pipeline计算，以此来提高性能。</p>
+<blockquote>
+<p>MapReduce 编程困难, 不如 SQL 方便</p>
+</blockquote>
+<h2 id="2-Quick-Start"><a href="#2-Quick-Start" class="headerlink" title="2. Quick Start"></a>2. Quick Start</h2><p>Master 和 Segment 都是单独的 PostgreSQL数据库。</p>
+<h3 id="2-1-Greenplum-架构"><a href="#2-1-Greenplum-架构" class="headerlink" title="2.1 Greenplum 架构"></a>2.1 Greenplum 架构</h3><p><img src="/images/db/greenplum-2.1.png" alt=""></p>
+<p>Client 只与 Master节点 交互，Client将SQL发给 Master，然后 Master对SQL分析后，分配给所有的 Segment 进行操作，并将汇总结果返回给客户端。</p>
+<h3 id="2-2-Greenplum-集群"><a href="#2-2-Greenplum-集群" class="headerlink" title="2.2 Greenplum 集群"></a>2.2 Greenplum 集群</h3><p><img src="/images/db/greenplum-2.2.png" alt=""></p>
+<h3 id="2-3-Greenplum-畅游"><a href="#2-3-Greenplum-畅游" class="headerlink" title="2.3 Greenplum 畅游"></a>2.3 Greenplum 畅游</h3><h4 id="2-3-1-访问方式"><a href="#2-3-1-访问方式" class="headerlink" title="2.3.1 访问方式"></a>2.3.1 访问方式</h4><ul>
+<li>psql cmd</li>
+<li>pgAdmin / navicat</li>
+</ul>
+<h4 id="2-3-2-整体概况"><a href="#2-3-2-整体概况" class="headerlink" title="2.3.2 整体概况"></a>2.3.2 整体概况</h4><ul>
+<li>Greenplum 基于 PostgreSQL 8.2 开发</li>
+<li>Master不存储数据，Segment为数据节点</li>
+</ul>
+<p>Student Table 存储在 GP 中</p>
+<p><img src="/images/db/greenplum-2.3.png" alt=""></p>
+<h4 id="2-3-3-基本语法"><a href="#2-3-3-基本语法" class="headerlink" title="2.3.3 基本语法"></a>2.3.3 基本语法</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[hdfs@node196 libin]$ psql -h 192.168.xx.xx -p xx <span class="_">-d</span> testdb -U xx</span><br><span class="line">psql (9.2.15, server 8.2.15)</span><br><span class="line">WARNING: psql version 9.2, server version 8.2.</span><br><span class="line">         Some psql features might not work.</span><br><span class="line">Type <span class="string">"help"</span> <span class="keyword">for</span> help.</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>psql -h192.168.181.xx -p2345 -dcom_db -Ucom_gp -c “select * from ods_dm_e_coupon limit 2”</p>
+</blockquote>
+<p><strong>1. 语法介绍</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">\h <span class="keyword">create</span></span><br></pre></td></tr></table></figure>
+<p><strong>2. CREATE TABLE</strong></p>
+<ul>
+<li>需要指定表分布键</li>
+<li>需要用某个字段分区，partition by</li>
+<li>like 类似 create table t1 as select * from t2 limit x</li>
+<li>inherits can extend table</li>
+</ul>
+<p>分类策略 </p>
+<ol>
+<li>Hash 分布 (默认第一个字段，推荐显示指定)</li>
+<li>随机分布 (distributed randomly 性能较差， 主键分布一般)</li>
+</ol>
+<blockquote>
+<p>like 创建的表，结构与原表一样，不指定分布键，默认与原表一样。</p>
+<p>appendonly、压缩等特殊属性，不一定一样。</p>
+</blockquote>
+<p><strong>3. SELECT</strong></p>
+<p><strong>4. CREATE TABLE AS 与 SELECT INTO</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> test2 <span class="keyword">AS</span> <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> test1 <span class="keyword">distributed</span> <span class="keyword">by</span> (<span class="keyword">id</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">INTO</span> test4 <span class="keyword">from</span> test1</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>SELECT INTO 不能指定分布键，使用默认</p>
+</blockquote>
+<p><strong>5. INSERT</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test001 <span class="keyword">VALUES</span>(<span class="number">100</span>, <span class="string">'tom'</span>), (<span class="number">101</span>, <span class="string">'jim'</span>); <span class="keyword">INSERT</span> <span class="number">0</span> <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意 : 分布键 绝对不能为空，否则为 null。数据分布到一个节点。</p>
+</blockquote>
+<p><strong>6. UPDATE</strong></p>
+<p>不能批量对 分布key 执行 update 操作</p>
+<p><strong>7. DELETE</strong></p>
+<p>涉及 子查询，子查询结果还涉及数据重分布，这样报错</p>
+<h4 id="2-3-4-数据类型"><a href="#2-3-4-数据类型" class="headerlink" title="2.3.4 数据类型"></a>2.3.4 数据类型</h4><table>
+<thead>
+<tr>
+<th>type</th>
+<th>space</th>
+<th>description</th>
+<th>range</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>smallint</td>
+<td>2</td>
+<td></td>
+<td>-32768 ~ +32767</td>
+</tr>
+<tr>
+<td>integer</td>
+<td>4</td>
+<td></td>
+<td>-2 147 483 648 ~ +2 147 483 647</td>
+</tr>
+<tr>
+<td>bigint</td>
+<td>8</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr>
+<td>decimal</td>
+<td>变长</td>
+<td></td>
+<td>nolimit</td>
+</tr>
+<tr>
+<td>numeric</td>
+<td>变长</td>
+<td></td>
+<td>nolimit</td>
+</tr>
+<tr>
+<td>double precision</td>
+<td>4</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr>
+<td>serial</td>
+<td>4</td>
+<td>自增整数</td>
+<td>1 ~ 2 147 483 647</td>
+</tr>
+<tr>
+<td>bigserial</td>
+<td>8</td>
+<td>大范围自增整数</td>
+<td></td>
+</tr>
+<tr>
+<td>varchar(n)</td>
+<td>变长</td>
+<td></td>
+<td>limit</td>
+</tr>
+<tr>
+<td>char(n)</td>
+<td>定长</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>text</td>
+<td>变长</td>
+<td></td>
+<td>nolimit</td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>8</td>
+<td>带不带时区，自己选择</td>
+<td></td>
+</tr>
+<tr>
+<td>date</td>
+<td>4</td>
+<td>表示日期</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h4 id="2-3-5-常用函数"><a href="#2-3-5-常用函数" class="headerlink" title="2.3.5 常用函数"></a>2.3.5 常用函数</h4><p><a href="http://www.postgres.cn/docs/9.3/" target="_blank" rel="external">postgres 9.3 doc</a></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://cread.jd.com/read/startRead.action?bookId=30189846&amp;readType=1" target="_blank" rel="external">JD阅读 : Greenplum企业级应用实战</a></li>
+<li><a href="http://dbaplus.cn/news-21-341-1.html" target="_blank" rel="external">聊聊Greenplum的那些事</a></li>
+</ul>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-society-resorting-to-trickery" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -983,82 +1404,6 @@
 
 
     
-      <article id="post-ds-mst" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/10/27/ds-mst/"><strong>Minimum Spanning Tree</strong></a>
-      <small class=article-date-index>&nbsp; 2016-10-27</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/10/27/ds-mst/" class="article-date">
-  <time datetime="2016-10-27T02:28:21.000Z" itemprop="datePublished">2016-10-27</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      data structure - minimal spanning tree <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/icpc/">icpc</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/10/27/ds-mst/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
       <article id="post-ds-sort" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1121,6 +1466,82 @@
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ds-mst" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/10/27/ds-mst/"><strong>Minimum Spanning Tree</strong></a>
+      <small class=article-date-index>&nbsp; 2016-10-27</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/10/27/ds-mst/" class="article-date">
+  <time datetime="2016-10-27T02:28:21.000Z" itemprop="datePublished">2016-10-27</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      data structure - minimal spanning tree <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/icpc/">icpc</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://selfboot.org/2016/10/27/ds-mst/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
     </div>
     -->
@@ -1818,371 +2239,6 @@
 <li><a href="http://blog.chenming.info/blog/2012/07/15/learn-octave/" target="_blank" rel="external">学习一点</a></li>
 </ol>
 </blockquote>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ml-coursera-ng-w2-01-Linear-Regression" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/10/08/ml-coursera-ng-w2-01-Linear-Regression/"><strong>Coursera Week 2 - Linear Regression with Multiple Variables</strong></a>
-      <small class=article-date-index>&nbsp; 2016-10-08</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/10/08/ml-coursera-ng-w2-01-Linear-Regression/" class="article-date">
-  <time datetime="2016-10-08T04:28:21.000Z" itemprop="datePublished">2016-10-08</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      coursera week 2 - linear regression with multiple variables 1 <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/10/08/ml-coursera-ng-w2-01-Linear-Regression/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<h2 id="1-Multiple-Features"><a href="#1-Multiple-Features" class="headerlink" title="1. Multiple Features"></a>1. Multiple Features</h2><p><img src="/images/ml/ml-ng-w2-01.png" alt="Multiple Features"></p>
-<p>$<br>\begin{align}x_j^{(i)} &amp;= \text{value of feature } j \text{ in the }i^{th}\text{ training example} \newline<br>x^{(i)}&amp; = \text{the column vector of all the feature inputs of the }i^{th}\text{ training example} \newline<br>m &amp;= \text{the number of training examples} \newline<br>n &amp;= \left| x^{(i)} \right| ; \text{(the number of features)} \end{align}<br>$</p>
-<blockquote>
-<p>Macdown Version 0.6.4 (786) MathJax the same this web</p>
-</blockquote>
-<h3 id="1-1-hypothesis-function"><a href="#1-1-hypothesis-function" class="headerlink" title="1.1 hypothesis function"></a>1.1 hypothesis function</h3><p>Now define the multivariable form of the hypothesis function as follows, accommodating these multiple features:</p>
-<p>$<br>h_\theta (x) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \theta_3 x_3 + \cdots + \theta_n x_n<br>$</p>
-<p><strong>multivariable hypothesis function</strong></p>
-<p>Using the definition of matrix multiplication, our multivariable hypothesis function can be concisely represented as:</p>
-<blockquote>
-<p>$<br>\begin{align}<br>h_\theta(x) =\begin{bmatrix}\theta_0 \hspace{2em}  \theta_1 \hspace{2em}  …  \hspace{2em}  \theta_n\end{bmatrix}\begin{bmatrix}x_0 \newline x_1 \newline \vdots \newline x_n\end{bmatrix}= \theta^T x<br>\end{align}<br>$</p>
-</blockquote>
-<p>The training examples are stored in X row-wise, like such:</p>
-<blockquote>
-<p>$<br>\begin{align}<br>X =<br>\begin{bmatrix}x^{(1)}_0 &amp; x^{(1)}_1  \newline x^{(2)}_0 &amp; x^{(2)}_1  \newline<br>x^{(3)}_0 &amp; x^{(3)}_1 \end{bmatrix}&amp;,\theta = \begin{bmatrix}\theta_0 \newline<br>\theta_1 \newline<br>\end{bmatrix}<br>\end{align}<br>$</p>
-</blockquote>
-<p>You can calculate the hypothesis as a column vector of size (m x 1) with:</p>
-<blockquote>
-<p>$<br>h_\theta(X) = X \theta<br>$</p>
-<p>For the rest of these notes,  X will represent a matrix of training examples $x_{(i)}$ </p>
-</blockquote>
-<h2 id="2-Cost-function"><a href="#2-Cost-function" class="headerlink" title="2. Cost function"></a>2. Cost function</h2><p>For the parameter vector θ (of type $\mathbb{R}^{n+1}$ or in $\mathbb{R}^{(n+1) \times 1}$, the cost function is:</p>
-<p>$<br>J(\theta) = \dfrac {1}{2m} \displaystyle \sum_{i=1}^m \left (h_\theta (x^{(i)}) - y^{(i)} \right)^2<br>$</p>
-<p><code>The vectorized version is:</code></p>
-<p>$<br>J(\theta) = \dfrac {1}{2m} (X\theta - \vec{y})^{T} (X\theta - \vec{y})<br>$</p>
-<blockquote>
-<p>vectorized version is very good!</p>
-</blockquote>
-<h2 id="3-Gradient-Desc-Multivariable"><a href="#3-Gradient-Desc-Multivariable" class="headerlink" title="3. Gradient Desc Multivariable"></a>3. Gradient Desc Multivariable</h2><p><code>Matrix Notation</code></p>
-<p>The Gradient Descent rule can be expressed as:</p>
-<p>$<br>\theta := \theta - \alpha \nabla J(\theta)<br>$</p>
-<p>Where $\nabla J(\theta)$ is a column vector of the form:</p>
-<p>$<br>\nabla J(\theta)  = \begin{bmatrix}\frac{\partial J(\theta)}{\partial \theta_0}   \newline \frac{\partial J(\theta)}{\partial \theta_1}   \newline \vdots   \newline \frac{\partial J(\theta)}{\partial \theta_n} \end{bmatrix}<br>$</p>
-<p>The j-th component of the gradient is the summation of the product of two terms:</p>
-<p>$<br>\begin{align}<br>\; &amp;\frac{\partial J(\theta)}{\partial \theta_j} &amp;=&amp;  \frac{1}{m} \sum\limits_{i=1}^{m}  \left(h_\theta(x^{(i)}) - y^{(i)} \right) \cdot x_j^{(i)} \newline<br>\; &amp; &amp;=&amp; \frac{1}{m} \sum\limits_{i=1}^{m}   x_j^{(i)} \cdot \left(h_\theta(x^{(i)}) - y^{(i)}  \right)<br>\end{align}<br>$</p>
-<blockquote>
-<p>在数学中，一个多变量的函数的偏导数是它关于其中一个变量的导数，而保持其他变量恒定。</p>
-</blockquote>
-<p>Sometimes, the summation of the product of two terms can be expressed as the product of two vectors.</p>
-<blockquote>
-<p>$<br>\begin{align}\; &amp;\frac{\partial J(\theta)}{\partial \theta_j} = \frac1m  \vec{x_j}^{T} (X\theta - \vec{y}) \newline<br>&amp;\nabla J(\theta)  =  \frac 1m X^{T} (X\theta - \vec{y}) \newline<br>\end{align}<br>$</p>
-</blockquote>
-<p>Finally, the matrix notation (vectorized) of the Gradient Descent rule is:</p>
-<p>$<br>\theta := \theta - \frac{\alpha}{m} X^{T} (X\theta - \vec{y})<br>$</p>
-<p>The gradient descent equation itself is generally the same form; we just have to repeat it for our ‘n’ features:</p>
-<p>$<br>\begin{align}<br>&amp; \text{repeat until convergence:} \; \lbrace \newline<br>\; &amp; \theta_0 := \theta_0 - \alpha \frac{1}{m} \sum\limits_{i=1}^{m}  (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_0^{(i)}\newline<br>\; &amp; \theta_1 := \theta_1 - \alpha \frac{1}{m} \sum\limits_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_1^{(i)} \newline<br>\; &amp; \theta_2 := \theta_2 - \alpha \frac{1}{m} \sum\limits_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_2^{(i)} \newline<br>&amp; \cdots<br>\newline \rbrace<br>\end{align}<br>$</p>
-<p>In other words:</p>
-<p>$<br>\begin{align}<br>&amp; \text{repeat until convergence:} \; \lbrace \newline \;<br>&amp; \theta_j := \theta_j - \alpha \frac{1}{m} \sum\limits_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_j^{(i)} \;  &amp; \text{for j := 0..n}<br>\newline \rbrace<br>\end{align}<br>$</p>
-<h3 id="3-1-Feature-Scaling"><a href="#3-1-Feature-Scaling" class="headerlink" title="3.1 Feature Scaling"></a>3.1 Feature Scaling</h3><p>Idea : Make sure features are on a similar scale 特征缩放</p>
-<p><img src="/images/ml/ml-ng-w2-02.png" alt="Multiple Features"></p>
-<blockquote>
-<p>Get every feature into approximately a $-1 \leq x_i \leq 1$ range.</p>
-<p>Replace $x_i$ with $x_i - u_i$ to make features have approximately zero mean (Do not apply to $x_0$ = 1).</p>
-<p>如果多个特征值，大多处在一个相近的范围，梯度下降就能更快的收敛。</p>
-</blockquote>
-<p>因为 2000/5 比较大，所以轮廓图，使得椭圆更加的瘦长，好比 $J(\theta)$ 收敛的更慢。</p>
-<h3 id="3-2-learning-rate"><a href="#3-2-learning-rate" class="headerlink" title="3.2 learning rate"></a>3.2 learning rate</h3><p>$<br>\begin{align}<br>\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j} J(\theta)<br>\end{align}<br>$</p>
-<ul>
-<li>Debugging : How to make sure gradient descent is working correctly</li>
-<li>How to choose learning rate $\alpha$</li>
-</ul>
-<p><img src="/images/ml/ml-ng-w2-03.png" alt="Multiple Features"></p>
-<p><strong>Summary</strong></p>
-<ul>
-<li>if $\alpha$ is too small: slow convergence [kən’vɜːdʒəns] 收敛</li>
-<li>if $\alpha$ is too large: $J(\theta)$ may not decrease on every iteration; may not converge.</li>
-</ul>
-<p>To choose $\alpha$, try</p>
-<p>…, 0.001, 0.01, 0.1, 1, …</p>
-<h2 id="4-Polynomial-Regression"><a href="#4-Polynomial-Regression" class="headerlink" title="4. Polynomial Regression"></a>4. Polynomial Regression</h2><p><img src="/images/ml/ml-ng-w2-04.png" alt="Polynomial"></p>
-<h3 id="4-1-Polynomial-Regression"><a href="#4-1-Polynomial-Regression" class="headerlink" title="4.1 Polynomial Regression"></a>4.1 Polynomial Regression</h3><p><img src="/images/ml/ml-ng-w2-05.png" alt="Polynomial [,pɒlɪ&#39;nəʊmɪəl]"></p>
-<blockquote>
-<p>Feature normalization is very important</p>
-</blockquote>
-<h3 id="4-2-Choice-of-features"><a href="#4-2-Choice-of-features" class="headerlink" title="4.2 Choice of features"></a>4.2 Choice of features</h3><p><img src="/images/ml/ml-ng-w2-06.png" alt="Choice of features"></p>
-<p>@2017-02-10 review done</p>
-<h2 id="5-Normal-Equation"><a href="#5-Normal-Equation" class="headerlink" title="5. Normal Equation"></a>5. Normal Equation</h2><p><img src="/images/ml/ml-ng-w2-07.png" alt="Normal Equation"></p>
-<blockquote>
-<p>$\theta = (X^T X)^{-1}X^T y$</p>
-</blockquote>
-<h3 id="5-1-num-and-vector"><a href="#5-1-num-and-vector" class="headerlink" title="5.1 num and vector"></a>5.1 num and vector</h3><p><img src="/images/ml/ml-ng-w2-08.png" alt="Normal Equation"></p>
-<blockquote>
-<p>$<br>J(\theta) = \dfrac {1}{2m} (X\theta - \vec{y})^{T} (X\theta - \vec{y})<br>$</p>
-<p>$<br>\begin{align}\; &amp;\frac{\partial J(\theta)}{\partial \theta_j} = \frac1m  \vec{x_j}^{T} (X\theta - \vec{y}) \newline<br>&amp;\nabla J(\theta)  =  \frac 1m X^{T} (X\theta - \vec{y}) \newline<br>\end{align}<br>$</p>
-</blockquote>
-<h3 id="5-2-house-price-example"><a href="#5-2-house-price-example" class="headerlink" title="5.2 house price example"></a>5.2 house price example</h3><p><img src="/images/ml/ml-ng-w2-09.png" alt="Normal Equation"></p>
-<blockquote>
-<p>$<br>\begin{align}<br>\nabla J(\theta)  =  \frac 1m X^{T} (X\theta - \vec{y}) \newline<br>\end{align}<br>$</p>
-<p>令 $\nabla J(\theta)  =  0 $</p>
-<p>So, $\theta = (X^T X)^{-1}X^T y $</p>
-</blockquote>
-<h3 id="5-3-m-training-n-features"><a href="#5-3-m-training-n-features" class="headerlink" title="5.3 $m$ training, $n$ features"></a>5.3 $m$ training, $n$ features</h3><table>
-<thead>
-<tr>
-<th>Gradient Descent</th>
-<th>Normal Equation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Need to choose $\alpha$</td>
-<td>No need to choose $\alpha$ </td>
-</tr>
-<tr>
-<td>Needs many iterations</td>
-<td>Don’t need to iterate</td>
-</tr>
-<tr>
-<td>Works well even when $n$ is large</td>
-<td>Slow if $n$ is very large</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>it is usually around ten thousand that I might start to consider switching over to gradient descents or maybe, some other algorithms that we’ll talk about later in this class</p>
-</blockquote>
-<h3 id="5-4-X-T-X-is-non-invertible"><a href="#5-4-X-T-X-is-non-invertible" class="headerlink" title="5.4 $X^T X$ is non-invertible"></a>5.4 $X^T X$ is non-invertible</h3><p> $\theta = (X^T X)^{-1}X^T y $</p>
-<p>What $X^T X$ is non-invertible? （singular / degenerate）</p>
-<blockquote>
-<p>When $X^T X$ is non-invertible, this is very few.</p>
-</blockquote>
-<p><strong>What $X^T X$ is non-invertible?</strong></p>
-<p><img src="/images/ml/ml-ng-w2-10.png" alt="non-invertible"></p>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ml-coursera-ng-w1-03-Linear-Algebra" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/09/30/ml-coursera-ng-w1-03-Linear-Algebra/"><strong>Coursera Week 1 - Linear Algebra Matrices And Vectors</strong></a>
-      <small class=article-date-index>&nbsp; 2016-09-30</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/09/30/ml-coursera-ng-w1-03-Linear-Algebra/" class="article-date">
-  <time datetime="2016-09-30T06:22:21.000Z" itemprop="datePublished">2016-09-30</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      coursera week 1 - matrices and vectors <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://selfboot.org/2016/09/30/ml-coursera-ng-w1-03-Linear-Algebra/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<h2 id="1-Matrix-Elements"><a href="#1-Matrix-Elements" class="headerlink" title="1. Matrix Elements"></a>1. Matrix Elements</h2><p>$$<br>A =<br>\begin{bmatrix}<br>   1 &amp; 2 \\<br>   4 &amp; 5 \\<br>   7 &amp; 8<br>  \end{bmatrix} \tag{fmt.1  R^{32}}<br>$$</p>
-<p>$ A_{ij} = $ “$i, j$ entry”  in the $i^{th}$ row, $j^{th}$ column</p>
-<p>$ A_{32} = 8 $</p>
-<h2 id="2-Vector-A-n-n-1-matrix"><a href="#2-Vector-A-n-n-1-matrix" class="headerlink" title="2. Vector $A_n$ n*1 matrix"></a>2. Vector $A_n$ n*1 matrix</h2><p>$$<br>y =<br>\begin{bmatrix}<br>   460 \\<br>   232 \\<br>   315 \\<br>   178<br>  \end{bmatrix} \tag{fmt.2}<br>$$</p>
-<blockquote>
-<p>$R^4$ 4 dimensional vector<br>$y_i = i^{th} element$</p>
-</blockquote>
-<h3 id="2-1-math-1-indexed"><a href="#2-1-math-1-indexed" class="headerlink" title="2.1 math 1-indexed"></a>2.1 math 1-indexed</h3><p>$$<br>y =<br>\begin{bmatrix}<br>   y1 \\<br>   y2 \\<br>   y3 \\<br>   y4<br>  \end{bmatrix} \tag{fmt.3}<br>$$</p>
-<h3 id="2-2-machine-learning-0-indexed"><a href="#2-2-machine-learning-0-indexed" class="headerlink" title="2.2 machine-learning 0-indexed"></a>2.2 machine-learning 0-indexed</h3><p>$$<br>y =<br>\begin{bmatrix}<br>   y0 \\<br>   y1 \\<br>   y2 \\<br>   y3<br>  \end{bmatrix} \tag{fmt.4}<br>$$</p>
-<h2 id="3-Matrix-Addition"><a href="#3-Matrix-Addition" class="headerlink" title="3. Matrix Addition"></a>3. Matrix Addition</h2><p>$$ \begin{bmatrix} 1 &amp; 0 \\ 2 &amp; 5 \\ 3 &amp; 1 \end{bmatrix} + \begin{bmatrix} 4 &amp; 0.5 \\ 2 &amp; 5 \\ 0 &amp; 1 \end{bmatrix} =<br>\begin{bmatrix}<br>   5 &amp; 0.5 \\<br>   4 &amp; 10 \\<br>   3 &amp; 2<br> \end{bmatrix} $$</p>
-<h2 id="4-Scalar-Multiplication"><a href="#4-Scalar-Multiplication" class="headerlink" title="4. Scalar Multiplication"></a>4. Scalar Multiplication</h2><p>$$ 3 \times \begin{bmatrix} 1 &amp; 0 \\ 2 &amp; 5 \\ 3 &amp; 1 \end{bmatrix}<br>= \begin{bmatrix}<br>   3 &amp; 0 \\<br>   6 &amp; 15 \\<br>   9 &amp; 3<br> \end{bmatrix}<br>$$</p>
-<h2 id="5-Combination-of-Operands"><a href="#5-Combination-of-Operands" class="headerlink" title="5. Combination of Operands"></a>5. Combination of Operands</h2><p>$$ 3 \times<br>\begin{bmatrix}<br>1 \\<br>4 \\<br>2<br>\end{bmatrix}<br>+<br>\begin{bmatrix}<br>0 \\<br>0 \\<br>5<br>\end{bmatrix} -<br>\begin{bmatrix}<br>   3 \\<br>   0 \\<br>   2<br> \end{bmatrix} / 3 =<br>\begin{bmatrix}<br>2 \\<br>12 \\<br>31/3<br>\end{bmatrix}<br>$$</p>
-<h2 id="6-Matrix-Vector-Multiplication"><a href="#6-Matrix-Vector-Multiplication" class="headerlink" title="6. Matrix Vector Multiplication"></a>6. Matrix Vector Multiplication</h2><p>$$<br>\begin{bmatrix}<br>1 &amp; 3 \\<br>4 &amp; 0 \\<br>2 &amp; 1<br>\end{bmatrix}<br>\times<br>\begin{bmatrix}<br>1 \\<br>5<br>\end{bmatrix} =<br>\begin{bmatrix}<br>16 \\<br>4 \\<br>7<br>\end{bmatrix}<br>$$</p>
-<p><strong>Matrix Vector Multiplication Fmt :</strong></p>
-<p><img src="/images/ml/ml-ng-w1-03-1.png" alt="Matrix Vector"></p>
-<h3 id="6-1-House-sizes-example"><a href="#6-1-House-sizes-example" class="headerlink" title="6.1 House sizes example"></a>6.1 House sizes example</h3><p>$$<br>h_{\theta}  (x) = -40 + 0.25 x<br>$$</p>
-<table>
-<thead>
-<tr>
-<th>House sizes</th>
-<th>Price</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>2104</td>
-<td>?</td>
-</tr>
-<tr>
-<td>1416</td>
-<td>?</td>
-</tr>
-<tr>
-<td>1534</td>
-<td>?</td>
-</tr>
-<tr>
-<td>852</td>
-<td>?</td>
-</tr>
-</tbody>
-</table>
-<p>$$ \begin{bmatrix}<br>1 &amp; 2104 \\<br>1 &amp; 1416 \\<br>1 &amp; 1534 \\<br>1 &amp; 852<br>\end{bmatrix} \times<br>\begin{bmatrix}<br>-40 \\<br>0.25<br>\end{bmatrix}<br>=<br>\begin{bmatrix}<br>-40 \times 1 + 0.25 \times 2104 \\<br>… \\<br>… \\<br>…<br>\end{bmatrix}<br>$$</p>
-<h2 id="7-Practice-Example"><a href="#7-Practice-Example" class="headerlink" title="7. Practice Example"></a>7. Practice Example</h2><p>$$ \begin{bmatrix}<br>1 &amp; 3 &amp; 2 \\<br>4 &amp; 0 &amp; 1<br>\end{bmatrix}<br>\begin{bmatrix}<br>1 &amp; 3 \\<br>0 &amp; 1 \\<br>5 &amp; 2<br>\end{bmatrix} =<br>\begin{bmatrix}<br>   11 &amp; 10 \\<br>   9 &amp; 14<br> \end{bmatrix} $$</p>
-<blockquote>
-<p>$ A_{2 \times 3} \times A_{3 \times 2} = A_{2 \times 2} $</p>
-</blockquote>
-<p><img src="/images/ml/ml-ng-w1-03-2.png" alt="Matrix"></p>
-<h2 id="8-House-Example"><a href="#8-House-Example" class="headerlink" title="8. House Example"></a>8. House Example</h2><p><img src="/images/ml/ml-ng-w1-03-3.png" alt="Matrix"></p>
-<h2 id="9-Matrix-A-times-B-neq-B-times-A"><a href="#9-Matrix-A-times-B-neq-B-times-A" class="headerlink" title="9. Matrix $A \times B \neq B \times A$"></a>9. Matrix $A \times B \neq B \times A$</h2><p>But, 结合律，可以的</p>
-<p>$ A \times B \times C = (A \times B) \times C = A \times (B \times C) $</p>
-<h2 id="10-Identity-Matrix"><a href="#10-Identity-Matrix" class="headerlink" title="10. Identity Matrix"></a>10. Identity Matrix</h2><p>Denoted I (or I_{n*n}).</p>
-<h3 id="10-1-2-times-2"><a href="#10-1-2-times-2" class="headerlink" title="10.1 $2 \times 2$"></a>10.1 $2 \times 2$</h3><p>$$<br>\begin{bmatrix}<br>   1 &amp; 0 \\<br>   0 &amp; 1<br>  \end{bmatrix} \tag{fmt.1  R^{32}}<br>$$</p>
-<h3 id="10-2-3-times-3"><a href="#10-2-3-times-3" class="headerlink" title="10.2 $3 \times 3$"></a>10.2 $3 \times 3$</h3><p>$$<br>\begin{bmatrix}<br>   1 &amp; 0 &amp; 0 \\<br>   0 &amp; 1 &amp; 0 \\<br>   0 &amp; 0 &amp; 1<br>  \end{bmatrix} \tag{fmt.1  R^{32}}<br>$$</p>
-<blockquote>
-<p>$Z \times I = I \times Z = Z$</p>
-</blockquote>
-<h2 id="11-Matrix-Inverse"><a href="#11-Matrix-Inverse" class="headerlink" title="11. Matrix Inverse"></a>11. Matrix Inverse</h2><p>$3 \times 3^{-1} = 1$</p>
-<blockquote>
-<p>Not all numbers have an inverse.</p>
-</blockquote>
-<p>if $A$ is an $m \times m$ matrix, and if it has an inverse</p>
-<p>$A \times A^{-1} = A^{-1} \times A = I$</p>
-<p>$$<br>A =<br>\begin{bmatrix}<br>   3 &amp; 4 \\<br>   2 &amp; 16 \\<br>  \end{bmatrix}<br>$$</p>
-<p>$$<br>A^{-1} =<br>\begin{bmatrix}<br>   0.4 &amp; -0.1 \\<br>   -0.05 &amp; 0.075 \\<br>  \end{bmatrix}<br>$$</p>
-<p>$ A \times A^{-1} = I_{2 \times 2} $</p>
-<p>$$<br>I_{2 \times 2} =<br>\begin{bmatrix}<br>   1 &amp; 0 \\<br>   0 &amp; 1 \\<br>  \end{bmatrix}<br>$$</p>
-<h2 id="12-Matrix-Transpose"><a href="#12-Matrix-Transpose" class="headerlink" title="12. Matrix Transpose"></a>12. Matrix Transpose</h2><p>$$<br>A =<br>\begin{bmatrix}<br>   1 &amp; 2 &amp; 0 \\<br>   3 &amp; 5 &amp; 9 \\<br>  \end{bmatrix}<br>$$</p>
-<p>$$<br>A^T =<br>\begin{bmatrix}<br>   1 &amp; 3 \\<br>   2 &amp; 5 \\<br>   0 &amp; 9<br>  \end{bmatrix}<br>$$</p>
-<p>Let $A$ be an $m \times n$ matrix, and let $B = A^T$.<br>Then $B$ is an $n \times m$ matrix, and $B_{ij} = A_{ji}$</p>
 
       
     </div>
