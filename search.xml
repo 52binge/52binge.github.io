@@ -4,36 +4,37 @@
   
     
     <entry>
-      <title><![CDATA[Spark 读取数据库(Mysql) 的四种方式]]></title>
-      <url>http://selfboot.org/2017/11/23/spark-read-mysql-four-functions/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-
-
-<h2 id="1-不指定查询条件"><a href="#1-不指定查询条件" class="headerlink" title="1. 不指定查询条件"></a>1. 不指定查询条件</h2><ul>
-<li>内容过滤</li>
-</ul>
-<h2 id="2-指定数据库字段的范围"><a href="#2-指定数据库字段的范围" class="headerlink" title="2. 指定数据库字段的范围"></a>2. 指定数据库字段的范围</h2><h2 id="3-根据任意字段进行分区"><a href="#3-根据任意字段进行分区" class="headerlink" title="3. 根据任意字段进行分区"></a>3. 根据任意字段进行分区</h2><h2 id="4-通过-load-获取"><a href="#4-通过-load-获取" class="headerlink" title="4. 通过 load 获取"></a>4. 通过 load 获取</h2><blockquote>
+      <title><![CDATA[Spark Read Mysql 的四种方式 (not finish)]]></title>
+      <url>http://iequa.com/2017/11/23/spark-read-mysql-four-functions/</url>
+      <content type="html"><![CDATA[<p>目前 <code>Spark</code> 支持四种方式从数据库中读取数据，这里以 <code>MySQL</code> 为例进行介绍。</p>
+<h2 id="Startup-spark-shell"><a href="#Startup-spark-shell" class="headerlink" title="Startup spark-shell"></a>Startup spark-shell</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h2 id="1-不指定查询条件"><a href="#1-不指定查询条件" class="headerlink" title="1. 不指定查询条件"></a>1. 不指定查询条件</h2><h3 id="1-1-function-define"><a href="#1-1-function-define" class="headerlink" title="1.1 function define"></a>1.1 function define</h3><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(url: <span class="type">String</span>, table: <span class="type">String</span>, properties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-2-detail-example"><a href="#1-2-detail-example" class="headerlink" title="1.2 detail example"></a>1.2 detail example</h3><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> url = <span class="string">"jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password"</span></span><br><span class="line"><span class="keyword">import</span> java.util.<span class="type">Properties</span></span><br><span class="line"><span class="keyword">val</span> prop = <span class="keyword">new</span> <span class="type">Properties</span>()</span><br><span class="line"><span class="keyword">val</span> df = sqlContext.read.jdbc(url, <span class="string">"mds_user_coupon_bhv"</span>, prop )</span><br><span class="line">println(df.count())</span><br><span class="line">println(df.rdd.partitions.size)</span><br></pre></td></tr></table></figure>
+<p>我们运行上面的程序，可以看到df.rdd.partitions.size输出结果是1，这个结果的含义是iteblog表的所有数据都是由RDD的一个分区处理的，所以说，如果你这个表很大，很可能会出现OOM</p>
+<blockquote>
+<p>Note : 这种方式在数据量大的时候不建议使用。</p>
+</blockquote>
+<h2 id="2-指定数据库字段的范围"><a href="#2-指定数据库字段的范围" class="headerlink" title="2. 指定数据库字段的范围"></a>2. 指定数据库字段的范围</h2><p>这种方式就是通过指定数据库中某个字段的范围，但是<code>这个字段必须是数字</code>，来看看这个函数的函数原型：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(</span><br><span class="line">    url: <span class="type">String</span>,</span><br><span class="line">    table: <span class="type">String</span>,</span><br><span class="line">    columnName: <span class="type">String</span>,</span><br><span class="line">    lowerBound: <span class="type">Long</span>,</span><br><span class="line">    upperBound: <span class="type">Long</span>,</span><br><span class="line">    numPartitions: <span class="type">Int</span>,</span><br><span class="line">    connectionProperties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
+<p>… not finish</p>
+<h2 id="3-根据任意字段进行分区"><a href="#3-根据任意字段进行分区" class="headerlink" title="3. 根据任意字段进行分区"></a>3. 根据任意字段进行分区</h2><p>… not finish</p>
+<h2 id="4-通过-load-获取"><a href="#4-通过-load-获取" class="headerlink" title="4. 通过 load 获取"></a>4. 通过 load 获取</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.load(<span class="string">"jdbc"</span>, <span class="type">Map</span>(<span class="string">"url"</span> -&gt; <span class="string">"jdbc:mysql://..."</span>, </span><br><span class="line">              <span class="string">"dbtable"</span> -&gt; <span class="string">"mds_user_coupon_bhv"</span>)</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
+<p>换一种更正式的写法如下 :</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.read.format(<span class="string">"jdbc"</span>).options(<span class="type">Map</span>(</span><br><span class="line">      <span class="string">"url"</span> -&gt; <span class="string">"jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password"</span>,</span><br><span class="line">      <span class="string">"dbtable"</span> -&gt; <span class="string">"mds_user_coupon_bhv"</span>)</span><br><span class="line">   ).load()</span><br></pre></td></tr></table></figure>
+<p>options函数支持url、driver、dbtable、partitionColumn、lowerBound、upperBound以及numPartitions选项，这个和方法二的参数一致。其内部实现原理部分和方法二大体一致。同时load方法还支持json、orc等数据源的读取。</p>
+<blockquote>
 <p>Reading notes</p>
 </blockquote>
+<h2 id="5-Ref"><a href="#5-Ref" class="headerlink" title="5. Ref"></a>5. Ref</h2><blockquote>
+<p>尊重原创，转载请注明： 转载自过往记忆（<a href="http://www.iteblog.com/）" target="_blank" rel="external">http://www.iteblog.com/）</a> </p>
+</blockquote>
+<p><a href="http://blog.csdn.net/mlljava1111/article/details/50432569" target="_blank" rel="external">Spark Read Mysql-csdn</a></p>
 ]]></content>
     </entry>
     
     <entry>
       <title><![CDATA[NodeJs Learning]]></title>
-      <url>http://selfboot.org/2017/03/30/frontend-nodejs/</url>
+      <url>http://iequa.com/2017/03/30/frontend-nodejs/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>Node.js 就是运行在服务端的 JavaScript。<br>Node.js 是一个基于Chrome JavaScript 运行时建立的一个平台。<br>Node.js 是一个事件驱动 I/O服务端 JavaScript环境，基于Google的V8引擎，V8引擎执行Javascript的非常快。</p>
 </blockquote>
@@ -69,7 +70,7 @@
     
     <entry>
       <title><![CDATA[Recommendation System - 隐语义模型]]></title>
-      <url>http://selfboot.org/2017/03/24/rs-six-mouth-ALS/</url>
+      <url>http://iequa.com/2017/03/24/rs-six-mouth-ALS/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -153,7 +154,7 @@
     
     <entry>
       <title><![CDATA[New Mac Install Soft]]></title>
-      <url>http://selfboot.org/2017/03/22/ops-new-macosx-install-soft/</url>
+      <url>http://iequa.com/2017/03/22/ops-new-macosx-install-soft/</url>
       <content type="html"><![CDATA[<h2 id="1-install-homebrew"><a href="#1-install-homebrew" class="headerlink" title="1. install homebrew"></a>1. install homebrew</h2><p>Mac 下面的包管理工具，通过 Github 托管适合 Mac 的编译配置以及 Patch，可以方便的安装开发工具。</p>
 <p>Mac 自带ruby 所以安装起来很方便，同时它也会自动把git也给你装上。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ruby <span class="_">-e</span> <span class="string">"<span class="variable">$(curl -fsSL https://raw.github.com/mxcl/homebrew/go/install)</span>"</span></span><br></pre></td></tr></table></figure>
@@ -203,7 +204,7 @@
     
     <entry>
       <title><![CDATA[Recommendation System - CF]]></title>
-      <url>http://selfboot.org/2017/02/28/rs-six-mouth-CF/</url>
+      <url>http://iequa.com/2017/02/28/rs-six-mouth-CF/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -502,7 +503,7 @@
     
     <entry>
       <title><![CDATA[About Keras Some Concepts]]></title>
-      <url>http://selfboot.org/2017/02/23/ml-keras-some-concept/</url>
+      <url>http://iequa.com/2017/02/23/ml-keras-some-concept/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -558,7 +559,7 @@
     
     <entry>
       <title><![CDATA[Python numpy.shape 和 numpy.reshape]]></title>
-      <url>http://selfboot.org/2017/02/21/ml-python-numpy-shape/</url>
+      <url>http://iequa.com/2017/02/21/ml-python-numpy-shape/</url>
       <content type="html"><![CDATA[<table>
 <thead>
 <tr>
@@ -591,7 +592,7 @@
     
     <entry>
       <title><![CDATA[Mac install tensorFlow]]></title>
-      <url>http://selfboot.org/2017/02/21/ops-mac-install-tensorflow/</url>
+      <url>http://iequa.com/2017/02/21/ops-mac-install-tensorflow/</url>
       <content type="html"><![CDATA[<h2 id="1-instaled-pip"><a href="#1-instaled-pip" class="headerlink" title="1. instaled pip"></a>1. instaled pip</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装完后执行命令pip freeze列出安装的packages验证一下pip安装好没.</span></span><br><span class="line"></span><br><span class="line">$ pip freeze</span><br><span class="line">python-dateutil==1.5</span><br><span class="line">scikit-learn==0.18.dev0</span><br><span class="line">scipy==0.13.0b1</span><br><span class="line">six==1.10.0</span><br><span class="line">tensorflow==0.5.0</span><br><span class="line">terminado==0.6</span><br><span class="line">TFL==2.0.5</span><br><span class="line">tornado==4.3</span><br><span class="line">vboxapi==1.0</span><br><span class="line">virtualenv==15.1.0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 <h2 id="2-install-tensorflow"><a href="#2-install-tensorflow" class="headerlink" title="2. install tensorflow"></a>2. install tensorflow</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Mac OS X, CPU only, Python 2.7:</span></span><br><span class="line">$ <span class="built_in">export</span> TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.0.0-py2-none-any.whl</span><br><span class="line"></span><br><span class="line"><span class="comment"># Only CPU-version is available at the moment.</span></span><br><span class="line">$ sudo pip install <span class="variable">$TF_BINARY_URL</span></span><br></pre></td></tr></table></figure>
 <blockquote>
@@ -622,7 +623,7 @@
     
     <entry>
       <title><![CDATA[Abalone's Age]]></title>
-      <url>http://selfboot.org/2017/02/17/ml-Abalone-Age-2017-02-17-1413/</url>
+      <url>http://iequa.com/2017/02/17/ml-Abalone-Age-2017-02-17-1413/</url>
       <content type="html"><![CDATA[<h2 id="Abalone’s-Age"><a href="#Abalone’s-Age" class="headerlink" title="Abalone’s Age"></a><a href="http://www.pkbigdata.com/common/cmpt/成电大数据培训实践_竞赛信息.html" target="_blank" rel="external">Abalone’s Age</a></h2><p>『Abalone’s Age』</p>
 <p>鲍鱼，在现代汉语中有多种含义。最常用的是指一种原始的海洋贝类，属于单壳软体动物，其只有半面外壳，壳坚厚、扁而宽，鲍鱼是中国传统的名贵食材，位居四大海味之首。<br>鲍鱼的优劣与年龄相关。一般来说，我们可以数鲍鱼的生长纹来确定鲍鱼的年龄，但数生长纹也是一件挺麻烦的事情。在这里，我们采用与鲍鱼年龄有关的因素来预测鲍鱼的年龄。</p>
 <p>构建Pybrain神经网络的基本步骤：</p>
@@ -732,7 +733,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[Kaggle_Titanic]]></title>
-      <url>http://selfboot.org/2017/02/16/pybrain-NN-BPNN-Titanic-2017-02-16-1732-ipynb/</url>
+      <url>http://iequa.com/2017/02/16/pybrain-NN-BPNN-Titanic-2017-02-16-1732-ipynb/</url>
       <content type="html"><![CDATA[<h2 id="泰坦尼克号"><a href="#泰坦尼克号" class="headerlink" title="泰坦尼克号"></a><a href="https://www.kaggle.com/c/titanic" target="_blank" rel="external">泰坦尼克号</a></h2><p>『Jack and Rose』的故事，豪华游艇倒了，大家都惊恐逃生，可是救生艇的数量有限，无法人人都有，副船长发话了『lady and kid first！』，所以是否获救其实并非随机，而是基于一些背景有rank先后的。<br><br>训练和测试数据是一些乘客的个人信息以及存活状况，要尝试根据它生成合适的模型并预测其他人的存活状况。<br></p>
 <p>这是一个二分类问题，很多分类算法都可以解决。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">构建Pybrain神经网络的基本步骤：</span><br><span class="line"></span><br><span class="line">1. 构建神经网路</span><br><span class="line">2. 构造数据集</span><br><span class="line">3. 训练神经网络</span><br><span class="line">4. 预测测试集结果</span><br><span class="line">5. 验证和分析</span><br></pre></td></tr></table></figure>
@@ -908,7 +909,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[Python pandas.DataFrame 类型数据操作函数 (not finish)]]></title>
-      <url>http://selfboot.org/2017/02/15/ml-python-pandas-2/</url>
+      <url>http://iequa.com/2017/02/15/ml-python-pandas-2/</url>
       <content type="html"><![CDATA[<table>
 <thead>
 <tr>
@@ -952,7 +953,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[Coursera Week 5 - Neural Networks II]]></title>
-      <url>http://selfboot.org/2017/02/13/ml-coursera-ng-w4-nn-03/</url>
+      <url>http://iequa.com/2017/02/13/ml-coursera-ng-w4-nn-03/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -993,7 +994,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[Coursera Week 4 - Neural Networks I]]></title>
-      <url>http://selfboot.org/2017/02/07/ml-coursera-ng-w4-nn-02/</url>
+      <url>http://iequa.com/2017/02/07/ml-coursera-ng-w4-nn-02/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -1076,7 +1077,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[Python Basic Learning (not finish)]]></title>
-      <url>http://selfboot.org/2017/02/03/python-basic-learning/</url>
+      <url>http://iequa.com/2017/02/03/python-basic-learning/</url>
       <content type="html"><![CDATA[<h2 id="1-Python-简介"><a href="#1-Python-简介" class="headerlink" title="1. Python 简介"></a>1. Python 简介</h2><ul>
 <li><code>解释型</code>、<code>面向对象</code>、<code>动态数据类型</code> 的高级程序设计语言。</li>
 </ul>
@@ -1094,7 +1095,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[tensorflow]]></title>
-      <url>http://selfboot.org/2017/01/21/ml-tensorflow/</url>
+      <url>http://iequa.com/2017/01/21/ml-tensorflow/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -1117,7 +1118,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[biggest bandit spy]]></title>
-      <url>http://selfboot.org/2017/01/21/society-China-modern-history/</url>
+      <url>http://iequa.com/2017/01/21/society-China-modern-history/</url>
       <content type="html"><![CDATA[<h2 id="1-biggest-bandit-spy"><a href="#1-biggest-bandit-spy" class="headerlink" title="1. biggest bandit spy"></a>1. biggest bandit spy</h2><p>Guo Rugui</p>
 <div class="video-container"><iframe src="//www.youtube.com/embed/O2tc43ceZ-c" frameborder="0" allowfullscreen></iframe></div>
 <h2 id="2-Hold-down-Chiang-Kai-shek-pulse"><a href="#2-Hold-down-Chiang-Kai-shek-pulse" class="headerlink" title="2. Hold down Chiang Kai-shek pulse"></a>2. Hold down Chiang Kai-shek pulse</h2><p>Shen Anna</p>
@@ -1127,7 +1128,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[Greenplum ods]]></title>
-      <url>http://selfboot.org/2017/01/20/db-greenplum-mysql-ext-ods/</url>
+      <url>http://iequa.com/2017/01/20/db-greenplum-mysql-ext-ods/</url>
       <content type="html"><![CDATA[<h2 id="Preface"><a href="#Preface" class="headerlink" title="Preface"></a>Preface</h2><p><a href="https://github.com/blairchan/bigdata/tree/master/greenplum/ext_ods_table" target="_blank" rel="external">code : github ext_ods_table</a></p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">运行本模块之前 :</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ext_ods_table</span><br><span class="line">mkdir <span class="built_in">log</span> flag</span><br><span class="line">mkdir -p <span class="built_in">log</span>/crontab</span><br><span class="line">mkdir data</span><br><span class="line"></span><br><span class="line">构造 datax json file， put it to **data** 目录</span><br></pre></td></tr></table></figure>
 <h2 id="1-Needs"><a href="#1-Needs" class="headerlink" title="1. Needs"></a>1. Needs</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;程序自动化拉取数据进入原始层 ODS</p>
@@ -1167,7 +1168,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[Greenplum dev Flow]]></title>
-      <url>http://selfboot.org/2017/01/12/db-greenplum-manual-dev-steps/</url>
+      <url>http://iequa.com/2017/01/12/db-greenplum-manual-dev-steps/</url>
       <content type="html"><![CDATA[<p><img src="/images/db/greenplum-flow.png" alt=""></p>
 <h2 id="1-Rds-import-oss"><a href="#1-Rds-import-oss" class="headerlink" title="1. Rds import oss"></a>1. Rds import oss</h2><p>通过 datax 从 mysql 导出数据到 OSS</p>
 <p>组装 : mysql2oss-e_coupon.json</p>
@@ -1196,7 +1197,7 @@ trainer end!
     
     <entry>
       <title><![CDATA[Greenplum 学习笔记]]></title>
-      <url>http://selfboot.org/2017/01/04/db-greenplum-short-introduce/</url>
+      <url>http://iequa.com/2017/01/04/db-greenplum-short-introduce/</url>
       <content type="html"><![CDATA[<style>
 img {
         display: block !important;
@@ -1456,7 +1457,7 @@ img {
     
     <entry>
       <title><![CDATA[Chinese Society's Common Trick]]></title>
-      <url>http://selfboot.org/2016/12/04/society-resorting-to-trickery/</url>
+      <url>http://iequa.com/2016/12/04/society-resorting-to-trickery/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>健身馆、技能培训机构、私立医院、婚恋中介、房屋中介、美容院等机构的骗术</p>
 </blockquote>
@@ -1503,7 +1504,7 @@ img {
     
     <entry>
       <title><![CDATA[Spark Machine Learning p4 - Build Recommendation System]]></title>
-      <url>http://selfboot.org/2016/11/23/spark-machine-learning-p4-rs/</url>
+      <url>http://iequa.com/2016/11/23/spark-machine-learning-p4-rs/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -1642,7 +1643,7 @@ img {
     
     <entry>
       <title><![CDATA[what is recommendation system]]></title>
-      <url>http://selfboot.org/2016/11/22/rsac-p1/</url>
+      <url>http://iequa.com/2016/11/22/rsac-p1/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -1749,7 +1750,7 @@ img {
     
     <entry>
       <title><![CDATA[Python Pandas - Series、DataFrame]]></title>
-      <url>http://selfboot.org/2016/11/18/ml-python-pandas/</url>
+      <url>http://iequa.com/2016/11/18/ml-python-pandas/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -1843,7 +1844,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera Week 4 - Neural Networks Preface]]></title>
-      <url>http://selfboot.org/2016/11/17/ml-coursera-ng-w4-nn-01/</url>
+      <url>http://iequa.com/2016/11/17/ml-coursera-ng-w4-nn-01/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -1877,7 +1878,7 @@ img {
     
     <entry>
       <title><![CDATA[第二章 导数与微分]]></title>
-      <url>http://selfboot.org/2016/10/28/math-l1p2/</url>
+      <url>http://iequa.com/2016/10/28/math-l1p2/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -1912,15 +1913,25 @@ img {
     
     <entry>
       <title><![CDATA[Shortest Path]]></title>
-      <url>http://selfboot.org/2016/10/27/ds-sp/</url>
+      <url>http://iequa.com/2016/10/27/ds-sp/</url>
       <content type="html"><![CDATA[<h2 id="1-dijstra"><a href="#1-dijstra" class="headerlink" title="1. dijstra"></a>1. dijstra</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> data[M][M]; <span class="comment">// init INF</span></span><br><span class="line"><span class="keyword">int</span> lowc[M];</span><br><span class="line"><span class="keyword">int</span> vis[M];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">djst</span><span class="params">(<span class="keyword">int</span> p)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        vis[i] = <span class="number">0</span>;</span><br><span class="line">        lowc[i] = data[p][i];</span><br><span class="line">    &#125;</span><br><span class="line">    vis[p] = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minc = INF, c = <span class="number">0</span>, lk;</span><br><span class="line">        <span class="keyword">for</span>(j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(vis[j] == <span class="number">0</span> &amp;&amp; lowc[j] &lt; minc) &#123;</span><br><span class="line">                minc = lowc[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(c == <span class="number">1</span>) <span class="keyword">break</span>;</span><br><span class="line">        vis[c] = <span class="number">1</span>;</span><br><span class="line">        <span class="keyword">for</span>(j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(vis[j] == <span class="number">0</span> &amp;&amp; data[c][j] + minc &gt; <span class="number">0</span> &amp;&amp; data[c][j] + minc &lt; lowc[j]) &#123;</span><br><span class="line">                lowc[j] = data[c][j] + minc;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; lowc[<span class="number">1</span>] &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="2-Bellman"><a href="#2-Bellman" class="headerlink" title="2. Bellman"></a>2. Bellman</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> INF ((long long)(1))&lt;&lt;62</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> N 301</span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="keyword">struct</span> edge&#123;</span><br><span class="line">   <span class="keyword">int</span> u;</span><br><span class="line">   <span class="keyword">int</span> v;</span><br><span class="line">   <span class="keyword">long</span> <span class="keyword">long</span> w; <span class="comment">// 注意</span></span><br><span class="line">&#125;e[N*N];</span><br><span class="line"><span class="keyword">int</span> m, n;</span><br><span class="line"><span class="keyword">long</span> <span class="keyword">long</span> d[<span class="number">1005</span>];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">bellman_ford</span><span class="params">(<span class="keyword">int</span> s, <span class="keyword">int</span> di)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j;</span><br><span class="line">     <span class="keyword">for</span>(i = <span class="number">1</span>; i &lt; n; i++) &#123;</span><br><span class="line">        d[i] = INF;</span><br><span class="line">     &#125;</span><br><span class="line">     d[s] = <span class="number">0</span>;</span><br><span class="line">     <span class="keyword">for</span>(i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(j = <span class="number">1</span>; j &lt;= m; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(d[e[j].u] != INF &amp;&amp; d[e[j].u]+e[j].w &lt; d[e[j].v])    <span class="comment">// 对边进行操作 、松弛</span></span><br><span class="line">                d[e[j].v] = d[e[j].u] + e[j].w;</span><br><span class="line">        &#125;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">for</span>(j = <span class="number">1</span>; j &lt;= m; j++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(d[e[j].u] != INF &amp;&amp; (d[e[j].v] &gt; d[e[j].u]+e[j].w))    <span class="comment">// 很理解</span></span><br><span class="line">            d[e[j].v] = -INF;</span><br><span class="line">     &#125;</span><br><span class="line">     <span class="keyword">if</span>(d[di] == INF || d[di] == -INF) <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">     <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="3-Floyd"><a href="#3-Floyd" class="headerlink" title="3. Floyd"></a>3. Floyd</h2><h2 id="4-SPFA"><a href="#4-SPFA" class="headerlink" title="4. SPFA"></a>4. SPFA</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">5501</span>;</span><br><span class="line"><span class="keyword">struct</span> edge &#123;</span><br><span class="line">    <span class="keyword">int</span> to;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="built_in">vector</span>&lt;edge&gt; p[N]; <span class="comment">// vector 实现邻接表</span></span><br><span class="line"><span class="keyword">int</span> d[N];</span><br><span class="line"><span class="keyword">bool</span> inque[N];     <span class="comment">// 记录顶点是否在队列中，SPFA算法可以入队列多次</span></span><br><span class="line"><span class="keyword">int</span> cnt[N];        <span class="comment">// 记录顶点入队的次数</span></span><br><span class="line"><span class="keyword">int</span> n, m, q;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">SPFA</span><span class="params">(<span class="keyword">int</span> s)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">queue</span>&lt;<span class="keyword">int</span>&gt; Q;</span><br><span class="line">    <span class="keyword">while</span>(!Q.empty()) Q.pop();</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        d[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    d[s] = <span class="number">0</span>;      <span class="comment">// 源点的距离为 0</span></span><br><span class="line">    <span class="built_in">memset</span>(inque, <span class="number">0</span>, <span class="keyword">sizeof</span>(inque));</span><br><span class="line">    <span class="built_in">memset</span>(cnt, <span class="number">0</span>, <span class="keyword">sizeof</span>(cnt));</span><br><span class="line">    Q.push(s);</span><br><span class="line">    inque[s] = <span class="literal">true</span>;</span><br><span class="line">    cnt[s]++;      <span class="comment">// 源点入队列的次数增加</span></span><br><span class="line">    <span class="keyword">while</span>(!Q.empty()) &#123;</span><br><span class="line">        <span class="keyword">int</span> t = Q.front();</span><br><span class="line">        Q.pop();</span><br><span class="line">        inque[t] = <span class="literal">false</span>;</span><br><span class="line">        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; p[t].size(); i++) &#123;</span><br><span class="line">            <span class="keyword">int</span> to = p[t][i].to;</span><br><span class="line">            <span class="keyword">if</span>(d[t] &lt; INF &amp;&amp; d[to] &gt; d[t] + p[t][i].w) &#123;</span><br><span class="line">                d[to] = d[t] + p[t][i].w;</span><br><span class="line">                cnt[to]++;</span><br><span class="line">                <span class="keyword">if</span>(cnt[to] &gt;= n) &#123;  <span class="comment">//当一个点入队的次数&gt;=n时就证明出现了负环</span></span><br><span class="line">                    <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">if</span>(!inque[to]) &#123;</span><br><span class="line">                    Q.push(to);</span><br><span class="line">                    inque[to] = <span class="literal">true</span>;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://iequa.com/2016/10/27/ds-mst/</url>
+      <content type="html"><![CDATA[<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Sort algorithms]]></title>
-      <url>http://selfboot.org/2016/10/27/ds-sort/</url>
+      <url>http://iequa.com/2016/10/27/ds-sort/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>input ： 8, 5, 4, 9, 2, 3, 6</p>
 </blockquote>
@@ -1934,18 +1945,8 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://selfboot.org/2016/10/27/ds-mst/</url>
-      <content type="html"><![CDATA[<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Coursera Week 3 - Logistic Regression]]></title>
-      <url>http://selfboot.org/2016/10/24/ml-coursera-ng-w3-LR/</url>
+      <url>http://iequa.com/2016/10/24/ml-coursera-ng-w3-LR/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2141,7 +2142,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera Week 2 - Octave Tutorial By NG]]></title>
-      <url>http://selfboot.org/2016/10/21/ml-coursera-ng-w2-03/</url>
+      <url>http://iequa.com/2016/10/21/ml-coursera-ng-w2-03/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2198,7 +2199,7 @@ img {
     
     <entry>
       <title><![CDATA[Country And City]]></title>
-      <url>http://selfboot.org/2016/10/15/en-knowledge-map-l1/</url>
+      <url>http://iequa.com/2016/10/15/en-knowledge-map-l1/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>knowledge map - country and city</p>
 </blockquote>
@@ -2308,7 +2309,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera Week 2 - Octave learning]]></title>
-      <url>http://selfboot.org/2016/10/12/ml-coursera-ng-w2-02/</url>
+      <url>http://iequa.com/2016/10/12/ml-coursera-ng-w2-02/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2379,7 +2380,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera Week 2 - Linear Regression with Multiple Variables]]></title>
-      <url>http://selfboot.org/2016/10/08/ml-coursera-ng-w2-01-Linear-Regression/</url>
+      <url>http://iequa.com/2016/10/08/ml-coursera-ng-w2-01-Linear-Regression/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2522,7 +2523,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera Week 1 - Linear Algebra Matrices And Vectors]]></title>
-      <url>http://selfboot.org/2016/09/30/ml-coursera-ng-w1-03-Linear-Algebra/</url>
+      <url>http://iequa.com/2016/09/30/ml-coursera-ng-w1-03-Linear-Algebra/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2612,7 +2613,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera Week 1 - Linear Regression Cost Function & Gradient descent]]></title>
-      <url>http://selfboot.org/2016/09/28/ml-coursera-ng-w1-02-cost-function-gradient-descent/</url>
+      <url>http://iequa.com/2016/09/28/ml-coursera-ng-w1-02-cost-function-gradient-descent/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2696,7 +2697,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera Week 1 - Machine Learning Introduction]]></title>
-      <url>http://selfboot.org/2016/09/20/ml-coursera-ng-w1-01-introduce/</url>
+      <url>http://iequa.com/2016/09/20/ml-coursera-ng-w1-01-introduce/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2745,8 +2746,29 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Jobs and companies L4 Describing a job]]></title>
+      <url>http://iequa.com/2016/09/14/ef-l3u6-Jobs-and-companies-l4/</url>
+      <content type="html"><![CDATA[<h2 id="1-sentence"><a href="#1-sentence" class="headerlink" title="1. sentence"></a>1. sentence</h2><p>production manager</p>
+<p>She worked at …</p>
+<p>She was responsible for …</p>
+<p>She reported to …</p>
+<p>What’s her job title?</p>
+<p>interview</p>
+<p>resume</p>
+<h2 id="2-describing-a-job"><a href="#2-describing-a-job" class="headerlink" title="2. describing a job"></a>2. describing a job</h2><ul>
+<li>I work at Blue Sky Tech. My job title was project manager.</li>
+<li>I worked there from 2009 to 2012.</li>
+<li>I am responsible for marketing new products.</li>
+<li>I reported to the vice president of production.</li>
+</ul>
+<p>I worked at Bio Products for four years. I was the sales manager. I was responsible for all of the salespeople. I managed 15 people. I reported to the director of sales.</p>
+<p>My job now is at a restaurant. I’m a supervisor. I’m responsible for around 12 servers. It’s difficult work, but I like it. Before this job, I worked in a different restaurant as a server. I worked there for about 15 months. I wasn’t very happy there. I didn’t like my boss. She was very unfriendly. Before that, I was a student.</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Java程序员需要知道的计算机原理 (not finish)]]></title>
-      <url>http://selfboot.org/2016/09/13/java-special-arms-p2-computer-principle/</url>
+      <url>http://iequa.com/2016/09/13/java-special-arms-p2-computer-principle/</url>
       <content type="html"><![CDATA[<h2 id="1-计算机原理"><a href="#1-计算机原理" class="headerlink" title="1. 计算机原理"></a>1. 计算机原理</h2><p>计算机总体体系结构的变化，一直不是特别大，基础原理将引导我们从整体上认识计算机本身。</p>
 <h2 id="2-CPU"><a href="#2-CPU" class="headerlink" title="2. CPU"></a>2. CPU</h2><p>每个进程 or 线程 发出请求, 最后会由 CPU 来分配时间片处理，处理时 操作数 传递给 CPU, CPU 计算将其回写到本地变量。这个本地变量通常会存在程序所谓的 栈 中，多次对其操作，它可能会被 Cache 到 CPU 的缓存之中。CPU 有 寄存器，一级缓存，二级缓存 … , 其实设计这些组件就是为了那四个字 <code>就近原则</code>。</p>
 <h3 id="2-1-Cpu-联系-Java"><a href="#2-1-Cpu-联系-Java" class="headerlink" title="2.1 Cpu 联系 Java"></a>2.1 Cpu 联系 Java</h3><blockquote>
@@ -2910,7 +2932,7 @@ img {
     
     <entry>
       <title><![CDATA[数学之美 03 statistical language model]]></title>
-      <url>http://selfboot.org/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/</url>
+      <url>http://iequa.com/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2945,8 +2967,86 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Jobs and companies L3 Understanding company structure]]></title>
+      <url>http://iequa.com/2016/09/13/ef-l3u6-Jobs-and-companies-l3/</url>
+      <content type="html"><![CDATA[<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>Human Resources (HR)</li>
+<li>Operations</li>
+<li>Finance   [faɪ’næns; fɪ-; ‘faɪnæns]</li>
+<li>Sales and Marketing   </li>
+<li>Customer Service   </li>
+<li>Purchasing [ˈpɜ:rtʃəsɪŋ]</li>
+<li>Research and Development (R&amp;D)</li>
+<li>chief executive officer (CEO)        </li>
+<li>vice president – VP</li>
+<li>chief financial officer (CFO)</li>
+<li>chief operations officer (COO)     </li>
+<li>chief technology officer (CTO)</li>
+</ul>
+<ul>
+<li>She is the director of IT.</li>
+</ul>
+<h2 id="2-past-simple-verbs"><a href="#2-past-simple-verbs" class="headerlink" title="2. past simple verbs"></a>2. past simple verbs</h2><ul>
+<li>see - saw</li>
+<li>come - came</li>
+<li>buy - bought </li>
+</ul>
+<p><strong>Use did + not + base verb</strong></p>
+<ul>
+<li>She didn’t go with them. </li>
+<li>I didn’t buy it. </li>
+</ul>
+<p><strong>Use did + subject + base verb</strong></p>
+<ul>
+<li>Did you see him last night?</li>
+<li>Did they have dinner at the hotel?</li>
+</ul>
+<h2 id="3-business-card"><a href="#3-business-card" class="headerlink" title="3. business card"></a>3. business card</h2><ul>
+<li>Let me give you my business card</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
-      <url>http://selfboot.org/2016/09/12/ml-entropy-base/</url>
+      <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -2990,45 +3090,118 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://selfboot.org/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+      <title><![CDATA[Jobs and companies L2 Introducing a new employee]]></title>
+      <url>http://iequa.com/2016/09/12/ef-l3u6-Jobs-and-companies-l2/</url>
+      <content type="html"><![CDATA[<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>He worked in Paris for three years.</li>
+<li>I moved to a new apartment last week.</li>
+<li>We played tennis last weekend.</li>
+</ul>
+<ul>
+<li>We didn’t study last night.</li>
+<li>He didn’t work in London.</li>
+<li>Did you study last night?</li>
+<li>Where did you work before?</li>
+</ul>
+<ul>
+<li>We lived in Beijing for two years.</li>
+<li>The weekend was very busy. I didn’t relax for a minute!</li>
+</ul>
+<p><img src="/images/ef-l3u6l2.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog 1</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: I’d like to introduce Simon - a new employee</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Simon comes to us from LM Computers.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: He was the engineering manager.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: a master’s degree in computer science [‘saɪəns]</td>
+<td></td>
+</tr>
+<tr>
+<td>A: He speaks fluent French.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Simon is married and has one kids.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Let’s welcome Simon to his new company!</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Thanks, everyone, for the warm welcome. I’m excited to be here.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-simple-verbs"><a href="#2-simple-verbs" class="headerlink" title="2. simple verbs"></a>2. simple verbs</h2><ul>
+<li>What did you do last night?</li>
+<li>I relaxed and played computer games.</li>
+<li>How long did you work there?</li>
+<li>I worked there for three years.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog 2</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BOSS: Julie, I’d like to introduce  Ken Stevens. Ken is our new  director of engineering.</td>
+<td></td>
+</tr>
+<tr>
+<td>JULIE: It’s a pleasure  to meet you, Ken. Welcome. I work in sales here.</td>
+<td></td>
+</tr>
+<tr>
+<td>KEN: Oh, thanks, Julie. Nice to meet you, too.</td>
+<td></td>
+</tr>
+<tr>
+<td>BOSS: Ken comes to us  from XYZ Systems. He was the engineering manager for five years.</td>
+<td></td>
+</tr>
+<tr>
+<td>JULIE: Oh, nice. How was it?</td>
+<td></td>
+</tr>
+<tr>
+<td>KEN: It was good, but I’m happy to be here now.</td>
+<td></td>
+</tr>
+<tr>
+<td>JULIE: This is a great place to work.</td>
+<td></td>
+</tr>
+<tr>
+<td>BOSS: Good answer, Julie!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 ]]></content>
     </entry>
     
     <entry>
       <title><![CDATA[秧秧教你发美音 （not finish）]]></title>
-      <url>http://selfboot.org/2016/09/11/en-yangyangjiaonifameiyin/</url>
+      <url>http://iequa.com/2016/09/11/en-yangyangjiaonifameiyin/</url>
       <content type="html"><![CDATA[<p><strong>world</strong></p>
 <h2 id="5"><a href="#5" class="headerlink" title="5."></a>5.</h2><p>what would you like ?</p>
 <h2 id="6-i-i"><a href="#6-i-i" class="headerlink" title="6. i: / i"></a>6. i: / i</h2><table>
@@ -3082,7 +3255,7 @@ img {
     
     <entry>
       <title><![CDATA[Spark Machine Learning p3 - 数据的获取、处理与准备]]></title>
-      <url>http://selfboot.org/2016/09/09/spark-machine-learning-p3/</url>
+      <url>http://iequa.com/2016/09/09/spark-machine-learning-p3/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>《Spark Machine Learing》 Reading Notes</p>
 </blockquote>
@@ -3238,7 +3411,7 @@ img {
     
     <entry>
       <title><![CDATA[Spark Machine Learning p2 - 设计机器学习系统]]></title>
-      <url>http://selfboot.org/2016/09/08/spark-machine-learning-p2-design-ml-sys/</url>
+      <url>http://iequa.com/2016/09/08/spark-machine-learning-p2-design-ml-sys/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>Spark Machine Learing Reading Notes</p>
 </blockquote>
@@ -3313,8 +3486,138 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Jobs and companies L1 Asking about work experience]]></title>
+      <url>http://iequa.com/2016/08/30/ef-l3u6-Jobs-and-companies-l1/</url>
+      <content type="html"><![CDATA[<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>bank &gt; banker</li>
+<li>design &gt; designer</li>
+<li>act  &gt; actor</li>
+<li>direct &gt; director</li>
+<li>supervise  &gt; supervisor    </li>
+<li>illustrate &gt; illustrator [‘ɪləstreɪtə]</li>
+<li>firefighter</li>
+</ul>
+<p><img src="/images/ef-l3u6l1.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog 1</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: hi, how do your job?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I love it! I’m so happy I got it.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: good.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: The pay’s higher than my last job. My boss is really nice.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Where were you before?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: LM company. a designer</td>
+<td></td>
+</tr>
+<tr>
+<td>A: How was it there?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: It was terrible. The pay was low. My boss was horrible. Business was really bad.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: How long were you there for?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I was there for eight months. but I’m much happier.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog 2</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MAN: I’m very happy in my new job at Tomorrow Computers. I’m aprogrammer. My last  boss was awful. I wasn’t  happy there.</td>
+<td></td>
+</tr>
+<tr>
+<td>WOMAN: Where were you before  ?</td>
+<td></td>
+</tr>
+<tr>
+<td>MAN: I was at Dyno Systems. I was an engineer.</td>
+<td></td>
+</tr>
+<tr>
+<td>WOMAN: Was  that your first job?</td>
+<td></td>
+</tr>
+<tr>
+<td>MAN: No. Before that  , I was at LM Computers.</td>
+<td></td>
+</tr>
+<tr>
+<td>WOMAN: Well, I’m happy that you like your new job.</td>
+<td></td>
+</tr>
+<tr>
+<td>MAN: Me, too. Thanks.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><ul>
+<li>You were an actor.</li>
+<li>They were managers. / Were they managers?</li>
+<li>They weren’t managers.</li>
+<li>She wasn’t an actor.</li>
+<li>Where were you last night?</li>
+<li>I like my job now, but my last job was terrible!</li>
+<li>She was a waiter before she was a supervisor.</li>
+<li>She was a supervisor. After that, she was the manager.</li>
+</ul>
+<h2 id="3-talkig-about-your-job"><a href="#3-talkig-about-your-job" class="headerlink" title="3. talkig about your job"></a>3. talkig about your job</h2><ul>
+<li>How’s your job?</li>
+<li>What’s your job like?    </li>
+<li>How was your last job?</li>
+<li>What was your last job like?</li>
+<li>Where were you before?</li>
+</ul>
+<ul>
+<li>I like my job, but I work too many hours.</li>
+<li>The pay is really good in my new job.</li>
+<li>My boss is OK, but sometimes he’s difficult.</li>
+</ul>
+<ul>
+<li>My last job was easier than this job.</li>
+<li>My pay is better now, but I work longer hours.</li>
+<li>I was at LM Computers for only one year.</li>
+<li>My last boss was terrible.</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Thailand 我见 (not finish)]]></title>
-      <url>http://selfboot.org/2016/08/27/society-health-life-thai/</url>
+      <url>http://iequa.com/2016/08/27/society-health-life-thai/</url>
       <content type="html"><![CDATA[<p>提起泰王国，给我最深的印象就是可以让我感受到，到底什么是 <a href="https://zh.wikipedia.org/wiki/三字经" target="_blank" rel="external">人之初、性本善</a>。我想这难以用文字和语言来表达，真是的 幸福国度、微笑国度，名不虚传。在我看来，那里的百姓是安居乐业，非常幸福。贫富差距不大，资源分配相对合理，小城市和<a href="https://zh.wikipedia.org/wiki/人再囧途之泰囧" target="_blank" rel="external">徐峥《泰囧》</a>清迈的大城市基础设施相差不大，去过一次真的很想在以后晚年的时候，来这里养老，感觉真的非常不错。我觉得去任何一个地方 人文环境，才是最重要的，其他的景色，景点是次要的，因为普通人都需要入世，需要沟通与交流。人最怕的不是贫穷，而是孤独。</p>
 <p>15年10月末我曾去过泰国，到过曼谷、巴蜀府、华欣等地。非常感谢在那段异国他乡的时光里曾给予我帮助的朋友。</p>
 <p><img src="/images/thai01.jpg" width="800" height="550" img=""></p>
@@ -3333,8 +3636,235 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Money and buying L4 Talking about prices in your country]]></title>
+      <url>http://iequa.com/2016/08/26/ef-l3u5-Money-and-buying-l4/</url>
+      <content type="html"><![CDATA[<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>gas</li>
+<li>office supplies</li>
+<li>healthcare  [‘helθkeə] </li>
+<li>entertainment</li>
+<li>utilities  [juː’tɪlɪtɪz]</li>
+<li>housing [ˈhaʊzɪŋ] 住房</li>
+<li>clothing</li>
+<li>gasoline</li>
+</ul>
+<p><img src="/images/ef-l3u5l4.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: gas price is going up fast.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: yeah ! I know</td>
+<td></td>
+</tr>
+<tr>
+<td>A: office supplies price is going up fast. .</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Ouch !</td>
+<td></td>
+</tr>
+<tr>
+<td>A: going to hurt，also，next month，the building going to increase</td>
+<td></td>
+</tr>
+<tr>
+<td>B: That’s terrible !</td>
+<td></td>
+</tr>
+<tr>
+<td>A: everything is going up.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I do some good news. The company sales are up</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><p>Use these expressions to explain an increase in something:</p>
+<ul>
+<li>Prices are going up.</li>
+<li>The rent is going to increase.</li>
+<li>Company sales are up.    </li>
+</ul>
+<p>Use these expressions to explain a decrease in something:</p>
+<ul>
+<li>Company sales are going down.                          </li>
+<li>The temperature is going to decrease.                             </li>
+<li>Gas prices are down. </li>
+</ul>
+<p>When we get bad news about an increase or decrease, we can say that it hurts. </p>
+<ul>
+<li>A: The price of food is up 25%.</li>
+<li>B: Ouch! That hurts.</li>
+</ul>
+<p>The amount of money we need to live on is called the cost of living. </p>
+<ul>
+<li>The cost of living is going up and up.    <h2 id="3-Explaining-increases-and-decreases"><a href="#3-Explaining-increases-and-decreases" class="headerlink" title="3. Explaining increases and decreases"></a>3. Explaining increases and decreases</h2></li>
+</ul>
+<p>More bad  news today: The prices of housing  and utilities are both up by more than 20%. Gas prices are going to increase  for the next few months. The cost  of education is also going up.  There is some good  news: The price of food is down by 10%.</p>
+<ul>
+<li>Technology prices are decreasing.</li>
+<li>Gas prices are increasing.</li>
+<li>The price of entertainment is up.</li>
+<li>The cost of living is going down.</li>
+<li>The cost of education is going up.</li>
+<li>Food prices are down.</li>
+</ul>
+<h2 id="4-Adverbs-with-‘-ly’-or-‘-ily’"><a href="#4-Adverbs-with-‘-ly’-or-‘-ily’" class="headerlink" title="4. Adverbs with ‘-ly’ or ‘-ily’"></a>4. Adverbs with ‘-ly’ or ‘-ily’</h2><ul>
+<li>The price is decreasing slowly.</li>
+<li><p>The price is decreasing quickly.                  </p>
+</li>
+<li><p>The people in the office are working busily.        </p>
+</li>
+<li>He’s walking lazily down the street.                </li>
+</ul>
+<p>Not all adjectives can be turned into adverbs with -ly. Here are three important examples:</p>
+<p><code>good &gt; well,  fast &gt; fast,  hard &gt; hard</code></p>
+<ul>
+<li>He is doing well in school.                        </li>
+<li>Gas prices are going up fast.</li>
+<li>She studies really hard.</li>
+</ul>
+<ul>
+<li>People can’t pay for it easily.</li>
+</ul>
+<h2 id="5-Reading"><a href="#5-Reading" class="headerlink" title="5. Reading"></a>5. Reading</h2><p>In my country, prices are always increasing. Healthcare and housing costs are going up fast. Prices for food are also increasing, but more slowly. People live well, but the cost of living is difficult. The good news is that technology prices are decreasing. I want to buy a new tablet computer, but it’s too expensive right now.</p>
+<h2 id="6-Writing"><a href="#6-Writing" class="headerlink" title="6. Writing"></a>6. Writing</h2><p>In my country, the price of everything is going up. Housing is very expensive, and the price of gasoline is increasing quickly. I donot know how people do it. The cost of living is very difficult. Transportation and food are not expensive, but they are going up. I need a good job.</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Money and buying L3 Returning a purchase]]></title>
+      <url>http://iequa.com/2016/08/25/ef-l3u5-Money-and-buying-l3/</url>
+      <content type="html"><![CDATA[<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>jeans</li>
+<li>jacket</li>
+<li>skirt [skɜːt]</li>
+<li>shirt</li>
+<li>dress</li>
+<li>shorts</li>
+<li>socks</li>
+</ul>
+<p><img src="/images/ef-l3u5l3.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JACK:  Oh! This digital camera!</td>
+<td></td>
+</tr>
+<tr>
+<td>NANCY: What’s the problem ?</td>
+<td></td>
+</tr>
+<tr>
+<td>JACK: It doesn’t work.</td>
+<td></td>
+</tr>
+<tr>
+<td>NANCY: Is it broken?</td>
+<td></td>
+</tr>
+<tr>
+<td>JACK: No, it’s just too difficult to use.</td>
+<td></td>
+</tr>
+<tr>
+<td>NANCY: Can I help ?</td>
+<td></td>
+</tr>
+<tr>
+<td>JACK: No, I don’t like it. I’m going to the store.</td>
+<td></td>
+</tr>
+<tr>
+<td>-</td>
+<td></td>
+</tr>
+<tr>
+<td>SALE: How can I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>JACK: I’d like to return this digital camera.</td>
+<td></td>
+</tr>
+<tr>
+<td>SALE: What’s the problem?</td>
+<td></td>
+</tr>
+<tr>
+<td>JACK: There’s nothing wrong. it’s just too difficult to use. I don’t like it.</td>
+<td></td>
+</tr>
+<tr>
+<td>SALE: Do you have the receipt?</td>
+<td></td>
+</tr>
+<tr>
+<td>JACK: Yes, Here it is.</td>
+<td></td>
+</tr>
+<tr>
+<td>SALE: Here’s your refund of <code>$</code>27.99.</td>
+<td></td>
+</tr>
+<tr>
+<td>JACK: Thank you!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Some-wrong"><a href="#2-Some-wrong" class="headerlink" title="2. Some wrong"></a>2. Some wrong</h2><ul>
+<li>What’s the problem?</li>
+<li>What’s wrong with it?</li>
+<li>What’s the matter?</li>
+<li>What seems to be the problem? （customer service..）</li>
+</ul>
+<ul>
+<li>It’s too big.    </li>
+<li>It doesn’t fit.    </li>
+<li>There’s a hole in it.</li>
+<li>It’s stained. [steɪnd]</li>
+<li>It’s damaged.    </li>
+<li>It doesn’t work.</li>
+<li>It’s broken.</li>
+<li>It’s too difficult to use.</li>
+<li>I don’t like it.</li>
+</ul>
+<h2 id="3-Returning-a-purchase"><a href="#3-Returning-a-purchase" class="headerlink" title="3. Returning a purchase"></a>3. Returning a purchase</h2><ul>
+<li>I’d like to return these shorts.</li>
+<li>I’d like a refund, please.    </li>
+<li>I’d like to exchange this dress.          </li>
+<li>There’s nothing wrong. I just don’t like it</li>
+</ul>
+<p>The customer service representative will likely ask why you want to return or exchange the item.</p>
+<ul>
+<li>What seems to be the problem?    </li>
+<li>Is there something wrong with it?</li>
+<li>Do you have the receipt?</li>
+<li>Here’s your refund of $27.99.</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[CART (not finish)]]></title>
-      <url>http://selfboot.org/2016/08/24/ml-CART/</url>
+      <url>http://iequa.com/2016/08/24/ml-CART/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -3558,8 +4088,796 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Money and buying L2 Making a purchase]]></title>
+      <url>http://iequa.com/2016/08/24/ef-l3u5-Money-and-buying-l2/</url>
+      <content type="html"><![CDATA[<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>cellphone</li>
+<li>digital camera</li>
+<li>tablet computer</li>
+<li>smartphone</li>
+<li>e-reader</li>
+<li>game console</li>
+<li>laptop computer [‘læptɒp]</li>
+<li>desktop computer [‘desktɒp]</li>
+</ul>
+<p><img src="/images/ef-l3u5l2.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A:  Excuse me. Could you help me? I want to buy a new laptop.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: right over here. very good computer, powerful and fast and very popular for young people.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: How much is it?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: It’s on sale. 1120 <code>$</code></td>
+<td></td>
+</tr>
+<tr>
+<td>A: I’ll take it.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: How would you like to pay?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: By credit card.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Could I see some identification?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Here’s my driver’s license.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Please sign here. Thank you. Here’s your receipt.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Thank you.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><p>Once you have someone to help you, tell them what you need.</p>
+<ul>
+<li>I want to buy a new camera.  </li>
+<li>I need a game console for my son.  </li>
+<li>I’m looking for a TV.      </li>
+<li>Could you tell me about your digital cameras?</li>
+</ul>
+<p>You can ask specific questions about the product you are interested in.</p>
+<ul>
+<li>How much is it?  </li>
+<li>Is there a warranty?  </li>
+<li>What’s it made of?    </li>
+<li>Is it reliable?  </li>
+<li>Is it easy to use?  </li>
+</ul>
+<p>The salesperson might tell you about the store’s promotions.</p>
+<ul>
+<li>It’s on sale today.</li>
+<li>It’s 25% off. </li>
+</ul>
+<p>If you decide to buy the product, you can say:</p>
+<ul>
+<li>I’ll take it.  </li>
+</ul>
+<p>If you decide not to buy the product, you can say:</p>
+<ul>
+<li>I don’t think so.  </li>
+<li>I need to think about it.       </li>
+</ul>
+<p>When you’re paying for a product, these phrases might come up:</p>
+<ul>
+<li>How would you like to pay?    </li>
+<li>Cash or credit?</li>
+</ul>
+<h2 id="3-Irregular-comparative-adjectives"><a href="#3-Irregular-comparative-adjectives" class="headerlink" title="3. Irregular comparative adjectives"></a>3. Irregular comparative adjectives</h2><ul>
+<li>This e-reader is easier to use than that one.</li>
+<li>My new e-reader cost more than a smartphone.   </li>
+</ul>
+<ul>
+<li>The woman is friendlier than the man.           </li>
+<li>The woman is more friendly than the man.  </li>
+</ul>
+<ul>
+<li>This store is (bad) worse than the first one.  </li>
+<li>The train station is (far) farther from here than the bus station.  </li>
+</ul>
+<ul>
+<li>Are you feeling better or worse?</li>
+<li>It’s less expensive to buy online.</li>
+<li>The online price is less than the store price.</li>
+<li>I need something easier to use.</li>
+<li>I’ll take this one. It’s better.</li>
+<li>Do you have a cheaper one?</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Money and buying L1 Choosing a product]]></title>
+      <url>http://iequa.com/2016/08/22/ef-l3u5-Money-and-buying-l1/</url>
+      <content type="html"><![CDATA[<h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
+<li>attractive</li>
+<li>laptop</li>
+<li>reliable</li>
+</ul>
+<p><img src="/images/ef-l3u5l1.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Can you question about computers?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Sure</td>
+<td></td>
+</tr>
+<tr>
+<td>A: My desktop computer’s really old and slow. I need a new, fast laptop.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Adjectives"><a href="#Adjectives" class="headerlink" title="Adjectives"></a>Adjectives</h2><ul>
+<li>attractive - unattractive</li>
+<li>attractive - ugly</li>
+<li>powerful - weak</li>
+<li>heavy - light    </li>
+<li>reliable - unreliable [ʌnrɪ’laɪəb(ə)l]</li>
+<li>easy - difficult</li>
+<li>fancy - plain</li>
+<li>dangerous [‘deɪn(d)ʒ(ə)rəs]</li>
+</ul>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><ol>
+<li>That computer looks cheap. Don’t buy it.</li>
+<li>The desktop computer is slower than the laptop computer.</li>
+<li>The desktop computer is less expensive than the laptop.</li>
+<li>My old computer is slow. I need something faster. (than my old computer)</li>
+<li>My laptop is a lot faster than my old desktop.</li>
+<li>For me, Chinese is more difficult than French.</li>
+<li>The subway is faster than driving.</li>
+<li>My living room is bigger than my bedroom.</li>
+<li>My new car is a lot more reliable.</li>
+</ol>
+<h2 id="Reading"><a href="#Reading" class="headerlink" title="Reading"></a>Reading</h2><p>Computer A is <code>$</code>1,200. It’s a laptop. It’s fast and powerful  . It’s very reliable. It’s also attractive  and light.<br>Computer B is a desktop. It’s cheaper than  computer A. It’s <code>$</code>699. It’s also slower and less powerful. It is very reliable. It’s also attractive but a lot heavier than  computer A.<br>Computer C is a great laptop. It’s faster and lighter than  computer A. It’s also very reliable and attractive. It is a very cool computer, but it costs $2,300.</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Holidays and celebrations L4 Describing a holiday or celebration]]></title>
+      <url>http://iequa.com/2016/08/21/ef-l3u4-Holidays-and-celebrations-l4/</url>
+      <content type="html"><![CDATA[<h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
+<li>partying</li>
+<li>Diwali [diːˈwɑːli]</li>
+<li>celebrate</li>
+<li>How long does Carnaval last for?</li>
+<li>The big events last four days.</li>
+<li>We usually party for a week.</li>
+</ul>
+<p><img src="/images/ef-l3u4l4.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog main</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Hi,Sorry, we are…</td>
+<td></td>
+</tr>
+<tr>
+<td>B: How are take? I like music.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Yup. It’s summer. you know everybody celebrate it right now</td>
+<td></td>
+</tr>
+<tr>
+<td>B: It’s Carnaval.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Carnaval.</td>
+<td></td>
+</tr>
+<tr>
+<td>C: How do you celebrate?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Some my friends are come to school.</td>
+<td></td>
+</tr>
+<tr>
+<td>C: Sounds good !</td>
+<td></td>
+</tr>
+<tr>
+<td>B: How long does Carnaval last?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: The big events <strong>last</strong> a few days, We usually party for a week.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><ul>
+<li>How long does it take to walk from the hotel to the parade? </li>
+<li>It takes a half-hour.<br>&nbsp;</li>
+<li>The big events <strong>last</strong> four days</li>
+<li>We celebrate <strong>for</strong> a week.</li>
+<li>I party a lot <strong>during</strong> the summer.</li>
+<li>What do you do <strong>during</strong> Carnaval?<br>&nbsp;</li>
+<li>How long does it <strong>take to walk</strong>?</li>
+<li>I usually visit my family <strong>for</strong> 10 days.</li>
+<li>We celebrate <strong>for</strong> a week.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog two</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LEAH: How long does the Sun Festival last ?</td>
+<td></td>
+</tr>
+<tr>
+<td>JASON: It lasts, um, six days.</td>
+<td></td>
+</tr>
+<tr>
+<td>LEAH: What do you do <strong>during</strong> the festival?</td>
+<td></td>
+</tr>
+<tr>
+<td>JASON: Let’s see … We eat and dance <strong>for</strong> a week. We celebrate the sun …</td>
+<td></td>
+</tr>
+<tr>
+<td>LEAH: Sounds fantastic  .</td>
+<td></td>
+</tr>
+<tr>
+<td>JASON: Definitely. I’m going to make my own costume this year.</td>
+<td></td>
+</tr>
+<tr>
+<td>LEAH: Wow! How long does it <strong>take</strong> to make a costume?</td>
+<td></td>
+</tr>
+<tr>
+<td>JASON: I’m slow. It <code>takes</code> me about three weeks.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Asking-about-a-holiday-or-celebration"><a href="#Asking-about-a-holiday-or-celebration" class="headerlink" title="Asking about a holiday or celebration"></a>Asking about a holiday or celebration</h2><ul>
+<li>A: How do you celebrate New Year’s?</li>
+<li>B: We usually watch the big fireworks show.</li>
+<li>A: What do people usually do? </li>
+<li>B: They usually have a big meal.<br>&nbsp;</li>
+<li>A: How long does the holiday last?</li>
+<li>B: People usually celebrate for six nights. </li>
+<li>A: What do people do during the festival?</li>
+<li>B: They dance and sing songs.</li>
+</ul>
+<h2 id="Adjectives"><a href="#Adjectives" class="headerlink" title="Adjectives"></a>Adjectives</h2><ul>
+<li>special - ordinary </li>
+<li>entertaining - dull </li>
+<li>funny - serious</li>
+<li>colorful - colorless     </li>
+<li>gorgeous [‘gɔːdʒəs] - hideous  [‘hɪdɪəs]</li>
+<li>popular - unpopular </li>
+<li>noisy - quiet</li>
+<li>crowded - empty </li>
+</ul>
+<h2 id="Writing"><a href="#Writing" class="headerlink" title="Writing"></a>Writing</h2><p>The Sziget Festival is my favorite. This big festival lasts for 4 days, The Sziget Festival is a special place with a forest. There are 10 entertaining, crowded events every day. They have popular music and art exhibitions. People usually camp in the forest and have great fun.</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Holidays and celebrations L3 Discussing vacation plans]]></title>
+      <url>http://iequa.com/2016/08/20/ef-l3u4-Holidays-and-celebrations-l3/</url>
+      <content type="html"><![CDATA[<h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
+<li>tickets</li>
+<li>film festival</li>
+<li>films</li>
+<li>parade [pəˈreɪd]</li>
+<li>costume  [‘kɒstjuːm] n. 服装</li>
+<li>entertaining [entə’xteɪnɪŋ]</li>
+<li>crowded [‘kraʊdɪd]<br>&nbsp;</li>
+<li>What are you going to do?</li>
+<li>I’m going to go to the film festival.</li>
+<li>How many films are you going to see?</li>
+<li>Are you going to drive there?</li>
+<li>I’m going to take the train.</li>
+<li>Hmm. What are you going to do after that?</li>
+</ul>
+<p>A: Which costume are you going to wear?<br>B: Let me see … The red one, I think.</p>
+<p>A: Is the festival going to be crowded?<br>B: Hmm … I don’t know.</p>
+<p><img src="/images/ef-l3u4l3.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Hi</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I and my parents are going to go on vacaton.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: you go on the vacation. Great! where are you going?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I’m going to travel to Scotland.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Nice, What are you doing to do there?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I’m going to see 7 films and 4 night</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Fantastic! That’s a lot movies.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I’m going to the mountains. It’s beatiful.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: We are going to go skiing.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DONALD: I’m going to the Fresh Film Festival  this summer.</td>
+<td></td>
+</tr>
+<tr>
+<td>LIZA: Sounds like fun. What films are you seeing?</td>
+<td></td>
+</tr>
+<tr>
+<td>DONALD: Lots. Look – there are hundreds in the program  .</td>
+<td></td>
+</tr>
+<tr>
+<td>LIZA: Are the tickets expensive?</td>
+<td></td>
+</tr>
+<tr>
+<td>DONALD: Fifty dollars. But there are so many different events.</td>
+<td></td>
+</tr>
+<tr>
+<td>LIZA: What? You’re paying Fifty dollars a ticket? Sounds very entertaining.</td>
+<td></td>
+</tr>
+<tr>
+<td>DONALD: Yeah. There’s a big parade  on the first night. It has about a thousand people.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>LIZA: What are you going to do at the festival?<br>DONALD: We are going to dance in the parade.</p>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><ul>
+<li>I’m going to an exciting festival.</li>
+<li>They’re showing films from many countries.</li>
+<li>I know! The festival is a lot of fun.</li>
+<li>Exactly. A good film is very entertaining.<br>&nbsp;</li>
+<li>There are some cool events this weekend</li>
+<li>People are wearing costumes</li>
+<li>There’s a long parade with music and dancing.</li>
+<li>I enjoy watching the fireworks.<br>&nbsp;</li>
+<li>Wow! This place is really crowded.<br>&nbsp;</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Holidays and celebrations L2 Talking with people at a party]]></title>
+      <url>http://iequa.com/2016/08/19/ef-l3u4-Holidays-and-celebrations-l2/</url>
+      <content type="html"><![CDATA[<h2 id="Party-Expressions"><a href="#Party-Expressions" class="headerlink" title="Party Expressions"></a>Party Expressions</h2><ul>
+<li>Hey, thanks for coming to the party.</li>
+<li>Hey, thanks for having this party.</li>
+<li>Anything new?</li>
+<li>Great snacks. Do you enjoy cooking?</li>
+<li>How are you feeling?</li>
+</ul>
+<p><img src="/images/ef-l3u4l2.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Hey, Todd. Thanks for coming.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Thanks for inviting me! It’s a great party.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: How’s your wife feeling?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: poor Angela. She had a cold.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: I’m sorry to hear that. Give her my best.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Thanks, I will. So, what’s happening with you?.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: not much. I’m going to the birthday party next week, My grandmother’s 87.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Eighty-seven! That’s amazing.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: yep, it is. What about you? Anything new?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Well, take my wife go to the bangkok.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Wow! That sounds wonderful!</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Angela is sick. I should go.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: I understand. Thanks again for the coming.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Bye! Have a good evening. Thanks for the party! See you soon.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Party-Expressions-1"><a href="#Party-Expressions-1" class="headerlink" title="Party Expressions"></a>Party Expressions</h2><ul>
+<li>Wow! That sounds incredible.   [ɪn’kredɪb(ə)l] ，惊人的 </li>
+<li>That’s awful!<br>&nbsp;</li>
+<li>Nice talking with you.</li>
+<li>Good to see you again<br>&nbsp;</li>
+<li>It’s late. I should go.</li>
+<li>Say hello to Jose. (向若泽问好)</li>
+<li>Thanks for the amazing party!</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Holidays and celebrations L1 Inviting someone to a party]]></title>
+      <url>http://iequa.com/2016/08/19/ef-l3u4-Holidays-and-celebrations-l1/</url>
+      <content type="html"><![CDATA[<h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
+<li>soda</li>
+<li>snacks [snæks]</li>
+<li>dancing</li>
+<li>wine  [waɪn] </li>
+</ul>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><ul>
+<li>Frank is going to New York tomorrow.</li>
+<li>Oscar is leaving for Rio de Janeiro in two hours.</li>
+<li>What are you doing tomorrow?</li>
+<li>We’re having my parents over to dinner next weekend.</li>
+<li>I’m meeting some friends on Wednesday night.</li>
+</ul>
+<p><img src="/images/ef-l3u4l1.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Hi, Mona. What are you doing  tonight?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Umm, I’m going to the gym in an hour. Why?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: I’m having people over for a little birthday party at seven.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Happy birthday! I’d love to come. And I know the perfect gift for you.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Thanks! Paul’s making  a big chocolate cake later.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Ooh, cake! I can bring some snacks, or wine and sodas.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Are you going to that party on Wednesday?</li>
+<li>I’m getting together with some friends in an hour.</li>
+<li>We’re eating at 6.</li>
+<li>We’re having some friends <code>over to dinner later</code>.</li>
+<li>She’s making the cake tomorrow.<br>&nbsp;</li>
+<li>Are you free on Sunday?</li>
+<li>Would you like to come to a party?<br>&nbsp;</li>
+<li>Yes! Can I bring anything?</li>
+<li>Sure! What time should I come?</li>
+<li>I can’t, but thanks for the invitation</li>
+<li>I’m afraid I’m busy.</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Hotels L4 Checking out to a hotel]]></title>
+      <url>http://iequa.com/2016/08/18/ef-l3u3-Hotels-l4/</url>
+      <content type="html"><![CDATA[<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>plus room service</li>
+<li>It’s not a big deal.</li>
+<li>receipt</li>
+</ul>
+<p><img src="/images/ef-l3u3l4.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Good morning，May I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Yes, I’d like to check out, please.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: How was your stay?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: pretty good, The neighborhood’s a little noisy.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: oh, I’m sorry to hear that..</td>
+<td></td>
+</tr>
+<tr>
+<td>B: It’s okay. I love the room. The fitness center’s amazing.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Great! Would you like pay with your credit card?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: please.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: That’s $996.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: really? That seems high.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: That’s four night plus room service</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Yes.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Would you like a receipt ?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Yes, I need it for work.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><ul>
+<li>I’d  like to check out, please.  </li>
+<li>I’m checking out.    </li>
+<li>Could I check out, please?<br>&nbsp;</li>
+<li>Your bill comes to <code>$</code>996.</li>
+<li>The total amount is <code>$</code>996.<br>&nbsp;</li>
+<li>That doesn’t seem right.</li>
+<li>I’d like to review my bill, please.<br>&nbsp;</li>
+<li>How would you like to pay for that?<br>&nbsp;</li>
+<li>I’d like a receipt, please.  </li>
+</ul>
+<p><strong>Asking for and giving feedback</strong></p>
+<ul>
+<li>How was your stay?</li>
+<li>How was everything?</li>
+<li>How was your room?</li>
+<li>It was fine, thanks.</li>
+<li>Everything was great.</li>
+</ul>
+<p><strong>If something wasn’t to your satisfaction</strong> [sætɪs’fækʃ(ə)n</p>
+<ul>
+<li>Pretty nice, but my room was very small.</li>
+<li>It was OK, but my shower wasn’t very hot. </li>
+<li>Actually, my bed was a little uncomfortable.</li>
+</ul>
+<p><strong>The hotel clerk might respond</strong></p>
+<ul>
+<li>I’m sorry to hear that.</li>
+<li>I do apologize for that.</li>
+<li>Thanks for letting us know.</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Hotels L3 Checking in to a hotel]]></title>
+      <url>http://iequa.com/2016/08/17/ef-l3u3-Hotels-l3/</url>
+      <content type="html"><![CDATA[<h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
+<li>suitcase</li>
+<li>front desk</li>
+<li>luggage</li>
+<li>lobby</li>
+<li>key card</li>
+<li>credit card</li>
+<li>elevator</li>
+<li>hotel clerk</li>
+<li>umbrella</li>
+</ul>
+<p><img src="/images/ef-l3u3l3.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Good afternoon，May I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Yes, I’m checking in.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: May I see your passport?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Yes, here it is.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: OK, Welcome to the hotel ana. So that’s two people, for four nights.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Actually, it’s for one person – just me.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Oh, sorry about it, Ah, yes - a nonsmoking single.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: That’s right.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Four night and Checking out 19</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Yes.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: OK, May I see your credit card?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Here you are.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: wonderful ! You’re all set.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: your credit card and passport, Here’s your key card for 1412. you can take the elevator behind you. Would like care your luggage?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: no, Thank you.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: ok, Have a pleasant stay. [‘plez(ə)nt]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><p>A: We’re checking in on the 3rd and checking out on the 14th.<br>B: So, that’s one person for 10 nights.<br>A: Actually, it’s 11 nights.<br>B: Oh, sorry about that. That’s 11 nights.<br>A: That’s right.      </p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[JVM 跨平台与字节码原理初步]]></title>
-      <url>http://selfboot.org/2016/08/16/java-special-arms-p3-jvm/</url>
+      <url>http://iequa.com/2016/08/16/java-special-arms-p3-jvm/</url>
       <content type="html"><![CDATA[<p>用到 JVM 的场景</p>
 <ol>
 <li>Out of memory 时，团队高手不在</li>
@@ -3607,7 +4925,7 @@ img {
     
     <entry>
       <title><![CDATA[Decision Tree Model]]></title>
-      <url>http://selfboot.org/2016/08/16/ml-decisionTree-model/</url>
+      <url>http://iequa.com/2016/08/16/ml-decisionTree-model/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -3889,8 +5207,180 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Hotels L2 Making a hotel reservation]]></title>
+      <url>http://iequa.com/2016/08/16/ef-l3u3-Hotels-l2/</url>
+      <content type="html"><![CDATA[<h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
+<li>reservation</li>
+<li>checking in</li>
+<li>checking out</li>
+<li>a single room or a double</li>
+<li>reserve</li>
+<li>nonsmoking room</li>
+<li>credit card number</li>
+</ul>
+<p><img src="/images/ef-l3u3l2.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Hotel Ana，How Can I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I’d like to make a reservation please.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: For how many people? / For how many nights?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Just me.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: OK, When are you checking in?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: check in March 15th and check out March 19th</td>
+<td></td>
+</tr>
+<tr>
+<td>A: 15th to 19th. So, that. Would you like a single room or a double ?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: a single please. I’d like to have a nonsmoking room.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: That’s no problem. Would you like me to reserve it for you, now?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: What’s the rate?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: It’s <code>$</code>210 a night.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: OK, Yes. Please reserve it for me now. My name is Baxter.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: May I have your credit card number?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: It’s 3788-6672-4038-24.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Great!. just one monment. ok. Can I help you with anything else?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: no, Thanks</td>
+<td></td>
+</tr>
+<tr>
+<td>A: all right.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><ul>
+<li>Would you like to reserve the room now?</li>
+<li>I’d like to make a reservation</li>
+<li>I’d like to reserve a room.</li>
+<li>He’d like to have a nonsmoking room.</li>
+<li>Mr. Samuels would like to check in on May 21st.</li>
+<li>Is there anything else I can help you with?</li>
+</ul>
+<h2 id="Writing"><a href="#Writing" class="headerlink" title="Writing"></a>Writing</h2><p>Dear Hotel Argent,</p>
+<p>My wife and I would like to reserve a double, nonsmoking room in August. We’d like to check in on the 14th and check out on the 19th. That’s five nights. We’d like a room with wireless internet and a big bathroom. We’d also like a reasonable rate.</p>
+<p>Thank you very much.</p>
+<p>Jim Daniels</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Hotels L1 Recommending a hotel]]></title>
+      <url>http://iequa.com/2016/08/15/ef-l3u3-Hotels-l1/</url>
+      <content type="html"><![CDATA[<h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
+<li>right downtown.</li>
+<li>The rates are reasonable.</li>
+<li>What are the rooms like?</li>
+</ul>
+<p><img src="/images/ef-l3u3l1.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: I have a meeting at 5.15. Can you recommend a good hotel ?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: How about the hotel Anna? It’s right downtown. The rates are reasonable.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Thanks good. How much is it a night?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: It’s around 200 a night.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: not bad，Is there a fitness center in the hotel?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: It is. a fitness center and free internet， I love that.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: haha, What are the rooms like?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: pretty small，but modern and clean</td>
+<td></td>
+</tr>
+<tr>
+<td>A: great! sounds perfect.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><ul>
+<li>It isn’t near the airport.</li>
+<li>It’s close to shopping.</li>
+<li>Every room has free wireless internet.</li>
+<li>It doesn’t have a business center.</li>
+<li>The hotel has a great fitness center.</li>
+<li>Do you know any others?</li>
+</ul>
+<h2 id="Reading"><a href="#Reading" class="headerlink" title="Reading"></a>Reading</h2><p>The Dalton Hotel is great. It’s right downtown, and you can walk to the river. The rooms are really comfortable  and have free wireless internet. Everything is modern and clean. Oh, yeah – there’s a great swimming pool and  fitness  club, too. I think the rates are reasonable. It’s about 300 a night.</p>
+<h2 id="Writing"><a href="#Writing" class="headerlink" title="Writing"></a>Writing</h2><p>My favorite hotel is The Pines. It’s in the forest. Everything is green and beautiful. It’s also close to downtown, about 20 minutes by taxi. The rooms are not modern, but they are very comfortable. The rates are reasonable, about $100 a night. Oh, and the food in the restaurant is delicious.</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[中国人起名学问]]></title>
-      <url>http://selfboot.org/2016/08/13/society-chinese-named/</url>
+      <url>http://iequa.com/2016/08/13/society-chinese-named/</url>
       <content type="html"><![CDATA[<h2 id="1-五行八字介绍"><a href="#1-五行八字介绍" class="headerlink" title="1. 五行八字介绍"></a>1. 五行八字介绍</h2><h3 id="1-1-五行"><a href="#1-1-五行" class="headerlink" title="1.1 五行"></a>1.1 五行</h3><p>　五行就是周易中常说的木、火、土、金、水。易经中各类事物均可以五行来区分，如干支、地支、季节、方位、人体、颜色、味道等等。五行有相生与相克的特质，很多的事物可藉由五行的运算，了解元素之兴衰，来判别事物的起伏变化和你一生的好坏吉凶。</p>
 <h3 id="1-2-三才"><a href="#1-2-三才" class="headerlink" title="1.2 三才"></a>1.2 三才</h3><p>　　三才配置即天、人、地。中国传统文化理解人立足于大地之上，在天之下，受到上天之眷顾，大地的滋养，而生生不息。亦有顺应天时、地利、人和的行事哲理。三才配置在姓名学中，占有很大的分量。</p>
 <h3 id="1-3-五格"><a href="#1-3-五格" class="headerlink" title="1.3 五格"></a>1.3 五格</h3><p>　　五格配置是指天格、地格、人格、外格、总格共五格之间的关系。天格是由祖先流传而来，单独出现对人生没有多大影响;人格是姓名剖象数理的中心所在，对人生的影响最大;人格与地格结合的数理则为基础运。地格主要是36岁前的人生，也叫前运力，外格代表人的外围，吉凶无谓。总格是36岁以后的人生，也是后运力。五格配置在姓名学中占有主要位置。</p>
@@ -3972,7 +5462,7 @@ img {
     
     <entry>
       <title><![CDATA[Python数据分析与挖掘实战 P5 model - Logistic regression]]></title>
-      <url>http://selfboot.org/2016/08/12/python-data-mining-p5-model-LR/</url>
+      <url>http://iequa.com/2016/08/12/python-data-mining-p5-model-LR/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -4053,8 +5543,63 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Locations and directions L4 describing the location of a city]]></title>
+      <url>http://iequa.com/2016/08/12/ef-l3u2-Locations-and-directions-l4/</url>
+      <content type="html"><![CDATA[<h2 id="Vocabulary"><a href="#Vocabulary" class="headerlink" title="Vocabulary"></a>Vocabulary</h2><ul>
+<li>east coast</li>
+<li>kilometers</li>
+<li>ocean, desert</li>
+<li>forest, hills, valley</li>
+<li>California [,kælɪ’fɔ:njə]</li>
+<li>summertime</li>
+</ul>
+<p><img src="/images/ef-l3u2l4.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: That’s my hometown.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: best! on the esat coast. where’s river?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: It’s in the south. down here.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: <strong>How far is it</strong> from your home to the river?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: It’s about 1200 kilometers</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I love the ocean，What’s that?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: It’s California in the mountains</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><p>A: Let’s go to the coffee shop.<br>B: How far is it?<br>A: It’s only two blocks.<br>A: How far is it from your house to the beach?<br>B: It’s about two kilometers.</p>
+<h2 id="Reading"><a href="#Reading" class="headerlink" title="Reading"></a>Reading</h2><p>Rio de Janeiro is a big city in the south of Brazil. It’s on the east coast of the country. Rio has beautiful beaches on the Atlantic Ocean. Two very famous beaches are Ipanema and Copacabana. Rio also is in the mountains. Sugarloaf is the name of a very famous mountain in Rio.</p>
+<h2 id="Writing"><a href="#Writing" class="headerlink" title="Writing"></a>Writing</h2><p>My hometown is China Hangzhou. It sits at the head of Hangzhou Bay, which separates Shanghai and Ningbo.  The city has many beautiful old buildings、temple and a lot of parks. The Qian Tang River is the city’s civilization. The city’s West Lake is its best-known attraction. and G20 economic conference to be held here. Many people like to visit west lake. </p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Python数据分析与挖掘实战 P5 model - all]]></title>
-      <url>http://selfboot.org/2016/08/11/python-data-mining-p5-model-all/</url>
+      <url>http://iequa.com/2016/08/11/python-data-mining-p5-model-all/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -4151,8 +5696,126 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Locations and directions L2 & L3 giving directions / Asking for directions to a business]]></title>
+      <url>http://iequa.com/2016/08/11/ef-l3u2-Locations-and-directions-l2-and-l3/</url>
+      <content type="html"><![CDATA[<h2 id="1-Directions"><a href="#1-Directions" class="headerlink" title="1. Directions"></a>1. Directions</h2><p>Go straight on Pine Avenue. Then turn right on Central Boulevard.<br>Go down Oak Street. Next, turn left on Valley Road.<br>Go right on Central Boulevard.<br>Make a left on Valley Road.</p>
+<h2 id="2-Transportation"><a href="#2-Transportation" class="headerlink" title="2. Transportation"></a>2. Transportation</h2><ul>
+<li>take the train</li>
+<li>go by ferry  [‘ferɪ]</li>
+<li>take the subway</li>
+<li>ride the streetcar 有轨电车</li>
+<li>go on foot</li>
+<li>ride a bike</li>
+</ul>
+<h2 id="3-More-directions"><a href="#3-More-directions" class="headerlink" title="3.  More directions"></a>3.  More directions</h2><p>Go south for two blocks, and turn left.<br>Go down Central Boulevard, and turn east on Clover Street.</p>
+<p>A: Which direction is it?<br>B: It’s west.</p>
+<p>Take the number 13 bus, and <strong>get off</strong> at Pine Street. Then <strong>walk north</strong> on First Street <strong>for three blocks</strong>. Our office is on the left at 3489. We’re on the fourth floor in office number 420.</p>
+<h2 id="4-Main-Dialog"><a href="#4-Main-Dialog" class="headerlink" title="4. Main Dialog"></a>4. Main Dialog</h2><table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Good morning. Telex Company. How can I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Yes, good morning. I have a meeting at your company today. Can you tell me <strong>how to get to your office</strong>, please?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Yes, of course. Where are you coming from ?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I’m in front of the Regency Hotel on Park Drive. I’m walking.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Oh, OK. First, go north  on Park Drive for two blocks, and make a right  on Seventh Avenue.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: North on Park, turn right on Seventh.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Correct. Next, go one block  on Seventh, and take a left on Chase Street. Our building is on the right   - number 729. We’re on the third floor  . Our office is number 316.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>If you are going to visit a business, you might ask for the address or directions to get there. Add please to make the question more polite.</p>
+<ul>
+<li>What’s your address, please?</li>
+<li>Where’s your office, please?</li>
+<li>How do I get to your office, please?</li>
+<li>Can you please tell me how to get there?</li>
+<li>How are you coming?</li>
+</ul>
+<p>A: How long does it take?<br>B: It takes about 20 to 30 minutes.</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Locations and directions L1 telling someone where you live]]></title>
+      <url>http://iequa.com/2016/08/10/ef-l3u2-Locations-and-directions-l1/</url>
+      <content type="html"><![CDATA[<h2 id="1-Locations"><a href="#1-Locations" class="headerlink" title="1. Locations"></a>1. Locations</h2><p>The bank is <strong>on the corner of</strong> Pine Street and First Street.<br>The bus stop is <strong>in front of</strong> the supermarket.<br>The post office is <strong>between</strong> the restaurant <strong>and</strong> the movie theater.<br>The pizza place is <strong>behind</strong> the library.<br>The bookstore is <strong>across the street</strong> from the restaurant.  </p>
+<p><img src="/images/ef-l3u2l1.png" width="460" height="400" img=""></p>
+<p><strong>on，at，in</strong></p>
+<ul>
+<li>I live <code>on</code> Maple Road.</li>
+<li>They live <code>in</code> Paris, but they’re from the US.  </li>
+<li>I live <code>at</code> 1215 Maple Road.<br>&nbsp;</li>
+<li>The library is <code>on</code> Pine Street.</li>
+<li>The library is <code>at</code> 57 Pine Street.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>Main Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B: Are you coming to my party Saturday？</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Where do you live?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I live at 1215 Maple Road.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: The cross street is 4th Avenue.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: between the library and the park</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I’m on the 11th floor, number 17.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><p>A: What’s the address of the restaurant?<br>B: The restaurant’s at 819 Ocean Avenue.  [‘æv(ə)njuː]</p>
+<p>A: What’s the cross street?<br>B: The cross street is Fourth Avenue.</p>
+<p>A: What’s your apartment number?<br>B: It’s 2314.    </p>
+<p>A: What floor do you live on?<br>B: The 23rd floor</p>
+<p>A: Is it next to the bank?<br>B: No. It’s near the park.</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Python数据分析与挖掘实战 P4 data preprocess]]></title>
-      <url>http://selfboot.org/2016/08/09/python-data-mining-p4-data-preprocess/</url>
+      <url>http://iequa.com/2016/08/09/python-data-mining-p4-data-preprocess/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -4313,7 +5976,7 @@ img {
     
     <entry>
       <title><![CDATA[Python数据分析与挖掘实战 P3 data exploring]]></title>
-      <url>http://selfboot.org/2016/08/09/python-data-mining-p3-exploring/</url>
+      <url>http://iequa.com/2016/08/09/python-data-mining-p3-exploring/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -4580,8 +6243,230 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Hobbies and interests L4 Making plans for a visitor]]></title>
+      <url>http://iequa.com/2016/08/09/ef-l3u1-Hobbies-and-interests-l4/</url>
+      <content type="html"><![CDATA[<h2 id="1-Talking-about-plans-and-possibilities"><a href="#1-Talking-about-plans-and-possibilities" class="headerlink" title="1. Talking about plans and possibilities"></a>1. Talking about plans and possibilities</h2><p><img src="/images/ef-l3u1l4.png" width="460" height="400" img=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Main Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A : Do you have any plans this weekend?</td>
+<td></td>
+</tr>
+<tr>
+<td>B : no one.</td>
+<td></td>
+</tr>
+<tr>
+<td>A : My manager have asked me to show a colleague. but, I’m out of town.</td>
+<td></td>
+</tr>
+<tr>
+<td>B : why?</td>
+<td></td>
+</tr>
+<tr>
+<td>A : Can you show him around?，It’s really important.</td>
+<td></td>
+</tr>
+<tr>
+<td>B : of course，show him around。 What’s your interested in?</td>
+<td></td>
+</tr>
+<tr>
+<td>A : I know he enjoys eating out.</td>
+<td></td>
+</tr>
+<tr>
+<td>B : I know, there are a large of restaurant.</td>
+<td></td>
+</tr>
+<tr>
+<td>A : restaurant?</td>
+<td></td>
+</tr>
+<tr>
+<td>B : There’s probably a good exhibition.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-Reading-an-events-calendar"><a href="#2-Reading-an-events-calendar" class="headerlink" title="2. Reading an events calendar"></a>2. Reading an events calendar</h2><p>When you are looking for a specific piece of information, you don’t always need to read the whole text. Instead, you can quickly scan through it for the details you want.</p>
+<h2 id="3-Making-plans-for-a-visiting-colleague"><a href="#3-Making-plans-for-a-visiting-colleague" class="headerlink" title="3. Making plans for a visiting colleague"></a>3. Making plans for a visiting colleague</h2><p>Your manager has asked you to show a colleague, Peter Krull, around your city this weekend. Peter likes Chinese and Japanese food. He doesn’t like art. He loves taking photographs and playing his guitar. <strong>Find the best place to take him.</strong> Select the correct answer.</p>
+<ul>
+<li>What did you think of this activity?</li>
+<li>Where should you take Peter?</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Hobbies and interests L3 Talking about musical instruments]]></title>
+      <url>http://iequa.com/2016/08/09/ef-l3u1-Hobbies-and-interests-l3/</url>
+      <content type="html"><![CDATA[<h2 id="1-Musical-instruments"><a href="#1-Musical-instruments" class="headerlink" title="1. Musical instruments"></a>1. Musical instruments</h2><ul>
+<li>guitar、saxophone [‘sæksəfəʊn]、flute [fluːt]</li>
+<li><strong>drums</strong>、trumpet [‘trʌmpɪt]</li>
+<li><code>cello</code>[‘tʃeləʊ]、<strong>violin</strong>[vaɪə’lɪn]、piano</li>
+</ul>
+<p><img src="/images/english/ef-l3u1l3.png" width="460" height="400" img=""></p>
+<h2 id="2-Expressions"><a href="#2-Expressions" class="headerlink" title="2. Expressions"></a>2. Expressions</h2><table>
+<thead>
+<tr>
+<th><strong>Main Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A : Play us a song.</td>
+<td></td>
+</tr>
+<tr>
+<td>B : I can’t play the guitar.</td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>A: Can you play a musical instrument?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Yes, I can play the piano.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Three people in my family can play a musical instrument. I play the saxophone. My father and mother play the violin. My sister can’t play an instrument, but she can sing. Sometimes, people ask us to play a song.</p>
+<h2 id="3-Reading"><a href="#3-Reading" class="headerlink" title="3. Reading"></a>3. Reading</h2><p><img src="/images/english/ef-l3u1l3-saxophone.jpg" width="460" height="400" img=""></p>
+<p>I’m really into playing my saxophone. I usually play the saxophone on weekends and in the evening after work. I can play many beautiful songs. I’m pretty good at it. My favorite saxophone player is John. I often listen to his songs at night. They help me relax.</p>
+<h2 id="4-Writing"><a href="#4-Writing" class="headerlink" title="4. Writing"></a>4. Writing</h2><p>My Piano and Me</p>
+<p>I’m really into my piano. It’s very old and has a beautiful sound. Sometimes my friends come to my house. They enjoy listening to me play. They always ask me to play a new song. I can say beautiful things with piano music.</p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Hobbies and interests L2 Asking people about their interests]]></title>
+      <url>http://iequa.com/2016/08/08/ef-l3u1-Hobbies-and-interests-l2/</url>
+      <content type="html"><![CDATA[<h2 id="1-More-hobbies-and-interests"><a href="#1-More-hobbies-and-interests" class="headerlink" title="1. More hobbies and interests"></a>1. More hobbies and interests</h2><ul>
+<li>traveling、oil painting、gardening、camping</li>
+<li>birdwatching、grow vegetables</li>
+<li>going to the <strong>theater</strong> [‘θɪətə]</li>
+<li>going to an <strong>exhibit</strong>  [ɪg’zɪbɪt]</li>
+<li>collecting comic books [‘kɒmɪk]</li>
+</ul>
+<p><img src="/images/english/ef-l3u1l2.png" width="460" height="400" img=""></p>
+<hr>
+<table>
+<thead>
+<tr>
+<th><strong>Main Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A : Are you ever late to work?</td>
+<td></td>
+</tr>
+<tr>
+<td>B : No, I’m never late!</td>
+<td></td>
+</tr>
+<tr>
+<td>A : Do you like going to the theater?</td>
+<td></td>
+</tr>
+<tr>
+<td>B : I rarely go. It’s too expensive.</td>
+<td></td>
+</tr>
+<tr>
+<td>A : Oh. I love the theater!</td>
+<td></td>
+</tr>
+<tr>
+<td>B : <strong>How often</strong> do you go?</td>
+<td></td>
+</tr>
+<tr>
+<td>A : I’m always at the theater.</td>
+<td></td>
+</tr>
+<tr>
+<td>B : Really? I rarely go.</td>
+<td></td>
+</tr>
+<tr>
+<td>A : So, <strong>what do you usually do?</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>B : Well, I watch TV. And I sometimes read comic books.</td>
+<td></td>
+</tr>
+<tr>
+<td>A : Hmm. <strong>Do you ever</strong> go to art exhibits?</td>
+<td></td>
+</tr>
+<tr>
+<td>B : Uh, no.</td>
+<td></td>
+</tr>
+<tr>
+<td>A : <strong>What else</strong> do you like to do?</td>
+<td></td>
+</tr>
+<tr>
+<td>B : Well, I really like gardening.</td>
+<td></td>
+</tr>
+<tr>
+<td>A : ok.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-frequency"><a href="#2-frequency" class="headerlink" title="2. frequency"></a>2. frequency</h2><p>100% = always、80%  = usually、60%  = often<br>40%  = sometimes、20%  = rarely、0%  = never</p>
+<h2 id="3-sentence"><a href="#3-sentence" class="headerlink" title="3. sentence"></a>3. sentence</h2><p>A: What does she enjoy doing?<br>B: She enjoys birdwatching. </p>
+<p>A: <strong>What’s she into?</strong><br>B: She’s really into art. I’m into doing things at home.</p>
+<p>A: I do fun things near home.<br>B: <strong>Like what?</strong><br>A: Like collecting comic books.</p>
+<blockquote>
+<p>Are you good at it?  =  You good at it?<br>Does she like sewing?  =  She likes sewing?</p>
+</blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Hobbies and interests L1 Talking about your hobbies and interests]]></title>
+      <url>http://iequa.com/2016/08/07/ef-l3u1-Hobbies-and-interests-l1/</url>
+      <content type="html"><![CDATA[<h2 id="1-Vocabulary-hobbies"><a href="#1-Vocabulary-hobbies" class="headerlink" title="1. Vocabulary hobbies"></a>1. Vocabulary hobbies</h2><ul>
+<li>stamp collecting、taking photographs</li>
+<li>doing puzzles [pʌzls]</li>
+<li>woodworking、reading、running</li>
+<li>cooking、drawing、sewing [ˈsəʊɪŋ] </li>
+</ul>
+<p><img src="/images/english/ef-l3u1l1.png" width="460" height="400" img=""></p>
+<hr>
+<h2 id="2-Expressions-for-interests"><a href="#2-Expressions-for-interests" class="headerlink" title="2. Expressions for interests"></a>2. Expressions for interests</h2><p><strong>be good at</strong> = <strong>be interested in</strong></p>
+<p>What are you interested in?<br>What do you like doing?<br>Are you good at (interested in) cooking?<br>Are you on a team?<br>She’s good at drawing.</p>
+<h2 id="3-Common-as-greetings"><a href="#3-Common-as-greetings" class="headerlink" title="3. Common as greetings"></a>3. Common as greetings</h2><p>what do you like to do in your free time?</p>
+<ol>
+<li>I <strong>enjoy stamp collecting</strong>.</li>
+<li>We <strong>belong to</strong> a book club.</li>
+<li>They’re <strong>on</strong> the running team.</li>
+<li>I like <strong>getting together with</strong> friends.</li>
+</ol>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[晚上老是做梦怎么办]]></title>
-      <url>http://selfboot.org/2016/08/07/society-health-sleep/</url>
+      <url>http://iequa.com/2016/08/07/society-health-sleep/</url>
       <content type="html"><![CDATA[<h2 id="1-睡觉前尽量不要多想"><a href="#1-睡觉前尽量不要多想" class="headerlink" title="1. 睡觉前尽量不要多想"></a>1. 睡觉前尽量不要多想</h2><p>我有时候也经常这样，躺到床上不是尽快的入睡而是胡思乱想，想想今天干了些什么啦，有些什么新鲜事了，明天又有什么事情要做。这样的结果导致了睡觉睡不好，老是半夜被梦惊醒（噩梦）。因此我们睡觉前最好不要多想，让自己平静一些，尽快的进入梦乡，即使是做梦也做个好梦。</p>
 <p><img src="/images/sleep01.jpg" width="460" height="300" img=""></p>
 <h2 id="2-睡前可以听一些轻音乐"><a href="#2-睡前可以听一些轻音乐" class="headerlink" title="2. 睡前可以听一些轻音乐"></a>2. 睡前可以听一些轻音乐</h2><p>听一些音乐可以缓解我们的心情，尤其是轻音乐，可以使我们的大脑得到放松，不至于有太大的压力。我们还可以尽快的入睡，我睡觉前就比较喜欢听一些歌，戴上耳机，放低音量，使自己尽快的入睡。相信这样我们可以一觉睡到天亮，就不会再做恶梦了。</p>
@@ -4596,7 +6481,7 @@ img {
     
     <entry>
       <title><![CDATA[MAC OSX Update Python Version]]></title>
-      <url>http://selfboot.org/2016/08/04/ops-macosx-update-python-version/</url>
+      <url>http://iequa.com/2016/08/04/ops-macosx-update-python-version/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>by update Python 3.5.2 as example</p>
 </blockquote>
@@ -4617,7 +6502,7 @@ img {
     
     <entry>
       <title><![CDATA[Python 数据分析与挖掘实战 环境搭建]]></title>
-      <url>http://selfboot.org/2016/08/02/ml-python-env/</url>
+      <url>http://iequa.com/2016/08/02/ml-python-env/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -4789,7 +6674,7 @@ img {
     
     <entry>
       <title><![CDATA[Bayes Model]]></title>
-      <url>http://selfboot.org/2016/06/22/ml-bayes-model/</url>
+      <url>http://iequa.com/2016/06/22/ml-bayes-model/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -4903,7 +6788,7 @@ img {
     
     <entry>
       <title><![CDATA[Elasticsearch * Reference1.7 Introduce]]></title>
-      <url>http://selfboot.org/2016/06/04/elasticsearch-1.7-Introduce/</url>
+      <url>http://iequa.com/2016/06/04/elasticsearch-1.7-Introduce/</url>
       <content type="html"><![CDATA[<h2 id="Getting-Started"><a href="#Getting-Started" class="headerlink" title="Getting Started"></a>Getting Started</h2><h3 id="Restful-API"><a href="#Restful-API" class="headerlink" title="Restful API"></a>Restful API</h3><p><strong>Cluster health</strong></p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl &apos;localhost:9200/_cat/health?v&apos;</span><br><span class="line">curl &apos;localhost:9200/_cat/nodes?v&apos;</span><br></pre></td></tr></table></figure>
 <p><strong>List ALL Indices</strong></p>
@@ -4928,7 +6813,7 @@ img {
     
     <entry>
       <title><![CDATA[Perceptron Model]]></title>
-      <url>http://selfboot.org/2016/05/20/ml-perceptron-model/</url>
+      <url>http://iequa.com/2016/05/20/ml-perceptron-model/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -5051,7 +6936,7 @@ img {
     
     <entry>
       <title><![CDATA[Elasticsearch installation plugins]]></title>
-      <url>http://selfboot.org/2016/05/17/elasticsearch-install-plugins/</url>
+      <url>http://iequa.com/2016/05/17/elasticsearch-install-plugins/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
 </blockquote>
@@ -5151,7 +7036,7 @@ img {
     
     <entry>
       <title><![CDATA[Elasticsearch * 入门]]></title>
-      <url>http://selfboot.org/2016/05/17/elasticsearch1-indoor/</url>
+      <url>http://iequa.com/2016/05/17/elasticsearch1-indoor/</url>
       <content type="html"><![CDATA[<h2 id="1-Elasticsearch-前言"><a href="#1-Elasticsearch-前言" class="headerlink" title="1. Elasticsearch 前言"></a>1. Elasticsearch 前言</h2><p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎、<code>实时分布式搜索</code>和<code>分析引擎</code>。</p>
 <blockquote>
 <p>Lucene 是 成熟的<code>全文索引与信息检索(IR)库</code>，采用Java实现。信息检索式指文档搜索、文档内信息搜索或者文档相关的元数据搜索等操作。。</p>
@@ -5278,7 +7163,7 @@ img {
     
     <entry>
       <title><![CDATA[Distance formula of point to plane]]></title>
-      <url>http://selfboot.org/2016/05/17/math-distance-formula-of-point-to-plain/</url>
+      <url>http://iequa.com/2016/05/17/math-distance-formula-of-point-to-plain/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -5319,7 +7204,7 @@ img {
     
     <entry>
       <title><![CDATA[Spark Machine Learning p1 - Spark编程入门]]></title>
-      <url>http://selfboot.org/2016/04/25/spark-machine-learning-p1/</url>
+      <url>http://iequa.com/2016/04/25/spark-machine-learning-p1/</url>
       <content type="html"><![CDATA[<p><strong>Apache Spark</strong></p>
 <p>Spark 的设计目标 即: <code>迭代式+低延迟</code> 适合 Machine Learning 算法的特性<br>Spark 分布式计算框架, 将中间数据和结果保存在内存中<br>Spark 提供函数式API, 并兼容 Hadoop 生态<br>Spark 框架对 资源调度、任务提交、执行、跟踪， 节点间通信以及数据并行处理的内在底层操作都进行了抽象</p>
 <blockquote>
@@ -5433,20 +7318,8 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[CentOS 7.1 install Common software]]></title>
-      <url>http://selfboot.org/2016/04/19/ops-centos7-install-common-software/</url>
-      <content type="html"><![CDATA[<h2 id="1-install-ifconfig"><a href="#1-install-ifconfig" class="headerlink" title="1. install ifconfig"></a>1. install ifconfig</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search ifconfig</span><br><span class="line">yum install net-tools.x86_64</span><br></pre></td></tr></table></figure>
-<h2 id="2-install-vim"><a href="#2-install-vim" class="headerlink" title="2. install vim"></a>2. install vim</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search vim</span><br><span class="line">yum install vim-enhanced</span><br></pre></td></tr></table></figure>
-<h2 id="3-install-wget"><a href="#3-install-wget" class="headerlink" title="3. install wget"></a>3. install wget</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"> [libin@centos-linux-1 x]$ yum search wget</span><br><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line"> * base: mirrors.skyshe.cn</span><br><span class="line"> * extras: mirrors.163.com</span><br><span class="line"> * updates: mirrors.163.com</span><br><span class="line">============================================================================================ N/S matched: wget =============================================================================================</span><br><span class="line">wget.x86_64 : A utility <span class="keyword">for</span> retrieving files using the HTTP or FTP protocols</span><br><span class="line"></span><br><span class="line">  Name and summary matches only, use <span class="string">"search all"</span> <span class="keyword">for</span> everything.</span><br><span class="line"> </span><br><span class="line"> [libin@centos-linux-1 x]$ yum install wget.x86_64</span><br></pre></td></tr></table></figure>
-<h2 id="4-install-git"><a href="#4-install-git" class="headerlink" title="4. install git"></a>4. install git</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search git</span><br><span class="line">yum install git.x86_64</span><br></pre></td></tr></table></figure>
-<p>default，git havn’t color, you can use under cmd give git add color</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git config --global color.status auto </span><br><span class="line">$ git config --global color.diff auto </span><br><span class="line">$ git config --global color.branch auto </span><br><span class="line">$ git config --global color.interactive auto</span><br></pre></td></tr></table></figure>
-<h2 id="5-install-netcat"><a href="#5-install-netcat" class="headerlink" title="5. install netcat"></a>5. install netcat</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search netcat</span><br><span class="line">yum install nmap-ncat.x86_64</span><br></pre></td></tr></table></figure>]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[CentOS and RedHat Linux]]></title>
-      <url>http://selfboot.org/2016/04/19/ops-centos-and-redhat/</url>
+      <url>http://iequa.com/2016/04/19/ops-centos-and-redhat/</url>
       <content type="html"><![CDATA[<blockquote>
 <p>CentOS 是 Community ENTerprise Operating System 的简称，我们有很多人叫它社区企业操作系统，不管你怎么叫它，它都是 Linux操作系统的一个发行版本。CentOS 与 RHEL 有什么区别呢。</p>
 </blockquote>
@@ -5474,8 +7347,20 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[CentOS 7.1 install Common software]]></title>
+      <url>http://iequa.com/2016/04/19/ops-centos7-install-common-software/</url>
+      <content type="html"><![CDATA[<h2 id="1-install-ifconfig"><a href="#1-install-ifconfig" class="headerlink" title="1. install ifconfig"></a>1. install ifconfig</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search ifconfig</span><br><span class="line">yum install net-tools.x86_64</span><br></pre></td></tr></table></figure>
+<h2 id="2-install-vim"><a href="#2-install-vim" class="headerlink" title="2. install vim"></a>2. install vim</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search vim</span><br><span class="line">yum install vim-enhanced</span><br></pre></td></tr></table></figure>
+<h2 id="3-install-wget"><a href="#3-install-wget" class="headerlink" title="3. install wget"></a>3. install wget</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"> [libin@centos-linux-1 x]$ yum search wget</span><br><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line"> * base: mirrors.skyshe.cn</span><br><span class="line"> * extras: mirrors.163.com</span><br><span class="line"> * updates: mirrors.163.com</span><br><span class="line">============================================================================================ N/S matched: wget =============================================================================================</span><br><span class="line">wget.x86_64 : A utility <span class="keyword">for</span> retrieving files using the HTTP or FTP protocols</span><br><span class="line"></span><br><span class="line">  Name and summary matches only, use <span class="string">"search all"</span> <span class="keyword">for</span> everything.</span><br><span class="line"> </span><br><span class="line"> [libin@centos-linux-1 x]$ yum install wget.x86_64</span><br></pre></td></tr></table></figure>
+<h2 id="4-install-git"><a href="#4-install-git" class="headerlink" title="4. install git"></a>4. install git</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search git</span><br><span class="line">yum install git.x86_64</span><br></pre></td></tr></table></figure>
+<p>default，git havn’t color, you can use under cmd give git add color</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git config --global color.status auto </span><br><span class="line">$ git config --global color.diff auto </span><br><span class="line">$ git config --global color.branch auto </span><br><span class="line">$ git config --global color.interactive auto</span><br></pre></td></tr></table></figure>
+<h2 id="5-install-netcat"><a href="#5-install-netcat" class="headerlink" title="5. install netcat"></a>5. install netcat</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search netcat</span><br><span class="line">yum install nmap-ncat.x86_64</span><br></pre></td></tr></table></figure>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[SBT Hello]]></title>
-      <url>http://selfboot.org/2016/03/16/scala-sbt-hello/</url>
+      <url>http://iequa.com/2016/03/16/scala-sbt-hello/</url>
       <content type="html"><![CDATA[<p><strong>focus on :</strong></p>
 <ol>
 <li>什么是 SBT ?</li>
@@ -5550,7 +7435,7 @@ img {
     
     <entry>
       <title><![CDATA[大数据平台CDH集群在线安装]]></title>
-      <url>http://selfboot.org/2016/03/14/hadoop-cdh-install-online/</url>
+      <url>http://iequa.com/2016/03/14/hadoop-cdh-install-online/</url>
       <content type="html"><![CDATA[<p>标签： Cloudera-Manager CDH Hadoop 部署 集群</p>
 <blockquote>
 <p>摘要：管理、部署Hadoop集群需要工具，Cloudera Manager便是其一。本文详细记录了以在线方式部署CDH集群&gt;的步骤。</p>
@@ -5713,7 +7598,7 @@ img {
     
     <entry>
       <title><![CDATA[CentOS 7 install spark ipython nodebook]]></title>
-      <url>http://selfboot.org/2016/03/11/ops-centos7-ipython-nodebook-install/</url>
+      <url>http://iequa.com/2016/03/11/ops-centos7-ipython-nodebook-install/</url>
       <content type="html"><![CDATA[<ol>
 <li>IPython notebook 目前已经成为用 Python 做教学、计算、科研的一个重要工具。</li>
 <li>IPython Notebook 使用浏览器作为界面，向后台的 IPython 服务器发送请求，并显示结果。</li>
@@ -5755,7 +7640,7 @@ img {
     
     <entry>
       <title><![CDATA[Sqoop introduce]]></title>
-      <url>http://selfboot.org/2016/02/16/hadoop-sqoop-learn-use01/</url>
+      <url>http://iequa.com/2016/02/16/hadoop-sqoop-learn-use01/</url>
       <content type="html"><![CDATA[<h2 id="1-Sqoop-what"><a href="#1-Sqoop-what" class="headerlink" title="1. Sqoop what ?"></a>1. Sqoop what ?</h2><p>sqoop 即 SQL to Hadoop ，是一款方便的在传统关系数据库与 Hadoop 之间进行数据迁移的工具，充分利用 MapReduce 并行特点以批处理的方式加快数据传输，发展至今主要演化了二大版本，sqoop1和sqoop2。 </p>
 <p>sqoop : clouder 公司开发</p>
 <p><strong>生产背景</strong></p>
@@ -5809,7 +7694,7 @@ img {
     
     <entry>
       <title><![CDATA[Hive Introduce 1]]></title>
-      <url>http://selfboot.org/2016/02/15/hadoop-hive-brief/</url>
+      <url>http://iequa.com/2016/02/15/hadoop-hive-brief/</url>
       <content type="html"><![CDATA[<p><strong>focus on :</strong></p>
 <ol>
 <li>初步了解 Hadoop 生态圈</li>
@@ -5902,7 +7787,7 @@ img {
     
     <entry>
       <title><![CDATA[Spark Introduce and Install]]></title>
-      <url>http://selfboot.org/2016/02/01/spark-introduce-and-install/</url>
+      <url>http://iequa.com/2016/02/01/spark-introduce-and-install/</url>
       <content type="html"><![CDATA[<p>Spark 发源于 美国加州大学伯克利分校 AMPLap 大数据分析平台<br>Spark 立足于内存计算、从多迭代批量处理出发<br>Spark 兼顾数据仓库、流处理、图计算 等多种计算范式，大数据系统领域全栈计算平台  </p>
 <p><a href="http://spark.apache.org" target="_blank" rel="external">spark.apache.org</a> </p>
 <blockquote>
@@ -6082,7 +7967,7 @@ img {
     
     <entry>
       <title><![CDATA[Kettle ETL]]></title>
-      <url>http://selfboot.org/2016/01/22/db-etl-kettle/</url>
+      <url>http://iequa.com/2016/01/22/db-etl-kettle/</url>
       <content type="html"><![CDATA[<p><strong>ETL 简介</strong></p>
 <ol>
 <li>ETL 是数据抽取（Extract）、清洗（Cleaning）、转换（Transform）、装载（Load）的过程。</li>
@@ -6178,7 +8063,7 @@ img {
     
     <entry>
       <title><![CDATA[Logback 入门初步]]></title>
-      <url>http://selfboot.org/2015/12/27/java-logback-indoor/</url>
+      <url>http://iequa.com/2015/12/27/java-logback-indoor/</url>
       <content type="html"><![CDATA[<p>Logback 一个开源日志组件。<br>Logback 当前分成三个模块：logback-core  logback- classic  和  logback-access。</p>
 <h2 id="1-logback-简介"><a href="#1-logback-简介" class="headerlink" title="1. logback 简介"></a>1. logback 简介</h2><p>Ceki在Java日志领域世界知名。他创造了Log4J ，这个最早的Java日志框架即便在JRE内置日志功能的竞争下仍然非常流行。随后他又着手实现SLF4J 这个“简单的日志前端接口（Façade）”来替代Jakarta Commons-Logging 。</p>
 <p>Logback，一个“可靠、通用、快速而又灵活的Java日志框架”。</p>
@@ -6224,7 +8109,7 @@ logback-access  与Servlet容器集成提供通过Http来访问日志功能
     
     <entry>
       <title><![CDATA[linux etc/profile and zshrc 等环境配置简介]]></title>
-      <url>http://selfboot.org/2014/05/18/ops-linux-bashrc-profile/</url>
+      <url>http://iequa.com/2014/05/18/ops-linux-bashrc-profile/</url>
       <content type="html"><![CDATA[<table>
 <thead>
 <tr>
@@ -6319,7 +8204,7 @@ logback-access  与Servlet容器集成提供通过Http来访问日志功能
     
     <entry>
       <title><![CDATA[Qunar Trainee Summary]]></title>
-      <url>http://selfboot.org/2014/05/07/society-trainee/</url>
+      <url>http://iequa.com/2014/05/07/society-trainee/</url>
       <content type="html"><![CDATA[<p>  时间过得真快，转眼间，我在去哪儿网实习的这段时间马上就要过去了，在这段实习的日子真的学会了很多，经过这次培训，我学会了java，了解了guava，学习了SVN， git版本管理工具， Maven项目管理及自动构建工具， SpringMVC的开发，mybatis 的使用，Servlet， jsp， html， http 的初步了解，动态代理与AOP， 单元测试与自动化测试，数据库建表规范， Linux系统的使用等等等等，熟悉了公司内部的开发框架，了解公司开发规范，适应公司文化，环境。</p>
 <p>  在这些天实习的日子，最初本想不走 java 路线的，觉得封装好严重，你根本不知道那个包是怎么回事，就可以拿过来一用，就出来了一个看起来比较高大上的作品，学很短的时间就可以搞出个东西来，觉得没有C、C++或者是算法，来得那么爽。但是经过培训后，我才发现了java的可爱之处与强大，以前对java有误解，完全是自己的无知与不懂，遇到了酒店事业部的 思雨大神，更是感受到了学习java这方面的知识，可以很牛很牛，学任何一门技术都具有更为广阔的空间，实习初期，由于我对java知识之前是没有任何经验的，所以面对严格快速正规的培训，真的感到压力很大，幸好小组的分享还有做作业遇到问题，组内外同学的帮助，才可以跟下来，由于初学，节奏很快，那么多知识，在不到2个月的时间内全部学熟是很难做到的，我现在对 SpringMVC 还有一些 Guava，web的知识，还不是很熟练，以后一定要找时间在自己补习下这方面的知识。并把自己在公司学到的一些知识，介绍给学校的一些还在迷茫懵懂的学妹，学弟们。在公司两个多月的实习生活，对我来说不仅仅是技术和能力上的提升，更多的还有思想和态度的转变。</p>
 <p>  最后，首先，要感谢公司给我们应届生提供的这个培训平台，可以让我学到这么多的专业知识，认识到更多的志同道合的朋友；感谢丫丫姐，辛苦操劳的尽可能给我们提供欢愉的学习环境，以及邀请很多的优秀讲师；感谢全体给我们讲课的讲师们，感谢我的团队以及周边的同事，在工作学习的繁忙之余，还可以带来各种各样的欢声笑语，感谢老何与david，让我学到了严谨，负责，认真的工作态度与生活态度。</p>
@@ -6328,7 +8213,7 @@ logback-access  与Servlet容器集成提供通过Http来访问日志功能
     
     <entry>
       <title><![CDATA[Java SE Basic Introduce]]></title>
-      <url>http://selfboot.org/2013/02/02/java-se-introduce/</url>
+      <url>http://iequa.com/2013/02/02/java-se-introduce/</url>
       <content type="html"><![CDATA[<ul>
 <li>Java data type</li>
 <li>OO</li>
