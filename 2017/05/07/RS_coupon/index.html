@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark ALS - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="RS 推荐卡券系统计算流程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark ALS">
+<meta property="og:url" content="http://iequa.com/2017/05/07/RS_coupon/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="RS 推荐卡券系统计算流程">
+<meta property="og:updated_time" content="2017-05-07T04:55:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark ALS">
+<meta name="twitter:description" content="RS 推荐卡券系统计算流程">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <br>
+    <section id="main" class="outer"><article id="post-RS_coupon" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark ALS
+      <small class=article-detail-date-index>&nbsp; 2017-05-07</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/05/07/RS_coupon/" class="article-date">
+  <time datetime="2017-05-07T02:28:21.000Z" itemprop="datePublished">2017-05-07</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/05/07/RS_coupon/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-创建用户行为矩阵表-对卡券"><a href="#1-创建用户行为矩阵表-对卡券" class="headerlink" title="1. 创建用户行为矩阵表 (对卡券)"></a>1. 创建用户行为矩阵表 (对卡券)</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> <span class="string">`mds_user_coupon_bhv`</span>;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`mds_user_coupon_bhv`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`uid`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'card_info user ID'</span>,</span><br><span class="line">  <span class="string">`mobile`</span> <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'电话号码'</span>,</span><br><span class="line">  <span class="string">`business_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'商户ID 或 集团ID'</span>,</span><br><span class="line">  <span class="string">`coupon_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'e_coupon_info id 唯一标识'</span>,</span><br><span class="line">  <span class="string">`coupon_info_code`</span> <span class="built_in">varchar</span>(<span class="number">25</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'券编码,唯一标识'</span>,</span><br><span class="line">  <span class="string">`score`</span> <span class="keyword">double</span> <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'购买打分'</span>,</span><br><span class="line">  <span class="string">`create_time`</span> datetime <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">0</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COMMENT</span>=<span class="string">'用户对卡券的行为表'</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="2-清空表并插入数据到-行为表-对卡券"><a href="#2-清空表并插入数据到-行为表-对卡券" class="headerlink" title="2. 清空表并插入数据到 行为表 (对卡券)"></a>2. 清空表并插入数据到 行为表 (对卡券)</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">TRUNCATE</span> <span class="keyword">TABLE</span> mds_user_coupon_bhv;</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> mds_user_coupon_bhv (</span><br><span class="line">    uid,</span><br><span class="line">    mobile,</span><br><span class="line">    business_id,</span><br><span class="line">    coupon_id,</span><br><span class="line">    coupon_info_code,</span><br><span class="line">    score,</span><br><span class="line">    create_time</span><br><span class="line">)</span><br><span class="line">(</span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    tt1.card_id,</span><br><span class="line">    tt1.mobile,</span><br><span class="line">    tt1.business_id,</span><br><span class="line">    tt1.coupon_id,</span><br><span class="line">    tt1.coupon_info_code,</span><br><span class="line">    <span class="keyword">count</span>(tt1.coupon_id) <span class="keyword">AS</span> score,</span><br><span class="line">    <span class="keyword">NOW</span>() <span class="keyword">AS</span> create_time</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    (</span><br><span class="line">        <span class="keyword">SELECT</span></span><br><span class="line">            t1.<span class="keyword">id</span>,</span><br><span class="line">            t2.card_id,</span><br><span class="line">            t1.mobile,</span><br><span class="line">            t1.coupon_id,</span><br><span class="line">            t1.coupon_info_code,</span><br><span class="line">            t1.coupon_info_name,</span><br><span class="line">            t1.business_id,</span><br><span class="line">            t1.business_name</span><br><span class="line">        <span class="keyword">FROM</span></span><br><span class="line">            (</span><br><span class="line">                <span class="keyword">SELECT</span></span><br><span class="line">                    tf1.<span class="keyword">id</span>,</span><br><span class="line">                    tf1.mobile_number <span class="keyword">AS</span> mobile,</span><br><span class="line">                    tf1.coupon_info_code,</span><br><span class="line">                    tf1.coupon_info_name,</span><br><span class="line">                    tf2.coupon_id,</span><br><span class="line">                    tf2.business_id,</span><br><span class="line">                    tf2.business_name <span class="keyword">AS</span> business_name</span><br><span class="line">                <span class="keyword">FROM</span></span><br><span class="line">                    (</span><br><span class="line">                        <span class="keyword">SELECT</span></span><br><span class="line">                            *</span><br><span class="line">                        <span class="keyword">FROM</span></span><br><span class="line">                            e_coupon</span><br><span class="line">                        <span class="keyword">WHERE</span></span><br><span class="line">                            e_coupon.created_time &gt; <span class="keyword">DATE_ADD</span>(<span class="keyword">now</span>(), <span class="built_in">INTERVAL</span> - <span class="number">180</span> <span class="keyword">DAY</span>)</span><br><span class="line">                    ) tf1</span><br><span class="line">                <span class="keyword">JOIN</span> (</span><br><span class="line">                    <span class="keyword">SELECT</span></span><br><span class="line">                        <span class="keyword">IFNULL</span>(t.shop_id, t.merchant_id) <span class="keyword">AS</span> business_id,</span><br><span class="line">                        t.business_name <span class="keyword">AS</span> business_name,</span><br><span class="line">                        t.<span class="keyword">id</span> <span class="keyword">AS</span> coupon_id,</span><br><span class="line">                        t.coupon_info_code,</span><br><span class="line">                        t.coupon_info_name</span><br><span class="line">                    <span class="keyword">FROM</span></span><br><span class="line">                        e_coupon_info t</span><br><span class="line">                ) tf2 <span class="keyword">ON</span> tf1.coupon_info_code = tf2.coupon_info_code</span><br><span class="line">                <span class="keyword">WHERE</span></span><br><span class="line">                    business_id <span class="keyword">IN</span> (</span><br><span class="line">                        <span class="keyword">SELECT</span></span><br><span class="line">                            businessId</span><br><span class="line">                        <span class="keyword">FROM</span></span><br><span class="line">                            <span class="keyword">account</span></span><br><span class="line">                        <span class="keyword">WHERE</span></span><br><span class="line">                            nature = <span class="string">'FORMAL'</span></span><br><span class="line">                    )</span><br><span class="line">            ) t1</span><br><span class="line">          <span class="keyword">JOIN</span> (</span><br><span class="line">            <span class="keyword">SELECT</span></span><br><span class="line">                <span class="keyword">id</span> <span class="keyword">AS</span> card_id,</span><br><span class="line">                mobile</span><br><span class="line">            <span class="keyword">FROM</span></span><br><span class="line">                card_info</span><br><span class="line">        ) t2 <span class="keyword">ON</span> t1.mobile = t2.mobile</span><br><span class="line">    ) tt1</span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    <span class="keyword">length</span>(tt1.business_id) &lt;= <span class="number">6</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">    tt1.card_id,</span><br><span class="line">    tt1.mobile,</span><br><span class="line">    tt1.business_id,</span><br><span class="line">    tt1.coupon_info_code</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>card_info 必须有该用户 </p>
+</blockquote>
+<h2 id="3-创建推荐-coupon-计算结果表"><a href="#3-创建推荐-coupon-计算结果表" class="headerlink" title="3. 创建推荐 coupon 计算结果表"></a>3. 创建推荐 coupon 计算结果表</h2><p>By Spark ALS</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">CREATE TABLE `mds_rs_shop_coupon_tmp` (</span><br><span class="line">  `uid` bigint(20) DEFAULT NULL COMMENT &apos;card_info user ID&apos;,</span><br><span class="line">  `coupon_id` bigint(20) DEFAULT NULL COMMENT &apos;卡券ID&apos;,</span><br><span class="line">  `score` double DEFAULT NULL COMMENT &apos;优先级权重&apos;,</span><br><span class="line">  `calc_date` varchar(20) DEFAULT NULL COMMENT &apos;计算日期的字符串形式 yyyy-MM-dd&apos;</span><br><span class="line">) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT=&apos;创建推卡券荐计算结果表&apos;;</span><br></pre></td></tr></table></figure>
+<h2 id="4-ALS-result-writeTo-RMDB"><a href="#4-ALS-result-writeTo-RMDB" class="headerlink" title="4. ALS result writeTo RMDB"></a>4. ALS result writeTo RMDB</h2><h3 id="4-1-清空表"><a href="#4-1-清空表" class="headerlink" title="4.1 清空表"></a>4.1 清空表</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">TRUNCATE</span> <span class="keyword">TABLE</span> mds_rs_coupon_tmp;</span><br></pre></td></tr></table></figure>
+<p>以下为手动计算流程 :</p>
+<h3 id="4-2-启动-spark-shell"><a href="#4-2-启动-spark-shell" class="headerlink" title="4.2 启动 spark-shell"></a>4.2 启动 spark-shell</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h3 id="4-3-输入输出-相关变量"><a href="#4-3-输入输出-相关变量" class="headerlink" title="4.3 输入输出:相关变量"></a>4.3 输入输出:相关变量</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">val inputTable = <span class="string">"mds_user_coupon_bhv"</span></span><br><span class="line">val inputUrl = <span class="string">"jdbc:mysql://192.168.xxx.xx:3306/com_profile?user=your_name&amp;password=your_password"</span></span><br><span class="line">val outputTable = <span class="string">"mds_rs_shop_coupon_tmp"</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-4-核心程序代码"><a href="#4-4-核心程序代码" class="headerlink" title="4.4 核心程序代码"></a>4.4 核心程序代码</h3><figure class="highlight"><table><tr><td class="code"><pre><span class="line">package com.x.rs.service</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat</span><br><span class="line">import java.util.Date</span><br><span class="line">import java.util.Properties</span><br><span class="line"></span><br><span class="line">import org.apache.spark.sql.Row</span><br><span class="line">import org.apache.spark.sql.types._</span><br><span class="line"></span><br><span class="line">import org.apache.spark.&#123;SparkConf, SparkContext&#125;</span><br><span class="line"></span><br><span class="line">import org.apache.spark.mllib.recommendation.&#123;ALS, Rating&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">  * Date : 2017-04-20</span><br><span class="line">  * Author : Blair Chan</span><br><span class="line">  */</span><br><span class="line">object RsCouponCalc &#123;</span><br><span class="line">  def main(args: Array[String]) &#123;</span><br><span class="line"></span><br><span class="line">    println("start...")</span><br><span class="line"></span><br><span class="line">    if (args.length &lt; 3) &#123;</span><br><span class="line">      System.err.println("Usage: &lt;file&gt;")</span><br><span class="line">      System.exit(1)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    val inputTable = args(0) // Should be some file on your system // conf = new SparkConf().setAppName(appName).setMaster("local");</span><br><span class="line">    val inputUrl = args(1)</span><br><span class="line">    val outputTable = args(2)</span><br><span class="line"></span><br><span class="line">    val conf = new SparkConf().setAppName("SparkRsOne");</span><br><span class="line">    val sc = new SparkContext(conf)</span><br><span class="line">    val sqlContext = new org.apache.spark.sql.SQLContext(sc)</span><br><span class="line"></span><br><span class="line">    //    val rawData = sc.textFile(inputFile)</span><br><span class="line">    //    val rawRatings = rawData.map(_.split("\t").take(3))</span><br><span class="line"></span><br><span class="line">    val url = inputUrl</span><br><span class="line">    val prop = new Properties()</span><br><span class="line"></span><br><span class="line">    val dfForRawData = sqlContext.read.jdbc(url, inputTable, prop)</span><br><span class="line"></span><br><span class="line">    val ratings_tmp = dfForRawData.map &#123; row =&gt; (row(1).toString().toInt, row(4).toString().toInt, row(6).toString().toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val ratings = ratings_tmp.map &#123; case (uid, couponId, rating) =&gt; Rating(uid.toInt, couponId.toInt, rating.toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val model = ALS.train(ratings, 50, 10, 0.01)</span><br><span class="line"></span><br><span class="line">    model.userFeatures.count</span><br><span class="line"></span><br><span class="line">    val K = 10</span><br><span class="line"></span><br><span class="line">    model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val originResultRdd1 = model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val curDate = new Date()</span><br><span class="line">    val createDateString = new SimpleDateFormat("yyyy-MM-dd").format(curDate)</span><br><span class="line"></span><br><span class="line">    val originResultRdd2 = originResultRdd1.map(tuple =&gt; &#123;</span><br><span class="line">      val uid = tuple._1</span><br><span class="line">      val product = tuple._2.map &#123; case Rating(user, product, score) =&gt; (product.toString, score.toString) &#125;</span><br><span class="line">      (uid, product)</span><br><span class="line">    &#125;).flatMap &#123;</span><br><span class="line">      case (uid, product) =&gt; &#123;</span><br><span class="line">        product.map &#123; case (itemId, score) =&gt; Row.apply(uid.toLong, itemId.toString, score.toDouble, createDateString.toString) &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // println(originResultRdd2.first())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val schema = StructType(</span><br><span class="line">      StructField("uid", LongType) ::</span><br><span class="line">        StructField("coupon_id", LongType) ::</span><br><span class="line">        StructField("score", DoubleType) ::</span><br><span class="line">        StructField("calc_date", StringType) :: Nil)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val df = sqlContext.createDataFrame(originResultRdd2, schema)</span><br><span class="line"></span><br><span class="line">    df.insertIntoJDBC(url, outputTable, false)</span><br><span class="line">    // 设置为 true，则为 删除表，然后自动创建，再插入</span><br><span class="line"></span><br><span class="line">    println("end !")</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>DF 通过插入 RMDB.  schema 可以通过反射来使得程序扩展性提高。</p>
+</blockquote>
+<h2 id="5-创建最终推荐结果表-mds-rs-shop-coupon-对卡券"><a href="#5-创建最终推荐结果表-mds-rs-shop-coupon-对卡券" class="headerlink" title="5. 创建最终推荐结果表 mds_rs_shop_coupon (对卡券)"></a>5. 创建最终推荐结果表 mds_rs_shop_coupon (对卡券)</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> <span class="string">`mds_rs_shop_coupon`</span>;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`mds_rs_shop_coupon`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`uid`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'card_info user ID'</span>,</span><br><span class="line">  <span class="string">`mobile`</span> <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'mobile number'</span>,</span><br><span class="line">  <span class="string">`business_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'商户ID'</span>,</span><br><span class="line">  <span class="string">`business_name`</span> <span class="built_in">varchar</span>(<span class="number">100</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'商户名称'</span>,</span><br><span class="line">  <span class="string">`coupon_id`</span> <span class="built_in">bigint</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'卡券ID'</span>,</span><br><span class="line">  <span class="string">`coupon_info_code`</span> <span class="built_in">varchar</span>(<span class="number">25</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'电子券编码'</span>,</span><br><span class="line">  <span class="string">`coupon_info_name`</span> <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'电子券名称'</span>,</span><br><span class="line">  <span class="string">`score`</span> <span class="keyword">double</span> <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'优先级权重'</span>,</span><br><span class="line">  <span class="string">`calc_date`</span> <span class="built_in">varchar</span>(<span class="number">20</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span> <span class="keyword">COMMENT</span> <span class="string">'计算日期的字符串形式 yyyy-MM-dd'</span>,</span><br><span class="line">  <span class="string">`create_time`</span> datetime <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'创建时间'</span>,</span><br><span class="line">  <span class="string">`modify_time`</span> datetime <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">ON</span> <span class="keyword">UPDATE</span> <span class="keyword">CURRENT_TIMESTAMP</span> <span class="keyword">COMMENT</span> <span class="string">'修改时间'</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> AUTO_INCREMENT=<span class="number">0</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=utf8 <span class="keyword">COMMENT</span>=<span class="string">'推荐商户卡券结果表'</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="6-插入数据"><a href="#6-插入数据" class="headerlink" title="6. 插入数据"></a>6. 插入数据</h2><h3 id="6-1-暂时保留昨天的结果，不清空表"><a href="#6-1-暂时保留昨天的结果，不清空表" class="headerlink" title="6.1 暂时保留昨天的结果，不清空表"></a>6.1 暂时保留昨天的结果，不清空表</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--TRUNCATE TABLE mds_rs_shop_coupon;</span></span><br></pre></td></tr></table></figure>
+<h3 id="6-2-向表-mds-rs-coupon-增加详细数据"><a href="#6-2-向表-mds-rs-coupon-增加详细数据" class="headerlink" title="6.2 向表 mds_rs_coupon 增加详细数据"></a>6.2 向表 mds_rs_coupon 增加详细数据</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> mds_rs_shop_coupon (</span><br><span class="line">    uid,</span><br><span class="line">    mobile,</span><br><span class="line">    business_id,</span><br><span class="line">    business_name,</span><br><span class="line">    coupon_id,</span><br><span class="line">    coupon_info_code,</span><br><span class="line">    coupon_info_name,</span><br><span class="line">    score,</span><br><span class="line">    calc_date,</span><br><span class="line">    create_time,</span><br><span class="line">    modify_time</span><br><span class="line">)</span><br><span class="line">(</span><br><span class="line">    <span class="keyword">SELECT</span></span><br><span class="line">        tt1.uid,</span><br><span class="line">        tt1.mobile,</span><br><span class="line">        tt1.business_id,</span><br><span class="line">        tt1.business_name,</span><br><span class="line">        tt1.coupon_id,</span><br><span class="line">        tt1.coupon_info_code,</span><br><span class="line">        tt1.coupon_info_name,</span><br><span class="line">        tt1.score,</span><br><span class="line">        tt1.calc_date,</span><br><span class="line">        tt1.create_time,</span><br><span class="line">        tt1.modify_time</span><br><span class="line">    <span class="keyword">FROM</span></span><br><span class="line">        (</span><br><span class="line">            <span class="keyword">SELECT</span></span><br><span class="line">                t1.uid,</span><br><span class="line">                t2.mobile,</span><br><span class="line">                <span class="keyword">IFNULL</span>(t3.shop_id, t3.merchant_id) <span class="keyword">AS</span> business_id,</span><br><span class="line">                t3.business_name,</span><br><span class="line">                t1.coupon_id,</span><br><span class="line">                t3.coupon_info_code,</span><br><span class="line">                t3.coupon_info_name,</span><br><span class="line">                t1.score,</span><br><span class="line">                t1.calc_date,</span><br><span class="line">                <span class="keyword">NOW</span>() <span class="keyword">AS</span> create_time,</span><br><span class="line">                <span class="keyword">NOW</span>() <span class="keyword">AS</span> modify_time</span><br><span class="line">            <span class="keyword">FROM</span></span><br><span class="line">                (<span class="keyword">SELECT</span> * <span class="keyword">FROM</span> mds_rs_shop_coupon_tmp <span class="keyword">WHERE</span> calc_date = <span class="keyword">DATE_FORMAT</span>(<span class="keyword">NOW</span>(), <span class="string">'%Y-%m-%d'</span>)) t1</span><br><span class="line">            <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> card_info t2 <span class="keyword">ON</span> t1.uid = t2.<span class="keyword">id</span></span><br><span class="line">            <span class="keyword">LEFT</span> <span class="keyword">JOIN</span> e_coupon_info t3 <span class="keyword">ON</span> t1.coupon_id = t3.<span class="keyword">id</span></span><br><span class="line">        ) tt1</span><br><span class="line">    <span class="keyword">ORDER</span> <span class="keyword">BY</span> tt1.uid, tt1.score <span class="keyword">DESC</span> </span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><a href="http://www.cnblogs.com/yaohaitao/articles/5681984.html" target="_blank" rel="external">spark sql internet</a></p>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      <div class="well">
+  原创文章，转载请注明： 转载自<a href="http://blairos.org"> Blair Chan's Blog</a>，作者：
+  <a href="http://blairos.org/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 3.0 China Mainland License" href="http://creativecommons.org/licenses/by/3.0/cn/">署名3.0中国大陆许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-创建用户行为矩阵表-对卡券"><span class="toc-number"></span> <span class="toc-text">1. 创建用户行为矩阵表 (对卡券)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-清空表并插入数据到-行为表-对卡券"><span class="toc-number"></span> <span class="toc-text">2. 清空表并插入数据到 行为表 (对卡券)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-创建推荐-coupon-计算结果表"><span class="toc-number"></span> <span class="toc-text">3. 创建推荐 coupon 计算结果表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-ALS-result-writeTo-RMDB"><span class="toc-number"></span> <span class="toc-text">4. ALS result writeTo RMDB</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-清空表"><span class="toc-number"></span> <span class="toc-text">4.1 清空表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-启动-spark-shell"><span class="toc-number"></span> <span class="toc-text">4.2 启动 spark-shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-输入输出-相关变量"><span class="toc-number"></span> <span class="toc-text">4.3 输入输出:相关变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-核心程序代码"><span class="toc-number"></span> <span class="toc-text">4.4 核心程序代码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-创建最终推荐结果表-mds-rs-shop-coupon-对卡券"><span class="toc-number"></span> <span class="toc-text">5. 创建最终推荐结果表 mds_rs_shop_coupon (对卡券)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-插入数据"><span class="toc-number"></span> <span class="toc-text">6. 插入数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-暂时保留昨天的结果，不清空表"><span class="toc-number"></span> <span class="toc-text">6.1 暂时保留昨天的结果，不清空表</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-向表-mds-rs-coupon-增加详细数据"><span class="toc-number"></span> <span class="toc-text">6.2 向表 mds_rs_coupon 增加详细数据</span></a></li></ol></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/RS/">RS</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/05/01/ml-python-filter-map-reduce/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Python特殊语法：filter、map、reduce、lambda&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/blairchan">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2017/05/07/RS_coupon/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
