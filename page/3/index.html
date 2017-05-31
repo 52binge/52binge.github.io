@@ -57,6 +57,101 @@
 </header>
     <br>
     <section id="main" class="outer">
+      <article id="post-db-greenplum-manual-dev-steps" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/01/12/db-greenplum-manual-dev-steps/"><strong>Greenplum dev Flow</strong></a>
+      <small class=article-date-index>&nbsp; 2017-01-12</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/01/12/db-greenplum-manual-dev-steps/" class="article-date">
+  <time datetime="2017-01-12T07:28:21.000Z" itemprop="datePublished">2017-01-12</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      greenplum manual dev steps <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/database/">database</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/01/12/db-greenplum-manual-dev-steps/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/db/greenplum-flow.png" alt=""></p>
+<h2 id="1-Rds-import-oss"><a href="#1-Rds-import-oss" class="headerlink" title="1. Rds import oss"></a>1. Rds import oss</h2><p>通过 datax 从 mysql 导出数据到 OSS</p>
+<p>组装 : mysql2oss-e_coupon.json</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "job": &#123;</span><br><span class="line">        "content": [</span><br><span class="line">        &#123;</span><br><span class="line">            "reader": &#123;</span><br><span class="line">                "name": "mysqlreader",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "username": "xx",</span><br><span class="line">                        "password": "xx",</span><br><span class="line">                        "connection": [</span><br><span class="line">                        &#123;</span><br><span class="line">                            "jdbcUrl": [</span><br><span class="line">                                "jdbc:mysql://192.168.184.xx:port"</span><br><span class="line">                                ],</span><br><span class="line">                            "table": [</span><br><span class="line">                                "rds-lib-name.e_coupon"</span><br><span class="line">                                ]</span><br><span class="line">                        &#125;</span><br><span class="line">                        ],</span><br><span class="line">                        "column":[</span><br><span class="line">                            "id",</span><br><span class="line">                            "x_card_user_id",</span><br><span class="line">                            "coupon_discount_code",</span><br><span class="line">                            ...</span><br><span class="line">                            "order_merchant_id"</span><br><span class="line">                        ],</span><br><span class="line">                        "where": "created_time BETWEEN '2016-01-01 00:00:00' AND '2017-01-05 23:59:59'"</span><br><span class="line">                    &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">                "writer": &#123;</span><br><span class="line">                    "name": "osswriter",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "accessId": "xx",</span><br><span class="line">                        "accessKey": "xx",</span><br><span class="line">                        "bucket": "company-name-data",</span><br><span class="line">                        "encoding": "UTF-8",</span><br><span class="line">                        "endpoint": "http://oss-cn-hangzhou.aliyuncs.com",</span><br><span class="line">                        "fieldDelimiter": "\t",</span><br><span class="line">                        "object": "datax_dev/libin/e_coupon",</span><br><span class="line">                        "writeMode": "truncate"</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ],</span><br><span class="line">        "setting": &#123;</span><br><span class="line">            "speed": &#123;</span><br><span class="line">                "channel": 1</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>触发执行 :</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">python datax.py mysql2oss-e_coupon.json</span><br></pre></td></tr></table></figure>
+<h2 id="2-ext-table"><a href="#2-ext-table" class="headerlink" title="2. ext table"></a>2. ext table</h2><p>创建外部表，ext_dm_e_coupon，并将 location 指向为 oss</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">bigint</span>,</span><br><span class="line">    x_card_user_id <span class="built_in">varchar</span>,</span><br><span class="line">    coupon_discount_code <span class="built_in">varchar</span>,</span><br><span class="line">    ...</span><br><span class="line">    order_merchant_id <span class="built_in">bigint</span></span><br><span class="line">) LOCATION(</span><br><span class="line">    <span class="string">'oss://oss-cn-hangzhou.aliyuncs.com</span><br><span class="line">        dir=datax_dev/libin/</span><br><span class="line">        id=xx</span><br><span class="line">        key=xx</span><br><span class="line">        bucket=xkeshi-data'</span></span><br><span class="line">) <span class="keyword">FORMAT</span> <span class="string">'text'</span> (<span class="literal">NULL</span> <span class="keyword">AS</span> <span class="string">'null'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 45596 id comment 字段有回车 ,So del comment varchar, don't imported.</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-ods-table"><a href="#3-ods-table" class="headerlink" title="3. ods table"></a>3. ods table</h2><p>创建 ods_dm_e_coupon 表，并向其中导入数据</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> ods_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ods_dm_e_coupon <span class="keyword">AS</span> <span class="keyword">SELECT</span></span><br><span class="line">	*</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	ext_dm_e_coupon <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意 : 这样建表 ods table id，不是 primary key</p>
+<p>显示指定 distributed BY (id)，可读性更好</p>
+</blockquote>
+<h2 id="4-mds-table"><a href="#4-mds-table" class="headerlink" title="4. mds table"></a>4. mds table</h2><p>创建 mds_dm_e_coupon_profile 表</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile (</span><br><span class="line">	<span class="keyword">id</span> bigserial,</span><br><span class="line">	coupon_info_code <span class="built_in">VARCHAR</span>,</span><br><span class="line">	shop_id <span class="built_in">BIGINT</span>,</span><br><span class="line">	collected_avg_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_sum_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_rate <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>)</span><br><span class="line">) <span class="keyword">WITH</span> (</span><br><span class="line">	appendonly = <span class="literal">TRUE</span>,</span><br><span class="line">	compresslevel = <span class="number">5</span></span><br><span class="line">) <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建表的时候，给一个自增 id. 每一个表都有一个自增 id，是一个比较好的规范</p>
+</blockquote>
+<h2 id="5-insert-mds-table"><a href="#5-insert-mds-table" class="headerlink" title="5. insert mds table"></a>5. insert mds table</h2><p>insert data to mds_dm_e_coupon_profile</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> mds_dm_e_coupon_profile (</span><br><span class="line">	coupon_info_code,</span><br><span class="line">	shop_id,</span><br><span class="line">	collected_avg_actual_price,</span><br><span class="line">	collected_sum_actual_price,</span><br><span class="line">	collected_count,</span><br><span class="line">	verified_count,</span><br><span class="line">	verified_rate</span><br><span class="line">) <span class="keyword">SELECT</span></span><br><span class="line">	tt1.coupon_info_code,</span><br><span class="line">	tt1.shop_id,</span><br><span class="line">	tt1.avg_actual_price <span class="keyword">AS</span> collected_avg_actual_price,</span><br><span class="line">	tt1.sum_actual_price <span class="keyword">AS</span> collected_sum_actual_price,</span><br><span class="line">	tt1.collected_count,</span><br><span class="line">	<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">	<span class="keyword">round</span>(</span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) * <span class="number">1.0</span></span><br><span class="line">		) / (tt1.collected_count * <span class="number">1.0</span>),</span><br><span class="line">		<span class="number">2</span></span><br><span class="line">	) <span class="keyword">AS</span> verified_rate</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	(</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			t1.coupon_info_code,</span><br><span class="line">			t1.shop_id,</span><br><span class="line">			<span class="keyword">COUNT</span> (t1.<span class="keyword">ID</span>) <span class="keyword">AS</span> collected_count,</span><br><span class="line">			<span class="keyword">round</span>(<span class="keyword">AVG</span>(t1.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">			<span class="keyword">SUM</span> (t1.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">		<span class="keyword">FROM</span></span><br><span class="line">			(</span><br><span class="line">				<span class="keyword">SELECT</span></span><br><span class="line">					*</span><br><span class="line">				<span class="keyword">FROM</span></span><br><span class="line">					ods_dm_e_coupon</span><br><span class="line">				<span class="keyword">WHERE</span></span><br><span class="line">					<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			) t1</span><br><span class="line">		<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">			(t1.coupon_info_code, t1.shop_id)</span><br><span class="line">		<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">			t1.shop_id</span><br><span class="line">	) tt1</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> (</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		t2.coupon_info_code,</span><br><span class="line">		t2.shop_id,</span><br><span class="line">		<span class="keyword">COUNT</span> (t2.<span class="keyword">ID</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">		<span class="keyword">round</span>(<span class="keyword">AVG</span>(t2.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">		<span class="keyword">SUM</span> (t2.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">	<span class="keyword">FROM</span></span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">SELECT</span></span><br><span class="line">				*</span><br><span class="line">			<span class="keyword">FROM</span></span><br><span class="line">				ods_dm_e_coupon</span><br><span class="line">			<span class="keyword">WHERE</span></span><br><span class="line">				<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			<span class="keyword">AND</span> <span class="keyword">RESULT</span> = <span class="number">2</span></span><br><span class="line">		) t2</span><br><span class="line">	<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">		(t2.coupon_info_code, t2.shop_id)</span><br><span class="line">	<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">		t2.shop_id</span><br><span class="line">) tt2 <span class="keyword">ON</span> tt1.coupon_info_code = tt2.coupon_info_code</span><br><span class="line"><span class="keyword">AND</span> tt1.shop_id = tt2.shop_id</span><br></pre></td></tr></table></figure>
+<h2 id="6-validation-results"><a href="#6-validation-results" class="headerlink" title="6. validation results"></a>6. validation results</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mds_dm_e_coupon_profile <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">id</span> <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/db/greenplum-man-1.png" alt=""></p>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-db-greenplum-short-introduce" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2144,215 +2239,6 @@ img {
 <li><a href="http://blog.chenming.info/blog/2012/07/15/learn-octave/" target="_blank" rel="external">学习一点</a></li>
 </ol>
 </blockquote>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ml-coursera-ng-w2-01-Linear-Regression" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/10/08/ml-coursera-ng-w2-01-Linear-Regression/"><strong>Coursera Week 2 - Linear Regression with Multiple Variables</strong></a>
-      <small class=article-date-index>&nbsp; 2016-10-08</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/10/08/ml-coursera-ng-w2-01-Linear-Regression/" class="article-date">
-  <time datetime="2016-10-08T04:28:21.000Z" itemprop="datePublished">2016-10-08</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      coursera week 2 - linear regression with multiple variables 1 <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/10/08/ml-coursera-ng-w2-01-Linear-Regression/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<h2 id="1-Multiple-Features"><a href="#1-Multiple-Features" class="headerlink" title="1. Multiple Features"></a>1. Multiple Features</h2><p><img src="/images/ml/ml-ng-w2-01.png" alt="Multiple Features"></p>
-<p>$<br>\begin{align}x_j^{(i)} &amp;= \text{value of feature } j \text{ in the }i^{th}\text{ training example} \newline<br>x^{(i)}&amp; = \text{the column vector of all the feature inputs of the }i^{th}\text{ training example} \newline<br>m &amp;= \text{the number of training examples} \newline<br>n &amp;= \left| x^{(i)} \right| ; \text{(the number of features)} \end{align}<br>$</p>
-<blockquote>
-<p>Macdown Version 0.6.4 (786) MathJax the same this web</p>
-</blockquote>
-<h3 id="1-1-hypothesis-function"><a href="#1-1-hypothesis-function" class="headerlink" title="1.1 hypothesis function"></a>1.1 hypothesis function</h3><p>Now define the multivariable form of the hypothesis function as follows, accommodating these multiple features:</p>
-<p>$<br>h_\theta (x) = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + \theta_3 x_3 + \cdots + \theta_n x_n<br>$</p>
-<p><strong>multivariable hypothesis function</strong></p>
-<p>Using the definition of matrix multiplication, our multivariable hypothesis function can be concisely represented as:</p>
-<blockquote>
-<p>$<br>\begin{align}<br>h_\theta(x) =\begin{bmatrix}\theta_0 \hspace{2em}  \theta_1 \hspace{2em}  …  \hspace{2em}  \theta_n\end{bmatrix}\begin{bmatrix}x_0 \newline x_1 \newline \vdots \newline x_n\end{bmatrix}= \theta^T x<br>\end{align}<br>$</p>
-</blockquote>
-<p>The training examples are stored in X row-wise, like such:</p>
-<blockquote>
-<p>$<br>\begin{align}<br>X =<br>\begin{bmatrix}x^{(1)}_0 &amp; x^{(1)}_1  \newline x^{(2)}_0 &amp; x^{(2)}_1  \newline<br>x^{(3)}_0 &amp; x^{(3)}_1 \end{bmatrix}&amp;,\theta = \begin{bmatrix}\theta_0 \newline<br>\theta_1 \newline<br>\end{bmatrix}<br>\end{align}<br>$</p>
-</blockquote>
-<p>You can calculate the hypothesis as a column vector of size (m x 1) with:</p>
-<blockquote>
-<p>$<br>h_\theta(X) = X \theta<br>$</p>
-<p>For the rest of these notes,  X will represent a matrix of training examples $x_{(i)}$ </p>
-</blockquote>
-<h2 id="2-Cost-function"><a href="#2-Cost-function" class="headerlink" title="2. Cost function"></a>2. Cost function</h2><p>For the parameter vector θ (of type $\mathbb{R}^{n+1}$ or in $\mathbb{R}^{(n+1) \times 1}$, the cost function is:</p>
-<p>$<br>J(\theta) = \dfrac {1}{2m} \displaystyle \sum_{i=1}^m \left (h_\theta (x^{(i)}) - y^{(i)} \right)^2<br>$</p>
-<p><code>The vectorized version is:</code></p>
-<p>$<br>J(\theta) = \dfrac {1}{2m} (X\theta - \vec{y})^{T} (X\theta - \vec{y})<br>$</p>
-<blockquote>
-<p>vectorized version is very good!</p>
-</blockquote>
-<h2 id="3-Gradient-Desc-Multivariable"><a href="#3-Gradient-Desc-Multivariable" class="headerlink" title="3. Gradient Desc Multivariable"></a>3. Gradient Desc Multivariable</h2><p><code>Matrix Notation</code></p>
-<p>The Gradient Descent rule can be expressed as:</p>
-<p>$<br>\theta := \theta - \alpha \nabla J(\theta)<br>$</p>
-<p>Where $\nabla J(\theta)$ is a column vector of the form:</p>
-<p>$<br>\nabla J(\theta)  = \begin{bmatrix}\frac{\partial J(\theta)}{\partial \theta_0}   \newline \frac{\partial J(\theta)}{\partial \theta_1}   \newline \vdots   \newline \frac{\partial J(\theta)}{\partial \theta_n} \end{bmatrix}<br>$</p>
-<p>The j-th component of the gradient is the summation of the product of two terms:</p>
-<p>$<br>\begin{align}<br>\; &amp;\frac{\partial J(\theta)}{\partial \theta_j} &amp;=&amp;  \frac{1}{m} \sum\limits_{i=1}^{m}  \left(h_\theta(x^{(i)}) - y^{(i)} \right) \cdot x_j^{(i)} \newline<br>\; &amp; &amp;=&amp; \frac{1}{m} \sum\limits_{i=1}^{m}   x_j^{(i)} \cdot \left(h_\theta(x^{(i)}) - y^{(i)}  \right)<br>\end{align}<br>$</p>
-<blockquote>
-<p>在数学中，一个多变量的函数的偏导数是它关于其中一个变量的导数，而保持其他变量恒定。</p>
-</blockquote>
-<p>Sometimes, the summation of the product of two terms can be expressed as the product of two vectors.</p>
-<blockquote>
-<p>$<br>\begin{align}\; &amp;\frac{\partial J(\theta)}{\partial \theta_j} = \frac1m  \vec{x_j}^{T} (X\theta - \vec{y}) \newline<br>&amp;\nabla J(\theta)  =  \frac 1m X^{T} (X\theta - \vec{y}) \newline<br>\end{align}<br>$</p>
-</blockquote>
-<p>Finally, the matrix notation (vectorized) of the Gradient Descent rule is:</p>
-<p>$<br>\theta := \theta - \frac{\alpha}{m} X^{T} (X\theta - \vec{y})<br>$</p>
-<p>The gradient descent equation itself is generally the same form; we just have to repeat it for our ‘n’ features:</p>
-<p>$<br>\begin{align}<br>&amp; \text{repeat until convergence:} \; \lbrace \newline<br>\; &amp; \theta_0 := \theta_0 - \alpha \frac{1}{m} \sum\limits_{i=1}^{m}  (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_0^{(i)}\newline<br>\; &amp; \theta_1 := \theta_1 - \alpha \frac{1}{m} \sum\limits_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_1^{(i)} \newline<br>\; &amp; \theta_2 := \theta_2 - \alpha \frac{1}{m} \sum\limits_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_2^{(i)} \newline<br>&amp; \cdots<br>\newline \rbrace<br>\end{align}<br>$</p>
-<p>In other words:</p>
-<p>$<br>\begin{align}<br>&amp; \text{repeat until convergence:} \; \lbrace \newline \;<br>&amp; \theta_j := \theta_j - \alpha \frac{1}{m} \sum\limits_{i=1}^{m} (h_\theta(x^{(i)}) - y^{(i)}) \cdot x_j^{(i)} \;  &amp; \text{for j := 0..n}<br>\newline \rbrace<br>\end{align}<br>$</p>
-<h3 id="3-1-Feature-Scaling"><a href="#3-1-Feature-Scaling" class="headerlink" title="3.1 Feature Scaling"></a>3.1 Feature Scaling</h3><p>Idea : Make sure features are on a similar scale 特征缩放</p>
-<p><img src="/images/ml/ml-ng-w2-02.png" alt="Multiple Features"></p>
-<blockquote>
-<p>Get every feature into approximately a $-1 \leq x_i \leq 1$ range.</p>
-<p>Replace $x_i$ with $x_i - u_i$ to make features have approximately zero mean (Do not apply to $x_0$ = 1).</p>
-<p>如果多个特征值，大多处在一个相近的范围，梯度下降就能更快的收敛。</p>
-</blockquote>
-<p>因为 2000/5 比较大，所以轮廓图，使得椭圆更加的瘦长，好比 $J(\theta)$ 收敛的更慢。</p>
-<h3 id="3-2-learning-rate"><a href="#3-2-learning-rate" class="headerlink" title="3.2 learning rate"></a>3.2 learning rate</h3><p>$<br>\begin{align}<br>\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j} J(\theta)<br>\end{align}<br>$</p>
-<ul>
-<li>Debugging : How to make sure gradient descent is working correctly</li>
-<li>How to choose learning rate $\alpha$</li>
-</ul>
-<p><img src="/images/ml/ml-ng-w2-03.png" alt="Multiple Features"></p>
-<p><strong>Summary</strong></p>
-<ul>
-<li>if $\alpha$ is too small: slow convergence [kən’vɜːdʒəns] 收敛</li>
-<li>if $\alpha$ is too large: $J(\theta)$ may not decrease on every iteration; may not converge.</li>
-</ul>
-<p>To choose $\alpha$, try</p>
-<p>…, 0.001, 0.01, 0.1, 1, …</p>
-<h2 id="4-Polynomial-Regression"><a href="#4-Polynomial-Regression" class="headerlink" title="4. Polynomial Regression"></a>4. Polynomial Regression</h2><p><img src="/images/ml/ml-ng-w2-04.png" alt="Polynomial"></p>
-<h3 id="4-1-Polynomial-Regression"><a href="#4-1-Polynomial-Regression" class="headerlink" title="4.1 Polynomial Regression"></a>4.1 Polynomial Regression</h3><p><img src="/images/ml/ml-ng-w2-05.png" alt="Polynomial [,pɒlɪ&#39;nəʊmɪəl]"></p>
-<blockquote>
-<p>Feature normalization is very important</p>
-</blockquote>
-<h3 id="4-2-Choice-of-features"><a href="#4-2-Choice-of-features" class="headerlink" title="4.2 Choice of features"></a>4.2 Choice of features</h3><p><img src="/images/ml/ml-ng-w2-06.png" alt="Choice of features"></p>
-<p>@2017-02-10 review done</p>
-<h2 id="5-Normal-Equation"><a href="#5-Normal-Equation" class="headerlink" title="5. Normal Equation"></a>5. Normal Equation</h2><p><img src="/images/ml/ml-ng-w2-07.png" alt="Normal Equation"></p>
-<blockquote>
-<p>$\theta = (X^T X)^{-1}X^T y$</p>
-</blockquote>
-<h3 id="5-1-num-and-vector"><a href="#5-1-num-and-vector" class="headerlink" title="5.1 num and vector"></a>5.1 num and vector</h3><p><img src="/images/ml/ml-ng-w2-08.png" alt="Normal Equation"></p>
-<blockquote>
-<p>$<br>J(\theta) = \dfrac {1}{2m} (X\theta - \vec{y})^{T} (X\theta - \vec{y})<br>$</p>
-<p>$<br>\begin{align}\; &amp;\frac{\partial J(\theta)}{\partial \theta_j} = \frac1m  \vec{x_j}^{T} (X\theta - \vec{y}) \newline<br>&amp;\nabla J(\theta)  =  \frac 1m X^{T} (X\theta - \vec{y}) \newline<br>\end{align}<br>$</p>
-</blockquote>
-<h3 id="5-2-house-price-example"><a href="#5-2-house-price-example" class="headerlink" title="5.2 house price example"></a>5.2 house price example</h3><p><img src="/images/ml/ml-ng-w2-09.png" alt="Normal Equation"></p>
-<blockquote>
-<p>$<br>\begin{align}<br>\nabla J(\theta)  =  \frac 1m X^{T} (X\theta - \vec{y}) \newline<br>\end{align}<br>$</p>
-<p>令 $\nabla J(\theta)  =  0 $</p>
-<p>So, $\theta = (X^T X)^{-1}X^T y $</p>
-</blockquote>
-<h3 id="5-3-m-training-n-features"><a href="#5-3-m-training-n-features" class="headerlink" title="5.3 $m$ training, $n$ features"></a>5.3 $m$ training, $n$ features</h3><table>
-<thead>
-<tr>
-<th>Gradient Descent</th>
-<th>Normal Equation</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Need to choose $\alpha$</td>
-<td>No need to choose $\alpha$ </td>
-</tr>
-<tr>
-<td>Needs many iterations</td>
-<td>Don’t need to iterate</td>
-</tr>
-<tr>
-<td>Works well even when $n$ is large</td>
-<td>Slow if $n$ is very large</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>it is usually around ten thousand that I might start to consider switching over to gradient descents or maybe, some other algorithms that we’ll talk about later in this class</p>
-</blockquote>
-<h3 id="5-4-X-T-X-is-non-invertible"><a href="#5-4-X-T-X-is-non-invertible" class="headerlink" title="5.4 $X^T X$ is non-invertible"></a>5.4 $X^T X$ is non-invertible</h3><p> $\theta = (X^T X)^{-1}X^T y $</p>
-<p>What $X^T X$ is non-invertible? （singular / degenerate）</p>
-<blockquote>
-<p>When $X^T X$ is non-invertible, this is very few.</p>
-</blockquote>
-<p><strong>What $X^T X$ is non-invertible?</strong></p>
-<p><img src="/images/ml/ml-ng-w2-10.png" alt="non-invertible"></p>
 
       
     </div>
