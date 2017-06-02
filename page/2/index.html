@@ -57,6 +57,101 @@
 </header>
     <br>
     <section id="main" class="outer">
+      <article id="post-spark-read-mysql-four-functions" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/04/20/spark-read-mysql-four-functions/"><strong>Spark Read Mysql 的四种方式 (not finish)</strong></a>
+      <small class=article-date-index>&nbsp; 2017-04-20</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/04/20/spark-read-mysql-four-functions/" class="article-date">
+  <time datetime="2017-04-20T07:28:21.000Z" itemprop="datePublished">2017-04-20</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      Spark 读取数据库(Mysql) 的四种方式 <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/spark/">spark</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/04/20/spark-read-mysql-four-functions/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>目前 <code>Spark</code> 支持四种方式从数据库中读取数据，这里以 <code>MySQL</code> 为例进行介绍。</p>
+<h2 id="Startup-spark-shell"><a href="#Startup-spark-shell" class="headerlink" title="Startup spark-shell"></a>Startup spark-shell</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h2 id="1-不指定查询条件"><a href="#1-不指定查询条件" class="headerlink" title="1. 不指定查询条件"></a>1. 不指定查询条件</h2><h3 id="1-1-function-define"><a href="#1-1-function-define" class="headerlink" title="1.1 function define"></a>1.1 function define</h3><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(url: <span class="type">String</span>, table: <span class="type">String</span>, properties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-2-detail-example"><a href="#1-2-detail-example" class="headerlink" title="1.2 detail example"></a>1.2 detail example</h3><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> url = <span class="string">"jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password"</span></span><br><span class="line"><span class="keyword">import</span> java.util.<span class="type">Properties</span></span><br><span class="line"><span class="keyword">val</span> prop = <span class="keyword">new</span> <span class="type">Properties</span>()</span><br><span class="line"><span class="keyword">val</span> df = sqlContext.read.jdbc(url, <span class="string">"mds_user_coupon_bhv"</span>, prop )</span><br><span class="line">println(df.count())</span><br><span class="line">println(df.rdd.partitions.size)</span><br></pre></td></tr></table></figure>
+<p>我们运行上面的程序，可以看到df.rdd.partitions.size输出结果是1，这个结果的含义是iteblog表的所有数据都是由RDD的一个分区处理的，所以说，如果你这个表很大，很可能会出现OOM</p>
+<blockquote>
+<p>Note : 这种方式在数据量大的时候不建议使用。</p>
+</blockquote>
+<h2 id="2-指定数据库字段的范围"><a href="#2-指定数据库字段的范围" class="headerlink" title="2. 指定数据库字段的范围"></a>2. 指定数据库字段的范围</h2><p>这种方式就是通过指定数据库中某个字段的范围，但是<code>这个字段必须是数字</code>，来看看这个函数的函数原型：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(</span><br><span class="line">    url: <span class="type">String</span>,</span><br><span class="line">    table: <span class="type">String</span>,</span><br><span class="line">    columnName: <span class="type">String</span>,</span><br><span class="line">    lowerBound: <span class="type">Long</span>,</span><br><span class="line">    upperBound: <span class="type">Long</span>,</span><br><span class="line">    numPartitions: <span class="type">Int</span>,</span><br><span class="line">    connectionProperties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
+<p>… not finish</p>
+<h2 id="3-根据任意字段进行分区"><a href="#3-根据任意字段进行分区" class="headerlink" title="3. 根据任意字段进行分区"></a>3. 根据任意字段进行分区</h2><p>… not finish</p>
+<h2 id="4-通过-load-获取"><a href="#4-通过-load-获取" class="headerlink" title="4. 通过 load 获取"></a>4. 通过 load 获取</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.load(<span class="string">"jdbc"</span>, <span class="type">Map</span>(<span class="string">"url"</span> -&gt; <span class="string">"jdbc:mysql://..."</span>, </span><br><span class="line">              <span class="string">"dbtable"</span> -&gt; <span class="string">"mds_user_coupon_bhv"</span>)</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
+<p>换一种更正式的写法如下 :</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.read.format(<span class="string">"jdbc"</span>).options(<span class="type">Map</span>(</span><br><span class="line">      <span class="string">"url"</span> -&gt; <span class="string">"jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password"</span>,</span><br><span class="line">      <span class="string">"dbtable"</span> -&gt; <span class="string">"mds_user_coupon_bhv"</span>)</span><br><span class="line">   ).load()</span><br></pre></td></tr></table></figure>
+<p>options函数支持url、driver、dbtable、partitionColumn、lowerBound、upperBound以及numPartitions选项，这个和方法二的参数一致。其内部实现原理部分和方法二大体一致。同时load方法还支持json、orc等数据源的读取。</p>
+<blockquote>
+<p>Reading notes</p>
+</blockquote>
+<h2 id="5-Ref"><a href="#5-Ref" class="headerlink" title="5. Ref"></a>5. Ref</h2><blockquote>
+<p>尊重原创，转载请注明： 转载自过往记忆（<a href="http://www.iteblog.com/）" target="_blank" rel="external">http://www.iteblog.com/）</a> </p>
+</blockquote>
+<p><a href="http://blog.csdn.net/mlljava1111/article/details/50432569" target="_blank" rel="external">Spark Read Mysql-csdn</a></p>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-frontend-nodejs" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2037,112 +2132,6 @@ trainer end!
 <div class="video-container"><iframe src="//www.youtube.com/embed/O2tc43ceZ-c" frameborder="0" allowfullscreen></iframe></div>
 <h2 id="2-Hold-down-Chiang-Kai-shek-pulse"><a href="#2-Hold-down-Chiang-Kai-shek-pulse" class="headerlink" title="2. Hold down Chiang Kai-shek pulse"></a>2. Hold down Chiang Kai-shek pulse</h2><p>Shen Anna</p>
 <div class="video-container"><iframe src="//www.youtube.com/embed/dEy8yrB5ZIg" frameborder="0" allowfullscreen></iframe></div>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-db-greenplum-mysql-ext-ods" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/01/20/db-greenplum-mysql-ext-ods/"><strong>Greenplum ods</strong></a>
-      <small class=article-date-index>&nbsp; 2017-01-20</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/01/20/db-greenplum-mysql-ext-ods/" class="article-date">
-  <time datetime="2017-01-20T07:28:21.000Z" itemprop="datePublished">2017-01-20</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      automation programmed pull data by datax -&gt; ext -&gt; ods <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/database/">database</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/01/20/db-greenplum-mysql-ext-ods/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Preface"><a href="#Preface" class="headerlink" title="Preface"></a>Preface</h2><p><a href="https://github.com/blairchan/bigdata/tree/master/greenplum/ext_ods_table" target="_blank" rel="external">code : github ext_ods_table</a></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">运行本模块之前 :</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ext_ods_table</span><br><span class="line">mkdir <span class="built_in">log</span> flag</span><br><span class="line">mkdir -p <span class="built_in">log</span>/crontab</span><br><span class="line">mkdir data</span><br><span class="line"></span><br><span class="line">构造 datax json file， put it to **data** 目录</span><br></pre></td></tr></table></figure>
-<h2 id="1-Needs"><a href="#1-Needs" class="headerlink" title="1. Needs"></a>1. Needs</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;程序自动化拉取数据进入原始层 ODS</p>
-<h2 id="2-Data-Flow"><a href="#2-Data-Flow" class="headerlink" title="2. Data Flow"></a>2. Data Flow</h2><p><img src="/images/db/greenplum-ods-flow.png" alt="ods flow"></p>
-<blockquote>
-<p>具体请以实际线上代码 为准</p>
-</blockquote>
-<h2 id="3-Involved-technology"><a href="#3-Involved-technology" class="headerlink" title="3. Involved technology"></a>3. Involved technology</h2><ol>
-<li><a href="https://zh.wikipedia.org/zh-hans/Unix_shell" target="_blank" rel="external">Shell</a></li>
-<li><a href="https://github.com/alibaba/DataX/" target="_blank" rel="external">Datax</a></li>
-<li><a href="https://en.wikipedia.org/wiki/PostgreSQL" target="_blank" rel="external">PostgreSQL</a></li>
-<li><a href="http://dbaplus.cn/news-21-341-1.html" target="_blank" rel="external">Greenplum</a></li>
-<li><a href="http://www.pentaho.com/" target="_blank" rel="external">Pentaho kettle</a></li>
-</ol>
-<blockquote>
-<p><a href="http://www.greenplumdba.com/gpfdist" target="_blank" rel="external">gpfdist protocol</a></p>
-</blockquote>
-<h2 id="4-Main-Code-Flow"><a href="#4-Main-Code-Flow" class="headerlink" title="4. Main Code Flow"></a>4. Main Code Flow</h2><p>(1). linux crontab</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">*/5 00-19 * * * <span class="built_in">source</span> /etc/bashrc; sh /data0/dm/online/ext_ods_table/crontab_job/crontab_job_ods_shop.sh</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>source /etc/bashrc; 环境设置</p>
-</blockquote>
-<p>(2). crontab_job_ods_shop.sh</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">sh ods_dm_shop.sh <span class="variable">$&#123;d1&#125;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<p>(3). ods_dm_shop.sh</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># @date:   2017.01.20</span></span><br><span class="line"><span class="comment"># @desc:   mysql data -&gt; ext shop -&gt; ods shop</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;util_dir&#125;</span>/my_<span class="built_in">functions</span></span><br><span class="line"></span><br><span class="line">begin_time=<span class="string">"2010-01-01"</span></span><br><span class="line">end_time=<span class="variable">$&#123;d1&#125;</span></span><br><span class="line"></span><br><span class="line">import_gpdata_from_rds1 <span class="variable">$&#123;begin_time&#125;</span> <span class="variable">$&#123;end_time&#125;</span> <span class="variable">$&#123;data_dir&#125;</span>/xkeshi_com.ext/mysql2textfile-shop.json</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span>_ex <span class="string">"<span class="variable">$&#123;data_integration&#125;</span>/kitchen.sh -file=<span class="variable">$&#123;ktrs_dir&#125;</span>/ods_shop.kjb"</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;data_integration&#125;</span>/kitchen.sh -file=<span class="variable">$&#123;ktrs_dir&#125;</span>/ods_shop.kjb</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span>_ex <span class="string">"import shop end"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
-<h2 id="5-Code-Deploy"><a href="#5-Code-Deploy" class="headerlink" title="5. Code Deploy"></a>5. Code Deploy</h2><blockquote>
-<p>/data0/dm/online/ext_ods_table  </p>
-<p>注意： 版本控制中，涉及的敏感 库地址，用户名，密码 等 不上传。</p>
-</blockquote>
-<h2 id="6-Frnd-Link"><a href="#6-Frnd-Link" class="headerlink" title="6. Frnd Link"></a>6. Frnd Link</h2><ol>
-<li><a href="https://github.com/blairchan/bigdata/tree/master/greenplum/ext_ods_table/doc" target="_blank" rel="external">pull data detail flow</a></li>
-<li><a href="https://github.com/blairchan/bigdata/blob/master/greenplum/ext_ods_table/doc/scheduling-framework.md" target="_blank" rel="external">scheduling-framework</a></li>
-</ol>
 
       
     </div>
