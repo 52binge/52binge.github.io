@@ -57,760 +57,6 @@
 </header>
     <br>
     <section id="main" class="outer">
-      <article id="post-ml-CART" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/08/24/ml-CART/"><strong>CART (not finish)</strong></a>
-      <small class=article-date-index>&nbsp; 2016-08-24</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/08/24/ml-CART/" class="article-date">
-  <time datetime="2016-08-24T03:43:21.000Z" itemprop="datePublished">2016-08-24</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      classification and regression tree <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/08/24/ml-CART/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p><strong>Data Mining</strong></p>
-<ul>
-<li>挖掘目标</li>
-<li>数据取样</li>
-<li>数据探索</li>
-<li>数据预处理</li>
-<li><code>挖掘建模</code></li>
-<li>模型评价</li>
-</ul>
-<h2 id="1-CART-Introduce"><a href="#1-CART-Introduce" class="headerlink" title="1. CART Introduce"></a>1. CART Introduce</h2><p>在数据挖掘中，决策树主要有两种类型:</p>
-<ul>
-<li>分类树 的输出是样本的类标。</li>
-<li>回归树 的输出是一个实数 (例如房子的价格，病人呆在医院的时间等)。</li>
-</ul>
-<blockquote>
-<p>术语 分类回归树(CART,Classification And Regression Tree) <strong>CART</strong> 包含了上述两种决策树, 最先由 Breiman 等提出.分类树和回归树有些共同点和不同点 — 例如处理在何处分裂的问题。</p>
-</blockquote>
-<p>分类 — 划分离散变量<br>回归 — 划分连续变量</p>
-<h3 id="1-1-CART-What"><a href="#1-1-CART-What" class="headerlink" title="1.1 CART What?"></a>1.1 CART What?</h3><p><strong><em>CART</em></strong> 一种二分递归分割的技术，将当前的样本集分为两个子样本集，使得生成的决策树的每个非叶子节点都有两个分支，左分支对应取值为 <code>是</code> 的分支，右分支对应为 <code>否</code> 的分支.</p>
-<p><strong><em>CART</em></strong> 学习过程等价于递归地二分每个特征，将输入空间（在这里等价特征空间）划分为有限个子空间（单元），并在这些子空间上确定预测的概率分布，也就是在输入给定的条件下输出对应的条件概率分布。</p>
-<h3 id="1-2-CART-纯度度量"><a href="#1-2-CART-纯度度量" class="headerlink" title="1.2 CART 纯度度量"></a>1.2 CART 纯度度量</h3><p>CART中用于选择变量的不纯性度量是 <strong>Gini index</strong>；如果目标变量是标称的，并且是具有两个以上的类别，则CART可能考虑将目标类别合并成两个超类别（双化）；如果目标变量是连续的，则 CART 算法 找出一组基于树的回归方程来预测目标变量。</p>
-<table>
-<thead>
-<tr>
-<th>Algorithm</th>
-<th>Feature Selection</th>
-<th>Author</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>CART</td>
-<td>回归树： 最小二乘<br>分类树： 基尼指数 Gini index</td>
-<td>Breiman. 1984<br>(Classification and Regression Tree 分类与回归树)</td>
-</tr>
-</tbody>
-</table>
-<p>由于<code>分类树</code>与<code>回归树</code>在递归地构建二叉决策树的过程中，选择特征划分的准则不同。二叉分类树构建过程中采用 <strong>Gini Index</strong> 为特征选择标准；二叉回归树采用<strong>平方误差最小化</strong> 作为特征选择标准。</p>
-<h3 id="1-3-CART-步骤"><a href="#1-3-CART-步骤" class="headerlink" title="1.3 CART 步骤"></a>1.3 CART 步骤</h3><p><code>build decision tree</code>时通常采用自上而下的方法，在每一步选择一个最好的属性来分裂。 “最好” 的定义是使得子节点中的训练集尽量的纯。不同的算法使用不同的指标来定义”最好”。</p>
-<p><strong><em>CART</em></strong> 是在给定输入随机变量 $X$ 条件下求得输出随机变量 $Y$ 的条件概率分布的学习方法。</p>
-<blockquote>
-<p>可以看出CART算法在叶节点表示上不同于ID3、C4.5方法，后二者叶节点对应数据子集通过“多数表决”的方式来确定一个类别（固定一个值）；而CART算法的叶节点对应类别的概率分布。</p>
-</blockquote>
-<p>CART算法也主要由两步组成：</p>
-<ul>
-<li>决策树的生成：基于训练数据集生成一棵二分决策树；</li>
-<li>决策树的剪枝：用验证集对已生成的二叉决策树进行剪枝，剪枝的标准为损失函数最小化。</li>
-</ul>
-<h2 id="2-二叉分类树"><a href="#2-二叉分类树" class="headerlink" title="2. 二叉分类树"></a>2. 二叉分类树</h2><p>二叉分类树中用基尼指数（Gini Index）作为最优特征选择的度量标准。</p>
-<p><strong>GINI Index :</strong></p>
-<ol>
-<li>是一种不等性度量；</li>
-<li>通常用来度量收入不平衡，可以用来度量任何不均匀分布；</li>
-<li>是介于0~1之间的数，0-完全相等，1-完全不相等；</li>
-<li>总体内包含的类别越杂乱，GINI指数就越大（跟熵的概念很相似）</li>
-</ol>
-<h3 id="2-1-Gini-Index"><a href="#2-1-Gini-Index" class="headerlink" title="2.1 Gini Index"></a>2.1 Gini Index</h3><p>同样以分类系统为例，数据集 $D$ 中类别 $C$ 可能的取值为$c_1, c_2, \cdots, c_k$ （$k$是类别数），一个样本属于类别 $c_i$ 的概率为$p(i)$。那么概率分布的 Gini index 公式表示为：</p>
-<p>$$<br>Gini(D) = 1 - \sum_{i=1}^{k} {p_i}^2    \qquad(fmt.2.1.1)<br>$$</p>
-<blockquote>
-<p>其中$p_i = \frac{类别属于c_i的样本数}{总样本数}$。如果所有的样本 Category 相同，则 $p_1 = 1, p_2 = p_3 = \cdots = p_k = 0$，则有$p_1 = 1, p_2 = p_3 = \cdots = p_k = 0$，此时数据不纯度最低。$Gini(D)$ 的物理含义是表示数据集 $D$ 的不确定性。数值越大，表明其不确定性越大（这一点与 <a href="/2016/08/18/ml-entropy-base/">Info Entropy</a> 相似）。<br>如果 $k=2$（二分类问题，类别命名为正类和负类），若样本属于正类的概率是 $p$，那么对应基尼指数为：</p>
-<p>$$<br>\begin{align} Gini(D) &amp; = 1 - [p^2 + {(1-p)}^2] \\ &amp; = \underline {2p (1-p)} \qquad\qquad (fmt.2.1.2)<br>\end{align}<br>$$</p>
-</blockquote>
-<p>如果数据集 $D$ 根据特征 $f$ 是否取某一可能值 $f_∗$，将 $D$ 划分为 $D_1={(x, y) \in D | f(x) = f_{\ast}}, D_2=D-D_1$。那么特征 $f$ 在数据集 $D$ 上的 Gini index 定义为：</p>
-<p>$$<br>Gini(D, f=f_{\ast}) = \frac{\vert D_1 \vert}{\vert D \vert} Gini(D_1) + \frac{\vert D_2 \vert}{\vert D \vert} Gini(D_2) \qquad\qquad (fmt.2.1.3)<br>$$</p>
-<h3 id="2-2-Gini-Example"><a href="#2-2-Gini-Example" class="headerlink" title="2.2 Gini Example"></a>2.2 Gini Example</h3><p>代表性的例子说明 :</p>
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>阴晴(F)</th>
-<th>温度(F)</th>
-<th>湿度(F)</th>
-<th>刮风(F)</th>
-<th>是否玩（C）</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>sunny</td>
-<td>hot</td>
-<td>high</td>
-<td>false</td>
-<td>否</td>
-</tr>
-<tr>
-<td>2</td>
-<td>sunny</td>
-<td>hot</td>
-<td>high</td>
-<td>true</td>
-<td>否</td>
-</tr>
-<tr>
-<td>3</td>
-<td>overcast</td>
-<td>hot</td>
-<td>high</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>4</td>
-<td>rainy</td>
-<td>mild</td>
-<td>high</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>5</td>
-<td>rainy</td>
-<td>cool</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>6</td>
-<td>rainy</td>
-<td>cool</td>
-<td>normal</td>
-<td>true</td>
-<td>否</td>
-</tr>
-<tr>
-<td>7</td>
-<td>overcast</td>
-<td>cool</td>
-<td>normal</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>8</td>
-<td>sunny</td>
-<td>mild</td>
-<td>high</td>
-<td>false</td>
-<td>否</td>
-</tr>
-<tr>
-<td>9</td>
-<td>sunny</td>
-<td>cool</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>10</td>
-<td>rainy</td>
-<td>mild</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>11</td>
-<td>sunny</td>
-<td>mild</td>
-<td>normal</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>12</td>
-<td>overcast</td>
-<td>mild</td>
-<td>high</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>13</td>
-<td>overcast</td>
-<td>hot</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>14</td>
-<td>rainy</td>
-<td>mild</td>
-<td>high</td>
-<td>true</td>
-<td>否</td>
-</tr>
-</tbody>
-</table>
-<p>在实际操作中，通过遍历所有特征（如果是连续值，需做离散化）及其取值，选择 $Min_{gini-index}$ 所对应的特征和特征值。</p>
-<p>这里仍然以天气数据为例，给出特征<strong>阴晴</strong>的 Gini index 计算过程。</p>
-<blockquote>
-<p>(1). 当特征“阴晴”取值为”sunny”时，$D_1 = {1,2,8,9,11}, |D_1|=5$；$D_2={3,4,5,6,7,10,12,13,14}, |D_2|=9$. 数据自己对应的类别数分别为 $(+2,-3)、(+7,-2)$。因此 $Gini(D_1) = 2 \cdot \frac{3}{5} \cdot \frac{2}{5} = \frac{12}{25}$；$Gini(D_2) = 2 \cdot \frac{7}{9} \cdot \frac{2}{9} = \frac{28}{81}$. 对应的基尼指数为：<br>$$<br>Gini(C, “阴晴”=”sunny”) = \frac{5}{14} Gini(D_1) + \frac{9}{14} Gini(D_2) = \frac{5}{14} \frac{12}{25} + \frac{9}{14} \frac{28}{81} = 0.394 \quad(exp.2.2.1)<br>$$<br>(2). 当特征“阴晴”取值为”overcast”时，$D_1 = {2,7,12,13}, |D_1|=4$；$D_2={1,2,4,5,6,8,9,10,11,14}, |D_2|=10$。$D_1$、$D_2$ 数据自己对应的类别数分别为 $(+4,-0)、(+5,-5)$。因此 $Gini(D_1) = 2 \cdot 1 \cdot 0 = 0；Gini(D_2) = 2 \cdot \frac{5}{10} \cdot \frac{5}{10} = \frac{1}{2}$ 对应的基尼指数为：<br>$$<br>Gini(C, “阴晴”=”overcast”) = \frac{4}{14} Gini(D_1) + \frac{10}{14} Gini(D_2) = 0 + \frac{10}{14} \cdot \frac{1}{2} = \frac{5}{14} = 0.357 \quad(exp.2.2.2)<br>$$</p>
-<p>(3). 当特征“阴晴”取值为”rainy”时，$D_1 = {4,5,6,10,14}, |D_1|=5$; $D_2={1,2,3,7,8,9,11,12,13}, |D_2|=9$。 $D_1$、$D_2$ 数据自己对应的类别数分别为 $(+3,−2)、(+6,−3)$。因此 $Gini(D_1) = 2 \cdot \frac{3}{5} \cdot \frac{2}{5} = \frac{12}{25}$；$Gini(D_2) = 2 \cdot \frac{6}{9} \cdot \frac{3}{9} = \frac{4}{9}$。 对应的基尼指数为：<br>$$<br>Gini(C, “阴晴”=”rainy”) = \frac{5}{14} Gini(D_1) + \frac{9}{14} Gini(D_2) = \frac{5}{14} \frac{12}{25} + \frac{9}{14} \frac{4}{9} = \frac{4}{7} = 0.457 \quad(exp.2.2.3)<br>$$</p>
-</blockquote>
-<p>如果特征”阴晴”是最优特征的话，那么特征取值为”overcast”应作为划分节点。</p>
-<h2 id="3-二叉回归树-not-finish"><a href="#3-二叉回归树-not-finish" class="headerlink" title="3. 二叉回归树 (not finish)"></a>3. 二叉回归树 (not finish)</h2><p><strong>二叉回归树</strong> 采用 <code>平方误差最小化作为特征选择</code> 和 切分点选择的依据。一棵回归树对应着特征空间的若干个划分及其在划分单元上的输出值。假设将特征空间划分为 $J$ 个单元（子空间），分别是 ${R_1,R_2,⋯,R_J}$，在每个单元 $R_j$（对应回归树的一个叶子节点）上有一个固定的输出值 $v_j$（连续变量）。给定训练数据集$D={(x^{(1)}, y^{(1)}), (x^{(2)}, y^{(2)}), \cdots, (x^{(m)}, y^{(m)})}$，二叉回归树模型可表示为：</p>
-<p>$$<br>f(x) = \sum_{j=1}^{J} v_j \cdot I(x \in R_j) \qquad (exp.3.1.1)<br>$$</p>
-<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
-<li><a href="http://wenku.baidu.com/link?url=aHNTy791blu36AysYKLXxRLkU4XlzxPNoyOEpZaRtCOM83C8mAUmNKWktm_lKF65WuCAUvyBKZnG_Jw91NzYhD8EfmDCpXEkX-PjwVqSKYC" target="_blank" rel="external">CART-文库PPT</a></li>
-<li><a href="http://wenku.baidu.com/link?url=aHNTy791blu36AysYKLXxRLkU4XlzxPNoyOEpZaRtCOM83C8mAUmNKWktm_lKF65WuCAUvyBKZnG_Jw91NzYhD8EfmDCpXEkX-PjwVqSKYC" target="_blank" rel="external">CART-Veyron</a></li>
-<li><a href="http://www.52caml.com/" target="_blank" rel="external">52caml</a></li>
-</ul>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-java-special-arms-p3-jvm" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/08/16/java-special-arms-p3-jvm/"><strong>JVM 跨平台与字节码原理初步</strong></a>
-      <small class=article-date-index>&nbsp; 2016-08-16</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/08/16/java-special-arms-p3-jvm/" class="article-date">
-  <time datetime="2016-08-16T08:54:16.000Z" itemprop="datePublished">2016-08-16</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      Java特种兵 - JVM 跨平台与字节码原理，Reading Notes <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/java/">java</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/08/16/java-special-arms-p3-jvm/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>用到 JVM 的场景</p>
-<ol>
-<li>Out of memory 时，团队高手不在</li>
-<li>系统服务器架构，老大问你 投入多少服务器成本，VM 分配多大， 如何分配?</li>
-</ol>
-<h2 id="1-javap-命令"><a href="#1-javap-命令" class="headerlink" title="1. javap 命令"></a>1. javap 命令</h2><blockquote>
-<p>通过这种方式认知比 Java 更低一个抽象层次的逻辑，虚指令有时候更好解释问题。</p>
-</blockquote>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String a = <span class="string">"a"</span> + <span class="string">"b"</span> + <span class="number">1</span>;</span><br><span class="line">        String b = <span class="string">"ab1"</span>;</span><br><span class="line">        System.out.println(a == b); <span class="comment">// true 编译时优化</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  p3jvm git:(master) ✗ <span class="built_in">pwd</span></span><br><span class="line">/Users/hp/ghome/github/language/java/jsarms/p3jvm</span><br><span class="line">➜  p3jvm git:(master) ✗ javac</span><br><span class="line">Usage: javac &lt;options&gt; &lt;<span class="built_in">source</span> files&gt;</span><br><span class="line"><span class="built_in">where</span> possible options include:</span><br><span class="line">  -g                         Generate all debugging info</span><br><span class="line">  -g:none                    Generate no debugging info</span><br><span class="line">  -g:&#123;lines,vars,<span class="built_in">source</span>&#125;     Generate only some debugging info</span><br><span class="line">  -nowarn                    Generate no warnings</span><br><span class="line">  -verbose                   Output messages about what the compiler is doing</span><br></pre></td></tr></table></figure>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  p3jvm git:(master) ✗ javac -g:vars,lines StringTest.java</span><br><span class="line">➜  p3jvm git:(master) ✗ javap -verbose StringTest</span><br><span class="line">Classfile /Users/hp/ghome/github/language/java/jsarms/p3jvm/StringTest.class</span><br><span class="line">  Last modified Aug 16, 2016; size 559 bytes</span><br><span class="line">  MD5 checksum 772d18512cb982c953e7db8c72522918</span><br><span class="line">public class StringTest</span><br><span class="line">  minor version: 0</span><br><span class="line">  major version: 51</span><br><span class="line">  flags: ACC_PUBLIC, ACC_SUPER</span><br><span class="line">Constant pool:</span><br><span class="line">   <span class="comment">#1 = Methodref          #6.#21         //  java/lang/Object."&lt;init&gt;":()V</span></span><br><span class="line">   <span class="comment">#2 = String             #22            //  ab1</span></span><br><span class="line">   <span class="comment">#3 = Fieldref           #23.#24        //  java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line">   <span class="comment">#4 = Methodref          #25.#26        //  java/io/PrintStream.println:(Z)V</span></span><br><span class="line">   <span class="comment">#5 = Class              #27            //  StringTest</span></span><br><span class="line">   <span class="comment">#6 = Class              #28            //  java/lang/Object</span></span><br><span class="line">   <span class="comment">#7 = Utf8               &lt;init&gt;</span></span><br><span class="line">   <span class="comment">#8 = Utf8               ()V</span></span><br><span class="line">   <span class="comment">#9 = Utf8               Code</span></span><br><span class="line">  <span class="comment">#10 = Utf8               LineNumberTable</span></span><br><span class="line">  <span class="comment">#11 = Utf8               LocalVariableTable</span></span><br><span class="line">  <span class="comment">#12 = Utf8               this</span></span><br><span class="line">  <span class="comment">#13 = Utf8               LStringTest;</span></span><br><span class="line">  <span class="comment">#14 = Utf8               test1</span></span><br><span class="line">  <span class="comment">#15 = Utf8               a</span></span><br><span class="line">  <span class="comment">#16 = Utf8               Ljava/lang/String;</span></span><br><span class="line">  <span class="comment">#17 = Utf8               b</span></span><br><span class="line">  <span class="comment">#18 = Utf8               StackMapTable</span></span><br><span class="line">  <span class="comment">#19 = Class              #29            //  java/lang/String</span></span><br><span class="line">  <span class="comment">#20 = Class              #30            //  java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#21 = NameAndType        #7:#8          //  "&lt;init&gt;":()V</span></span><br><span class="line">  <span class="comment">#22 = Utf8               ab1</span></span><br><span class="line">  <span class="comment">#23 = Class              #31            //  java/lang/System</span></span><br><span class="line">  <span class="comment">#24 = NameAndType        #32:#33        //  out:Ljava/io/PrintStream;</span></span><br><span class="line">  <span class="comment">#25 = Class              #30            //  java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#26 = NameAndType        #34:#35        //  println:(Z)V</span></span><br><span class="line">  <span class="comment">#27 = Utf8               StringTest</span></span><br><span class="line">  <span class="comment">#28 = Utf8               java/lang/Object</span></span><br><span class="line">  <span class="comment">#29 = Utf8               java/lang/String</span></span><br><span class="line">  <span class="comment">#30 = Utf8               java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#31 = Utf8               java/lang/System</span></span><br><span class="line">  <span class="comment">#32 = Utf8               out</span></span><br><span class="line">  <span class="comment">#33 = Utf8               Ljava/io/PrintStream;</span></span><br><span class="line">  <span class="comment">#34 = Utf8               println</span></span><br><span class="line">  <span class="comment">#35 = Utf8               (Z)V</span></span><br><span class="line">// 以上是 Constant pool， 仅仅是陈列操作，并没有开始执行任务，看下面开始</span><br><span class="line">&#123;</span><br><span class="line">  public StringTest();</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=1, locals=1, args_size=1 // 所有方法都会有。</span><br><span class="line">      // stack 为栈顶的单位大小 (每个大小为 1 slot，4 byte)</span><br><span class="line">      // locals=1，非静态方法，本地变量增加 this</span><br><span class="line">         0: aload_0</span><br><span class="line">         1: invokespecial <span class="comment">#1                  // Method java/lang/Object."&lt;init&gt;":()V</span></span><br><span class="line">         4: <span class="built_in">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 1: 0</span><br><span class="line">      LocalVariableTable:</span><br><span class="line">        Start  Length  Slot  Name   Signature</span><br><span class="line">               0       5     0  this   LStringTest;</span><br><span class="line"></span><br><span class="line">  public static void <span class="built_in">test</span>1();</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=3, locals=2, args_size=0 </span><br><span class="line">      // stack=3，本地栈slot个数为3，String需要load，String.out 占用一个再。当对比发生 boolean 时，两个String引用栈顶pop</span><br><span class="line">      // locals=2， 因为只有两个 String</span><br><span class="line">      // args_size=0，方法没有入口参数</span><br><span class="line">         0: ldc           <span class="comment">#2                  // String ab1</span></span><br><span class="line">         // 引用常量池内容</span><br><span class="line">         2: astore_0</span><br><span class="line">         // 将栈顶引用值，写入第 1 个 slot 所在的本地变量</span><br><span class="line">         3: ldc           <span class="comment">#2                  // String ab1</span></span><br><span class="line">         5: astore_1</span><br><span class="line">         6: getstatic     <span class="comment">#3                  // Field java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line">         // 获取静态域，放入栈顶，此时静态域是 System.out 对象</span><br><span class="line">         9: aload_0</span><br><span class="line">        10: aload_1</span><br><span class="line">        11: <span class="keyword">if</span>_acmpne     18</span><br><span class="line">        14: iconst_1</span><br><span class="line">        15: goto          19</span><br><span class="line">        18: iconst_0</span><br><span class="line">        19: invokevirtual <span class="comment">#4                  // Method java/io/PrintStream.println:(Z)V</span></span><br><span class="line">        22: <span class="built_in">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 4: 0</span><br><span class="line">        line 5: 3</span><br><span class="line">        line 6: 6</span><br><span class="line">        line 7: 22</span><br><span class="line">      LocalVariableTable:</span><br><span class="line">        Start  Length  Slot  Name   Signature</span><br><span class="line">               3      20     0     a   Ljava/lang/String;</span><br><span class="line">               6      17     1     b   Ljava/lang/String;</span><br><span class="line">      // 本地变量列表 LocalVariableTable. from javac -g:vars</span><br><span class="line">      StackMapTable: number_of_entries = 2</span><br><span class="line">           frame_<span class="built_in">type</span> = 255 /* full_frame */</span><br><span class="line">          offset_delta = 18</span><br><span class="line">          locals = [ class java/lang/String, class java/lang/String ]</span><br><span class="line">          stack = [ class java/io/PrintStream ]</span><br><span class="line">           frame_<span class="built_in">type</span> = 255 /* full_frame */</span><br><span class="line">          offset_delta = 0</span><br><span class="line">          locals = [ class java/lang/String, class java/lang/String ]</span><br><span class="line">          stack = [ class java/io/PrintStream, int ]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">➜  p3jvm git:(master) ✗</span><br></pre></td></tr></table></figure>
-<h2 id="2-Java-字节码结构"><a href="#2-Java-字节码结构" class="headerlink" title="2. Java 字节码结构"></a>2. Java 字节码结构</h2><p>javac 命令本身只是一个引导器，它引导编译器程序的运行。编译器本身是一个java程序 <code>com.sun.tools.javac.main.JavaCompiler</code>, 该类完成 java 源文件 的 Parser、Annotation process、检查、泛型处理、语法转换等，最终胜出 Class 文件。</p>
-<p>Java 字节码文件主体结构: </p>
-<table>
-<thead>
-<tr>
-<th><strong>Class 文件头部</strong></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Constant pool</td>
-<td></td>
-</tr>
-<tr>
-<td>当前Clas的描述信息</td>
-<td></td>
-</tr>
-<tr>
-<td>属性列表</td>
-<td></td>
-</tr>
-<tr>
-<td>方法列表</td>
-<td></td>
-</tr>
-<tr>
-<td>…</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ml-decisionTree-model" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/08/16/ml-decisionTree-model/"><strong>Decision Tree Model</strong></a>
-      <small class=article-date-index>&nbsp; 2016-08-16</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/08/16/ml-decisionTree-model/" class="article-date">
-  <time datetime="2016-08-16T08:43:21.000Z" itemprop="datePublished">2016-08-16</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      decision tree learning <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/08/16/ml-decisionTree-model/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p><strong>Data Mining</strong></p>
-<ul>
-<li>挖掘目标</li>
-<li>数据取样</li>
-<li>数据探索</li>
-<li>数据预处理</li>
-<li><code>挖掘建模</code></li>
-<li>模型评价</li>
-</ul>
-<p>分类问题 : 决策树算法、朴素贝叶斯、支持向量机、BP神经网络、懒惰学习算法、随机森林与自适应增强算法、分类模型选择和结果评价</p>
-<h2 id="1-Classification-Introduce"><a href="#1-Classification-Introduce" class="headerlink" title="1. Classification Introduce"></a>1. Classification Introduce</h2><blockquote>
-<p>分类有着广泛的应用，如医学疾病判别、垃圾邮件过滤、垃圾短信拦截、客户分析等等。分类问题可以分为两类</p>
-</blockquote>
-<h3 id="1-1-归类-离散"><a href="#1-1-归类-离散" class="headerlink" title="1.1 归类 : 离散"></a>1.1 归类 : 离散</h3><p>归类 是指对<code>离散数据</code>的分类，比如对根据一个人的笔迹判别这个是男还是女，这里的 Category 只有两个，类别是离散的集合空间{男，女}的。</p>
-<h3 id="1-2-预测-连续"><a href="#1-2-预测-连续" class="headerlink" title="1.2 预测 : 连续"></a>1.2 预测 : 连续</h3><p>预测 是指对<code>连续数据</code>的分类，比如预测明天8点天气的湿度情况，天气的湿度在随时变化，8点时的天气是一个具体值，它不属于某个有限集合空间。预测也叫回归分析，在金融领域有着广泛应用。</p>
-<blockquote>
-<p>虽然对离散数据和连续数据的处理方式有所不同，但其实他们之间相互转化，比如我们可以根据比较的某个特征值判断，如果值大于0.5就认定为男性，小于等于0.5就认为是女性，这样就转化为连续处理方式；将天气湿度值分段处理也就转化为离散数据。</p>
-</blockquote>
-<p><strong>数据分类</strong> 分两个步骤：</p>
-<ol>
-<li>构造模型，利用训练数据集 训练 分类器；</li>
-<li>利用建好的分类器模型对测试数据进行分类。</li>
-</ol>
-<blockquote>
-<p>好的分类器具有很好的泛化能力，即它不仅在训练数据集上能达到很高的正确率，而且能在未见过得测试数据集也能达到较高的正确率。如果一个分类器只是在训练数据上表现优秀，但在测试数据上表现稀烂，这个分类器就已经过拟合了，它只是把训练数据记下来了，并没有抓到整个数据空间的特征。</p>
-</blockquote>
-<h2 id="2-Decision-Tree’-Classification"><a href="#2-Decision-Tree’-Classification" class="headerlink" title="2. Decision Tree’ Classification"></a>2. Decision Tree’ Classification</h2><p>代表性的例子说明 :</p>
-<table>
-<thead>
-<tr>
-<th>ID</th>
-<th>阴晴(F)</th>
-<th>温度(F)</th>
-<th>湿度(F)</th>
-<th>刮风(F)</th>
-<th>是否玩（C）</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>1</td>
-<td>sunny</td>
-<td>hot</td>
-<td>high</td>
-<td>false</td>
-<td>否</td>
-</tr>
-<tr>
-<td>2</td>
-<td>sunny</td>
-<td>hot</td>
-<td>high</td>
-<td>true</td>
-<td>否</td>
-</tr>
-<tr>
-<td>3</td>
-<td>overcast</td>
-<td>hot</td>
-<td>high</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>4</td>
-<td>rainy</td>
-<td>mild</td>
-<td>high</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>5</td>
-<td>rainy</td>
-<td>cool</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>6</td>
-<td>rainy</td>
-<td>cool</td>
-<td>normal</td>
-<td>true</td>
-<td>否</td>
-</tr>
-<tr>
-<td>7</td>
-<td>overcast</td>
-<td>cool</td>
-<td>normal</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>8</td>
-<td>sunny</td>
-<td>mild</td>
-<td>high</td>
-<td>false</td>
-<td>否</td>
-</tr>
-<tr>
-<td>9</td>
-<td>sunny</td>
-<td>cool</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>10</td>
-<td>rainy</td>
-<td>mild</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>11</td>
-<td>sunny</td>
-<td>mild</td>
-<td>normal</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>12</td>
-<td>overcast</td>
-<td>mild</td>
-<td>high</td>
-<td>true</td>
-<td>是</td>
-</tr>
-<tr>
-<td>13</td>
-<td>overcast</td>
-<td>hot</td>
-<td>normal</td>
-<td>false</td>
-<td>是</td>
-</tr>
-<tr>
-<td>14</td>
-<td>rainy</td>
-<td>mild</td>
-<td>high</td>
-<td>true</td>
-<td>否</td>
-</tr>
-</tbody>
-</table>
-<p>利用ID3算法中的 Info Gain Feature Selection，递归的学习一棵决策树，得到树结构如下</p>
-<p><img src="/images/model-dt02.png" width="560" height="400" img=""></p>
-<blockquote>
-<p>决策树（decision tree）是一个树结构（可以是二叉树或非二叉树）。其每个非叶节点表示一个Feature属性上的测试，每个分支代表这个Feature属性在某个值域上的输出，而每个叶节点存放一个 Category 。使用 DT 进行决策的过程就是从 root 开始，测试待分类项中相应的 Feature 属性，并按照其值选择输出分支，直到到达叶子节点，将叶子节点存放的 Category 作为决策结果。</p>
-</blockquote>
-<p>Feature Selection，如何量化最优Feature? <code>-&gt;</code> 导致 DT Algorithm 出现了 ID3、C4.5、C5.0、CART 等。</p>
-<h2 id="3-Decision-Tree’-Build"><a href="#3-Decision-Tree’-Build" class="headerlink" title="3. Decision Tree’ Build"></a>3. Decision Tree’ Build</h2><p>构造 Decision Tree 的关键步骤是分裂属性。所谓分裂属性就是在某个节点处按照某一特征属性的不同划分构造不同的分支，其目标是让各个分裂子集尽可能地“纯”。尽可能“纯”就是尽量让一个分裂子集中待分类项属于同一类别。</p>
-<blockquote>
-<p>构造决策树的过程本质上就是根据 <strong>data-feature</strong> 将 数据集(D) 分类的递归过程，我们需要解决的第一个问题就是，<strong>当前 数据集(D) 上哪个 Feature 在划分数据分类时起决定性作用</strong></p>
-</blockquote>
-<h3 id="3-1-构造-DT-流程"><a href="#3-1-构造-DT-流程" class="headerlink" title="3.1 构造 DT 流程"></a>3.1 构造 DT 流程</h3><p>训练数据集 $D = \{ (x^{(1)}，y^{(1)}) ， (x^{(2)}，y^{(2)})， ⋯ ， (x^{(m)}，y^{(m)}) \}$ (Feature用离散值表示)<br>候选特征集 $F = \{f^1，f^2， ⋯，f^n \}$</p>
-<p>开始建立 Root节点，将所有训练数据都置于根节点（$m$条样本）。从 feature集合 $F$ 中选择一个最优特征 $f^∗$，按照 $f^∗$ 取值将 训练数据集(D) 切分成若干子集，使得各个自己有一个在当前条件下最好的分类。</p>
-<p>如果子集中样本类别基本相同，那么构建叶节点，并将数据子集划分给对应的叶节点；如果子集中样本类别差异较大，不能被基本正确分类，需要在剩下的特征集合 $（F−{f^∗}）$ 中选择新的最优特征，继续对数据子集进行切分。如此递归地进行下去，直至所有数据自己都能被基本正确 Category，或者没有合适的最优特征为止。</p>
-<p>这样最终结果是每个子集都被分到叶节点上，对应着一个明确的类别。那么，递归生成的层级结构即为一棵 DT。</p>
-<h3 id="3-2-伪代码构造-DT"><a href="#3-2-伪代码构造-DT" class="headerlink" title="3.2 伪代码构造 DT"></a>3.2 伪代码构造 DT</h3><p>  输入 : 训练数据集 $D = \{ (x^{(1)}，y^{(1)}) ， (x^{(2)}，y^{(2)})， ⋯ ， (x^{(m)}，y^{(m)}) \}$(Feature用离散值表示)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;候选特征集 $F = \{f^1，f^2， ⋯，f^n \}$</p>
-<p>  输出 : T(D, F)</p>
-<p><img src="/images/model-dt-03.png" width="760" height="400" img=""></p>
-<p>决策树学习过程中递归的每一步，在选择最优特征后，根据特征取值切割当前节点的数据集，得到若干数据子集。<br>算法的时间复杂度是O(k<em>|D|</em>log(|D|))，k为属性个数，|D|为记录集D的记录数。</p>
-<h2 id="4-Feature-Selection"><a href="#4-Feature-Selection" class="headerlink" title="4. Feature Selection"></a>4. Feature Selection</h2><p>递归地选择最优feature，根据feature取值切割数据集，使得对应的数据子集有一个较好的分类。从伪代码中也可以看出，在决策树学习过程中，最重要的是第07行，即如何选择最优feature？也就是我们常说的feature选择问题。</p>
-<p>在这里，希望随着feature选择过程地不断进行，决策树的分支节点所包含的样本尽可能属于同一类别，即希望节点的”纯度（purity）”越来越高。</p>
-<blockquote>
-<p>如子集中的样本都属于同一个类别，是最好的结果；如果说大多数的样本类型相同，只有少部分样本不同，也可以接受。</p>
-</blockquote>
-<p>那么如何才能做到选择的特征对应的样本子集纯度最高呢？</p>
-<table>
-<thead>
-<tr>
-<th>Algorithm</th>
-<th>Feature 选择方法</th>
-<th>Author</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>ID3</td>
-<td>Information gain</td>
-<td>Quinlan. 1986</td>
-</tr>
-<tr>
-<td>C4.5</td>
-<td>Gain ratio</td>
-<td>Quinlan. 1993.</td>
-</tr>
-<tr>
-<td>CART</td>
-<td>回归树： 最小二乘<br>分类树： 基尼指数 Gini index</td>
-<td>Breiman. 1984<br>(Classification and Regression Tree 分类与回归树)</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>ID3 (Iterative Dichotomiser)</p>
-</blockquote>
-<h3 id="4-1-Information-Gain"><a href="#4-1-Information-Gain" class="headerlink" title="4.1 Information Gain"></a>4.1 Information Gain</h3><p>信息增益（Information Gain）衡量 Feature 的重要性是根据当前 Feature 为划分带来多少信息量，带来的信息越多，该 Feature 就越重要，此时节点的”纯度”也就越高。</p>
-<p><a href="/2016/08/18/ml-entropy-base/">Infomation Entropy</a></p>
-<blockquote>
-<p>对一个分类系统来说，假设类别 $C$ 可能的取值为 $c_1，c_2，⋯，c_k$（$k$是类别总数），每一个类别出现的概率分别是 $p(c_1)，p(c_2)，⋯，p(c_k)$。此时，分类系统的 Entropy 可以表示为:</p>
-<p>$$<br>info(C) = -  \sum_{i=1}^k p(c_i) \cdot log_2 p(c_i) \qquad (fml.4.1.1)<br>$$</p>
-<p>分类系统的作用就是输出一个特征向量（文本特征、ID特征 等）属于哪个 Category 的值，而这个值可能是 $c_1，c_2，⋯，c_k$ ，因此这个值所携带的信息量就是 (fml.4.1.1) 公式这么多</p>
-</blockquote>
-<p><strong>Condition Entropy</strong></p>
-<p>假设 离散特征 $f$ 的取值有 $I$ 个，$info(C|f=f_i)$ 表示特征 $f$ 被取值为 $f_i$ 时的<strong><em>Condition Entropy</em></strong>； $info(C|f)$ 是指特征 $f$ 被固定时的 <strong><em>Condition Entropy</em></strong>。二者之间的关系是：</p>
-<blockquote>
-<p>$$<br>\begin{align}<br>info(C|f) &amp; = p_1 \cdot info(C|f=f_1) + p_2 \cdot info(C|f=f_2) + … + p_k \cdot info(C|f=f_{k}) \\ &amp; = \sum_{i=1}^{I} p_i \cdot info(C|f=f_i) \end{align}  \quad (fml.4.1.2)<br>$$<br>假设总样本数有 $m$ 条，特征 $f=f_i$ 时的样本数 $m_i，p_i=\frac{m_i}{m}$.</p>
-</blockquote>
-<p><strong>如何求 $P(C|f=f_i)$</strong> ?</p>
-<blockquote>
-<p>二分类情况 :</p>
-<p>以二分类为例（正例为1，负例为0），总样本数为 $m$ 条，特征 $f$ 的取值为 $I$ 个，其中特征 $f=f_i$ 对应的样本数为 $m_i$ 条，其中正例 $m_{i1}$ 条，负例 $m_{i0}$ 条 $m_i = m_{i0} + m_{i1}$ 。那么有：</p>
-<p>$$<br>\begin{align} info(C|f=f_i) &amp; = - \frac{m_{i1}}{m_i} \cdot log_{2} \frac{m_{i1}}{m_i} - \frac{m_{i0}}{m_i} \cdot log_{2} \frac{m_{i0}}{m_i} \end{align} \qquad (fml.4.1.3)<br>$$<br>多分类情况:</p>
-<p>$$<br>\begin{align} info(C|f=f_i) = -\sum_{j=0}^{k-1} \frac{m_{ij}}{m_i} \cdot log_{2} \frac{m_{ij}}{m_i} \end{align} \qquad (fml.4.1.4)<br>$$</p>
-<p>公式$\frac{m_{ij}}{m_i}$物理含义是当 $f=f_i$ 且 $C=c_j$ 的概率，即条件概率 $p(c_j|f_i)$</p>
-<p>因此，<strong><em>Condition Entropy</em></strong> 计算公式为：</p>
-<p>$$<br>\begin{align} info(C|f) &amp; = \sum_{i=1}^{I} p(f_i) \cdot info(C|f=f_i) \\ &amp; = - \sum_{i=1}^{I} p(f_i) \cdot \underline { \sum_{j=0}^{k-1} p(c_j|f_i) \cdot log_2 p(c_j|f_i) } \qquad (fml.4.1.5)<br>\end{align}<br>$$</p>
-</blockquote>
-<p>特征 $f$ 给系统带来的 info gain 等于系统原有的 Entropy 与固定特征 $f$ 的 <strong><em>Condition Entropy</em></strong> 之差，公式表示如下:</p>
-<blockquote>
-<p>$$<br>\begin{align} IG(F) &amp; = E(C) - E(C|F) \\ &amp; = -\sum_{i=1}^{k} p(c_i) \cdot \log_{2} p(c_i) + \sum_{i=1}^{I} p(f_i) \cdot \underline { \sum_{j=0}^{k-1} p(c_j|f_i) \cdot log_2 p(c_j|f_i) } \end{align}  \qquad (fml.4.1.6)<br>$$</p>
-<p>$n$ 表示特征 $f$ 取值个数，$k$ 表示类别 $C$ 个数，$\sum_{j=0}^{n-1} \frac{m_{ij}}{m_i} \cdot log_{2} \frac{m_{ij}}{m_i}$ 表示每一个类别对应的 Entropy 。</p>
-</blockquote>
-<hr>
-<p><strong>下面以天气数据为例,通过 <code>Info gain</code> 选择最优 feature 的过程 :</strong></p>
-<blockquote>
-<p>根据 阴晴、温度、湿度 和 刮风 来决定是否出去玩。样本中总共有 14 条记录，取值为 <code>是</code>(9个正样本)、<code>否</code>(5个负样本)，用 $S(9+,5−)$ 表示.</p>
-<p>(1). 分类系统的 Entropy :<br>$$<br>Entropy(S) = info(9,5) = (-\frac{9}{14} _ llog_2 (\frac{9}{14})) + (- \frac{5}{14} _ llog_2 (\frac{5}{14})) = 0.940位   \quad (exp.4.1.1)<br>$$<br>(2). 如果以特征”阴晴”作为根节点。“阴晴”取值为{sunny, overcast, rainy}, 分别对应的正负样本数分别为(2+,3-), (4+,0-), (3+,2-)，那么在这三个节点上的 info Entropy 分别为：<br>$$<br>\begin{align} &amp; Entropy(S| “阴晴”=sunny) = info(2,3) = 0.971位  \quad(exp.4.1.1) \\ &amp; Entropy(S| “阴晴”=overcast) = info(4,0) = 0位  \;\;\quad(exp.4.1.2) \\ &amp; Entropy(S| “阴晴”=rainy) = info(3,2) = 0.971位  \;\quad(exp.4.1.3) \end{align}<br>$$</p>
-<p>以 Feature “阴晴” 为根节点，平均信息值（即 <strong>Condition Entropy</strong>）为：<br>$$<br>Entropy(S|“阴晴”) = \frac{5}{14} * 0.971 + \frac{4}{14} * 0 + \frac{5}{14} * 0.971 = 0.693位 \quad (exp.4.1.4)<br>$$</p>
-<p>以 Feature “阴晴” 为条件，计算得到的 <strong>Condition Entropy</strong> 代表了期望的信息总量，即对于一个新样本判定其属于哪个类别所必需的信息量。</p>
-<p>(3). 计算特征“阴晴”“阴晴”对应的信息增益:<br>$$<br>IG( “阴晴”) = Entropy(S) - Entropy(S| “阴晴”) = 0.247位 \quad\quad(exp.4.1.5)<br>$$</p>
-<p>同样的计算方法，可得每个特征对应的信息增益，即<br>$$<br>IG(“刮风”) = Entropy(S) - Entropy(S|“刮风”) = 0.048位 \qquad\qquad(exp.4.1.6) \\ IG(“湿度”) = Entropy(S) - Entropy(S|“湿度”) = 0.152位 \qquad\qquad(exp.4.1.7) \\ IG(“温度”) = Entropy(S) - Entropy(S|“温度”) = 0.029位 \qquad\qquad(exp.4.1.8)<br>$$</p>
-<p>显然，Feature “阴晴” 的 info gain 最大，于是把它作为划分特征。基于“阴晴”对根节点进行划分的结果，如图4.5所示（决策树学习过程部分）。决策树学习算法对子节点进一步划分，重复上面的计算步骤。</p>
-</blockquote>
-<p><img src="/images/model-dt02.png" width="560" height="400" img=""></p>
-<h3 id="4-2-Gain-ratio"><a href="#4-2-Gain-ratio" class="headerlink" title="4.2 Gain ratio"></a>4.2 Gain ratio</h3><p>与 Info Gain 不同，<code>Gain ratio</code> 的计算考虑了 F 分裂数据集后所产生的子节点的数量和规模，而<strong>忽略任何有关类别的信息</strong>。</p>
-<blockquote>
-<p>以 info gain 示例为例，按照 特征“阴晴” 将数据集分裂成3个子集，规模分别为5、4和5，因此不考虑子集中所包含的类别，产生一个分裂信息为：</p>
-<p>$$<br>SplitInfo(“阴晴”) = info(5,4,5) = 1.577位 \qquad (exp.4.2.1)<br>$$<br><strong>Split Information Entropy</strong> 可简单地理解为表示信息分支所需要的信息量。 </p>
-<p>那么 Info Gain ratio ：<br>$$<br>IG_{ratio}(F) = \frac {IG(F)} {SplitInfo(F)} \qquad (exp.4.2.2)<br>$$<br>在这里，特征 “阴晴”的 Gain ratio 为 $IG_{ratio}( “阴晴”)=\frac{0.247}{1.577} = 0.157$。减少信息增益方法对取值数较多的特征的影响。</p>
-</blockquote>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="meta">&gt;&gt;&gt; </span>-(math.log((<span class="number">5.0</span>/<span class="number">14.0</span>), <span class="number">2</span>) * (<span class="number">5.0</span>/<span class="number">14.0</span>) * <span class="number">2</span> + (<span class="number">4.0</span>/<span class="number">14.0</span>) * (math.log((<span class="number">4.0</span>/<span class="number">14.0</span>), <span class="number">2</span>)))</span><br><span class="line"><span class="number">1.577406282852345</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-<p>基尼指数（Gini Index）是 <code>CART</code> 中分类树的特征选择方法. 接下来重点介绍</p>
-<h2 id="5-CART"><a href="#5-CART" class="headerlink" title="5. CART"></a>5. CART</h2><p>分类与回归树（Classification And Regression Tree, 简称 CART）模型在Tree-Based家族中是应用最广泛的学习方法之一.</p>
-<p>更多请参见本博文章 <a href="/2016/08/24/ml-CART/">CART</a></p>
-<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
-<li><a href="http://www.cnblogs.com/fengfenggirl/p/classsify_decision_tree.html" target="_blank" rel="external">逗比算法工程师</a></li>
-<li><a href="http://www.52caml.com/" target="_blank" rel="external">算法杂货铺</a></li>
-<li><a href="http://www.cnblogs.com/leoo2sk/archive/2010/09/19/decision-tree.html" target="_blank" rel="external">52caml</a></li>
-<li>《机器学习导论》</li>
-<li>《统计学习方法》</li>
-<li>《数据挖掘－实用机器学习技术》</li>
-</ul>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
       <article id="post-ef-l3u3-Hotels" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -3191,6 +2437,384 @@ img {
 </blockquote>
 <p><a href="http://norvig.com/spell-correct.html" target="_blank" rel="external">google_spell-correct</a></p>
 <h2 id="4-Naive-Bayes-Learning-and-classification"><a href="#4-Naive-Bayes-Learning-and-classification" class="headerlink" title="4. Naive Bayes Learning and classification"></a>4. Naive Bayes Learning and classification</h2><h2 id="5-Parameter-estimation-of-Naive-Bayes-Method"><a href="#5-Parameter-estimation-of-Naive-Bayes-Method" class="headerlink" title="5. Parameter estimation of Naive Bayes Method"></a>5. Parameter estimation of Naive Bayes Method</h2>
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-elasticsearch-1.7-Introduce" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/06/04/elasticsearch-1.7-Introduce/"><strong>Elasticsearch * Reference1.7 Introduce</strong></a>
+      <small class=article-date-index>&nbsp; 2016-06-04</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/06/04/elasticsearch-1.7-Introduce/" class="article-date">
+  <time datetime="2016-06-04T07:59:16.000Z" itemprop="datePublished">2016-06-04</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      Elasticsearch * Reference1.7 Brief Introduce. <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/elastic/">elastic</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/06/04/elasticsearch-1.7-Introduce/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Getting-Started"><a href="#Getting-Started" class="headerlink" title="Getting Started"></a>Getting Started</h2><h3 id="Restful-API"><a href="#Restful-API" class="headerlink" title="Restful API"></a>Restful API</h3><p><strong>Cluster health</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl &apos;localhost:9200/_cat/health?v&apos;</span><br><span class="line">curl &apos;localhost:9200/_cat/nodes?v&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>List ALL Indices</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl &apos;localhost:9200/_cat/indices?v&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Create an Index</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XPUT &apos;localhost:9200/customer?pretty&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Put data to Index</strong></p>
+<p>Our JSON document: { “name”: “John Doe” }</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XPUT &apos;localhost:9200/customer/external/1?pretty&apos; -d &apos;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;John Doe&quot;</span><br><span class="line">&#125;&apos;</span><br></pre></td></tr></table></figure>
+<p>And the response:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XPUT &apos;localhost:9200/customer/external/1?pretty&apos; -d &apos;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;John Doe&quot;</span><br><span class="line">&#125;&apos;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;_index&quot; : &quot;customer&quot;,</span><br><span class="line">  &quot;_type&quot; : &quot;external&quot;,</span><br><span class="line">  &quot;_id&quot; : &quot;1&quot;,</span><br><span class="line">  &quot;_version&quot; : 1,</span><br><span class="line">  &quot;created&quot; : true</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Get Data from Index</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XGET &apos;localhost:9200/customer/external/1?pretty&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Detele an Index</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/customer&apos;</span><br></pre></td></tr></table></figure>
+<p>Restful Cmd @elasticsearch</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -X&lt;REST Verb&gt; &lt;Node&gt;:&lt;Port&gt;/&lt;Index&gt;/&lt;Type&gt;/&lt;ID&gt;</span><br></pre></td></tr></table></figure>
+<p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/1.7/api-conventions.html" target="_blank" rel="external">more_detail_info_for_elasticsearch</a></p>
+<h3 id="Java-API"><a href="#Java-API" class="headerlink" title="Java API"></a>Java API</h3><p><a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.7/client.html" target="_blank" rel="external">more_info</a></p>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ml-perceptron-model" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/05/20/ml-perceptron-model/"><strong>Perceptron Model</strong></a>
+      <small class=article-date-index>&nbsp; 2016-05-20</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/05/20/ml-perceptron-model/" class="article-date">
+  <time datetime="2016-05-20T10:01:21.000Z" itemprop="datePublished">2016-05-20</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      Perceptron model learning for classification <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/05/20/ml-perceptron-model/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$']],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>perceptron model learning</p>
+        
+          <p class="article-more-link">
+            <a href="/2016/05/20/ml-perceptron-model/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-elasticsearch1-indoor" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/05/17/elasticsearch1-indoor/"><strong>Elasticsearch * 入门</strong></a>
+      <small class=article-date-index>&nbsp; 2016-05-17</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/05/17/elasticsearch1-indoor/" class="article-date">
+  <time datetime="2016-05-17T07:59:16.000Z" itemprop="datePublished">2016-05-17</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      这是关于 Elasticsearch 入门 的一些基本内容. <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/elastic/">elastic</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/05/17/elasticsearch1-indoor/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1-Elasticsearch-前言"><a href="#1-Elasticsearch-前言" class="headerlink" title="1. Elasticsearch 前言"></a>1. Elasticsearch 前言</h2><p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎、<code>实时分布式搜索</code>和<code>分析引擎</code>。</p>
+<blockquote>
+<p>Lucene 是 成熟的<code>全文索引与信息检索(IR)库</code>，采用Java实现。信息检索式指文档搜索、文档内信息搜索或者文档相关的元数据搜索等操作。。</p>
+<p>Solr是一个基于Lucene <code>java库的企业级搜索服务器</code>，包含XML/HTTP，JSON API，高亮查询结果，缓存，复制，还有一个WEB管理界面。Solr运行在Servlet容器中</p>
+<p>2010 年 Elasticsearch 出现公开版本</p>
+</blockquote>
+<p><strong>Elasticsearch 涉及的技术</strong></p>
+<ul>
+<li>全文搜索</li>
+<li>分析系统</li>
+<li>分布式数据库</li>
+</ul>
+<p><strong>谁在使用 Elasticsearch?</strong></p>
+<ul>
+<li><a href="https://zh.wikipedia.org/wiki/Wikipedia:%E9%A6%96%E9%A1%B5" target="_blank" rel="external">维基百科</a></li>
+<li><a href="http://stackoverflow.com/" target="_blank" rel="external">StackOverflow</a></li>
+<li><a href="https://github.com/libean" target="_blank" rel="external">Github</a><br>…</li>
+</ul>
+<h2 id="2-概念"><a href="#2-概念" class="headerlink" title="2. 概念"></a>2. 概念</h2><p>Elasticsearch 是 开源搜索引擎.</p>
+<p><strong>Elasticsearch 不仅是全文搜索，还是：</strong></p>
+<ul>
+<li>分布式 实时文件存储，每个字段都被索引并可被搜索</li>
+<li>分布式 实时分析搜索引擎</li>
+<li>可扩展服务器，处理<strong>PB</strong>级结构化或非结构化数据</li>
+</ul>
+<p>这些功能被集成到一个服务里面，应用可通过 <code>RESTful API</code>、各种语言的<code>客户端</code>、<code>命令行</code> 与之交互。</p>
+<p>Elasticsearch也使用Java开发并使用Lucene作为其核心来实现所有索引和搜索的功能，但是它的目的是通过简单的<code>RESTful API</code>来隐藏Lucene的复杂性，从而让全文搜索变得简单。</p>
+<p><a href="http://es.xiaoleilu.com/010_Intro/10_Installing_ES.html" target="_blank" rel="external">more_info_install_elaticsearch</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[deploy@node196 config]$ ll</span><br><span class="line">total 20</span><br><span class="line">-rw-rw-r--  1 deploy deploy 13915 May 10 10:02 elasticsearch.yml</span><br><span class="line">-rw-rw-r--. 1 deploy deploy  2054 Jul 16  2015 logging.yml</span><br><span class="line">[deploy@node196 config]$ pwd</span><br><span class="line">/home/deploy/elasticsearch-1.7.1/config</span><br></pre></td></tr></table></figure>
+<p><strong>编辑 elasticsearch.yml</strong> </p>
+<p>替代cluster.name的默认值，这样可以防止一个新启动的节点加入到相同网络中的另一个同名的集群中。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_your-company-name</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">#################################### Node #####################################</span><br><span class="line"></span><br><span class="line"># Node names are generated dynamically on startup, so you&apos;re relieved</span><br><span class="line"># from configuring them manually. You can tie this node to a specific name:</span><br><span class="line">#</span><br><span class="line">node.name: &quot;node196&quot;</span><br></pre></td></tr></table></figure>
+<h2 id="3-API"><a href="#3-API" class="headerlink" title="3. API"></a>3. API</h2><h3 id="3-1-Java-API"><a href="#3-1-Java-API" class="headerlink" title="3.1 Java API"></a>3.1 Java API</h3><p><strong>节点客户端(node client)</strong></p>
+<p>节点客户端以无数据节点(none data node)身份加入集群，换言之，它自己不存储任何数据，但是它知道数据在集群中的具体位置，并且能直接转发请求到对应的节点上。</p>
+<p><strong>传输客户端(Transport client)</strong></p>
+<p>更轻量的传输客户端 能发送请求到远程集群。它自己不加入集群，只是简单转发请求给集群中的节点。</p>
+<blockquote>
+<p>两个Java客户端都通过 9300端口 与 集群交互，使用 Elasticsearch传输协议(<code>Elasticsearch Transport Protocol</code>)。集群中的节点之间也通过 9300 port 进行通信。</p>
+</blockquote>
+<p><a href="https://www.elastic.co/guide/index.html" target="_blank" rel="external">more_info_Java-API</a></p>
+<h3 id="3-2-RESTful-API"><a href="#3-2-RESTful-API" class="headerlink" title="3.2 RESTful API"></a>3.2 RESTful API</h3><ul>
+<li>基于 HTTP 协议，以 JSON 为数据交互格式的 RESTful API</li>
+</ul>
+<blockquote>
+<p>向 Elasticsearch 发出的请求的组成部分与其它普通的HTTP请求是一样的：<br>curl -X<verb> ‘<protocol>://<host>:<port>/<path></path>?<query_string>‘ -d ‘<body>‘</body></query_string></port></host></protocol></verb></p>
+<p>VERB HTTP方法：GET, POST, PUT, HEAD, DELETE<br>…</p>
+</blockquote>
+<p>example : 查询集群中 文档数量</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[deploy@node196 config]$ curl -u username:passwd -XGET &apos;localhost:9200/_count?pretty&apos; -d &apos;</span><br><span class="line">&gt; &#123;</span><br><span class="line">&gt;     &quot;query&quot;: &#123;</span><br><span class="line">&gt;         &quot;match_all&quot;: &#123;&#125;</span><br><span class="line">&gt;     &#125;</span><br><span class="line">&gt; &#125;&apos;</span><br><span class="line">&#123;</span><br><span class="line">  &quot;count&quot; : 100001234,</span><br><span class="line">  &quot;_shards&quot; : &#123;</span><br><span class="line">    &quot;total&quot; : 376,</span><br><span class="line">    &quot;successful&quot; : 376,</span><br><span class="line">    &quot;failed&quot; : 0</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -u name:pass -X DELETE http://ip:9200/your_index</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /coupon_seeker/coupon_seeker/_search?q=source:dianping</span><br><span class="line"></span><br><span class="line">curl -u name:pass -XGET &apos;http://192.168.181.xxx:9200/coupon_seeker/coupon_seeker/_search?q=source:dianping</span><br></pre></td></tr></table></figure>
+<p>有条件的精确匹配删除命令</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -u name:pass -XDELETE &apos;http://192.168.181.xxx:9200/coupon_seeker/coupon_seeker/_query?pretty=true&apos; -d &apos;&#123;&quot;query&quot;:&#123;&quot;match&quot;:&#123;source:&quot;dianping&quot;&#125;&#125;&#125;&apos;</span><br></pre></td></tr></table></figure>
+<h2 id="4-文档"><a href="#4-文档" class="headerlink" title="4. 文档"></a>4. 文档</h2><p><strong>面向文档</strong></p>
+<p>Elasticsearch is document oriented，这意味着它可以存储整个 <code>object</code> 或 <code>document</code>。</p>
+<p>Elasticsearch 还可以 索引(index) 每个文档的内容使之可以被 <strong>搜索</strong>。</p>
+<p>可对 <code>document</code> （而非成行成列的数据）进行 <code>index</code>、<code>搜索</code>、<code>排序</code>、<code>过滤</code>。</p>
+<p>这种理解数据的方式与以往完全不同，这也是 Elasticsearch 能够执行复杂的全文搜索的原因之一。</p>
+<p><strong>JSON</strong> (JavaScript Object Notation)，文档序列化格式</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"email"</span>:      <span class="string">"john@smith.com"</span>,</span><br><span class="line">    <span class="attr">"first_name"</span>: <span class="string">"John"</span>,</span><br><span class="line">    <span class="attr">"last_name"</span>:  <span class="string">"Smith"</span>,</span><br><span class="line">    <span class="attr">"info"</span>: &#123;</span><br><span class="line">        <span class="attr">"bio"</span>:         <span class="string">"Eco-warrior and defender of the weak"</span>,</span><br><span class="line">        <span class="attr">"age"</span>:         <span class="number">25</span>,</span><br><span class="line">        <span class="attr">"interests"</span>: [ <span class="string">"dolphins"</span>, <span class="string">"whales"</span> ]</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"join_date"</span>: <span class="string">"2014/05/01"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如下 user对象很复杂，但它的结构和对象的含义已经被完整的体现在JSON中了，在Elasticsearch中将对象转化为 JSON 并做 index索引 要比在表结构中做相同的事情简单的多。</p>
+<h2 id="5-索引"><a href="#5-索引" class="headerlink" title="5. 索引"></a>5. 索引</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[hdfs@node196 data_analysis]$ curl -u username:passwd -XPUT http://node190:9200/megacorp/employee/1 -d &apos;</span><br><span class="line">&gt; &#123;</span><br><span class="line">&gt;     &quot;first_name&quot; : &quot;John&quot;,</span><br><span class="line">&gt;     &quot;last_name&quot; :  &quot;Smith&quot;,</span><br><span class="line">&gt;     &quot;age&quot; :        25,</span><br><span class="line">&gt;     &quot;about&quot; :      &quot;I love to go rock climbing&quot;,</span><br><span class="line">&gt;     &quot;interests&quot;: [ &quot;sports&quot;, &quot;music&quot; ]</span><br><span class="line">&gt; &#125;&apos;</span><br><span class="line">&#123;&quot;_index&quot;:&quot;megacorp&quot;,&quot;_type&quot;:&quot;employee&quot;,&quot;_id&quot;:&quot;1&quot;,&quot;_version&quot;:1,&quot;created&quot;:true&#125;[hdfs@node196 data_analysis]$</span><br></pre></td></tr></table></figure>
+<ul>
+<li>indexing</li>
+<li>search</li>
+<li>aggregations  /ˌæɡrɪˈɡeɪʃən/</li>
+</ul>
+<p><strong>Elasticsearch能做的事</strong></p>
+<p>场景: 假设我们刚好在Megacorp工作，这时人力资源部门出于某种目的需要让我们创建一个员工目录，这个目录用于促进人文关怀和用于实时协同工作，所以它有以下不同的需求：</p>
+<ul>
+<li>数据能够包含多个值的标签、数字和纯文本。</li>
+<li>检索任何员工的所有信息。</li>
+<li>支持结构化搜索，例如查找30岁以上的员工。</li>
+<li>支持简单的全文搜索和更复杂的短语(phrase)搜索</li>
+<li>高亮搜索结果中的关键字</li>
+<li>能够利用图表管理分析这些数据</li>
+</ul>
+<p><strong>索引员工文档</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Relational DB -&gt; Databases -&gt; Tables -&gt; Rows -&gt; Columns</span><br><span class="line">Elasticsearch -&gt; Indices   -&gt; Types  -&gt; Documents -&gt; Fields</span><br></pre></td></tr></table></figure>
+<p>Elasticsearch | Relational DB<br>: ——- | : ——-<br>Indices | Databases<br>Types | Tables<br>Documents | Rows<br>Fields | Columns</p>
+<p><strong>Elasticsearch</strong></p>
+<blockquote>
+<p>索引」含义的区分</p>
+<p>  <strong>index_num.</strong> : index (数据库)，它是相关文档存储的地方，</p>
+<p>  <strong>index_verb.</strong> 「索引一个文档」表示把一个文档存储到索引（名词）里，以便它可以被检索或者查询。这很像SQL 中的 INSERT关键字，差别是，如果文档已经存在，新的文档将覆盖旧的文档。</p>
+<p><strong>倒排索引</strong> : 传统数据库为特定列增加一个索引，例如 B-Tree索引 来加速检索。Elasticsearch和Lucene使用倒排索引(inverted index)的数据结构来达到相同目的。</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PUT /megacorp/employee/1</span><br><span class="line">&#123;</span><br><span class="line">    &quot;first_name&quot; : &quot;John&quot;,</span><br><span class="line">    &quot;last_name&quot; :  &quot;Smith&quot;,</span><br><span class="line">    &quot;age&quot; :        25,</span><br><span class="line">    &quot;about&quot; :      &quot;I love to go rock climbing&quot;,</span><br><span class="line">    &quot;interests&quot;: [ &quot;sports&quot;, &quot;music&quot; ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="https://segmentfault.com/img/bVvQp0" alt="图片描述"></p>
+<h3 id="5-1-检索文档"><a href="#5-1-检索文档" class="headerlink" title="5.1 检索文档"></a>5.1 检索文档</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/1</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;_index&quot; :   &quot;megacorp&quot;,</span><br><span class="line">  &quot;_type&quot; :    &quot;employee&quot;,</span><br><span class="line">  &quot;_id&quot; :      &quot;1&quot;,</span><br><span class="line">  &quot;_version&quot; : 1,</span><br><span class="line">  &quot;found&quot; :    true,</span><br><span class="line">  &quot;_source&quot; :  &#123;</span><br><span class="line">      &quot;first_name&quot; :  &quot;John&quot;,</span><br><span class="line">      &quot;last_name&quot; :   &quot;Smith&quot;,</span><br><span class="line">      &quot;age&quot; :         25,</span><br><span class="line">      &quot;about&quot; :       &quot;I love to go rock climbing&quot;,</span><br><span class="line">      &quot;interests&quot;:  [ &quot;sports&quot;, &quot;music&quot; ]</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-2-简单搜索"><a href="#5-2-简单搜索" class="headerlink" title="5.2 简单搜索"></a>5.2 简单搜索</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br></pre></td></tr></table></figure>
+<p>查询 last_name 为 Smith 的记录</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/_search?q=last_name:Smith</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   ...</span><br><span class="line">   &quot;hits&quot;: &#123;</span><br><span class="line">      &quot;total&quot;:      2,</span><br><span class="line">      &quot;max_score&quot;:  0.30685282,</span><br><span class="line">      &quot;hits&quot;: [</span><br><span class="line">         &#123;</span><br><span class="line">            ...</span><br><span class="line">            &quot;_source&quot;: &#123;</span><br><span class="line">               &quot;first_name&quot;:  &quot;John&quot;,</span><br><span class="line">               &quot;last_name&quot;:   &quot;Smith&quot;,</span><br><span class="line">               &quot;age&quot;:         25,</span><br><span class="line">               &quot;about&quot;:       &quot;I love to go rock climbing&quot;,</span><br><span class="line">               &quot;interests&quot;: [ &quot;sports&quot;, &quot;music&quot; ]</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         &#123;</span><br><span class="line">            ...</span><br><span class="line">            &quot;_source&quot;: &#123;</span><br><span class="line">               &quot;first_name&quot;:  &quot;Jane&quot;,</span><br><span class="line">               &quot;last_name&quot;:   &quot;Smith&quot;,</span><br><span class="line">               &quot;age&quot;:         32,</span><br><span class="line">               &quot;about&quot;:       &quot;I like to collect rock albums&quot;,</span><br><span class="line">               &quot;interests&quot;: [ &quot;music&quot; ]</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-3-使用DSL语句查询"><a href="#5-3-使用DSL语句查询" class="headerlink" title="5.3 使用DSL语句查询"></a>5.3 使用DSL语句查询</h3><p> DSL(Domain Specific Language特定领域语言) </p>
+<p><strong>查询字符串等价于</strong>  q=last_name:Smith <strong>DSL查询 : </strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;query&quot; : &#123;</span><br><span class="line">        &quot;match&quot; : &#123;</span><br><span class="line">            &quot;last_name&quot; : &quot;Smith&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-4-更复杂的搜索"><a href="#5-4-更复杂的搜索" class="headerlink" title="5.4 更复杂的搜索"></a>5.4 更复杂的搜索</h3><p><strong>filter range</strong></p>
+<p>GET /megacorp/employee/_search<br>{<br>    “query” : {<br>        “filtered” : {<br>            “filter” : {<br>                “range” : {<br>                    “age” : { “gt” : 30 } <1><br>                }<br>            },<br>            “query” : {<br>                “match” : {<br>                    “last_name” : “smith” <2><br>                }<br>            }<br>        }<br>    }<br>}</2></1></p>
+<h3 id="5-5-全文搜索"><a href="#5-5-全文搜索" class="headerlink" title="5.5 全文搜索"></a>5.5 全文搜索</h3><p>一种传统数据库难以实现的功能</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;query&quot; : &#123;</span><br><span class="line">        &quot;match&quot; : &#123;</span><br><span class="line">            &quot;about&quot; : &quot;rock climbing&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Result :</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">   ...</span><br><span class="line">   &quot;hits&quot;: &#123;</span><br><span class="line">      &quot;total&quot;:      2,</span><br><span class="line">      &quot;max_score&quot;:  0.16273327,</span><br><span class="line">      &quot;hits&quot;: [</span><br><span class="line">         &#123;</span><br><span class="line">            ...</span><br><span class="line">            &quot;_score&quot;:         0.16273327, &lt;1&gt;</span><br><span class="line">            &quot;_source&quot;: &#123;</span><br><span class="line">               &quot;first_name&quot;:  &quot;John&quot;,</span><br><span class="line">               &quot;last_name&quot;:   &quot;Smith&quot;,</span><br><span class="line">               &quot;age&quot;:         25,</span><br><span class="line">               &quot;about&quot;:       &quot;I love to go rock climbing&quot;,</span><br><span class="line">               &quot;interests&quot;: [ &quot;sports&quot;, &quot;music&quot; ]</span><br><span class="line">            &#125;</span><br><span class="line">         &#125;,</span><br><span class="line">         &#123;</span><br><span class="line">            ...</span><br><span class="line">            &quot;_score&quot;:         0.016878016, &lt;2&gt;</span><br><span class="line">            &quot;_source&quot;: &#123;</span><br><span class="line">               &quot;first_name&quot;:  &quot;Jane&quot;,</span><br><span class="line">               &quot;last_name&quot;:   &quot;Smith&quot;,</span><br><span class="line">               &quot;age&quot;:         32,</span><br><span class="line">               &quot;about&quot;:       &quot;I like to collect rock albums&quot;,</span><br><span class="line">               &quot;interests&quot;: [ &quot;music&quot; ]</span><br><span class="line">             &#125;</span><br><span class="line">         &#125;</span><br><span class="line">      ]</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-6-短语搜索-–-phrases"><a href="#5-6-短语搜索-–-phrases" class="headerlink" title="5.6 短语搜索 – phrases"></a>5.6 短语搜索 – phrases</h3><p>想要确切的匹配若干个单词或者短语(phrases), 例如  我们想要查询同时包含”rock”和”climbing”（并且是相邻的）的员工记录。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;query&quot; : &#123;</span><br><span class="line">        &quot;match_phrase&quot; : &#123;</span><br><span class="line">            &quot;about&quot; : &quot;rock climbing&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong><em>增加高亮</em></strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;query&quot; : &#123;</span><br><span class="line">        &quot;match_phrase&quot; : &#123;</span><br><span class="line">            &quot;about&quot; : &quot;rock climbing&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;highlight&quot;: &#123;</span><br><span class="line">        &quot;fields&quot; : &#123;</span><br><span class="line">            &quot;about&quot; : &#123;&#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="6-aggregations"><a href="#6-aggregations" class="headerlink" title="6. aggregations"></a>6. aggregations</h2><p>聚合相当于 group by</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">  &quot;query&quot;: &#123;</span><br><span class="line">    &quot;match&quot;: &#123;</span><br><span class="line">      &quot;last_name&quot;: &quot;smith&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;aggs&quot;: &#123;</span><br><span class="line">    &quot;all_interests&quot;: &#123;</span><br><span class="line">      &quot;terms&quot;: &#123;</span><br><span class="line">        &quot;field&quot;: &quot;interests&quot;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">&quot;all_interests&quot;: &#123;</span><br><span class="line">   &quot;buckets&quot;: [</span><br><span class="line">      &#123;</span><br><span class="line">         &quot;key&quot;: &quot;music&quot;,</span><br><span class="line">         &quot;doc_count&quot;: 2</span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">         &quot;key&quot;: &quot;sports&quot;,</span><br><span class="line">         &quot;doc_count&quot;: 1</span><br><span class="line">      &#125;</span><br><span class="line">   ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>聚合也允许分级汇总。例如，让我们统计每种兴趣下职员的平均年龄</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">GET /megacorp/employee/_search</span><br><span class="line">&#123;</span><br><span class="line">    &quot;aggs&quot; : &#123;</span><br><span class="line">        &quot;all_interests&quot; : &#123;</span><br><span class="line">            &quot;terms&quot; : &#123; &quot;field&quot; : &quot;interests&quot; &#125;,</span><br><span class="line">            &quot;aggs&quot; : &#123;</span><br><span class="line">                &quot;avg_age&quot; : &#123;</span><br><span class="line">                    &quot;avg&quot; : &#123; &quot;field&quot; : &quot;age&quot; &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>教程小结</strong></p>
+<p> 为了保持简短，还有很多的特性未提及——像 推荐、定位、渗透、模糊 以及 部分匹配等。但这也突出了构建高级搜索功能是多么的容易。无需配置，只需要添加数据然后开始搜索！</p>
+<h2 id="7-分布式的特性"><a href="#7-分布式的特性" class="headerlink" title="7. 分布式的特性"></a>7. 分布式的特性</h2><p>Elasticsearch 你不需要知道任何关于分布式系统、分片、集群发现或者其他大量的分布式概念。所有的教程你即可以运行在你的笔记本上，也可以运行在拥有100个节点的集群上，其工作方式是一样的。</p>
+<p>Elasticsearch 致力于隐藏分布式系统的复杂性。以下这些操作都是在底层自动完成的：</p>
+<ul>
+<li>将你的文档分区到不同的容器或者分片(shards)中，它们可存于一或多个节点中。</li>
+<li>将分片均匀的分配到各个节点，对索引和搜索做负载均衡。</li>
+<li>冗余每一个分片，防止硬件故障造成的数据丢失。</li>
+<li>将集群中任意一个节点上的请求路由到相应数据所在的节点。</li>
+<li>无论是增加节点，还是移除节点，分片都可以做到无缝的扩展和迁移。</li>
+</ul>
+
       
     </div>
     -->
