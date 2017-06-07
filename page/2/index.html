@@ -57,6 +57,87 @@
 </header>
     <br>
     <section id="main" class="outer">
+      <article id="post-Spark-ALS" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/05/07/Spark-ALS/"><strong>Spark ALS</strong></a>
+      <small class=article-date-index>&nbsp; 2017-05-07</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/05/07/Spark-ALS/" class="article-date">
+  <time datetime="2017-05-07T02:28:21.000Z" itemprop="datePublished">2017-05-07</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      Spark ALS <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/05/07/Spark-ALS/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://spark.apache.org/examples.html" target="_blank" rel="external">Spark.apache.org</a><br><a href="http://blog.javachen.com/2015/06/07/spark-configuration.html" target="_blank" rel="external">Java Chen Spark</a></p>
+<p>以下为手动计算流程 :</p>
+<h3 id="4-2-启动-spark-shell"><a href="#4-2-启动-spark-shell" class="headerlink" title="4.2 启动 spark-shell"></a>4.2 启动 spark-shell</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h3 id="4-3-输入输出-相关变量"><a href="#4-3-输入输出-相关变量" class="headerlink" title="4.3 输入输出:相关变量"></a>4.3 输入输出:相关变量</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">val inputTable = <span class="string">"mds_user_coupon_bhv"</span></span><br><span class="line">val inputUrl = <span class="string">"jdbc:mysql://192.168.xxx.xx:3306/com_profile?user=your_name&amp;password=your_password"</span></span><br><span class="line">val outputTable = <span class="string">"mds_rs_shop_coupon_tmp"</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-4-核心程序代码"><a href="#4-4-核心程序代码" class="headerlink" title="4.4 核心程序代码"></a>4.4 核心程序代码</h3><figure class="highlight"><table><tr><td class="code"><pre><span class="line">package com.x.rs.service</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat</span><br><span class="line">import java.util.Date</span><br><span class="line">import java.util.Properties</span><br><span class="line"></span><br><span class="line">import org.apache.spark.sql.Row</span><br><span class="line">import org.apache.spark.sql.types._</span><br><span class="line"></span><br><span class="line">import org.apache.spark.&#123;SparkConf, SparkContext&#125;</span><br><span class="line"></span><br><span class="line">import org.apache.spark.mllib.recommendation.&#123;ALS, Rating&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">  * Date : 2017-04-20</span><br><span class="line">  * Author : Blair Chan</span><br><span class="line">  */</span><br><span class="line">object RsCouponCalc &#123;</span><br><span class="line">  def main(args: Array[String]) &#123;</span><br><span class="line"></span><br><span class="line">    println("start...")</span><br><span class="line"></span><br><span class="line">    if (args.length &lt; 3) &#123;</span><br><span class="line">      System.err.println("Usage: &lt;file&gt;")</span><br><span class="line">      System.exit(1)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    val inputTable = args(0) // Should be some file on your system // conf = new SparkConf().setAppName(appName).setMaster("local");</span><br><span class="line">    val inputUrl = args(1)</span><br><span class="line">    val outputTable = args(2)</span><br><span class="line"></span><br><span class="line">    val conf = new SparkConf().setAppName("SparkRsOne");</span><br><span class="line">    val sc = new SparkContext(conf)</span><br><span class="line">    val sqlContext = new org.apache.spark.sql.SQLContext(sc)</span><br><span class="line"></span><br><span class="line">    //    val rawData = sc.textFile(inputFile)</span><br><span class="line">    //    val rawRatings = rawData.map(_.split("\t").take(3))</span><br><span class="line"></span><br><span class="line">    val url = inputUrl</span><br><span class="line">    val prop = new Properties()</span><br><span class="line"></span><br><span class="line">    val dfForRawData = sqlContext.read.jdbc(url, inputTable, prop)</span><br><span class="line"></span><br><span class="line">    val ratings_tmp = dfForRawData.map &#123; row =&gt; (row(1).toString().toInt, row(4).toString().toInt, row(6).toString().toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val ratings = ratings_tmp.map &#123; case (uid, couponId, rating) =&gt; Rating(uid.toInt, couponId.toInt, rating.toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val model = ALS.train(ratings, 50, 10, 0.01)</span><br><span class="line"></span><br><span class="line">    model.userFeatures.count</span><br><span class="line"></span><br><span class="line">    val K = 10</span><br><span class="line"></span><br><span class="line">    model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val originResultRdd1 = model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val curDate = new Date()</span><br><span class="line">    val createDateString = new SimpleDateFormat("yyyy-MM-dd").format(curDate)</span><br><span class="line"></span><br><span class="line">    val originResultRdd2 = originResultRdd1.map(tuple =&gt; &#123;</span><br><span class="line">      val uid = tuple._1</span><br><span class="line">      val product = tuple._2.map &#123; case Rating(user, product, score) =&gt; (product.toString, score.toString) &#125;</span><br><span class="line">      (uid, product)</span><br><span class="line">    &#125;).flatMap &#123;</span><br><span class="line">      case (uid, product) =&gt; &#123;</span><br><span class="line">        product.map &#123; case (itemId, score) =&gt; Row.apply(uid.toLong, itemId.toString, score.toDouble, createDateString.toString) &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // println(originResultRdd2.first())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val schema = StructType(</span><br><span class="line">      StructField("uid", LongType) ::</span><br><span class="line">        StructField("coupon_id", LongType) ::</span><br><span class="line">        StructField("score", DoubleType) ::</span><br><span class="line">        StructField("calc_date", StringType) :: Nil)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val df = sqlContext.createDataFrame(originResultRdd2, schema)</span><br><span class="line"></span><br><span class="line">    df.insertIntoJDBC(url, outputTable, false)</span><br><span class="line">    // 设置为 true，则为 删除表，然后自动创建，再插入</span><br><span class="line"></span><br><span class="line">    println("end !")</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>DF 通过插入 RMDB.  schema 可以通过反射来使得程序扩展性提高。</p>
+</blockquote>
+<p><a href="http://www.cnblogs.com/yaohaitao/articles/5681984.html" target="_blank" rel="external">spark sql internet</a></p>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-ml-python-filter-map-reduce" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2043,157 +2124,8 @@ trainer end!
 
 
     
-      <article id="post-ml-coursera-ng-w4-nn-02" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/07/ml-coursera-ng-w4-nn-02/"><strong>Coursera Week 4 - Neural Networks I</strong></a>
-      <small class=article-date-index>&nbsp; 2017-02-07</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/02/07/ml-coursera-ng-w4-nn-02/" class="article-date">
-  <time datetime="2017-02-07T02:28:21.000Z" itemprop="datePublished">2017-02-07</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      coursera week 4 - neural networks representation <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/07/ml-coursera-ng-w4-nn-02/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p><img src="/images/ml/ml-ng-w4-02-02.png" alt="NN"></p>
-<p>neuron is a computational unit that gets a number of inputs through it input wires and does some computation and then it says outputs via its axon to other nodes or to other neurons in the brain.</p>
-<h2 id="1-Model-Representation-I"><a href="#1-Model-Representation-I" class="headerlink" title="1. Model Representation I"></a>1. Model Representation I</h2><p>Let’s examine how we will represent a hypothesis function using neural networks. At a very simple level, neurons are basically computational units that take inputs (<strong>dendrites</strong>) as electrical inputs (called “spikes”) that are channeled to outputs (<strong>axons</strong>). In our model, <strong>our dendrites are like the input features</strong> $x_1\cdots x_n$, and the <strong>output is the result of our hypothesis function</strong>. In this model our $x_0$ input node is sometimes called the “bias unit.” It is always equal to 1. In neural networks, we use the same logistic function as in classification, $\frac{1}{1 + e^{-\theta^Tx}}$, yet we sometimes call it a sigmoid (logistic) <strong>activation</strong> function. In this situation, our “theta” parameters are sometimes called “weights”.</p>
-<p>Visually, a simplistic representation looks like:</p>
-<p>$$<br>\begin{bmatrix}x_0 \newline x_1 \newline x_2 \newline \end{bmatrix}\rightarrow\begin{bmatrix}\ \ \ \newline \end{bmatrix}\rightarrow h_\theta(x)<br>$$</p>
-<p><img src="/images/ml/ml-ng-w4-02-03.png" alt="NN"></p>
-<p>Our input nodes (layer 1), also known as the “input layer”, go into another node (layer 2), which finally outputs the hypothesis function, known as the “output layer”.</p>
-<p>We can have intermediate layers of nodes between the input and output layers called the “hidden layers.”</p>
-<p>In this example, we label these intermediate or “hidden” layer nodes $a^2_0 \cdots a^2_n$ and call them “activation units.”</p>
-<p>$$<br>\begin{align} &amp; a_i^{(j)} = \text{“activation” of unit $i$ in layer $j$} \newline&amp; \Theta^{(j)} = \text{matrix of weights controlling function mapping from layer $j$ to layer $j+1$} \end{align}<br>$$</p>
-<p>If we had one hidden layer, it would <a href="/images/ml/ml-ng-w4-02-04-2.png">look like</a>:</p>
-<p>$$<br>\begin{bmatrix}x_0 \newline x_1 \newline x_2 \newline x_3\end{bmatrix}\rightarrow\begin{bmatrix}a_1^{(2)} \newline a_2^{(2)} \newline a_3^{(2)} \newline \end{bmatrix}\rightarrow h_\theta(x)<br>$$</p>
-<p>The values for each of the “activation” nodes is obtained as follows:</p>
-<p>$$<br>\begin{align} a_1^{(2)} = g(\Theta_{10}^{(1)}x_0 + \Theta_{11}^{(1)}x_1 + \Theta_{12}^{(1)}x_2 + \Theta_{13}^{(1)}x_3) \newline a_2^{(2)} = g(\Theta_{20}^{(1)}x_0 + \Theta_{21}^{(1)}x_1 + \Theta_{22}^{(1)}x_2 + \Theta_{23}^{(1)}x_3) \newline a_3^{(2)} = g(\Theta_{30}^{(1)}x_0 + \Theta_{31}^{(1)}x_1 + \Theta_{32}^{(1)}x_2 + \Theta_{33}^{(1)}x_3) \newline h_\Theta(x) = a_1^{(3)} = g(\Theta_{10}^{(2)}a_0^{(2)} + \Theta_{11}^{(2)}a_1^{(2)} + \Theta_{12}^{(2)}a_2^{(2)} + \Theta_{13}^{(2)}a_3^{(2)}) \newline \end{align}<br>$$</p>
-<p>This is saying that we compute our activation nodes by using a 3×4 matrix of parameters. We apply each row of the parameters to our inputs to obtain the value for one activation node. Our hypothesis output is the logistic function applied to the sum of the values of our activation nodes, which have been multiplied by yet another parameter matrix $\Theta^{(2)}$ containing the weights for our second layer of nodes.</p>
-<p>Each layer gets its own matrix of weights, $\Theta^{(j)}$</p>
-<p>The dimensions of these matrices of weights is determined as follows:</p>
-<p>If network has $s_j$ units in layer $j$ and $s_{j+1}$ units in layer $j+1$, then $\Theta^{(j)}$ will be of dimension $s_{j+1} \times (s_j + 1)$</p>
-<p>The +1 comes from the addition in $\Theta^{(j)}$ of the “bias nodes,” $x_0$ and $\Theta_0^{(j)}$. In other words the output nodes will not include the bias nodes while the inputs will. </p>
-<h2 id="2-Model-Representation-II"><a href="#2-Model-Representation-II" class="headerlink" title="2. Model Representation II"></a>2. Model Representation II</h2><p>To re-iterate, the following is an example of a neural network:</p>
-<p>$$<br>\begin{align} a_1^{(2)} = g(\Theta_{10}^{(1)}x_0 + \Theta_{11}^{(1)}x_1 + \Theta_{12}^{(1)}x_2 + \Theta_{13}^{(1)}x_3) \newline a_2^{(2)} = g(\Theta_{20}^{(1)}x_0 + \Theta_{21}^{(1)}x_1 + \Theta_{22}^{(1)}x_2 + \Theta_{23}^{(1)}x_3) \newline a_3^{(2)} = g(\Theta_{30}^{(1)}x_0 + \Theta_{31}^{(1)}x_1 + \Theta_{32}^{(1)}x_2 + \Theta_{33}^{(1)}x_3) \newline h_\Theta(x) = a_1^{(3)} = g(\Theta_{10}^{(2)}a_0^{(2)} + \Theta_{11}^{(2)}a_1^{(2)} + \Theta_{12}^{(2)}a_2^{(2)} + \Theta_{13}^{(2)}a_3^{(2)}) \newline \end{align}<br>$$</p>
-<p>In this section we’ll do a vectorized implementation of the above functions. We’re going to define a new variable $z_k^{(j)}$ that encompasses the parameters inside our g function. In our previous example if we replaced by the variable z for all the parameters we would get:</p>
-<p>$$<br>\begin{align}a_1^{(2)} = g(z_1^{(2)}) \newline a_2^{(2)} = g(z_2^{(2)}) \newline a_3^{(2)} = g(z_3^{(2)}) \newline \end{align}<br>$$</p>
-<p>In other words, for layer $j=2$ and node $k$, the variable $z$ will be:</p>
-<p>$$<br>z_k^{(2)} = \Theta_{k,0}^{(1)}x_0 + \Theta_{k,1}^{(1)}x_1 + \cdots + \Theta_{k,n}^{(1)}x_n<br>$$</p>
-<p>The vector representation of $x$ and $z^{j}$ is:</p>
-<p>$$<br>\begin{align}x = \begin{bmatrix}x_0 \newline x_1 \newline\cdots \newline x_n\end{bmatrix} &amp;z^{(j)} = \begin{bmatrix}z_1^{(j)} \newline z_2^{(j)} \newline\cdots \newline z_n^{(j)}\end{bmatrix}\end{align}<br>$$</p>
-<p>Setting $x = a^{(1)}$, we can rewrite the equation as:</p>
-<p>$$<br>z^{(j)} = \Theta^{(j-1)}a^{(j-1)}<br>$$</p>
-<p>We are multiplying our matrix $\Theta^{(j-1)}$ with dimensions $s_j\times (n+1)$ (where $s_j$ is the number of our activation nodes) by our vector $a^{(j-1)}$ with height (n+1). This gives us our vector $z^{(j)}$ with height $s_j$. Now we can get a vector of our activation nodes for layer $j$ as follows:</p>
-<p>$$<br>a^{(j)} = g(z^{(j)})<br>$$</p>
-<p>Where our function $g$ can be applied element-wise to our vector $z^{(j)}$.</p>
-<p>We can then add a bias unit (equal to 1) to layer j after we have computed $a^{(j)}$. This will be element $a_0^{(j)}$ and will be equal to 1. To compute our final hypothesis, let’s first compute another $z$ vector:</p>
-<p>$$<br>z^{(j+1)} = \Theta^{(j)}a^{(j)}<br>$$</p>
-<p>We get this final z vector by multiplying the next theta matrix after $\Theta^{(j-1)}$ with the values of all the activation nodes we just got. This last theta matrix $\Theta^{(j)}$ will have only one row which is multiplied by one column $a^{(j)}$ so that our result is a single number. We then get our final result with:</p>
-<p>$$<br>h_\Theta(x) = a^{(j+1)} = g(z^{(j+1)})<br>$$</p>
-<h2 id="3-Simple-Example"><a href="#3-Simple-Example" class="headerlink" title="3. Simple Example"></a>3. Simple Example</h2><p><img src="/images/ml/ml-ng-w4-02-06.png" alt="NN"></p>
-<h3 id="3-1-x-1-AND-x-2"><a href="#3-1-x-1-AND-x-2" class="headerlink" title="3.1 $x_1$ AND $x_2$"></a>3.1 $x_1$ AND $x_2$</h3><p>A simple example of applying neural networks is by predicting $x_1$ AND $x_2$</p>
-<p>$$<br>\begin{align} \begin{bmatrix}x_0 \newline x_1 \newline x_2\end{bmatrix} \rightarrow\begin{bmatrix}g(z^{(2)})\end{bmatrix} \rightarrow h_\Theta(x) \end{align}<br>$$</p>
-<p>Let’s set our first theta matrix as:</p>
-<p>$$<br>\Theta^{(1)} =\begin{bmatrix}-30 &amp; 20 &amp; 20\end{bmatrix}<br>$$</p>
-<p>This will cause the output of our hypothesis to only be positive if both $x_1$ and $x_2$ are 1. In other words:</p>
-<p>$$<br>\begin{align}&amp; h_\Theta(x) = g(-30 + 20x_1 + 20x_2) \newline \newline &amp; x_1 = 0 \ \ and \ \ x_2 = 0 \ \ then \ \ g(-30) \approx 0 \newline &amp; x_1 = 0 \ \ and \ \ x_2 = 1 \ \ then \ \ g(-10) \approx 0 \newline &amp; x_1 = 1 \ \ and \ \ x_2 = 0 \ \ then \ \ g(-10) \approx 0 \newline &amp; x_1 = 1 \ \ and \ \ x_2 = 1 \ \ then \ \ g(10) \approx 1\end{align}<br>$$</p>
-<p><img src="/images/ml/ml-ng-w4-02-07.png" alt="NN"></p>
-<h3 id="3-2-x-1-XNOR-x-2"><a href="#3-2-x-1-XNOR-x-2" class="headerlink" title="3.2 $x_1$ XNOR $x_2$"></a>3.2 $x_1$ XNOR $x_2$</h3><p>The $Θ^{(1)}$ matrices for AND, NOR, and OR are:</p>
-<p>$$<br>\begin{align}AND:\newline\Theta^{(1)} &amp;=\begin{bmatrix}-30 &amp; 20 &amp; 20\end{bmatrix} \newline NOR:\newline\Theta^{(1)} &amp;= \begin{bmatrix}10 &amp; -20 &amp; -20\end{bmatrix} \newline OR:\newline\Theta^{(1)} &amp;= \begin{bmatrix}-10 &amp; 20 &amp; 20\end{bmatrix} \newline\end{align}<br>$$</p>
-<p>We can combine these to get the XNOR logical operator (which gives 1 if $x_1$ and $x_2$ are both 0 or both 1).</p>
-<p>$$<br>\begin{align} \begin{bmatrix}x_0 \newline x_1 \newline x_2\end{bmatrix} \rightarrow\begin{bmatrix}a_1^{(2)} \newline a_2^{(2)} \end{bmatrix} \rightarrow\begin{bmatrix}a^{(3)}\end{bmatrix} \rightarrow h_\Theta(x) \end{align}<br>$$</p>
-<p>For the transition between the first and second layer, we’ll use a $Θ^{(1)}$ matrix that combines the values for AND and NOR:</p>
-<p>$$<br>\Theta^{(1)} =\begin{bmatrix}-30 &amp; 20 &amp; 20 \newline 10 &amp; -20 &amp; -20\end{bmatrix}<br>$$</p>
-<p>Let’s write out the values for all our nodes:</p>
-<p>$$<br>\begin{align}&amp; a^{(2)} = g(\Theta^{(1)} \cdot x) \newline&amp; a^{(3)} = g(\Theta^{(2)} \cdot a^{(2)}) \newline&amp; h_\Theta(x) = a^{(3)}\end{align}<br>$$</p>
-<p>And there we have the XNOR operator using one hidden layers! The following summarizes the above algorithm:</p>
-<p><img src="/images/ml/ml-ng-w4-02-08.png" alt=""></p>
-<h2 id="4-Multiclass-Classification"><a href="#4-Multiclass-Classification" class="headerlink" title="4. Multiclass Classification"></a>4. Multiclass Classification</h2><p>To classify data into multiple classes, we let our hypothesis function return a vector of values.</p>
-<p><img src="/images/ml/ml-ng-w4-02-09.png" alt=""></p>
-<p>We can define our set of resulting classes as y:</p>
-<p><img src="/images/ml/ml-ng-w4-02-10.png" alt=""></p>
-<p>Each $y^{(i)}$ represents a different image corresponding to either a car, pedestrian, truck, or motorcycle. </p>
-<p><img src="/images/ml/ml-ng-w4-02-11.png" alt=""></p>
-<p>Our resulting hypothesis for one set of inputs may look like:</p>
-<p>$$<br>h_\Theta(x) =\begin{bmatrix}0 \newline 0 \newline 1 \newline 0 \newline\end{bmatrix}<br>$$</p>
-<p>In which case our resulting class is the third one down, or $h_\Theta(x)_3$, which represents the motorcycle.</p>
-<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2>
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
       <nav id="page-nav">
-        <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
+        <a class="extend prev" rel="prev" href="/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/3/">Next &raquo;</a>
       </nav>
     
 
