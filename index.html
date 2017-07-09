@@ -241,8 +241,8 @@ audio {
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/06/25/nlp-nltk/"><strong>NLP 原理与基础</strong></a>
-      <small class=article-date-index>&nbsp; 2017-06-25</small>
+      <a class="article-title-index" href="/2017/06/29/nlp-nltk/"><strong>NLP 原理与基础</strong></a>
+      <small class=article-date-index>&nbsp; 2017-06-29</small>
       <!--<a>
       <div = post.date  </div>
       </a>-->
@@ -253,8 +253,8 @@ audio {
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/06/25/nlp-nltk/" class="article-date">
-  <time datetime="2017-06-25T13:08:21.000Z" itemprop="datePublished">2017-06-25</time>
+      <!--<a href="/2017/06/29/nlp-nltk/" class="article-date">
+  <time datetime="2017-06-29T13:08:21.000Z" itemprop="datePublished">2017-06-29</time>
 </a>-->
       
   
@@ -277,7 +277,7 @@ audio {
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/06/25/nlp-nltk/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/06/29/nlp-nltk/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -288,7 +288,7 @@ audio {
         <style>
 img {
         display: block !important;
-        width: 400px;
+        width: 600px;
         margin-left: 100px !important;
 }
 </style>
@@ -419,6 +419,37 @@ img {
 <li>文本相似度 </li>
 <li>文本分类</li>
 </ol>
+<h3 id="9-1-情感分析"><a href="#9-1-情感分析" class="headerlink" title="9.1 情感分析"></a>9.1 情感分析</h3><p><img src="/images/ml/nlp-nltk-2.png" alt=""></p>
+<p>哪些是夸你？哪些是黑你？</p>
+<h4 id="最简单的-sentiment-dictionary"><a href="#最简单的-sentiment-dictionary" class="headerlink" title="最简单的 sentiment dictionary"></a>最简单的 sentiment dictionary</h4><ul>
+<li>like 1 </li>
+<li>good 2 </li>
+<li>bad -2 </li>
+<li>terrible -3</li>
+</ul>
+<blockquote>
+<p>最简单也比较有效的方法，不需要学习</p>
+<p>比如:AFINN-111<br><a href="http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010" target="_blank" rel="external">http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=6010</a></p>
+</blockquote>
+<h4 id="NLTK-完成简单的情感分析"><a href="#NLTK-完成简单的情感分析" class="headerlink" title="NLTK 完成简单的情感分析"></a>NLTK 完成简单的情感分析</h4><figure class="highlight py"><table><tr><td class="code"><pre><span class="line">sentiment_dictionary = &#123;&#125;<span class="keyword">for</span> line <span class="keyword">in</span> open(<span class="string">'data/AFINN-111.txt'</span>)    word, score = line.split(<span class="string">'\t'</span>)    sentiment_dictionary[word] = int(score)<span class="comment"># 把这个打分表记录在⼀一个Dict上以后 </span></span><br><span class="line"><span class="comment"># 跑⼀一遍整个句句⼦子,把对应的值相加</span>total_score = sum(sentiment_dictionary.get(word, <span class="number">0</span>) <span class="keyword">for</span> word <span class="keyword">in</span> </span><br><span class="line">words) </span><br><span class="line"></span><br><span class="line"><span class="comment"># 有值就是Dict中的值,没有就是0</span><span class="comment"># 于是你就得到了了⼀一个 sentiment score</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>显然这个方法太Naive<br>新词怎么办?<br>特殊词汇怎么办?<br>更深层次的玩意儿怎么办?</p>
+</blockquote>
+<h4 id="配上ML的情感分析"><a href="#配上ML的情感分析" class="headerlink" title="配上ML的情感分析"></a>配上ML的情感分析</h4><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> nltk.classify <span class="keyword">import</span> NaiveBayesClassifier<span class="comment"># 随⼿手造点训练集</span>s1 = <span class="string">'this is a good book'</span>s2 = <span class="string">'this is a awesome book'</span>s3 = <span class="string">'this is a bad book'</span>s4 = <span class="string">'this is a terrible book'</span><span class="function"><span class="keyword">def</span> <span class="title">preprocess</span><span class="params">(s)</span>:</span> <span class="comment"># Func: 句⼦处理</span><span class="comment"># 这⾥简单的⽤了了split(), 把句子中每个单词分开 # 显然 还有更多的processing method可以⽤ </span></span><br><span class="line">    <span class="keyword">return</span> &#123;word: <span class="keyword">True</span> <span class="keyword">for</span> word <span class="keyword">in</span> s.lower().split()&#125;<span class="comment"># return长这样:</span><span class="comment"># &#123;'this': True, 'is':True, 'a':True, 'good':True, 'book':True&#125; # 其中, 前⼀一个叫fname, 对应每个出现的文本单词;</span><span class="comment"># 后⼀一个叫fval, 指的是每个⽂文本单词对应的值。</span><span class="comment"># 这⾥里里我们⽤用最简单的True,来表示,这个词『出现在当前的句句⼦子中』的意义。</span><span class="comment"># 当然啦, 我们以后可以升级这个⽅方程, 让它带有更更加⽜牛逼的fval, 比如 word2vec</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 把训练集给做成标准形式</span>training_data = [[preprocess(s1), <span class="string">'pos'</span>],                 [preprocess(s2), <span class="string">'pos'</span>],                 [preprocess(s3), <span class="string">'neg'</span>],                 [preprocess(s4), <span class="string">'neg'</span>]]<span class="comment"># 喂给model吃</span>model = NaiveBayesClassifier.train(training_data)<span class="comment"># 打出结果</span>print(model.classify(preprocess(<span class="string">'this is a good book'</span>)))</span><br></pre></td></tr></table></figure>
+<h3 id="9-2-文本相似度"><a href="#9-2-文本相似度" class="headerlink" title="9.2 文本相似度"></a>9.2 文本相似度</h3><p><img src="/images/ml/nlp-nltk-3.png" alt=""></p>
+<h4 id="9-2-1-用元素频率表示文本特征"><a href="#9-2-1-用元素频率表示文本特征" class="headerlink" title="9.2.1 用元素频率表示文本特征"></a>9.2.1 用元素频率表示文本特征</h4><p><img src="/images/ml/nlp-nltk-4.png" alt=""></p>
+<h4 id="9-2-2-Frequency-频率统计"><a href="#9-2-2-Frequency-频率统计" class="headerlink" title="9.2.2 Frequency 频率统计"></a>9.2.2 Frequency 频率统计</h4><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> nltk</span><br><span class="line"><span class="keyword">from</span> nltk <span class="keyword">import</span> FreqDist</span><br><span class="line"><span class="comment"># 做个词库先</span></span><br><span class="line">corpus = <span class="string">'this is my sentence '</span> \</span><br><span class="line">           <span class="string">'this is my life '</span> \</span><br><span class="line">           <span class="string">'this is the day'</span></span><br><span class="line"><span class="comment"># 随便tokenize一下, 显然, 正如上文提到,</span></span><br><span class="line"><span class="comment"># 这里可以根据需要做任何的preprocessing:  stopwords, lemma, stemming, etc.</span></span><br><span class="line"><span class="comment"># 借⽤NLTK的FreqDist统计⼀下⽂字出现的频率 fdist = FreqDist(tokens)</span></span><br><span class="line"><span class="comment"># 它就类似于⼀个Dic,  带上某个单词, 可以看到它在整个文章中出现的次数</span></span><br><span class="line"></span><br><span class="line">tokens = nltk.word_tokenize(corpus) </span><br><span class="line">print(tokens)</span><br><span class="line"><span class="comment"># 得到 token 好的 word list</span></span><br><span class="line"><span class="comment"># ['this', 'is', 'my', 'sentence',</span></span><br><span class="line"><span class="comment"># 'this', 'is', 'my', 'life', 'this', # 'is', 'the', 'day']</span></span><br><span class="line"><span class="comment"># 借⽤ NLTK 的 FreqDist 统计⼀下文字出现的频率</span></span><br><span class="line">fdist = FreqDist(tokens)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 它就类似于⼀一个Dict</span></span><br><span class="line"><span class="comment"># 带上某个单词, 可以看到它在整个文章中出现的次数</span></span><br><span class="line">print(fdist[<span class="string">'is'</span>]) <span class="comment">#3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 好, 此刻, 我们可以把最常⽤用的50个单词拿出来 </span></span><br><span class="line">standard_freq_vector = fdist.most_common(<span class="number">50</span>) </span><br><span class="line">size = len(standard_freq_vector) </span><br><span class="line"><span class="keyword">print</span> <span class="string">"size: %s"</span> % (size)</span><br><span class="line">print(standard_freq_vector)</span><br><span class="line"><span class="comment"># [('is', 3), ('this', 3), ('my', 2),</span></span><br><span class="line"><span class="comment"># ('the', 1), ('day', 1), ('sentence', 1),</span></span><br><span class="line"><span class="comment"># ('life', 1)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Func: 按照出现频率⼤小, 记录下每⼀个单词的位置 </span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">position_lookup</span><span class="params">(v)</span>:</span></span><br><span class="line">    res = &#123;&#125;</span><br><span class="line">    counter = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> v:</span><br><span class="line">        res[word[<span class="number">0</span>]] = counter</span><br><span class="line">        counter += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> res</span><br><span class="line"><span class="comment"># 把标准的单词位置记录下来</span></span><br><span class="line">standard_position_dict = position_lookup(standard_freq_vector) </span><br><span class="line">print(standard_position_dict)</span><br><span class="line"><span class="comment"># 得到⼀一个位置对照表</span></span><br><span class="line"><span class="comment"># &#123;'is': 0, 'the': 3, 'day': 4, 'this': 1, 'sentence': 5, 'my': 2, 'life': 6&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 这时, 如果我们有个新句句⼦子:</span></span><br><span class="line">sentence = <span class="string">'this is cool'</span></span><br><span class="line"><span class="comment"># 先新建⼀一个跟我们的标准vector同样⼤小的向量 </span></span><br><span class="line">freq_vector = [<span class="number">0</span>] * size</span><br><span class="line"><span class="comment"># 简单的Preprocessing</span></span><br><span class="line">tokens = nltk.word_tokenize(sentence) <span class="comment"># 对于这个新句⼦⾥的每一个单词</span></span><br><span class="line"><span class="keyword">for</span> word <span class="keyword">in</span> tokens:</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">    <span class="comment"># 如果在我们的词库里出现过</span></span><br><span class="line">    <span class="comment"># 那么就在"标准位置"上+1 </span></span><br><span class="line">        freq_vector[standard_position_dict[word]] += <span class="number">1</span></span><br><span class="line">    <span class="keyword">except</span> KeyError: <span class="comment"># 如果是个新词</span></span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">print(freq_vector)   <span class="comment"># [1, 1, 0, 0, 0, 0, 0]</span></span><br></pre></td></tr></table></figure>
+<h3 id="9-3-文本分类"><a href="#9-3-文本分类" class="headerlink" title="9.3 文本分类"></a>9.3 文本分类</h3><h4 id="TF-IDF"><a href="#TF-IDF" class="headerlink" title="TF-IDF"></a>TF-IDF</h4><p><strong>TF: Term Frequency</strong>, 衡量一个term在文档中出现得有多频繁。 T</p>
+<p>F(t) = (t出现在文档中的次数) / (文档中的term总数).</p>
+<p><strong>IDF: Inverse Document Frequency</strong>, 衡量一个term有多重要。 有些词出现的很多,但是明显不是很有卵用。比如’is’,’the‘,’and‘之类 的。</p>
+<p>为了平衡,我们把罕见的词的重要性(weight)搞高, 把常见词的重要性搞低。</p>
+<p>IDF(t) = log_e(文档总数 / 含有t的文档总数). </p>
+<p><strong>TF-IDF = TF * IDF</strong></p>
+<p>举个栗子🌰 :</p>
+<p>一个文档有100个单词,其中单词baby出现了3次。 那么,TF(baby) = (3/100) = 0.03.</p>
+<p>好,现在我们如果有10M的文档, baby出现在其中的1000个文档中。 那么,IDF(baby) = log(10,000,000 / 1,000) = 4</p>
+<p>所以, TF-IDF(baby) = TF(baby) * IDF(baby) = 0.03 * 4 = 0.12</p>
+<h4 id="NLTK-实现-TF-IDF"><a href="#NLTK-实现-TF-IDF" class="headerlink" title="NLTK 实现 TF-IDF"></a>NLTK 实现 TF-IDF</h4><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> nltk.text <span class="keyword">import</span> TextCollection</span><br><span class="line"><span class="comment"># ⾸先, 把所有的⽂档放到TextCollection类中。</span></span><br><span class="line"><span class="comment"># 这个类会⾃动帮你断句, 做统计, 做计算</span></span><br><span class="line">corpus = TextCollection([<span class="string">'this is sentence one'</span>,</span><br><span class="line">                        <span class="string">'this is sentence two'</span>,</span><br><span class="line">                        <span class="string">'sentence three six'</span>,</span><br><span class="line">                        <span class="string">'this is sentence three'</span>])</span><br><span class="line"><span class="comment"># 直接就能算出tfidf</span></span><br><span class="line"><span class="comment"># (term: ⼀一句句话中的某个term, text: 这句句话)</span></span><br><span class="line">print(corpus.tf_idf(<span class="string">'this'</span>, <span class="string">'this is sentence four'</span>))</span><br><span class="line"><span class="comment"># 0.444342</span></span><br><span class="line"><span class="comment"># 同理, 怎么得到⼀一个标准⼤小的vector来表示所有的句子?</span></span><br><span class="line"><span class="comment"># 对于每个新句子</span></span><br><span class="line"><span class="comment">#new_sentence = 'this is sentence five' # 遍历⼀一遍所有的vocabulary中的词:</span></span><br><span class="line"><span class="comment">#for word in standard_vocab:</span></span><br><span class="line"><span class="comment">#    print(corpus.tf_idf(word, new_sentence)) # 我们会得到⼀个巨长(=所有vocab⻓度)的向量</span></span><br></pre></td></tr></table></figure>
 
       
     </div>
