@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>词向量到word2vec与相关应用 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="word2vec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="词向量到word2vec与相关应用">
+<meta property="og:url" content="http://iequa.com/2017/07/12/nlp-word2vector/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="word2vec">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp-wor2vector-2.png">
+<meta property="og:updated_time" content="2017-07-12T23:50:15.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="词向量到word2vec与相关应用">
+<meta name="twitter:description" content="word2vec">
+<meta name="twitter:image" content="http://iequa.com/images/ml/nlp-wor2vector-2.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/ml">ML-DL</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <br>
+    <section id="main" class="outer"><article id="post-nlp-word2vector" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      词向量到word2vec与相关应用
+      <small class=article-detail-date-index>&nbsp; 2017-07-12</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/07/12/nlp-word2vector/" class="article-date">
+  <time datetime="2017-07-12T13:08:21.000Z" itemprop="datePublished">2017-07-12</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/07/12/nlp-word2vector/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<style>
+img {
+        display: block !important;
+        width: 600px;
+        margin-left: 100px !important;
+}
+</style>
+
+
+<h2 id="1-NLP-常见任务"><a href="#1-NLP-常见任务" class="headerlink" title="1. NLP 常见任务"></a>1. NLP 常见任务</h2><ol>
+<li>自动摘要</li>
+<li>指代消解   </li>
+<li>机器翻译 </li>
+<li>词性标注   </li>
+<li>分词 (中文、日文等)</li>
+<li>主题识别</li>
+<li>文本分类</li>
+</ol>
+<blockquote>
+<p>指代消解   -&gt;   小明放学了, 妈妈去接<code>他</code><br>机器翻译   -&gt;   小心地滑、干货 =&gt; Slide carefully<br>词性标注   -&gt;   heat(v.) water(n.) in(p.) a(det.) pot(n.)<br>分词 (中文、日文等)   -&gt;   大水沟/很/难/过</p>
+</blockquote>
+<h2 id="2-NLP-处理方法"><a href="#2-NLP-处理方法" class="headerlink" title="2. NLP 处理方法"></a>2. NLP 处理方法</h2><h3 id="2-1-传统-基于规则"><a href="#2-1-传统-基于规则" class="headerlink" title="2.1 传统: 基于规则"></a>2.1 传统: 基于规则</h3><p>Dict…</p>
+<blockquote>
+<p>简单、粗暴、有用</p>
+</blockquote>
+<h3 id="2-2-现代-基于机器学习"><a href="#2-2-现代-基于机器学习" class="headerlink" title="2.2 现代: 基于机器学习"></a>2.2 现代: 基于机器学习</h3><blockquote>
+<p>HMM, CRF, SVM, LDA, CNN…<br>“规则”隐含在模型参数里</p>
+</blockquote>
+<h2 id="3-词编码和词向量"><a href="#3-词编码和词向量" class="headerlink" title="3. 词编码和词向量"></a>3. 词编码和词向量</h2><h3 id="3-1-词编码需要保证词的相似性"><a href="#3-1-词编码需要保证词的相似性" class="headerlink" title="3.1 词编码需要保证词的相似性"></a>3.1 词编码需要保证词的相似性</h3><p>Glove results</p>
+<p>Nearest words to</p>
+<ol>
+<li>frog</li>
+<li>toad</li>
+<li>rana</li>
+<li>…</li>
+</ol>
+<h3 id="3-2-向量空间分布的相似性"><a href="#3-2-向量空间分布的相似性" class="headerlink" title="3.2 向量空间分布的相似性"></a>3.2 向量空间分布的相似性</h3><p><img src="/images/ml/nlp-wor2vector-2.png" alt=""></p>
+<h3 id="3-3-向量空间子结构"><a href="#3-3-向量空间子结构" class="headerlink" title="3.3 向量空间子结构"></a>3.3 向量空间子结构</h3><p>$V_{King}$ - $V_{Queen}$ + $V_{Women}$ = $V_{Man}$</p>
+<p>$V_{Paris}$ - $V_{France}$ + $V_{German}$ = $V_{Berlin}$</p>
+<blockquote>
+<p>最终目标: 词向量表示作为机器学习、特别是深度学习的输入和表示空间</p>
+</blockquote>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      <div class="well">
+  原创文章，转载请注明： 转载自<a href="http://blairos.org"> Blair Chan's Blog</a>，作者：
+  <a href="http://blairos.org/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 3.0 China Mainland License" href="http://creativecommons.org/licenses/by/3.0/cn/">署名3.0中国大陆许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-NLP-常见任务"><span class="toc-number"></span> <span class="toc-text">1. NLP 常见任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NLP-处理方法"><span class="toc-number"></span> <span class="toc-text">2. NLP 处理方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-传统-基于规则"><span class="toc-number"></span> <span class="toc-text">2.1 传统: 基于规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-现代-基于机器学习"><span class="toc-number"></span> <span class="toc-text">2.2 现代: 基于机器学习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-词编码和词向量"><span class="toc-number"></span> <span class="toc-text">3. 词编码和词向量</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-词编码需要保证词的相似性"><span class="toc-number"></span> <span class="toc-text">3.1 词编码需要保证词的相似性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-向量空间分布的相似性"><span class="toc-number"></span> <span class="toc-text">3.2 向量空间分布的相似性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-向量空间子结构"><span class="toc-number"></span> <span class="toc-text">3.3 向量空间子结构</span></a></li></ol></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/nlp/">nlp</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/07/09/life-cooking/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Cooking&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/blairchan">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2017/07/12/nlp-word2vector/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
