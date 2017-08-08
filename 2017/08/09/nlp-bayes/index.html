@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>朴素贝叶斯 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Naive Bayes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="朴素贝叶斯">
+<meta property="og:url" content="http://iequa.com/2017/08/09/nlp-bayes/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="Naive Bayes">
+<meta property="og:updated_time" content="2017-08-08T23:27:00.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="朴素贝叶斯">
+<meta name="twitter:description" content="Naive Bayes">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/ml">NLP</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+    <br>
+    <section id="main" class="outer"><article id="post-nlp-bayes" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      朴素贝叶斯
+      <small class=article-detail-date-index>&nbsp; 2017-08-09</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/08/09/nlp-bayes/" class="article-date">
+  <time datetime="2017-08-08T23:50:21.000Z" itemprop="datePublished">2017-08-09</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/08/09/nlp-bayes/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<style>
+img {
+        display: block !important;
+        width: 600px;
+        margin-left: 100px !important;
+}
+</style>
+
+
+<h2 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h2><p>贝叶斯方法是一个历史悠久，有着坚实的理论基础的方法，同时处理很多问题时直接而又高效，很多高级 NLP 模型也可以从它演化而来。因此，学习贝叶斯方法，是研究 NLP 问题的一个非常好的切入口。</p>
+<h2 id="2-贝叶斯公式"><a href="#2-贝叶斯公式" class="headerlink" title="2. 贝叶斯公式"></a>2. 贝叶斯公式</h2><p>贝叶斯公式就一行：</p>
+<p>$$<br>P(Y|X)=\frac{P(X|Y)P(Y)}{P(X)}<br>$$</p>
+<p>它其实是由以下的联合概率公式推导出来：</p>
+<p>$$<br>P(Y,X) = P(Y|X)P(X)=P(X|Y)P(Y)<br>$$</p>
+<p>其中 $P(Y)$ 叫做先验概率， $P(Y|X)$ 叫做后验概率， $P(Y,X)$ 叫做联合概率。</p>
+<h2 id="3-机器学习的视角理解贝叶斯公式"><a href="#3-机器学习的视角理解贝叶斯公式" class="headerlink" title="3. 机器学习的视角理解贝叶斯公式"></a>3. 机器学习的视角理解贝叶斯公式</h2><ul>
+<li>把 $X$ 理解成 “<strong>有某 feature</strong>”</li>
+<li>把 $Y$ 理解成 “<strong>属于某类 label</strong>”</li>
+</ul>
+<blockquote>
+<p>一般机器学习为题中都是X=&gt;特征, Y=&gt;结果对吧。<br>在最简单的二分类问题(是与否判定)下，我们将 $Y$ 理解成“属于某类”的标签。</p>
+</blockquote>
+<p>于是贝叶斯公式就变形成了下面的样子:</p>
+<p>$$<br>P(“属于某类”|“具有某特征”)=\frac{P(“具有某特征”|“属于某类”)P(“属于某类”)}{P(“具有某特征”)}<br>$$</p>
+<p>而我们二分类问题的最终目的就是要判断 $P(“属于某类”|“具有某特征”)$ 是否大于1/2就够了。贝叶斯方法把计算 “<strong>具有某特征的条件下属于某类</strong>” 的概率转换成需要计算 “<strong>属于某类的条件下具有某特征</strong>” 的概率，而后者获取方法就简单多了，我们只需要找到一些包含已知特征标签的样本，即可进行训练。而样本的类别标签都是明确的，所以贝叶斯方法在机器学习里属于有监督学习方法。</p>
+<h2 id="4-垃圾邮件识别"><a href="#4-垃圾邮件识别" class="headerlink" title="4. 垃圾邮件识别"></a>4. 垃圾邮件识别</h2><p>举个栗子 🌰</p>
+<p>我们现在要对邮件进行分类，识别垃圾邮件和普通邮件，如果我们选择使用朴素贝叶斯分类器，那目标就是判断 <strong>P(“垃圾邮件”|“具有某特征”)</strong> 是否大于1/2。</p>
+<p>假设我们有垃圾邮件和正常邮件各1万封作为训练集。需要判断以下这个邮件是否属于垃圾邮件：</p>
+<blockquote>
+<p>“我司可办理正规发票（保真）17%增值税发票点数优惠！”</p>
+</blockquote>
+<p>也就是判断概率 $P(“垃圾邮件”|“我司可办理正规发票（保真）17\%增值税发票点数优惠！”)$ 是否大于1/2。</p>
+<p>$$<br>P = \frac{垃圾邮件中出现这句话的次数}{垃圾邮件中出现这句话的次数+正常邮件中出现这句话的次数}<br>$$</p>
+<blockquote>
+<p>咳咳，有木有发现，转换成的这个概率，计算的方法：就是写个计数器，然后+1 +1 +1统计出所有垃圾邮件和正常邮件中出现这句话的次数啊！！！</p>
+</blockquote>
+<h2 id="5-分词"><a href="#5-分词" class="headerlink" title="5. 分词"></a>5. 分词</h2><p>一个很悲哀但是很现实的结论： <code>训练集是有限的，而句子的可能性则是无限的。所以覆盖所有句子可能性的训练集是不存在的</code>。</p>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      <div class="well">
+  原创文章，转载请注明： 转载自<a href="http://blairos.org"> Blair Chan's Blog</a>，作者：
+  <a href="http://blairos.org/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 3.0 China Mainland License" href="http://creativecommons.org/licenses/by/3.0/cn/">署名3.0中国大陆许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-引言"><span class="toc-number"></span> <span class="toc-text">1. 引言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-贝叶斯公式"><span class="toc-number"></span> <span class="toc-text">2. 贝叶斯公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-机器学习的视角理解贝叶斯公式"><span class="toc-number"></span> <span class="toc-text">3. 机器学习的视角理解贝叶斯公式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-垃圾邮件识别"><span class="toc-number"></span> <span class="toc-text">4. 垃圾邮件识别</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-分词"><span class="toc-number"></span> <span class="toc-text">5. 分词</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/NLP/">NLP</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/nlp/">nlp</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/07/30/nlp-01-string-operation-re/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Python 字符串处理-正则表达式&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/blairchan">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2017/08/09/nlp-bayes/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
