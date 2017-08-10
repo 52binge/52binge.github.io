@@ -5,7 +5,7 @@
     
     <entry>
       <title><![CDATA[朴素贝叶斯]]></title>
-      <url>http://iequa.com/2017/08/09/nlp-bayes/</url>
+      <url>http://iequa.com/2017/08/10/nlp-bayes-1/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -23,30 +23,26 @@
 <style>
 img {
         display: block !important;
-        width: 600px;
-        margin-left: 100px !important;
+        width: 380px;
+        margin-left: 200px !important;
 }
 </style>
 
-
 <h2 id="1-引言"><a href="#1-引言" class="headerlink" title="1. 引言"></a>1. 引言</h2><p>贝叶斯方法是一个历史悠久，有着坚实的理论基础的方法，同时处理很多问题时直接而又高效，很多高级 NLP 模型也可以从它演化而来。因此，学习贝叶斯方法，是研究 NLP 问题的一个非常好的切入口。</p>
 <h2 id="2-贝叶斯公式"><a href="#2-贝叶斯公式" class="headerlink" title="2. 贝叶斯公式"></a>2. 贝叶斯公式</h2><p>贝叶斯公式就一行：</p>
-<p>$$<br>P(Y|X)=\frac{P(X|Y)P(Y)}{P(X)}<br>$$</p>
+<p>$$<br>P(Y|X)=P(X|Y)P(Y)P(X)<br>$$</p>
 <p>它其实是由以下的联合概率公式推导出来：</p>
-<p>$$<br>P(Y,X) = P(Y|X)P(X)=P(X|Y)P(Y)<br>$$</p>
+<p>$$<br>P(Y,X)=P(Y|X)P(X)=P(X|Y)P(Y)<br>$$</p>
 <p>其中 $P(Y)$ 叫做先验概率， $P(Y|X)$ 叫做后验概率， $P(Y,X)$ 叫做联合概率。</p>
-<h2 id="3-机器学习视角理解贝叶斯公式"><a href="#3-机器学习视角理解贝叶斯公式" class="headerlink" title="3. 机器学习视角理解贝叶斯公式"></a>3. 机器学习视角理解贝叶斯公式</h2><ul>
-<li>把 $X$ 理解成 “<strong>有某 feature</strong>”</li>
-<li>把 $Y$ 理解成 “<strong>属于某类 label</strong>”</li>
-</ul>
+<h2 id="3-机器学习视角理解贝叶斯公式"><a href="#3-机器学习视角理解贝叶斯公式" class="headerlink" title="3. 机器学习视角理解贝叶斯公式"></a>3. 机器学习视角理解贝叶斯公式</h2><p>把 $X$ 理解成 “$有某 feature$”<br>把 $Y$ 理解成 “$属于某类 label$”</p>
 <blockquote>
-<p>一般机器学习为题中都是X=&gt;特征, Y=&gt;结果对吧。<br>在最简单的二分类问题(是与否判定)下，我们将 $Y$ 理解成“属于某类”的标签。</p>
+<p>一般机器学习为题中都是 $X$ =&gt; 特征, $Y$ =&gt; 结果 对吧。</p>
+<p>在最简单的二分类问题(是与否判定)下，我们将 $Y$ 理解成 $“属于某类”$ 的标签。<br>于是贝叶斯公式就变形成了下面的样子:</p>
 </blockquote>
-<p>于是贝叶斯公式就变形成了下面的样子:</p>
-<p>$$<br>P(“属于某类”|“具有某特征”)=\frac{P(“具有某特征”|“属于某类”)P(“属于某类”)}{P(“具有某特征”)}<br>$$</p>
-<p>而我们二分类问题的最终目的就是要判断 $P(“属于某类”|“具有某特征”)$ 是否大于1/2就够了。贝叶斯方法把计算 “<strong>具有某特征的条件下属于某类</strong>” 的概率转换成需要计算 “<strong>属于某类的条件下具有某特征</strong>” 的概率，而后者获取方法就简单多了，我们只需要找到一些包含已知特征标签的样本，即可进行训练。而样本的类别标签都是明确的，所以贝叶斯方法在机器学习里属于有监督学习方法。</p>
+<p>$$<br>P(“属于某类”|“具有某特征”)=P(“具有某特征”|“属于某类”)P(“属于某类”)P(“具有某特征”)<br>$$</p>
+<p>而我们二分类问题的最终目的就是要判断 $P(“属于某类”|“具有某特征”)$ 是否大于1/2就够了。贝叶斯方法把计算 “$具有某特征的条件下属于某类$” 的概率转换成需要计算 “$属于某类的条件下具有某特征$” 的概率，而后者获取方法就简单多了，我们只需要找到一些包含已知特征标签的样本，即可进行训练。而样本的类别标签都是明确的，所以贝叶斯方法在机器学习里属于有监督学习方法。</p>
 <h2 id="4-垃圾邮件识别"><a href="#4-垃圾邮件识别" class="headerlink" title="4. 垃圾邮件识别"></a>4. 垃圾邮件识别</h2><p>举个栗子 🌰</p>
-<p>我们现在要对邮件进行分类，识别垃圾邮件和普通邮件，如果我们选择使用朴素贝叶斯分类器，那目标就是判断 <strong>P(“垃圾邮件”|“具有某特征”)</strong> 是否大于1/2。</p>
+<p>我们现在要对邮件进行分类，识别垃圾邮件和普通邮件，如果我们选择使用朴素贝叶斯分类器，那目标就是判断 $P(“垃圾邮件”|“具有某特征”)$ 是否大于1/2。</p>
 <p>假设我们有垃圾邮件和正常邮件各1万封作为训练集。需要判断以下这个邮件是否属于垃圾邮件：</p>
 <blockquote>
 <p>“我司可办理正规发票（保真）17%增值税发票点数优惠！”</p>
@@ -56,15 +52,15 @@ img {
 <blockquote>
 <p>咳咳，有木有发现，转换成的这个概率，计算的方法：就是写个计数器，然后+1 +1 +1统计出所有垃圾邮件和正常邮件中出现这句话的次数啊！！！</p>
 </blockquote>
-<h2 id="5-分词"><a href="#5-分词" class="headerlink" title="5. 分词"></a>5. 分词</h2><p>一个很悲哀但是很现实的结论： <code>训练集是有限的，而句子的可能性则是无限的。所以覆盖所有句子可能性的训练集是不存在的</code>。</p>
-<p>所以解决方法是？ <strong>句子的可能性无限，但是词语就那么些</strong>！！汉语常用字2500个，常用词语也就56000个(你终于明白小学语文老师的用心良苦了)。按人们的经验理解，两句话意思相近并不强求非得每个字、词语都一样。比如 “<strong>我司可办理正规发票，17%增值税发票点数优惠</strong>！”，这句话就比之前那句话少了“（保真）”这个词，但是意思基本一样。如果把这些情况也考虑进来，那样本数量就会增加，这就不方便我们计算了。</p>
-<p>于是，我们可以不拿句子作为特征，而是拿句子里面的词语（组合）作为特征去考虑。比如 “<strong>正规发票</strong>” 可以作为一个单独的词语，“<strong>增值税</strong>” 也可以作为一个单独的词语等等。</p>
+<h2 id="5-分词"><a href="#5-分词" class="headerlink" title="5. 分词"></a>5. 分词</h2><p>一个很悲哀但是很现实的结论：<code>训练集是有限的，而句子的可能性则是无限的。所以覆盖所有句子可能性的训练集是不存在的</code>。</p>
+<p>所以解决方法是？ $句子的可能性无限，但是词语就那么些$！！汉语常用字2500个，常用词语也就56000个(你终于明白小学语文老师的用心良苦了)。按人们的经验理解，两句话意思相近并不强求非得每个字、词语都一样。比如 $“我司可办理正规发票，17%增值税发票点数优惠！”$，这句话就比之前那句话少了“（保真）”这个词，但是意思基本一样。如果把这些情况也考虑进来，那样本数量就会增加，这就不方便我们计算了。</p>
+<p>于是，我们可以不拿句子作为特征，而是拿句子里面的词语（组合）作为特征去考虑。比如 “$正规发票$” 可以作为一个单独的词语，“$增值税$” 也可以作为一个单独的词语等等。</p>
 <blockquote>
 <p>句子“我司可办理正规发票，17%增值税发票点数优惠！”就可以变成（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)）。</p>
 </blockquote>
-<p>于是你接触到了中文NLP中，最最最重要的技术之一：分词！！！也就是把一整句话拆分成更细粒度的词语来进行表示。另外，分词之后去除标点符号、数字甚至无关成分(停用词)是特征预处理中的一项技术。</p>
-<p>中文分词是一个专门的技术领域(我不会告诉你某搜索引擎厂码砖工有专门做分词的！！！)</p>
-<p>我们观察（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)，这可以理解成一个向量：向量的每一维度都表示着该特征词在文本中的特定位置存在。这种将特征拆分成更小的单元，依据这些更灵活、更细粒度的特征进行判断的思维方式，在自然语言处理与机器学习中都是非常常见又有效的。</p>
+<p>于是你接触到了中文NLP中，最最最重要的技术之一：<strong><code>分词</code></strong>！！！也就是把一整句话拆分成更细粒度的词语来进行表示。另外，分词之后去除标点符号、数字甚至无关成分(停用词)是特征预处理中的一项技术。  </p>
+<p>中文分词是一个专门的技术领域(我不会告诉你某搜索引擎厂码砖工有专门做分词的！！！)  </p>
+<p>我们观察$（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)$，这可以理解成一个向量：向量的每一维度都表示着该 $特征词$ 在文本中的特定位置存在。这种将特征拆分成更小的单元，依据这些更灵活、更细粒度的特征进行判断的思维方式，在自然语言处理与机器学习中都是非常常见又有效的。</p>
 <p>因此贝叶斯公式就变成了：</p>
 <p>$$<br>P(“垃圾邮件”|（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)）<br>$$</p>
 <p>$$<br>=\frac{P(（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)|”垃圾邮件”）P(“垃圾邮件”)}{P(（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)) }<br>$$</p>
@@ -72,11 +68,11 @@ img {
 <p>$$<br>P(“正常邮件”|（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)）<br>$$</p>
 <p>$$<br>=\frac{P(（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)|”正常邮件”）P(“正常邮件”)}{P(（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)) }<br>$$</p>
 <h2 id="6-条件独立假设"><a href="#6-条件独立假设" class="headerlink" title="6. 条件独立假设"></a>6. 条件独立假设</h2><p>下面我们马上会看到一个非常简单粗暴的假设。</p>
-<p>概率 $P(（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)|”垃圾邮件”）$ 依旧不够好求，我们引进一个很朴素的近似。为了让公式显得更加紧凑，我们令字母 <code>S</code> 表示“垃圾邮件”,令字母 <code>H</code> 表示“正常邮件”。近似公式如下：</p>
+<p>$P(（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)|”垃圾邮件”）$ 依旧不够好求，我们引进一个很朴素的近似。为了让公式显得更加紧凑，我们令字母 <code>S</code> 表示“垃圾邮件”,令字母 <code>H</code> 表示“正常邮件”。近似公式如下：</p>
 <p>$$<br>P(（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)|S）<br>$$</p>
 <p>$$<br>=P(“我”|S）×P(“司”|S）×P(“可”|S）×P(“办理”|S）×P(“正规发票”|S）<br>$$</p>
 <p>$$<br>×P(“保真”|S）×P(“增值税”|S）×P(“发票”|S）×P(“点数”|S）×P(“优惠”|S)<br>$$</p>
-<p>这就是传说中的条件独立假设。基于“正常邮件”的条件独立假设的式子与上式类似，此处省去。接着，将条件独立假设代入上面两个相反事件的贝叶斯公式。</p>
+<p>这就是传说中的条件独立假设。基于“正常邮件”的条件独立假设的式子与上式类似，此处省去。接着，将条件独立假设代入上面两个相反事件的贝叶斯公式。 </p>
 <p>于是我们就只需要比较以下两个式子的大小：</p>
 <p>$$<br>C = P(“我”|S)P(“司”|S)P(“可”|S)P(“办理”|S)P(“正规发票”|S)<br>$$</p>
 <p>$$<br>×P(“保真”|S)P(“增值税”|S)P(“发票”|S)P(“点数”|S)P(“优惠”|S)P(“垃圾邮件”)<br>$$</p>
@@ -89,10 +85,17 @@ img {
 <h2 id="7-Naive-Bayes，“Naive”在何处？"><a href="#7-Naive-Bayes，“Naive”在何处？" class="headerlink" title="7. Naive Bayes，“Naive”在何处？"></a>7. Naive Bayes，“Naive”在何处？</h2><p>加上条件独立假设的贝叶斯方法就是朴素贝叶斯方法（Naive Bayes）。 Naive的发音是“乃一污”，意思是“朴素的”、“幼稚的”、“蠢蠢的”。咳咳，也就是说，大神们取名说该方法是一种比较萌蠢的方法，为啥？</p>
 <p>将句子（“我”,“司”,“可”,“办理”,“正规发票”) 中的 （“我”,“司”）与（“正规发票”）调换一下顺序，就变成了一个新的句子（“正规发票”,“可”,“办理”, “我”, “司”)。新句子与旧句子的意思完全不同。但由于乘法交换律，朴素贝叶斯方法中算出来二者的条件概率完全一样！计算过程如下：</p>
 <p>$$<br>P(（“我”,“司”,“可”,“办理”,“正规发票”)|S) = P(“我”|S)P(“司”|S)P(“可”|S)P(“办理”|S)P(“正规发票”|S)<br>$$</p>
-<p>$$<br>=P(“正规发票”|S)P(“可”|S)P(“办理”|S)P(“我”|S)P(“司”|S）<br>=P(（“正规发票”,“可”,“办理”, “我”, “司”)|S)<br>$$</p>
-<p>也就是说，在朴素贝叶斯眼里，“我司可办理正规发票”与“正规发票可办理我司”完全相同。朴素贝叶斯失去了词语之间的顺序信息。这就相当于把所有的词汇扔进到一个袋子里随便搅和，贝叶斯都认为它们一样。因此这种情况也称作词袋子模型(bag of words)。</p>
-<p>词袋子模型与人们的日常经验完全不同。比如，在条件独立假设的情况下，“武松打死了老虎”与“老虎打死了武松”被它认作一个意思了。恩，朴素贝叶斯就是这么单纯和直接，对比于其他分类器，好像是显得有那么点萌蠢</p>
-<h2 id="8-简单高效，吊丝逆袭"><a href="#8-简单高效，吊丝逆袭" class="headerlink" title="8. 简单高效，吊丝逆袭"></a>8. 简单高效，吊丝逆袭</h2>]]></content>
+<p>$$<br>=P(“正规发票”|S)P(“可”|S)P(“办理”|S)P(“我”|S)P(“司”|S） =P(（“正规发票”,“可”,“办理”, “我”, “司”)|S)<br>$$</p>
+<p>也就是说，在朴素贝叶斯眼里，“<code>我司可办理正规发票</code>” 与 “<code>正规发票可办理我司</code>” 完全相同。朴素贝叶斯失去了词语之间的顺序信息。这就相当于把所有的词汇扔进到一个袋子里随便搅和，贝叶斯都认为它们一样。因此这种情况也称作词袋子模型(bag of words)。</p>
+<p>词袋子模型与人们的日常经验完全不同。比如，在条件独立假设的情况下，“<code>武松打死了老虎</code>” 与 “<code>老虎打死了武松</code>” 被它认作一个意思了。恩，朴素贝叶斯就是这么单纯和直接，对比于其他分类器，好像是显得有那么点萌蠢</p>
+<h2 id="8-简单高效，吊丝逆袭"><a href="#8-简单高效，吊丝逆袭" class="headerlink" title="8. 简单高效，吊丝逆袭"></a>8. 简单高效，吊丝逆袭</h2><p>虽然说朴素贝叶斯方法萌蠢萌蠢的，但实践证明在垃圾邮件识别的应用还令人诧异地好。Paul Graham先生自己简单做了一个朴素贝叶斯分类器，“1000封垃圾邮件能够被过滤掉995封，并且没有一个误判”。（Paul Graham《黑客与画家》）</p>
+<p>那个…效果为啥好呢？</p>
+<p>“有人对此提出了一个理论解释，并且建立了什么时候朴素贝叶斯的效果能够等价于非朴素贝叶斯的充要条件，这个解释的核心就是：有些独立假设在各个分类之间的分布都是均匀的所以对于似然的相对大小不产生影响；即便不是如此，也有很大的可能性各个独立假设所产生的消极影响或积极影响互相抵消，最终导致结果受到的影响不大。具体的数学公式请参考<a href="http://www.cs.unb.ca/profs/hzhang/publications/FLAIRS04ZhangH.pdf" target="_blank" rel="external">这篇 paper</a>。”（刘未鹏《：平凡而又神奇的贝叶斯方法》）</p>
+<p>恩，这个分类器中最简单直接看似萌蠢的小盆友『朴素贝叶斯』，实际上却是简单、实用、且强大的。</p>
+<h2 id="9-处理重复词语的三种方式"><a href="#9-处理重复词语的三种方式" class="headerlink" title="9. 处理重复词语的三种方式"></a>9. 处理重复词语的三种方式</h2><p><img src="/images/nlp/nlp-bayes-02.jpg" alt=""></p>
+<h2 id="10-去除停用词与选择关键词"><a href="#10-去除停用词与选择关键词" class="headerlink" title="10. 去除停用词与选择关键词"></a>10. 去除停用词与选择关键词</h2><h2 id="11-浅谈平滑技术"><a href="#11-浅谈平滑技术" class="headerlink" title="11. 浅谈平滑技术"></a>11. 浅谈平滑技术</h2><h2 id="12-内容小结"><a href="#12-内容小结" class="headerlink" title="12. 内容小结"></a>12. 内容小结</h2><h2 id="13-匹配关键词来识别垃圾邮件？"><a href="#13-匹配关键词来识别垃圾邮件？" class="headerlink" title="13. 匹配关键词来识别垃圾邮件？"></a>13. 匹配关键词来识别垃圾邮件？</h2><p>为什么不直接匹配关键词来识别垃圾邮件？</p>
+<h2 id="14-实际工程的tricks"><a href="#14-实际工程的tricks" class="headerlink" title="14. 实际工程的tricks"></a>14. 实际工程的tricks</h2><h2 id="15-贝叶斯方法的思维方式"><a href="#15-贝叶斯方法的思维方式" class="headerlink" title="15. 贝叶斯方法的思维方式"></a>15. 贝叶斯方法的思维方式</h2><h2 id="16-朴素-贝叶斯方法的常见应用"><a href="#16-朴素-贝叶斯方法的常见应用" class="headerlink" title="16. (朴素)贝叶斯方法的常见应用"></a>16. (朴素)贝叶斯方法的常见应用</h2><h2 id="17-内容小结"><a href="#17-内容小结" class="headerlink" title="17. 内容小结"></a>17. 内容小结</h2><p>从前面大家基本可以看出，工程应用不同于学术理论，有许多tricks需要考虑，而理论本质就是翻来倒去折腾贝叶斯公式，都快玩出花来了。</p>
+]]></content>
     </entry>
     
     <entry>
@@ -5412,7 +5415,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -5579,7 +5582,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -12989,43 +12992,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -13067,6 +13033,43 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -16075,18 +16078,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[CentOS 7.1 install Common software]]></title>
-      <url>http://iequa.com/2016/04/19/ops-centos7-install-common-software/</url>
-      <content type="html"><![CDATA[<h2 id="1-install-ifconfig"><a href="#1-install-ifconfig" class="headerlink" title="1. install ifconfig"></a>1. install ifconfig</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search ifconfig</span><br><span class="line">yum install net-tools.x86_64</span><br></pre></td></tr></table></figure>
-<h2 id="2-install-vim"><a href="#2-install-vim" class="headerlink" title="2. install vim"></a>2. install vim</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search vim</span><br><span class="line">yum install vim-enhanced</span><br></pre></td></tr></table></figure>
-<h2 id="3-install-wget"><a href="#3-install-wget" class="headerlink" title="3. install wget"></a>3. install wget</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"> [libin@centos-linux-1 x]$ yum search wget</span><br><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line"> * base: mirrors.skyshe.cn</span><br><span class="line"> * extras: mirrors.163.com</span><br><span class="line"> * updates: mirrors.163.com</span><br><span class="line">============================================================================================ N/S matched: wget =============================================================================================</span><br><span class="line">wget.x86_64 : A utility <span class="keyword">for</span> retrieving files using the HTTP or FTP protocols</span><br><span class="line"></span><br><span class="line">  Name and summary matches only, use <span class="string">"search all"</span> <span class="keyword">for</span> everything.</span><br><span class="line"> </span><br><span class="line"> [libin@centos-linux-1 x]$ yum install wget.x86_64</span><br></pre></td></tr></table></figure>
-<h2 id="4-install-git"><a href="#4-install-git" class="headerlink" title="4. install git"></a>4. install git</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search git</span><br><span class="line">yum install git.x86_64</span><br></pre></td></tr></table></figure>
-<p>default，git havn’t color, you can use under cmd give git add color</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git config --global color.status auto </span><br><span class="line">$ git config --global color.diff auto </span><br><span class="line">$ git config --global color.branch auto </span><br><span class="line">$ git config --global color.interactive auto</span><br></pre></td></tr></table></figure>
-<h2 id="5-install-netcat"><a href="#5-install-netcat" class="headerlink" title="5. install netcat"></a>5. install netcat</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search netcat</span><br><span class="line">yum install nmap-ncat.x86_64</span><br></pre></td></tr></table></figure>]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[CentOS and RedHat Linux]]></title>
       <url>http://iequa.com/2016/04/19/ops-centos-and-redhat/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -16113,6 +16104,18 @@ img {
 <p>一句话，选用 CentOS 还是 RHEL，取决于你所在公司是否拥有相应的技术力量。</p>
 <h2 id="4-Refence-article"><a href="#4-Refence-article" class="headerlink" title="4. Refence article"></a>4. Refence article</h2><p>本文整理自网络文章</p>
 ]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[CentOS 7.1 install Common software]]></title>
+      <url>http://iequa.com/2016/04/19/ops-centos7-install-common-software/</url>
+      <content type="html"><![CDATA[<h2 id="1-install-ifconfig"><a href="#1-install-ifconfig" class="headerlink" title="1. install ifconfig"></a>1. install ifconfig</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search ifconfig</span><br><span class="line">yum install net-tools.x86_64</span><br></pre></td></tr></table></figure>
+<h2 id="2-install-vim"><a href="#2-install-vim" class="headerlink" title="2. install vim"></a>2. install vim</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search vim</span><br><span class="line">yum install vim-enhanced</span><br></pre></td></tr></table></figure>
+<h2 id="3-install-wget"><a href="#3-install-wget" class="headerlink" title="3. install wget"></a>3. install wget</h2> <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"> [libin@centos-linux-1 x]$ yum search wget</span><br><span class="line">Loaded plugins: fastestmirror</span><br><span class="line">Loading mirror speeds from cached hostfile</span><br><span class="line"> * base: mirrors.skyshe.cn</span><br><span class="line"> * extras: mirrors.163.com</span><br><span class="line"> * updates: mirrors.163.com</span><br><span class="line">============================================================================================ N/S matched: wget =============================================================================================</span><br><span class="line">wget.x86_64 : A utility <span class="keyword">for</span> retrieving files using the HTTP or FTP protocols</span><br><span class="line"></span><br><span class="line">  Name and summary matches only, use <span class="string">"search all"</span> <span class="keyword">for</span> everything.</span><br><span class="line"> </span><br><span class="line"> [libin@centos-linux-1 x]$ yum install wget.x86_64</span><br></pre></td></tr></table></figure>
+<h2 id="4-install-git"><a href="#4-install-git" class="headerlink" title="4. install git"></a>4. install git</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search git</span><br><span class="line">yum install git.x86_64</span><br></pre></td></tr></table></figure>
+<p>default，git havn’t color, you can use under cmd give git add color</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ git config --global color.status auto </span><br><span class="line">$ git config --global color.diff auto </span><br><span class="line">$ git config --global color.branch auto </span><br><span class="line">$ git config --global color.interactive auto</span><br></pre></td></tr></table></figure>
+<h2 id="5-install-netcat"><a href="#5-install-netcat" class="headerlink" title="5. install netcat"></a>5. install netcat</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum search netcat</span><br><span class="line">yum install nmap-ncat.x86_64</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
