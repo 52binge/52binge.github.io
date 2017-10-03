@@ -57,6 +57,128 @@
 </header>
     <br>
     <section id="main" class="outer">
+      <article id="post-ml-keras-some-concept" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/02/23/ml-keras-some-concept/"><strong>About Keras Some Concepts</strong></a>
+      <small class=article-date-index>&nbsp; 2017-02-23</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/02/23/ml-keras-some-concept/" class="article-date">
+  <time datetime="2017-02-23T05:28:21.000Z" itemprop="datePublished">2017-02-23</time>
+</a>-->
+      
+  
+    <myh11 class="desc-index"> <!--by blair 160805 -->
+      Keras 是为深度学习设计的工具 <!-- by blair 160805 bak-->
+      <!--<a class="</strong></a>-->
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11> <!--by blair 160805-->
+  
+
+
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/02/23/ml-keras-some-concept/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <!--
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+
+<h2 id="1-symbolic-computation"><a href="#1-symbolic-computation" class="headerlink" title="1. symbolic computation"></a>1. symbolic computation</h2><p>Keras的底层库使用Theano或TensorFlow，这两个库也称为Keras的后端。</p>
+<blockquote>
+<p>无论是Theano还是TensorFlow，都是一个“符号主义”的库。</p>
+</blockquote>
+<h2 id="2-tensor-张量"><a href="#2-tensor-张量" class="headerlink" title="2. tensor (张量)"></a>2. tensor (张量)</h2><p>张量可以看作是向量、矩阵的自然推广，我们用张量来表示广泛的数据类型。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">a = np.array([[<span class="number">1</span>,<span class="number">2</span>],[<span class="number">3</span>,<span class="number">4</span>]])</span><br><span class="line">sum0 = np.sum(a, axis=<span class="number">0</span>)</span><br><span class="line">sum1 = np.sum(a, axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> sum0</span><br><span class="line"><span class="keyword">print</span> sum1</span><br></pre></td></tr></table></figure>
+<p>[4 6]<br>[3 7]</p>
+<h2 id="3-‘th’与’tf’"><a href="#3-‘th’与’tf’" class="headerlink" title="3. ‘th’与’tf’"></a>3. ‘th’与’tf’</h2><p>在如何表示一组彩色图片的问题上，Theano和TensorFlow发生了分歧</p>
+<h2 id="4-batch"><a href="#4-batch" class="headerlink" title="4. batch"></a>4. batch</h2><p><code>batch gradient descent</code></p>
+<p>遍历全部数据集算一次损失函数，然后算函数对各个参数的梯度，更新梯度。这种方法每更新一次参数都要把数据集里的所有样本都看一遍，计算量开销大，计算速度慢，不支持在线学习，这称为Batch gradient descent，批梯度下降。</p>
+<p><code>stochastic gradient descent</code></p>
+<p>每看一个数据就算一下损失函数，然后求梯度更新参数，这个称为随机梯度下降，stochastic gradient descent。这个方法速度比较快，但是收敛性能不太好，可能在最优点附近晃来晃去，hit不到最优点。两次参数的更新也有可能互相抵消掉，造成目标函数震荡的比较剧烈。</p>
+<p><code>mini batch gradient decent</code></p>
+<p>为了克服 batch 和 stochastic 两种方法的缺点，现在一般采用的是一种折中手段，mini-batch gradient decent，小批的梯度下降，这种方法把数据分为若干个批，按批来更新参数，这样，一个批中的一组数据共同决定了本次梯度的方向，下降起来就不容易跑偏，减少了随机性。另一方面因为批的样本数与整个数据集相比小了很多，计算量也不是很大。</p>
+<p>基本上现在的梯度下降都是基于mini-batch的，所以Keras的模块中经常会出现batch_size，就是指这个。</p>
+<blockquote>
+<p>Keras的优化器SGD是stochastic gradient descent的缩写，但不代表是一个样本就更新一回，还是mini-batch</p>
+</blockquote>
+<h2 id="5-to-new-beginner-explain"><a href="#5-to-new-beginner-explain" class="headerlink" title="5. to new beginner explain"></a>5. to new beginner explain</h2><p><a href="http://www.liaoxuefeng.com/wiki/0014316089557264a6b348958f449949df42a6d3a2e542c000" target="_blank" rel="external">Python Learning</a></p>
+<ul>
+<li>numpy, scipy, scikit-learn, pandas…</li>
+<li>generator、lambda</li>
+</ul>
+<h2 id="6-about-deep-learning-concepts"><a href="#6-about-deep-learning-concepts" class="headerlink" title="6. about deep-learning concepts"></a>6. about deep-learning concepts</h2><blockquote>
+<p>Keras 是为深度学习设计的工具</p>
+</blockquote>
+<ul>
+<li>有监督学习，无监督学习，分类，聚类，回归</li>
+<li>神经元模型，多层感知器，BP算法</li>
+<li>目标函数（损失函数），激活函数，梯度下降法</li>
+<li>全连接网络、卷积神经网络、递归神经网络</li>
+<li>训练集，测试集，交叉验证，欠拟合，过拟合</li>
+<li>数据规范化</li>
+</ul>
+<h2 id="Refence-article"><a href="#Refence-article" class="headerlink" title="Refence article"></a>Refence article</h2><p><a href="https://keras.io/getting-started/sequential-model-guide/" target="_blank" rel="external">keras.io</a><br><a href="http://keras-cn.readthedocs.io/en/latest/" target="_blank" rel="external">keras-cn.readthedocs.io</a></p>
+
+      
+    </div>
+    -->
+    <!--
+    
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-ml-python-numpy-shape" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2095,236 +2217,6 @@ img {
 <tr>
 <td>I’m not currently taking any medication.</td>
 <td>I hope you feel better. </td>
-</tr>
-</tbody>
-</table>
-
-      
-    </div>
-    -->
-    <!--
-    
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ef-l6u2-Going-to-the-doctor&#39;s-l2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/"><strong>Going to the doctor&#39;s L2 Talking with the doctor</strong></a>
-      <small class=article-date-index>&nbsp; 2016-12-13</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/" class="article-date">
-  <time datetime="2016-12-12T23:15:16.000Z" itemprop="datePublished">2016-12-13</time>
-</a>-->
-      
-  
-    <myh11 class="desc-index"> <!--by blair 160805 -->
-      level 6 unit 2 lesson 2,  talking with the doctor <!-- by blair 160805 bak-->
-      <!--<a class="</strong></a>-->
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11> <!--by blair 160805-->
-  
-
-
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/English/">English</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-    <!--
-    <div class="article-entry" itemprop="articleBody">
-      
-        <style>
-img {
-        display: block !important;
-        width: 450px;
-        margin-left: 200px !important;
-}
-</style>
-
-<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><table>
-<thead>
-<tr>
-<th>blood pressure</th>
-<th>symptoms</th>
-<th>stomach flu </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>prescription</td>
-<td>medicine</td>
-<td>liquids</td>
-</tr>
-<tr>
-<td>appetite</td>
-<td>nauseous</td>
-<td>fever</td>
-</tr>
-</tbody>
-</table>
-<p><img src="/images/english/ef-l6u2l2-1.png" alt=""></p>
-<table>
-<thead>
-<tr>
-<th>A: DOCTOR - B: PAM</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[DOC] How are you feeling?</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] Not so great.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] Hmm. I’m sorry to hear that. How long have you been feeling bad?</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] Um, since yesterday. But I got really sick in the middle of the night.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] Well, you do have a slight fever, but that’s nothing to worry about. And your blood pressure is good. Did you eat anything unusual yesterday?</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] No, I don’t think so. I had pizza for lunch, and I didn’t eat dinner.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] Well, based on the symptoms you’ve described, I think that you have a stomach flu. It’s been going around.</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] Yeah, that’s what I thought.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] I’m going to write you a prescription for medicine to help your stomach and stop the diarrhea.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] Stay in bed and, uh, drink plenty of liquids. If you don’t feel better after 24 hours, I want you to call the nurse.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] And, uh, when you have an appetite again, take it easy. I’d recommend plain white rice and maybe some yoghurt.</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] Okay, doctor, thanks</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="2-Grammar"><a href="#2-Grammar" class="headerlink" title="2. Grammar"></a>2. Grammar</h2><table>
-<thead>
-<tr>
-<th>for、have been +ing</th>
-<th>since</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Frank has been working hard <code>for two days</code>.</td>
-<td>Oscar has been working hard <code>since yesterday</code>.</td>
-</tr>
-<tr>
-<td>I’ve been waiting for the nurse for 20 minutes.</td>
-<td>I’ve been having trouble sleeping since last Friday. </td>
-</tr>
-<tr>
-<td>Since I got home, I’<code>ve been feeling</code> terrible.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>had..for</th>
-<th>Since</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>He’s had the same symptoms for three days.</td>
-<td>I’ve been drinking lots of liquids since I got sick</td>
-</tr>
-<tr>
-<td>She’s had the flu for a week.</td>
-<td>Since I got sick, I’ve been drinking lots of liquids.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>Doctor</th>
-<th>Pam</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>How long have you been feeling like this?</td>
-<td>I got really sick in the middle of the night.</td>
-</tr>
-<tr>
-<td>What are your symptoms ?</td>
-<td>I have a stomachache and diarrhea.</td>
-</tr>
-<tr>
-<td>I think that you have a stomach flu.</td>
-<td>Do I have a favor ?</td>
-</tr>
-<tr>
-<td>I’ll write you a prescription for some medicine.</td>
-<td>What should I do?</td>
-</tr>
-<tr>
-<td>Get rest and drink water.</td>
-<td></td>
 </tr>
 </tbody>
 </table>
