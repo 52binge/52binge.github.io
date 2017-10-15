@@ -70,6 +70,75 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
+      <article id="post-Spark-ALS" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/05/07/Spark-ALS/"><strong>Spark ALS</strong></a>
+      <small class=article-date-index>&nbsp; 2017-05-07</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/05/07/Spark-ALS/" class="article-date">
+  <time datetime="2017-05-07T02:28:21.000Z" itemprop="datePublished">2017-05-07</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/05/07/Spark-ALS/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://spark.apache.org/examples.html" target="_blank" rel="external">Spark.apache.org</a><br><a href="http://blog.javachen.com/2015/06/07/spark-configuration.html" target="_blank" rel="external">Java Chen Spark</a></p>
+<p>以下为手动计算流程 :</p>
+<h3 id="4-2-启动-spark-shell"><a href="#4-2-启动-spark-shell" class="headerlink" title="4.2 启动 spark-shell"></a>4.2 启动 spark-shell</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h3 id="4-3-输入输出-相关变量"><a href="#4-3-输入输出-相关变量" class="headerlink" title="4.3 输入输出:相关变量"></a>4.3 输入输出:相关变量</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">val inputTable = <span class="string">"mds_user_coupon_bhv"</span></span><br><span class="line">val inputUrl = <span class="string">"jdbc:mysql://192.168.xxx.xx:3306/com_profile?user=your_name&amp;password=your_password"</span></span><br><span class="line">val outputTable = <span class="string">"mds_rs_shop_coupon_tmp"</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-4-核心程序代码"><a href="#4-4-核心程序代码" class="headerlink" title="4.4 核心程序代码"></a>4.4 核心程序代码</h3><figure class="highlight"><table><tr><td class="code"><pre><span class="line">package com.x.rs.service</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat</span><br><span class="line">import java.util.Date</span><br><span class="line">import java.util.Properties</span><br><span class="line"></span><br><span class="line">import org.apache.spark.sql.Row</span><br><span class="line">import org.apache.spark.sql.types._</span><br><span class="line"></span><br><span class="line">import org.apache.spark.&#123;SparkConf, SparkContext&#125;</span><br><span class="line"></span><br><span class="line">import org.apache.spark.mllib.recommendation.&#123;ALS, Rating&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">  * Date : 2017-04-20</span><br><span class="line">  * Author : Blair Chan</span><br><span class="line">  */</span><br><span class="line">object RsCouponCalc &#123;</span><br><span class="line">  def main(args: Array[String]) &#123;</span><br><span class="line"></span><br><span class="line">    println("start...")</span><br><span class="line"></span><br><span class="line">    if (args.length &lt; 3) &#123;</span><br><span class="line">      System.err.println("Usage: &lt;file&gt;")</span><br><span class="line">      System.exit(1)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    val inputTable = args(0) // Should be some file on your system // conf = new SparkConf().setAppName(appName).setMaster("local");</span><br><span class="line">    val inputUrl = args(1)</span><br><span class="line">    val outputTable = args(2)</span><br><span class="line"></span><br><span class="line">    val conf = new SparkConf().setAppName("SparkRsOne");</span><br><span class="line">    val sc = new SparkContext(conf)</span><br><span class="line">    val sqlContext = new org.apache.spark.sql.SQLContext(sc)</span><br><span class="line"></span><br><span class="line">    //    val rawData = sc.textFile(inputFile)</span><br><span class="line">    //    val rawRatings = rawData.map(_.split("\t").take(3))</span><br><span class="line"></span><br><span class="line">    val url = inputUrl</span><br><span class="line">    val prop = new Properties()</span><br><span class="line"></span><br><span class="line">    val dfForRawData = sqlContext.read.jdbc(url, inputTable, prop)</span><br><span class="line"></span><br><span class="line">    val ratings_tmp = dfForRawData.map &#123; row =&gt; (row(1).toString().toInt, row(4).toString().toInt, row(6).toString().toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val ratings = ratings_tmp.map &#123; case (uid, couponId, rating) =&gt; Rating(uid.toInt, couponId.toInt, rating.toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val model = ALS.train(ratings, 50, 10, 0.01)</span><br><span class="line"></span><br><span class="line">    model.userFeatures.count</span><br><span class="line"></span><br><span class="line">    val K = 10</span><br><span class="line"></span><br><span class="line">    model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val originResultRdd1 = model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val curDate = new Date()</span><br><span class="line">    val createDateString = new SimpleDateFormat("yyyy-MM-dd").format(curDate)</span><br><span class="line"></span><br><span class="line">    val originResultRdd2 = originResultRdd1.map(tuple =&gt; &#123;</span><br><span class="line">      val uid = tuple._1</span><br><span class="line">      val product = tuple._2.map &#123; case Rating(user, product, score) =&gt; (product.toString, score.toString) &#125;</span><br><span class="line">      (uid, product)</span><br><span class="line">    &#125;).flatMap &#123;</span><br><span class="line">      case (uid, product) =&gt; &#123;</span><br><span class="line">        product.map &#123; case (itemId, score) =&gt; Row.apply(uid.toLong, itemId.toString, score.toDouble, createDateString.toString) &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // println(originResultRdd2.first())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val schema = StructType(</span><br><span class="line">      StructField("uid", LongType) ::</span><br><span class="line">        StructField("coupon_id", LongType) ::</span><br><span class="line">        StructField("score", DoubleType) ::</span><br><span class="line">        StructField("calc_date", StringType) :: Nil)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val df = sqlContext.createDataFrame(originResultRdd2, schema)</span><br><span class="line"></span><br><span class="line">    df.insertIntoJDBC(url, outputTable, false)</span><br><span class="line">    // 设置为 true，则为 删除表，然后自动创建，再插入</span><br><span class="line"></span><br><span class="line">    println("end !")</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>DF 通过插入 RMDB.  schema 可以通过反射来使得程序扩展性提高。</p>
+</blockquote>
+<p><a href="http://www.cnblogs.com/yaohaitao/articles/5681984.html" target="_blank" rel="external">spark sql internet</a></p>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-ml-python-filter-map-reduce" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1199,91 +1268,6 @@ var _hmt = _hmt || [];
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">reshape(a, (<span class="number">3</span>, <span class="number">-1</span>)) <span class="comment">#为指定的值将被推断出为2</span></span><br></pre></td></tr></table></figure>
 <p>array([[1, 2],<br>       [3, 4],<br>       [5, 6]])</p>
 <h2 id="Refence-article"><a href="#Refence-article" class="headerlink" title="Refence article"></a>Refence article</h2><p><a href="http://blog.csdn.net/u012005313/article/details/49383551" target="_blank" rel="external">numpy.shape</a></p>
-
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ops-mac-install-tensorflow" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/21/ops-mac-install-tensorflow/"><strong>Mac install tensorFlow</strong></a>
-      <small class=article-date-index>&nbsp; 2017-02-21</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/02/21/ops-mac-install-tensorflow/" class="article-date">
-  <time datetime="2017-02-21T01:54:16.000Z" itemprop="datePublished">2017-02-21</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/devops/">devops</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/21/ops-mac-install-tensorflow/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-instaled-pip"><a href="#1-instaled-pip" class="headerlink" title="1. instaled pip"></a>1. instaled pip</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装完后执行命令pip freeze列出安装的packages验证一下pip安装好没.</span></span><br><span class="line"></span><br><span class="line">$ pip freeze</span><br><span class="line">python-dateutil==1.5</span><br><span class="line">scikit-learn==0.18.dev0</span><br><span class="line">scipy==0.13.0b1</span><br><span class="line">six==1.10.0</span><br><span class="line">tensorflow==0.5.0</span><br><span class="line">terminado==0.6</span><br><span class="line">TFL==2.0.5</span><br><span class="line">tornado==4.3</span><br><span class="line">vboxapi==1.0</span><br><span class="line">virtualenv==15.1.0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="2-install-tensorflow"><a href="#2-install-tensorflow" class="headerlink" title="2. install tensorflow"></a>2. install tensorflow</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Mac OS X, CPU only, Python 2.7:</span></span><br><span class="line">$ <span class="built_in">export</span> TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.0.0-py2-none-any.whl</span><br><span class="line"></span><br><span class="line"><span class="comment"># Only CPU-version is available at the moment.</span></span><br><span class="line">$ sudo pip install <span class="variable">$TF_BINARY_URL</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>maybe by vpn in China</p>
-</blockquote>
-<h2 id="3-install-virtualenv"><a href="#3-install-virtualenv" class="headerlink" title="3. install virtualenv"></a>3. install virtualenv</h2><p>virtualenv是python的沙箱工具.我们毕竟是在自己机器上做实验,为了不来回修改各种环境变量,我们一般还是弄个沙箱完比较好.测试完直接删除就行,不用再去改各种配置文件.</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo pip install --upgrade virtualenv</span><br><span class="line"></span><br><span class="line">Collecting virtualenv</span><br><span class="line">  Downloading virtualenv-15.1.0-py2.py3-none-any.whl (1.8MB)</span><br><span class="line">    100% |████████████████████████████████| 1.8MB 156kB/s</span><br><span class="line">Installing collected packages: virtualenv</span><br><span class="line">Successfully installed virtualenv-15.1.0</span><br></pre></td></tr></table></figure>
-<p>安装好后创建一个工作目录,我直接在home里创建了个文件夹.</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ virtualenv --system-site-packages ~/tensorflow</span><br></pre></td></tr></table></figure>
-<p>然后进入目录激活沙箱.</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd ~/tensorflow</span><br><span class="line">$ source bin/activate</span><br></pre></td></tr></table></figure>
-<h2 id="4-install-tensorflow-in-virtualenv"><a href="#4-install-tensorflow-in-virtualenv" class="headerlink" title="4. install tensorflow in virtualenv"></a>4. install tensorflow in virtualenv</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">(tensorflow) ➜  tensorflow pip install <span class="variable">$TF_BINARY_URL</span></span><br></pre></td></tr></table></figure>
-<h2 id="5-run-tensorflow"><a href="#5-run-tensorflow" class="headerlink" title="5. run tensorflow"></a>5. run tensorflow</h2><p><a href="http://tensorflow.org/get_started/os_setup.md#try_your_first_tensorflow_program" target="_blank" rel="external">hello world</a></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">(tensorflow) ➜  tensorflow python</span><br><span class="line">Python 2.7.10 (default, Jul 14 2015, 19:46:27)</span><br><span class="line">[GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.39)] on darwin</span><br><span class="line">Type "help", "copyright", "credits" or "license" for more information.</span><br><span class="line">&gt;&gt;&gt; import tensorflow as tf</span><br><span class="line">&gt;&gt;&gt; hello = tf.constant('Hello,TensorFlow!')</span><br><span class="line">&gt;&gt;&gt; sess = tf.Session()</span><br><span class="line">can't determine number of CPU cores: assuming 4</span><br><span class="line">I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 4</span><br><span class="line">can't determine number of CPU cores: assuming 4</span><br><span class="line">I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 4</span><br><span class="line">&gt;&gt;&gt; print sess.run(hello)</span><br><span class="line">Hello,TensorFlow!</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-<p>let’s see this tensorflow dir</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  tensorflow ll</span><br><span class="line">total 4.0K</span><br><span class="line">drwxr-xr-x 16 hp staff 544 Feb 21 10:45 bin/</span><br><span class="line">drwxr-xr-x  3 hp staff 102 Feb 21 10:38 include/</span><br><span class="line">drwxr-xr-x  3 hp staff 102 Feb 21 10:38 lib/</span><br><span class="line">-rw-r--r--  1 hp staff  60 Feb 21 10:45 pip-selfcheck.json</span><br><span class="line">➜  tensorflow</span><br></pre></td></tr></table></figure>
-<h2 id="6-install-keras"><a href="#6-install-keras" class="headerlink" title="6. install keras"></a>6. install keras</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo pip install keras</span><br><span class="line"></span><br><span class="line">Successfully installed keras-1.2.2 pyyaml-3.12 theano-0.8.2</span><br></pre></td></tr></table></figure>
-<h2 id="Refence"><a href="#Refence" class="headerlink" title="Refence"></a>Refence</h2><ol>
-<li><a href="http://tensorflow.org" target="_blank" rel="external">tensorflow官方地址</a></li>
-<li><a href="https://pypi.python.org/pypi/pip" target="_blank" rel="external">pip官方地址</a></li>
-<li><a href="https://pypi.python.org/pypi/setuptools" target="_blank" rel="external">setuptools官方地址</a></li>
-<li><a href="http://www.111cn.net/phper/python/66848.htm" target="_blank" rel="external">python安装setuptools步骤详解</a></li>
-<li><a href="http://pan.baidu.com/s/1c1corG8" target="_blank" rel="external">about pdf文件下载</a></li>
-<li><a href="http://tflearn.org/installation/#upgrade-tensorflow" target="_blank" rel="external">tflearn.org/installation</a></li>
-</ol>
 
       
     </div>
