@@ -70,6 +70,108 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
+      <article id="post-java-special-arms-p3-jvm" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/08/16/java-special-arms-p3-jvm/"><strong>JVM 跨平台与字节码原理初步</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-16</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/08/16/java-special-arms-p3-jvm/" class="article-date">
+  <time datetime="2016-08-16T08:54:16.000Z" itemprop="datePublished">2016-08-16</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/08/16/java-special-arms-p3-jvm/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>用到 JVM 的场景</p>
+<ol>
+<li>Out of memory 时，团队高手不在</li>
+<li>系统服务器架构，老大问你 投入多少服务器成本，VM 分配多大， 如何分配?</li>
+</ol>
+<h2 id="1-javap-命令"><a href="#1-javap-命令" class="headerlink" title="1. javap 命令"></a>1. javap 命令</h2><blockquote>
+<p>通过这种方式认知比 Java 更低一个抽象层次的逻辑，虚指令有时候更好解释问题。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String a = <span class="string">"a"</span> + <span class="string">"b"</span> + <span class="number">1</span>;</span><br><span class="line">        String b = <span class="string">"ab1"</span>;</span><br><span class="line">        System.out.println(a == b); <span class="comment">// true 编译时优化</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  p3jvm git:(master) ✗ <span class="built_in">pwd</span></span><br><span class="line">/Users/hp/ghome/github/language/java/jsarms/p3jvm</span><br><span class="line">➜  p3jvm git:(master) ✗ javac</span><br><span class="line">Usage: javac &lt;options&gt; &lt;<span class="built_in">source</span> files&gt;</span><br><span class="line"><span class="built_in">where</span> possible options include:</span><br><span class="line">  -g                         Generate all debugging info</span><br><span class="line">  -g:none                    Generate no debugging info</span><br><span class="line">  -g:&#123;lines,vars,<span class="built_in">source</span>&#125;     Generate only some debugging info</span><br><span class="line">  -nowarn                    Generate no warnings</span><br><span class="line">  -verbose                   Output messages about what the compiler is doing</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  p3jvm git:(master) ✗ javac -g:vars,lines StringTest.java</span><br><span class="line">➜  p3jvm git:(master) ✗ javap -verbose StringTest</span><br><span class="line">Classfile /Users/hp/ghome/github/language/java/jsarms/p3jvm/StringTest.class</span><br><span class="line">  Last modified Aug 16, 2016; size 559 bytes</span><br><span class="line">  MD5 checksum 772d18512cb982c953e7db8c72522918</span><br><span class="line">public class StringTest</span><br><span class="line">  minor version: 0</span><br><span class="line">  major version: 51</span><br><span class="line">  flags: ACC_PUBLIC, ACC_SUPER</span><br><span class="line">Constant pool:</span><br><span class="line">   <span class="comment">#1 = Methodref          #6.#21         //  java/lang/Object."&lt;init&gt;":()V</span></span><br><span class="line">   <span class="comment">#2 = String             #22            //  ab1</span></span><br><span class="line">   <span class="comment">#3 = Fieldref           #23.#24        //  java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line">   <span class="comment">#4 = Methodref          #25.#26        //  java/io/PrintStream.println:(Z)V</span></span><br><span class="line">   <span class="comment">#5 = Class              #27            //  StringTest</span></span><br><span class="line">   <span class="comment">#6 = Class              #28            //  java/lang/Object</span></span><br><span class="line">   <span class="comment">#7 = Utf8               &lt;init&gt;</span></span><br><span class="line">   <span class="comment">#8 = Utf8               ()V</span></span><br><span class="line">   <span class="comment">#9 = Utf8               Code</span></span><br><span class="line">  <span class="comment">#10 = Utf8               LineNumberTable</span></span><br><span class="line">  <span class="comment">#11 = Utf8               LocalVariableTable</span></span><br><span class="line">  <span class="comment">#12 = Utf8               this</span></span><br><span class="line">  <span class="comment">#13 = Utf8               LStringTest;</span></span><br><span class="line">  <span class="comment">#14 = Utf8               test1</span></span><br><span class="line">  <span class="comment">#15 = Utf8               a</span></span><br><span class="line">  <span class="comment">#16 = Utf8               Ljava/lang/String;</span></span><br><span class="line">  <span class="comment">#17 = Utf8               b</span></span><br><span class="line">  <span class="comment">#18 = Utf8               StackMapTable</span></span><br><span class="line">  <span class="comment">#19 = Class              #29            //  java/lang/String</span></span><br><span class="line">  <span class="comment">#20 = Class              #30            //  java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#21 = NameAndType        #7:#8          //  "&lt;init&gt;":()V</span></span><br><span class="line">  <span class="comment">#22 = Utf8               ab1</span></span><br><span class="line">  <span class="comment">#23 = Class              #31            //  java/lang/System</span></span><br><span class="line">  <span class="comment">#24 = NameAndType        #32:#33        //  out:Ljava/io/PrintStream;</span></span><br><span class="line">  <span class="comment">#25 = Class              #30            //  java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#26 = NameAndType        #34:#35        //  println:(Z)V</span></span><br><span class="line">  <span class="comment">#27 = Utf8               StringTest</span></span><br><span class="line">  <span class="comment">#28 = Utf8               java/lang/Object</span></span><br><span class="line">  <span class="comment">#29 = Utf8               java/lang/String</span></span><br><span class="line">  <span class="comment">#30 = Utf8               java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#31 = Utf8               java/lang/System</span></span><br><span class="line">  <span class="comment">#32 = Utf8               out</span></span><br><span class="line">  <span class="comment">#33 = Utf8               Ljava/io/PrintStream;</span></span><br><span class="line">  <span class="comment">#34 = Utf8               println</span></span><br><span class="line">  <span class="comment">#35 = Utf8               (Z)V</span></span><br><span class="line">// 以上是 Constant pool， 仅仅是陈列操作，并没有开始执行任务，看下面开始</span><br><span class="line">&#123;</span><br><span class="line">  public StringTest();</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=1, locals=1, args_size=1 // 所有方法都会有。</span><br><span class="line">      // stack 为栈顶的单位大小 (每个大小为 1 slot，4 byte)</span><br><span class="line">      // locals=1，非静态方法，本地变量增加 this</span><br><span class="line">         0: aload_0</span><br><span class="line">         1: invokespecial <span class="comment">#1                  // Method java/lang/Object."&lt;init&gt;":()V</span></span><br><span class="line">         4: <span class="built_in">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 1: 0</span><br><span class="line">      LocalVariableTable:</span><br><span class="line">        Start  Length  Slot  Name   Signature</span><br><span class="line">               0       5     0  this   LStringTest;</span><br><span class="line"></span><br><span class="line">  public static void <span class="built_in">test</span>1();</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=3, locals=2, args_size=0 </span><br><span class="line">      // stack=3，本地栈slot个数为3，String需要load，String.out 占用一个再。当对比发生 boolean 时，两个String引用栈顶pop</span><br><span class="line">      // locals=2， 因为只有两个 String</span><br><span class="line">      // args_size=0，方法没有入口参数</span><br><span class="line">         0: ldc           <span class="comment">#2                  // String ab1</span></span><br><span class="line">         // 引用常量池内容</span><br><span class="line">         2: astore_0</span><br><span class="line">         // 将栈顶引用值，写入第 1 个 slot 所在的本地变量</span><br><span class="line">         3: ldc           <span class="comment">#2                  // String ab1</span></span><br><span class="line">         5: astore_1</span><br><span class="line">         6: getstatic     <span class="comment">#3                  // Field java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line">         // 获取静态域，放入栈顶，此时静态域是 System.out 对象</span><br><span class="line">         9: aload_0</span><br><span class="line">        10: aload_1</span><br><span class="line">        11: <span class="keyword">if</span>_acmpne     18</span><br><span class="line">        14: iconst_1</span><br><span class="line">        15: goto          19</span><br><span class="line">        18: iconst_0</span><br><span class="line">        19: invokevirtual <span class="comment">#4                  // Method java/io/PrintStream.println:(Z)V</span></span><br><span class="line">        22: <span class="built_in">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 4: 0</span><br><span class="line">        line 5: 3</span><br><span class="line">        line 6: 6</span><br><span class="line">        line 7: 22</span><br><span class="line">      LocalVariableTable:</span><br><span class="line">        Start  Length  Slot  Name   Signature</span><br><span class="line">               3      20     0     a   Ljava/lang/String;</span><br><span class="line">               6      17     1     b   Ljava/lang/String;</span><br><span class="line">      // 本地变量列表 LocalVariableTable. from javac -g:vars</span><br><span class="line">      StackMapTable: number_of_entries = 2</span><br><span class="line">           frame_<span class="built_in">type</span> = 255 /* full_frame */</span><br><span class="line">          offset_delta = 18</span><br><span class="line">          locals = [ class java/lang/String, class java/lang/String ]</span><br><span class="line">          stack = [ class java/io/PrintStream ]</span><br><span class="line">           frame_<span class="built_in">type</span> = 255 /* full_frame */</span><br><span class="line">          offset_delta = 0</span><br><span class="line">          locals = [ class java/lang/String, class java/lang/String ]</span><br><span class="line">          stack = [ class java/io/PrintStream, int ]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">➜  p3jvm git:(master) ✗</span><br></pre></td></tr></table></figure>
+<h2 id="2-Java-字节码结构"><a href="#2-Java-字节码结构" class="headerlink" title="2. Java 字节码结构"></a>2. Java 字节码结构</h2><p>javac 命令本身只是一个引导器，它引导编译器程序的运行。编译器本身是一个java程序 <code>com.sun.tools.javac.main.JavaCompiler</code>, 该类完成 java 源文件 的 Parser、Annotation process、检查、泛型处理、语法转换等，最终胜出 Class 文件。</p>
+<p>Java 字节码文件主体结构: </p>
+<table>
+<thead>
+<tr>
+<th><strong>Class 文件头部</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Constant pool</td>
+<td></td>
+</tr>
+<tr>
+<td>当前Clas的描述信息</td>
+<td></td>
+</tr>
+<tr>
+<td>属性列表</td>
+<td></td>
+</tr>
+<tr>
+<td>方法列表</td>
+<td></td>
+</tr>
+<tr>
+<td>…</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-ml-decisionTree-model" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2723,85 +2825,6 @@ img {
 <p><a href="https://www.elastic.co/guide/en/elasticsearch/reference/1.7/api-conventions.html" target="_blank" rel="external">more_detail_info_for_elasticsearch</a></p>
 <h3 id="Java-API"><a href="#Java-API" class="headerlink" title="Java API"></a>Java API</h3><p><a href="https://www.elastic.co/guide/en/elasticsearch/client/java-api/1.7/client.html" target="_blank" rel="external">more_info</a></p>
 
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ml-perceptron-model" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/05/20/ml-perceptron-model/"><strong>Perceptron Model</strong></a>
-      <small class=article-date-index>&nbsp; 2016-05-20</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/05/20/ml-perceptron-model/" class="article-date">
-  <time datetime="2016-05-20T10:01:21.000Z" itemprop="datePublished">2016-05-20</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/05/20/ml-perceptron-model/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$']],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>perceptron model learning</p>
-        
-          <p class="article-more-link">
-            <a href="/2016/05/20/ml-perceptron-model/">Read More</a>
-          </p>
-        
       
     </div>
 	
