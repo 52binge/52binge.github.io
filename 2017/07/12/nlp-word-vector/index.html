@@ -20,7 +20,7 @@
 <meta property="og:image" content="http://iequa.com/images/ml/nlp-word2vector-8.png">
 <meta property="og:image" content="http://iequa.com/images/ml/nlp-word2vector-9.png">
 <meta property="og:image" content="http://iequa.com/images/ml/nlp-word2vector-10.png">
-<meta property="og:updated_time" content="2017-10-27T09:30:01.673Z">
+<meta property="og:updated_time" content="2017-10-29T05:33:38.891Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="词向量到word2vec与相关应用">
 <meta name="twitter:description" content="word2vec">
@@ -224,7 +224,7 @@ var _hmt = _hmt || [];
 <h3 id="3-4-语言模型-词组合出现的概率"><a href="#3-4-语言模型-词组合出现的概率" class="headerlink" title="3.4 语言模型 词组合出现的概率"></a>3.4 语言模型 词组合出现的概率</h3><p>一句话(词组合)出现的概率</p>
 <p><img src="/images/ml/nlp-word2vector-5.png" width="620" height="400" align="middle" img=""></p>
 <blockquote>
-<p>简化计算 : $P(too | Mark, likes) \approx P(too | likes)$</p>
+<p>简化计算 : $P(too | Mark, likes) \approx P(too | likes)$, 可参见 吴军 《数学之美》 解释</p>
 </blockquote>
 <h3 id="3-5-离散表示-的缺点"><a href="#3-5-离散表示-的缺点" class="headerlink" title="3.5 离散表示 的缺点"></a>3.5 离散表示 的缺点</h3><p><img src="/images/ml/nlp-word2vector-6.png" width="620" height="400" align="middle" img=""></p>
 <h3 id="3-6-分布式表示-提出"><a href="#3-6-分布式表示-提出" class="headerlink" title="3.6 分布式表示 提出"></a>3.6 分布式表示 提出</h3><p><img src="/images/ml/nlp-word2vector-7.png" width="620" height="400" align="middle" img=""></p>
@@ -233,9 +233,44 @@ var _hmt = _hmt || [];
 <p>用一个词附近的其他词来表示该词  - (不知道你的经济情况，就调查下你的狐朋狗友们)<br>􏰐􏱏􏲎􏰀􏳎􏳏􏰢􏳐􏳑􏰀􏳒􏰞You shall know a word by the company it keeps<br>  — J.R. Firth 1957<br>􏰐􏱏􏲎􏰀􏳎􏳏􏰢􏳐􏳑􏰀􏳒􏰞􏰟􏳓􏰀􏰑􏰐􏱏􏲎􏰀􏳎􏳏􏰢􏳐􏳑􏰀􏳒􏰞􏰟􏳓􏰀􏰑􏰐􏱏􏲎􏰀􏳎􏳏􏰢􏳐􏳑<br>􏱕􏳔􏳕􏳖􏳗&gt; 现代统计自然语言处理中最有创见的想法之一</p>
 </blockquote>
 <h2 id="4-共现矩阵-Cocurrence-matrix"><a href="#4-共现矩阵-Cocurrence-matrix" class="headerlink" title="4. 共现矩阵 (Cocurrence matrix)"></a>4. 共现矩阵 (Cocurrence matrix)</h2><p><img src="/images/ml/nlp-word2vector-8.png" width="620" height="400" align="middle" img=""></p>
+<blockquote>
+<p>共现 : 共同出现</p>
+</blockquote>
 <h3 id="4-1-Word-Word"><a href="#4-1-Word-Word" class="headerlink" title="4.1 Word - Word"></a>4.1 Word - Word</h3><p><img src="/images/ml/nlp-word2vector-9.png" width="620" height="400" align="middle" img=""></p>
+<blockquote>
+<p>左右窗 length 为 1， 得到的矩阵如上</p>
+</blockquote>
 <p>存在缺点</p>
 <p><img src="/images/ml/nlp-word2vector-10.png" width="620" height="400" align="middle" img=""></p>
+<blockquote>
+<p>模型欠稳定，可以考虑下 LR 的各个参数等，变化太大，对模型求解有影响</p>
+</blockquote>
+<p><strong>用SVD对共现矩阵向量做降维</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">la = np.linalg</span><br><span class="line"></span><br><span class="line">words = [<span class="string">"I"</span>, <span class="string">"like"</span>, <span class="string">"enjoy"</span>, <span class="string">"deep"</span>, <span class="string">"learning"</span>, <span class="string">"NLP"</span>, <span class="string">"flying"</span>, <span class="string">"."</span>]</span><br><span class="line"></span><br><span class="line">X = np.array(</span><br><span class="line">    [</span><br><span class="line">        [<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">        [<span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">        [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>]</span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">U, s, Vh = la.svd(X, full_matrices=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>SVD 降维存在的问题</strong></p>
+<ul>
+<li><p>计算量随语料库和词典增长膨胀太快，对X(n,n)维 的矩阵，计算量O(n^3)。而对大型的语料库， n~400k，语料库大小1~60B token</p>
+</li>
+<li><p>难以为词典中新加入的词分配词向量    </p>
+</li>
+<li>与其他深度学习模型框架差异大</li>
+</ul>
+<blockquote>
+<p>Jerya , 不懂 O(n^3) 如何得到的</p>
+</blockquote>
+<h3 id="4-2-NNLM"><a href="#4-2-NNLM" class="headerlink" title="4.2 NNLM"></a>4.2 NNLM</h3><h3 id="4-3-Word2Vec-CBOW"><a href="#4-3-Word2Vec-CBOW" class="headerlink" title="4.3 Word2Vec: CBOW"></a>4.3 Word2Vec: CBOW</h3><h3 id="4-4-Word2Vec-Skip-Gram"><a href="#4-4-Word2Vec-Skip-Gram" class="headerlink" title="4.4 Word2Vec: Skip-Gram"></a>4.4 Word2Vec: Skip-Gram</h3><h3 id="4-5-Word2Vec-缺点"><a href="#4-5-Word2Vec-缺点" class="headerlink" title="4.5 Word2Vec 缺点"></a>4.5 Word2Vec 缺点</h3><h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><h3 id="5-1-离散表示"><a href="#5-1-离散表示" class="headerlink" title="5.1 离散表示"></a>5.1 离散表示</h3><ul>
+<li>One-hot representation, Bag Of Words Unigram语言模型</li>
+<li>N-gram词向量表示和语言模型</li>
+<li>Co-currence矩阵的行(列)向量作为词向量</li>
+</ul>
+<h3 id="5-2-分布式连续表示"><a href="#5-2-分布式连续表示" class="headerlink" title="5.2 分布式连续表示"></a>5.2 分布式连续表示</h3><ul>
+<li>Co-currence矩阵的SVD降维的低维词向量表示</li>
+<li>Word2Vec: Continuous Bag of Words Model</li>
+<li>Word2Vec: Skip-Gram Model</li>
+</ul>
+<blockquote>
+<p>gensim 用 python 训练 word2vec 最好用的库<br>它的功能不至于 word2vec</p>
+</blockquote>
 
       
      <!-- by blair add this if sentence at 20160725 -->
@@ -251,7 +286,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-NLP-常见任务"><span class="toc-number"></span> <span class="toc-text">1. NLP 常见任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NLP-处理方法"><span class="toc-number"></span> <span class="toc-text">2. NLP 处理方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-传统-基于规则"><span class="toc-number"></span> <span class="toc-text">2.1 传统: 基于规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-现代-基于机器学习"><span class="toc-number"></span> <span class="toc-text">2.2 现代: 基于机器学习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-词编码和词向量初步"><span class="toc-number"></span> <span class="toc-text">3. 词编码和词向量初步</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-离散表示-One-hot"><span class="toc-number"></span> <span class="toc-text">3.1 离散表示 One-hot</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-离散表示-Bag-of-Words"><span class="toc-number"></span> <span class="toc-text">3.2 离散表示 Bag of Words</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-离散表示-􏰜􏰝􏰞􏰟􏰒Bi-gram-􏰪N-gram"><span class="toc-number"></span> <span class="toc-text">3.3 离散表示 􏰜􏰝􏰞􏰟􏰒Bi-gram / 􏰪N-gram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-语言模型-词组合出现的概率"><span class="toc-number"></span> <span class="toc-text">3.4 语言模型 词组合出现的概率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-离散表示-的缺点"><span class="toc-number"></span> <span class="toc-text">3.5 离散表示 的缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-分布式表示-提出"><span class="toc-number"></span> <span class="toc-text">3.6 分布式表示 提出</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-共现矩阵-Cocurrence-matrix"><span class="toc-number"></span> <span class="toc-text">4. 共现矩阵 (Cocurrence matrix)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Word-Word"><span class="toc-number"></span> <span class="toc-text">4.1 Word - Word</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-NLP-常见任务"><span class="toc-number"></span> <span class="toc-text">1. NLP 常见任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NLP-处理方法"><span class="toc-number"></span> <span class="toc-text">2. NLP 处理方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-传统-基于规则"><span class="toc-number"></span> <span class="toc-text">2.1 传统: 基于规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-现代-基于机器学习"><span class="toc-number"></span> <span class="toc-text">2.2 现代: 基于机器学习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-词编码和词向量初步"><span class="toc-number"></span> <span class="toc-text">3. 词编码和词向量初步</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-离散表示-One-hot"><span class="toc-number"></span> <span class="toc-text">3.1 离散表示 One-hot</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-离散表示-Bag-of-Words"><span class="toc-number"></span> <span class="toc-text">3.2 离散表示 Bag of Words</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-离散表示-􏰜􏰝􏰞􏰟􏰒Bi-gram-􏰪N-gram"><span class="toc-number"></span> <span class="toc-text">3.3 离散表示 􏰜􏰝􏰞􏰟􏰒Bi-gram / 􏰪N-gram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-语言模型-词组合出现的概率"><span class="toc-number"></span> <span class="toc-text">3.4 语言模型 词组合出现的概率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-离散表示-的缺点"><span class="toc-number"></span> <span class="toc-text">3.5 离散表示 的缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-分布式表示-提出"><span class="toc-number"></span> <span class="toc-text">3.6 分布式表示 提出</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-共现矩阵-Cocurrence-matrix"><span class="toc-number"></span> <span class="toc-text">4. 共现矩阵 (Cocurrence matrix)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Word-Word"><span class="toc-number"></span> <span class="toc-text">4.1 Word - Word</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-NNLM"><span class="toc-number"></span> <span class="toc-text">4.2 NNLM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Word2Vec-CBOW"><span class="toc-number"></span> <span class="toc-text">4.3 Word2Vec: CBOW</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-Word2Vec-Skip-Gram"><span class="toc-number"></span> <span class="toc-text">4.4 Word2Vec: Skip-Gram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-Word2Vec-缺点"><span class="toc-number"></span> <span class="toc-text">4.5 Word2Vec 缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-总结"><span class="toc-number"></span> <span class="toc-text">5. 总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-离散表示"><span class="toc-number"></span> <span class="toc-text">5.1 离散表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-分布式连续表示"><span class="toc-number"></span> <span class="toc-text">5.2 分布式连续表示</span></a></li></ol></li></ol>
       </div>
     
     
