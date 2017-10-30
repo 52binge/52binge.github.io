@@ -70,6 +70,170 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
+      <article id="post-ml-Abalone-Age-2017-02-17-1413" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/02/17/ml-Abalone-Age-2017-02-17-1413/"><strong>Abalone&#39;s Age</strong></a>
+      <small class=article-date-index>&nbsp; 2017-02-17</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/02/17/ml-Abalone-Age-2017-02-17-1413/" class="article-date">
+  <time datetime="2017-02-17T09:28:21.000Z" itemprop="datePublished">2017-02-17</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/02/17/ml-Abalone-Age-2017-02-17-1413/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="Abalone’s-Age"><a href="#Abalone’s-Age" class="headerlink" title="Abalone’s Age"></a><a href="http://www.pkbigdata.com/common/cmpt/成电大数据培训实践_竞赛信息.html" target="_blank" rel="external">Abalone’s Age</a></h2><p>『Abalone’s Age』</p>
+<p>鲍鱼，在现代汉语中有多种含义。最常用的是指一种原始的海洋贝类，属于单壳软体动物，其只有半面外壳，壳坚厚、扁而宽，鲍鱼是中国传统的名贵食材，位居四大海味之首。<br>鲍鱼的优劣与年龄相关。一般来说，我们可以数鲍鱼的生长纹来确定鲍鱼的年龄，但数生长纹也是一件挺麻烦的事情。在这里，我们采用与鲍鱼年龄有关的因素来预测鲍鱼的年龄。</p>
+<p>构建Pybrain神经网络的基本步骤：</p>
+<ol>
+<li>构建神经网路</li>
+<li>构造数据集</li>
+<li>训练神经网络</li>
+<li>预测测试集结果</li>
+<li>提交,验证和分析</li>
+</ol>
+<h2 id="1-分析问题"><a href="#1-分析问题" class="headerlink" title="1. 分析问题"></a>1. 分析问题</h2><p>分析什么特征是更重要的</p>
+<p><strong><font color="red">先看看数据长什么样 </font></strong> 还是用pandas加载数据</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这个ipython notebook主要是我解决Kaggle Titanic问题的思路和过程</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment">#数据分析</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np <span class="comment">#科学计算</span></span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> Series,DataFrame</span><br><span class="line"></span><br><span class="line">data_train = pd.read_csv(<span class="string">"traindata.csv"</span>)</span><br><span class="line"><span class="keyword">print</span> data_train.columns</span><br><span class="line"><span class="keyword">print</span> <span class="string">"============ df info ============"</span></span><br><span class="line">data_train.info()</span><br></pre></td></tr></table></figure>
+<pre><code>Index([u&apos;Sex&apos;, u&apos;Length&apos;, u&apos;Diameter&apos;, u&apos;Hight&apos;, u&apos;Whole&apos;, u&apos;Shucked&apos;,
+       u&apos;Viscera&apos;, u&apos;Shell&apos;, u&apos;Rings&apos;],
+      dtype=&apos;object&apos;)
+============ df info ============
+&lt;class &apos;pandas.core.frame.DataFrame&apos;&gt;
+RangeIndex: 3177 entries, 0 to 3176
+Data columns (total 9 columns):
+Sex         3177 non-null object
+Length      3177 non-null float64
+Diameter    3177 non-null float64
+Hight       3177 non-null float64
+Whole       3177 non-null float64
+Shucked     3177 non-null float64
+Viscera     3177 non-null float64
+Shell       3177 non-null float64
+Rings       3177 non-null int64
+dtypes: float64(7), int64(1), object(1)
+memory usage: 223.5+ KB
+</code></pre><font color="blue">我们看大概有以下这些字段</font>
+
+<ol>
+<li>Sex</li>
+<li>Length</li>
+<li>Diameter</li>
+<li>Hight</li>
+<li>Whole</li>
+<li>Shucked</li>
+<li>Viscera</li>
+<li>Shell</li>
+<li>Rings =&gt; Age</li>
+</ol>
+<p>上面的数据说什么了？它告诉我们，一共有9 Column 数据，训练数据中总共有 3177 只 abalone，所有的数据都是全的。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_train.describe()</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>~</th>
+<th>Length</th>
+<th>Diameter</th>
+<th>Hight</th>
+<th>Whole</th>
+<th>Shucked</th>
+<th>Viscera</th>
+<th>Shell</th>
+<th>Rings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>3177</td>
+<td>3177</td>
+<td>3177</td>
+<td>3177</td>
+<td>3177</td>
+<td>3177</td>
+<td>3177</td>
+<td>3177</td>
+</tr>
+<tr>
+<td>mean</td>
+<td>0.52</td>
+<td>0.41</td>
+<td>0.14</td>
+<td>0.83</td>
+<td>0.36</td>
+<td>0.18</td>
+<td>0.24</td>
+<td>9.92</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><font color="blue">『对数据的认识太重要了！』<font></font></font></li>
+<li><font color="red">『对数据的认识太重要了！』<font></font></font></li>
+<li><font color="green">『对数据的认识太重要了！』<font></font></font></li>
+</ul>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_train</span><br></pre></td></tr></table></figure>
+<h2 id="2-准备数据"><a href="#2-准备数据" class="headerlink" title="2. 准备数据"></a>2. 准备数据</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 对 sex 进行 one-hot 编码</span></span><br><span class="line">dummies_Sex = pd.get_dummies(data_train[<span class="string">'Sex'</span>], prefix= <span class="string">'Sex'</span>)</span><br><span class="line"></span><br><span class="line">df = pd.concat([data_train, dummies_Sex], axis=<span class="number">1</span>)</span><br><span class="line">df.drop([<span class="string">'Sex'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">train_df = df</span><br><span class="line">train_df</span><br></pre></td></tr></table></figure>
+<h2 id="3-构造神经网络-NN"><a href="#3-构造神经网络-NN" class="headerlink" title="3. 构造神经网络 NN"></a>3. 构造神经网络 NN</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> Series,DataFrame</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas.io.data <span class="keyword">as</span> wb</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pybrain.structure <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> pybrain.datasets <span class="keyword">import</span> SupervisedDataSet</span><br><span class="line"><span class="keyword">from</span> pybrain.supervised.trainers <span class="keyword">import</span> BackpropTrainer</span><br><span class="line"></span><br><span class="line"><span class="comment"># createa neural network</span></span><br><span class="line">fnn = FeedForwardNetwork()</span><br><span class="line"></span><br><span class="line"><span class="comment"># create three layers, input layer:2 input unit; hidden layer: 10 units; output layer: 1 output</span></span><br><span class="line">inLayer = LinearLayer(<span class="number">10</span>, name=<span class="string">'inLayer'</span>)</span><br><span class="line">hiddenLayer0 = SigmoidLayer(<span class="number">3</span>, name=<span class="string">'hiddenLayer0'</span>)</span><br><span class="line">outLayer = LinearLayer(<span class="number">1</span>, name=<span class="string">'outLayer'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add three layers to the neural network</span></span><br><span class="line">fnn.addInputModule(inLayer)</span><br><span class="line">fnn.addModule(hiddenLayer0)</span><br><span class="line">fnn.addOutputModule(outLayer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># link three layers</span></span><br><span class="line">in_to_hidden0 = FullConnection(inLayer,hiddenLayer0)</span><br><span class="line">hidden0_to_out = FullConnection(hiddenLayer0, outLayer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the links to neural network</span></span><br><span class="line">fnn.addConnection(in_to_hidden0)</span><br><span class="line">fnn.addConnection(hidden0_to_out)</span><br><span class="line"></span><br><span class="line"><span class="comment"># make neural network come into effect</span></span><br><span class="line">fnn.sortModules()</span><br></pre></td></tr></table></figure>
+<h2 id="4-构造数据集"><a href="#4-构造数据集" class="headerlink" title="4. 构造数据集"></a>4. 构造数据集</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># obtain the original data</span></span><br><span class="line"></span><br><span class="line">x1 = train_df[<span class="string">'Length'</span>]</span><br><span class="line">x2 = train_df[<span class="string">'Diameter'</span>]</span><br><span class="line">x3 = train_df[<span class="string">'Hight'</span>]</span><br><span class="line">x4 = train_df[<span class="string">'Whole'</span>]</span><br><span class="line">x5 = train_df[<span class="string">'Shucked'</span>]</span><br><span class="line">x6 = train_df[<span class="string">'Viscera'</span>]</span><br><span class="line">x7 = train_df[<span class="string">'Shell'</span>]</span><br><span class="line">x8 = train_df[<span class="string">'Sex_F'</span>]</span><br><span class="line">x9 = train_df[<span class="string">'Sex_I'</span>]</span><br><span class="line">x10 = train_df[<span class="string">'Sex_M'</span>]</span><br><span class="line"></span><br><span class="line">y = train_df[<span class="string">'Rings'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># definite the dataset as two input , one output</span></span><br><span class="line">DS = SupervisedDataSet(<span class="number">10</span>,<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add data element to the dataset</span></span><br><span class="line"><span class="comment"># 往数据集内加样本点</span></span><br><span class="line"><span class="comment"># 假设x1，x2，x3是输入的三个维度向量，y是输出向量，并且它们的长度相同</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(len(train_df)):</span><br><span class="line">    DS.addSample([x1[i],x2[i],x3[i],x4[i],x5[i],x6[i],x7[i],x8[i],x9[i],x10[i]],[y[i]])</span><br><span class="line"></span><br><span class="line"><span class="comment"># you can get your input/output this way</span></span><br><span class="line"><span class="comment"># 如果要获得里面的输入／输出时，可以用</span></span><br><span class="line">X = DS[<span class="string">'input'</span>]</span><br><span class="line">Y = DS[<span class="string">'target'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># split the dataset into train dataset and test dataset</span></span><br><span class="line"><span class="comment"># 如果要把数据集切分成训练集和测试集，可以用下面的语句，训练集：测试集＝8:2</span></span><br><span class="line"><span class="comment"># 为了方便之后的调用，可以把输入和输出拎出来</span></span><br><span class="line">dataTrain, dataTest = DS.splitWithProportion(<span class="number">0.8</span>)</span><br><span class="line">xTrain, yTrain = dataTrain[<span class="string">'input'</span>],dataTrain[<span class="string">'target'</span>]</span><br><span class="line">xTest, yTest = dataTest[<span class="string">'input'</span>], dataTest[<span class="string">'target'</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"bulid data sets end ！"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#print xTest[1]</span></span><br><span class="line">type(xTest)</span><br></pre></td></tr></table></figure>
+<pre><code>bulid data sets end ！
+
+numpy.ndarray
+</code></pre><h2 id="5-训练神经网络"><a href="#5-训练神经网络" class="headerlink" title="5. 训练神经网络"></a>5. 训练神经网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># train the NN</span></span><br><span class="line"><span class="comment"># we use BP Algorithm</span></span><br><span class="line"><span class="comment"># verbose = True means print th total error</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"trainer start..."</span></span><br><span class="line">trainer = BackpropTrainer(fnn, dataTrain, verbose=<span class="keyword">False</span>,learningrate=<span class="number">0.01</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"run..."</span></span><br><span class="line"><span class="comment"># set the epoch times to make the NN  fit</span></span><br><span class="line">trainer.trainUntilConvergence(maxEpochs=<span class="number">500</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"trainer end!"</span></span><br></pre></td></tr></table></figure>
+<pre><code>trainer start...
+run...
+trainer end!
+</code></pre><h2 id="6-预测testdata"><a href="#6-预测testdata" class="headerlink" title="6. 预测testdata"></a>6. 预测testdata</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_test = pd.read_csv(<span class="string">"testdata.csv"</span>)</span><br><span class="line"><span class="comment"># 对 sex 进行 one-hot 编码</span></span><br><span class="line">dummies_Sex = pd.get_dummies(data_test[<span class="string">'Sex'</span>], prefix= <span class="string">'Sex'</span>)</span><br><span class="line"></span><br><span class="line">df = pd.concat([data_test, dummies_Sex], axis=<span class="number">1</span>)</span><br><span class="line">df.drop([<span class="string">'Sex'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">df_test = df</span><br><span class="line">df_test</span><br><span class="line"></span><br><span class="line">test = df_test.filter(regex=<span class="string">'Length|Diameter|Hight|Whole|Shucked|Viscera|Shell|Sex_F|Sex_I|Sex_M'</span>)</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">xTest = test.as_matrix()</span><br><span class="line">xTest</span><br><span class="line"><span class="comment"># prediction = fnn.activate(xTest[1])</span></span><br><span class="line"><span class="comment"># print("the prediction number is :",prediction," the real number is:  ",yTest[1])</span></span><br><span class="line">predict_resutl=[]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(len(xTest)):</span><br><span class="line">    res = fnn.activate(xTest[i])[<span class="number">0</span>]</span><br><span class="line">    predict_resutl.append(round(res))</span><br><span class="line"></span><br><span class="line">final_res = np.array(predict_resutl).T</span><br><span class="line"></span><br><span class="line">result = pd.DataFrame(&#123;<span class="string">'ID'</span>:data_test[<span class="string">'ID'</span>].as_matrix(), <span class="string">'Rings'</span>:final_res&#125;)</span><br><span class="line">result</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result.to_csv(<span class="string">"abalone_predictions.csv"</span>, index=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-ml-NN-BPNN-Titanic-2017-02-16-1732-ipynb" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2218,199 +2382,6 @@ img {
 <p>有非常少的类似机构是不错的，当然也存在个别的顾问可能会存在势利眼，势力笑等。</p>
 </blockquote>
 <h2 id="To-summarize"><a href="#To-summarize" class="headerlink" title="To summarize"></a>To summarize</h2><p>中国这种实体利益恶霸，坑蒙拐骗、势力眼 比比皆是，我想电子商务淘宝、天猫等正是用7天无理由退换货以及平台监管方案才使得消费者的权益得到保障，直接解决了人与人之间的信任问题，从价值观的角度来看，这是使得各类电商取得快速发展的重要决定性推力。</p>
-
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-spark-machine-learning-p4-rs" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/11/23/spark-machine-learning-p4-rs/"><strong>Spark Machine Learning p4 - Build Recommendation System</strong></a>
-      <small class=article-date-index>&nbsp; 2016-11-23</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/11/23/spark-machine-learning-p4-rs/" class="article-date">
-  <time datetime="2016-11-23T07:28:21.000Z" itemprop="datePublished">2016-11-23</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/spark/">spark</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/11/23/spark-machine-learning-p4-rs/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<blockquote>
-<p>推荐引擎试图对用户与某类物品之间的联系建模</p>
-</blockquote>
-<ul>
-<li>推荐引擎的类型；</li>
-<li>用用户偏好数据来建立一个推荐模型；</li>
-<li>为用户进行推荐和求指定物品的类似物品；</li>
-<li>评估该模型的预测能力。</li>
-</ul>
-<h2 id="1-推荐模型分类"><a href="#1-推荐模型分类" class="headerlink" title="1. 推荐模型分类"></a>1. 推荐模型分类</h2><ul>
-<li>内容过滤</li>
-<li>协同过滤</li>
-<li>矩阵分解</li>
-</ul>
-<h3 id="1-1-内容过滤-类似物品"><a href="#1-1-内容过滤-类似物品" class="headerlink" title="1.1 内容过滤 - (类似物品)"></a>1.1 内容过滤 - (类似物品)</h3><p>利用物品相似度定义，来求出与该物品类似的物品。</p>
-<blockquote>
-<p>对用户的推荐可以根据用户的属性或描述得出，之后再通过相同的相似度定义来与物品属性做匹配。</p>
-</blockquote>
-<h3 id="1-2-协同过滤-估计未触"><a href="#1-2-协同过滤-估计未触" class="headerlink" title="1.2 协同过滤 - (估计未触)"></a>1.2 协同过滤 - (估计未触)</h3><p>协同过滤是一种利用大量已有的用户偏好来估计用户对其<code>未接触过</code>的物品的喜好程度。其内在思想是<strong>相似度的定义</strong>。</p>
-<ul>
-<li><p>基于用户</p>
-<blockquote>
-<p>如果两个用户表现出相似的偏好，认为他们的兴趣类似。要对他们中的一个用户推荐一个未知物品，便可选取若干与其类似的用户并根据他们的喜好计算出对各个物品的综合得分。</p>
-</blockquote>
-</li>
-<li><p>基于物品</p>
-<blockquote>
-<p>据现有用户对物品的偏好或是评级情况，来计算物品之间的某种相似度。已有物品相似的物品被用来生成一个综合得分，而该得分用于评估未知物品的相似度。</p>
-</blockquote>
-</li>
-</ul>
-<p>基于<strong>用户</strong>或<strong>物品</strong>的方法得分取决于若干用户或是物品之间依据相似度所构成的集合（即邻居），故它们也常被称为KNN。</p>
-<p>对“用户-物品”<code>偏好建模</code></p>
-<h3 id="1-3-矩阵分解"><a href="#1-3-矩阵分解" class="headerlink" title="1.3 矩阵分解"></a>1.3 矩阵分解</h3><p>Spark推荐模型库 包含基于矩阵分解（matrix factorization）的实现，该模型在协同过滤中的表现十分出色。</p>
-<h4 id="1-3-1-显式矩阵分解"><a href="#1-3-1-显式矩阵分解" class="headerlink" title="1.3.1 显式矩阵分解"></a>1.3.1 显式矩阵分解</h4><p>显式自身偏好数据</p>
-<blockquote>
-<p>这类数据包括如物品评级、赞、喜欢等用户对物品的评价。转换为以用户为行、物品为列的二维矩阵。</p>
-<p>大部分情况下单个用户只会和少部分物品接触，所以该矩阵很稀疏。</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Tom, Star Wars, 5</span><br><span class="line">Jane, Titanic,　4</span><br><span class="line">Bill, Batman,　3</span><br><span class="line">Jane, Star Wars, 2</span><br><span class="line">Bill, Titanic, 3</span><br></pre></td></tr></table></figure>
-<p><img src="/images/spark/spark-ml-4.1.png" alt="一个简单的电影评级矩阵"></p>
-<p>用户-物品 矩阵的维度为 U × I</p>
-<p><img src="/images/spark/spark-ml-4.2.jpg" alt="图4-2 一个稀疏的评级矩阵"> </p>
-<p><strong>为了降维</strong></p>
-<ul>
-<li>表示用户的 U × k 维矩阵</li>
-<li>表征物品的 I × k 维矩阵</li>
-</ul>
-<blockquote>
-<p>这两个矩阵也称作因子矩阵, 乘积是原始评级矩阵的一个近似.</p>
-<p>原始评级矩阵通常很稀疏，但因子矩阵却是稠密的</p>
-</blockquote>
-<p><img src="/images/spark/spark-ml-4.3.jpg" alt="图4-3 用户因子矩阵和物品因子矩阵"></p>
-<blockquote>
-<p>因子可能表示了某些含义，比如对电影的某个导演、种类、风格或某些演员的偏好。</p>
-</blockquote>
-<p><code>要计算给定用户对某个物品的预计评级</code> = 行（用户因子向量） 与 列（物品因子向量），两者点积</p>
-<p><img src="/images/spark/spark-ml-4.4.jpg" alt="图4-4 用用户因子矩阵和物品因子矩阵计算推荐"></p>
-<blockquote>
-<p>物品之间相似度的计算，转换为对两物品因子向量之间相似度的计算</p>
-</blockquote>
-<p><img src="/images/spark/spark-ml-4.5.jpg" alt="图4-5 用物品因子矩阵计算相似度"></p>
-<table>
-<thead>
-<tr>
-<th>优点</th>
-<th>缺点</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>因子分解类模型建立，求解容易</td>
-<td>物品或是用户的因子向量可能达到数以百万计。在存储和计算能力有挑战。</td>
-</tr>
-</tbody>
-</table>
-<h4 id="1-3-2-隐式矩阵分解"><a href="#1-3-2-隐式矩阵分解" class="headerlink" title="1.3.2. 隐式矩阵分解"></a>1.3.2. 隐式矩阵分解</h4><p>隐含在用户与物品的交互之中。二元数据（比如用户是否观看了某个电影或是否购买了某个商品）和计数数据（比如用户观看某电影的次数）便是这类数据。</p>
-<p>MLlib 处理隐式数据：</p>
-<ol>
-<li>一个二元偏好矩阵 P </li>
-<li>一个信心权重矩阵 C</li>
-</ol>
-<p><img src="/images/spark/spark-ml-4.6.png" alt="图4-6 用物品因子矩阵计算相似度"></p>
-<p>隐式模型仍然会创建一个用户因子矩阵和一个物品因子矩阵。但是，模型所求解的是偏好矩阵而非评级矩阵的近似。</p>
-<p><strong>3. 最小二乘法</strong></p>
-<p>最小二乘法（Alternating Least Squares，ALS）是一种求解矩阵分解问题的最优化方法。且相对容易并行化。</p>
-<blockquote>
-<p>ALS的实现原理是迭代式求解一系列最小二乘回归问题。在每一次迭代时，固定用户因子矩阵或是物品因子矩阵中的一个，然后用固定的这个矩阵以及评级数据来更新另一个矩阵。之后，被更新的矩阵被固定住，再更新另外一个矩阵。如此迭代，直到模型收敛（或是迭代了预设好的次数）。</p>
-</blockquote>
-<h2 id="2-提取有效特征"><a href="#2-提取有效特征" class="headerlink" title="2. 提取有效特征"></a>2. 提取有效特征</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">&gt;./bin/spark-shell –-driver-memory <span class="number">2</span>g</span><br><span class="line"><span class="keyword">val</span> rawData = sc.textFile(<span class="string">"/Users/hp/ghome/github/Recommendation/spark-ml/ml-100k/u.data"</span>)</span><br><span class="line">rawData.first()</span><br><span class="line"><span class="keyword">val</span> rawRatings = rawData.map(_.split(<span class="string">"\t"</span>).take(<span class="number">3</span>))</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">ALS</span></span><br><span class="line"></span><br><span class="line"><span class="type">ALS</span>.</span><br><span class="line">asInstanceOf    isInstanceOf   main   toString        train           trainImplicit</span><br><span class="line"><span class="type">ALS</span>.train</span><br></pre></td></tr></table></figure>
-<p>ALS模型需要一个由Rating记录构成的RDD，而Rating类则是对用户ID、影片ID（这里是通称product）和实际星级这些参数的封装。<br>我们可以调用map方法将原来的各ID和星级的数组转换为对应的Rating对象，从而创建所需的评级数据集。</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">scala&gt; <span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">Rating</span></span><br><span class="line"><span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">Rating</span></span><br><span class="line"></span><br><span class="line">scala&gt; <span class="keyword">val</span> ratings = rawRatings.map &#123; <span class="keyword">case</span> <span class="type">Array</span>(user, movie, rating) =&gt;</span><br><span class="line">     | <span class="type">Rating</span>(user.toInt, movie.toInt, rating.toDouble) &#125;</span><br><span class="line">ratings: org.apache.spark.rdd.<span class="type">RDD</span>[org.apache.spark.mllib.recommendation.<span class="type">Rating</span>] = <span class="type">MapPartitionsRDD</span>[<span class="number">3</span>] at map at &lt;console&gt;:<span class="number">27</span></span><br><span class="line"></span><br><span class="line">scala&gt; ratings.first()</span><br><span class="line">res3: org.apache.spark.mllib.recommendation.<span class="type">Rating</span> = <span class="type">Rating</span>(<span class="number">196</span>,<span class="number">242</span>,<span class="number">3.0</span>)</span><br><span class="line"></span><br><span class="line">scala&gt; ratings.take(<span class="number">10</span>)</span><br><span class="line">res4: <span class="type">Array</span>[org.apache.spark.mllib.recommendation.<span class="type">Rating</span>] = <span class="type">Array</span>(<span class="type">Rating</span>(<span class="number">196</span>,<span class="number">242</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">186</span>,<span class="number">302</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">22</span>,<span class="number">377</span>,<span class="number">1.0</span>), <span class="type">Rating</span>(<span class="number">244</span>,<span class="number">51</span>,<span class="number">2.0</span>), <span class="type">Rating</span>(<span class="number">166</span>,<span class="number">346</span>,<span class="number">1.0</span>), <span class="type">Rating</span>(<span class="number">298</span>,<span class="number">474</span>,<span class="number">4.0</span>), <span class="type">Rating</span>(<span class="number">115</span>,<span class="number">265</span>,<span class="number">2.0</span>), <span class="type">Rating</span>(<span class="number">253</span>,<span class="number">465</span>,<span class="number">5.0</span>), <span class="type">Rating</span>(<span class="number">305</span>,<span class="number">451</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">6</span>,<span class="number">86</span>,<span class="number">3.0</span>))</span><br></pre></td></tr></table></figure>
-<h2 id="3-训练推荐模型"><a href="#3-训练推荐模型" class="headerlink" title="3. 训练推荐模型"></a>3. 训练推荐模型</h2><p>从原始数据提取出这些简单特征后，便可训练模型。MLlib已实现模型训练的细节，这不需要我们担心。我们只需提供上述指定类型的新RDD以及其他所需参数来作为训练的输入即可。</p>
-<h3 id="3-1-Movie-100k-train-model"><a href="#3-1-Movie-100k-train-model" class="headerlink" title="3.1 Movie-100k train model"></a>3.1 Movie-100k train model</h3><p>现在开始训练模型了，所需的其他参数有以下几个</p>
-<ul>
-<li><code>rank</code>：对应ALS模型中的因子个数，也就是在低阶近似矩阵中的隐含特征个数。因子个数一般越多越好。但它也会直接影响模型训练和保存时所需的内存开销，尤其是在用户和物品很多的时候。因此实践中该参数常作为训练效果与系统开销之间的调节参数。通常，其合理取值为10到200。</li>
-<li><code>iterations</code>：对应运行时的迭代次数。ALS能确保每次迭代都能降低评级矩阵的重建误差，但一般经少数次迭代后ALS模型便已能收敛为一个比较合理的好模型。这样，大部分情况下都没必要迭代太多次（10次左右一般就挺好）。</li>
-<li><code>lambda</code>：该参数控制模型的正则化过程，从而控制模型的过拟合情况。其值越高，正则化越严厉。该参数的赋值与实际数据的大小、特征和稀疏程度有关。和其他的机器学习模型一样，正则参数应该通过用非样本的测试数据进行交叉验证来调整。</li>
-</ul>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">scala&gt; <span class="keyword">val</span> model = <span class="type">ALS</span>.train(ratings, <span class="number">50</span>, <span class="number">10</span>, <span class="number">0.01</span>)</span><br><span class="line">model: org.apache.spark.mllib.recommendation.<span class="type">MatrixFactorizationModel</span> = org.apache.spark.mllib.recommendation.<span class="type">MatrixFactorizationModel</span>@<span class="number">2e835760</span></span><br><span class="line"></span><br><span class="line">scala&gt; model.userFeatures</span><br><span class="line">res5: org.apache.spark.rdd.<span class="type">RDD</span>[(<span class="type">Int</span>, <span class="type">Array</span>[<span class="type">Double</span>])] = users <span class="type">MapPartitionsRDD</span>[<span class="number">209</span>] at mapValues at <span class="type">ALS</span>.scala:<span class="number">255</span></span><br><span class="line"></span><br><span class="line">scala&gt; model.userFeatures.count</span><br><span class="line">res6: <span class="type">Long</span> = <span class="number">943</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p><code>MatrixFactorizationModel</code> 对象将 用户因子和物品因子分别保存在一个 <code>(id,factor)</code> 对类型的RDD中。<br>它们分别称作<code>userFeatures</code> 和 <code>productFeatures</code>。</p>
-</blockquote>
-<h3 id="3-2-隐式反馈数据训练模型"><a href="#3-2-隐式反馈数据训练模型" class="headerlink" title="3.2 隐式反馈数据训练模型"></a>3.2 隐式反馈数据训练模型</h3><p>MLlib中标准的矩阵分解模型用于显式评级数据的处理。若要处理隐式数据，则可使用<code>trainImplicit</code>函数。其调用方式和标准的<code>train</code>模式类似，但多了一个可设置的<code>alpha</code>参数（也是一个正则化参数，<code>lambda</code>应通过测试和交叉验证法来设置）。</p>
-<p>alpha参数指定了信心权重所应达到的基准线。该值越高则所训练出的模型越认为用户与他所没评级过的电影之间没有相关性。</p>
-<h2 id="4-使用推荐模型"><a href="#4-使用推荐模型" class="headerlink" title="4. 使用推荐模型"></a>4. 使用推荐模型</h2><p>预测通常有两种：为某个用户推荐物品，或找出与某个物品相关或相似的其他物品。</p>
-<h3 id="4-1-用户推荐"><a href="#4-1-用户推荐" class="headerlink" title="4.1 用户推荐"></a>4.1 用户推荐</h3><p>通过模型求出用户可能喜好程度最高的前K个商品。</p>
-<ol>
-<li>基于<strong>用户的模型</strong>，则会利用相似用户的评级来计算对某个用户的推荐。</li>
-<li>基于<strong>物品的模型</strong>，则会依靠用户接触过的物品与候选物品之间的相似度来获得推荐。</li>
-</ol>
-<p>利用矩阵分解方法时，是直接对评级数据进行建模，所以预计得分可视作相应用户因子向量和物品因子向量的点积。</p>
-<p><strong>1. 从MovieLens 100k数据集生成电影推荐</strong></p>
-<p>MLlib的推荐模型基于矩阵分解，因此可用模型所求得的因子矩阵来计算用户对物品的预计评级。下面只针对利用MovieLens中显式数据做推荐的情形，使用隐式模型时的方法与之相同。</p>
-<p><code>MatrixFactorizationModel</code>类 提供了一个<code>predict</code>函数，以方便地计算给定用户对给定物品的预期得分：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">scala&gt; <span class="keyword">val</span> predictedRating = model.predict(<span class="number">789</span>, <span class="number">123</span>)</span><br><span class="line"><span class="number">16</span>/<span class="number">05</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">08</span> <span class="type">WARN</span> <span class="type">BLAS</span>: <span class="type">Failed</span> to load implementation from: com.github.fommil.netlib.<span class="type">NativeSystemBLAS</span></span><br><span class="line"><span class="number">16</span>/<span class="number">05</span>/<span class="number">04</span> <span class="number">16</span>:<span class="number">13</span>:<span class="number">08</span> <span class="type">WARN</span> <span class="type">BLAS</span>: <span class="type">Failed</span> to load implementation from: com.github.fommil.netlib.<span class="type">NativeRefBLAS</span></span><br><span class="line">predictedRating: <span class="type">Double</span> = <span class="number">1.8390368814083764</span></span><br><span class="line"></span><br><span class="line">scala&gt; <span class="keyword">val</span> predictedRating = model.predict(<span class="number">789</span>, <span class="number">123</span>)</span><br><span class="line">predictedRating: <span class="type">Double</span> = <span class="number">1.8390368814083764</span></span><br><span class="line"></span><br><span class="line">scala&gt; <span class="keyword">val</span> userId = <span class="number">789</span></span><br><span class="line">userId: <span class="type">Int</span> = <span class="number">789</span></span><br><span class="line"></span><br><span class="line">scala&gt; <span class="keyword">val</span> <span class="type">K</span> = <span class="number">10</span></span><br><span class="line"><span class="type">K</span>: <span class="type">Int</span> = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">scala&gt; <span class="keyword">val</span> topKRecs = model.recommendProducts(userId, <span class="type">K</span>)</span><br><span class="line">topKRecs: <span class="type">Array</span>[org.apache.spark.mllib.recommendation.<span class="type">Rating</span>] = <span class="type">Array</span>(<span class="type">Rating</span>(<span class="number">789</span>,<span class="number">180</span>,<span class="number">5.352418839062572</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">887</span>,<span class="number">5.289455638310055</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">484</span>,<span class="number">5.0301818688410025</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">475</span>,<span class="number">5.011219778604191</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">150</span>,<span class="number">5.003965038415291</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">663</span>,<span class="number">4.991126084946501</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">56</span>,<span class="number">4.974685008959871</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">48</span>,<span class="number">4.965402351329832</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">9</span>,<span class="number">4.963265626841469</span>), <span class="type">Rating</span>(<span class="number">789</span>,<span class="number">127</span>,<span class="number">4.963069165947614</span>))</span><br><span class="line"></span><br><span class="line">scala&gt; println(topKRecs.mkString(<span class="string">"\n"</span>))</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">180</span>,<span class="number">5.352418839062572</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">887</span>,<span class="number">5.289455638310055</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">484</span>,<span class="number">5.0301818688410025</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">475</span>,<span class="number">5.011219778604191</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">150</span>,<span class="number">5.003965038415291</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">663</span>,<span class="number">4.991126084946501</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">56</span>,<span class="number">4.974685008959871</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">48</span>,<span class="number">4.965402351329832</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">9</span>,<span class="number">4.963265626841469</span>)</span><br><span class="line"><span class="type">Rating</span>(<span class="number">789</span>,<span class="number">127</span>,<span class="number">4.963069165947614</span>)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>Reading notes</p>
-</blockquote>
 
       
     </div>
