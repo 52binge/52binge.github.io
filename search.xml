@@ -35,7 +35,12 @@
 </blockquote>
 <h2 id="Statistics-Language-Model"><a href="#Statistics-Language-Model" class="headerlink" title="Statistics Language Model"></a>Statistics Language Model</h2><p>自然语言逐渐演变成一种上下文信息表达和传递的方式，让计算机处理自然语言，一个基本的问题就是为自然语言这种上下文相关的特性建立数学模型。 这个数学模型也就是NLP说的 Statistics Language Model.</p>
 <blockquote>
-<p>贾里尼克用统计模型</p>
+<ol>
+<li>美联储主席昨天告诉媒体 7000 亿美金的救助资金将借给上百家银行、汽车公司。</li>
+<li>美联储主席昨天 7000 亿美金的救助资金告诉媒体将借给上百家银行、汽车公司。</li>
+<li>美联储主席昨天 告媒诉体 70 亿00美金的救助资金上百家银行将借给、汽车公司。</li>
+</ol>
+<p>上世纪70年代科学家们试图用规则文法判断句子是否合理。贾里尼克用统计模型解决方法更有效。</p>
 </blockquote>
 <p>如果 S 表示一连串特定顺序排列的词 $w_1$， $w_2$，…， $w_n$ ，换句话说，S 表示的是一个有意义的句子。机器对语言的识别从某种角度来说，就是想知道S在文本中出现的可能性，也就是数学上所说的S 的概率用 P(S) 来表示。利用条件概率的公式，S 这个序列出现的概率等于每一个词出现的概率相乘，于是P(S) 可展开为：</p>
 <p>$$<br>P(S) = P(w_1)P(w_2|w_1)P(w_3| w_1 w_2)…P(w_n|w_1 w_2…w_{n-1})<br>$$</p>
@@ -44,7 +49,19 @@
 <p>接下来如何估计 $P (w_i|w_{i-1})$。只要机器数一数这对词 $(w_i{-1}, w_i)$ 在统计的文本中出现了多少次，以及 $w_{i-1}$ 本身在同样的文本中前后相邻出现了多少次，然后用两个数一除就可以了,</p>
 <p>$$<br>P(w_i|w_{i-1}) = \frac {P(w_{i-1}, w_i)} {P(w_{i-1})}<br>$$</p>
 <blockquote>
-<p>以上公式为 Bigram Model 二元文法模型</p>
+<p>如何计算 ： </p>
+<p>$$<br> \frac {P(w_{i-1}, w_i)} {P(w_{i-1})}<br>$$</p>
+<p>根据大数定理，只要统计量足够，相对频度就等于概率</p>
+</blockquote>
+<h3 id="higher-order-language-model"><a href="#higher-order-language-model" class="headerlink" title="higher order language model"></a>higher order language model</h3><p>假定文本中的每个词 $w_i$ 和 前面N-1个词有关，而和更前面的词无关，这样当前词 $w_i$ 的概率值取决于前面 N-1个词 $P(w_{i-N+1}, w_{i-N+2}, …, w_{i-1})$</p>
+<p>因此，</p>
+<p>$$<br>P(w_{i}|w_{1}, w_{2}, …, w_{i-1}) = P(w_i | w_{i-N+1}, w_{i-N+2}, …, w_{i-1})<br>$$</p>
+<blockquote>
+<p>N元模型， N=2 时，为二元模型。 在实际中应用最多的是 N=3 的三元模型</p>
+</blockquote>
+<h3 id="zero-probability-smoothing-method"><a href="#zero-probability-smoothing-method" class="headerlink" title="zero probability, smoothing method"></a>zero probability, smoothing method</h3><p>解决统计样本不足的概率估计问题， 不可信的统计数据打折扣的一种概率估计方法。</p>
+<blockquote>
+<p>1953年有古德（I.J.Good）图灵（Turing）的方法而提出来的。其基本思想是：对于没有看见的事件，我们不能认为它发生的概率就是零，因此我们从概率的总量（Probability Mass）中，分配一个很小的比例给这些没有看见的事件。这样一来看的见概率总和就要小于1了，因此，需要将所有看见的事件概率调小一点。至于小多少，要根据“越是不可信的统计折扣越多”的方法进行。</p>
 </blockquote>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li>《数学之美》 读书笔记 </li>
