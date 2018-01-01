@@ -70,6 +70,1046 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
+      <article id="post-ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning copy" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning copy/"><strong>Coursera 6 - Advice for Applying Machine Learning *</strong></a>
+      <small class=article-date-index>&nbsp; 2017-05-24</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning copy/" class="article-date">
+  <time datetime="2017-05-24T14:08:21.000Z" itemprop="datePublished">2017-05-24</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning copy/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+
+<h2 id="1-Evaluating-a-Hypothesis"><a href="#1-Evaluating-a-Hypothesis" class="headerlink" title="1. Evaluating a Hypothesis"></a>1. Evaluating a Hypothesis</h2><p>Once we have done some <strong>trouble shooting</strong> for errors in our predictions by:</p>
+<ul>
+<li>Getting more training examples</li>
+<li>Trying smaller sets of features</li>
+<li>Trying additional features</li>
+<li>Trying polynomial features</li>
+<li>Increasing or decreasing $λ$</li>
+</ul>
+<p>We can move on to evaluate our new hypothesis.</p>
+<p>A hypothesis may have a low error for the training examples but still be inaccurate (because of overfitting). Thus, to evaluate a hypothesis, given a dataset of training examples, we can split up the data into two sets: a training set and a test set. Typically, the training set consists of 70% of your data and the test set is the remaining 30%.</p>
+<p>The new procedure using these two sets is then:</p>
+<ol>
+<li>Learn $\Theta$ and minimize $J_{train}(\Theta)$ using the training set</li>
+<li>Compute the test set error $J_{test}(\Theta)$</li>
+</ol>
+<p><strong>The test set error</strong></p>
+<ol>
+<li>For linear regression: $J_{test}(\Theta) = \dfrac{1}{2m_{test}} \sum_{i=1}^{m_{test}}(h_\Theta(x^{(i)}_{test}) - y^{(i)}_{test})^2$</li>
+<li>For classification ~ Misclassification error (aka 0/1 misclassification error):</li>
+</ol>
+<p>$$<br>err(h_\Theta(x),y) = \begin{matrix} 1 &amp; \mbox{if } h_\Theta(x) \geq 0.5\ and\ y = 0\ or\ h_\Theta(x) &lt; 0.5\ and\ y = 1\newline 0 &amp; \mbox otherwise \end{matrix}<br>$$</p>
+<p>This gives us a binary 0 or 1 error result based on a misclassification. The average test error for the test set is:</p>
+<p>$$<br>\text{Test Error} = \dfrac{1}{m_{test}} \sum^{m_{test}}_{i=1} err(h_\Theta(x^{(i)}_{test}), y^{(i)}_{test})<br>$$</p>
+<p>This gives us the proportion of the test data that was misclassified.</p>
+<blockquote>
+<p>inaccurate[ɪn’ækjərət]、procedure [prə’sidʒɚ] 比例<br>remaining [ri’men..]、 Misclassification [‘mis,klæsifi’keiʃən]<br>validation [,vælə’deʃən] 确认，批准</p>
+</blockquote>
+<h2 id="2-Model-Selection"><a href="#2-Model-Selection" class="headerlink" title="2. Model Selection"></a>2. Model Selection</h2><p><strong>Train/Validtion/Test Sets</strong></p>
+<p>Just because a learning algorithm fits a training set well, that does not mean it is a good hypothesis. It could over fit and as a result your predictions on the test set would be poor. The error of your hypothesis as measured on the data set with which you trained the parameters will be lower than the error on any other data set.</p>
+<p>Given many models with different polynomial degrees, we can use a systematic approach to identify the ‘best’ function. In order to choose the model of your hypothesis, you can test each degree of polynomial and look at the error result.</p>
+<p>One way to break down our dataset into the three sets is:</p>
+<ul>
+<li><font color="blue"> Training set: 60%</font></li>
+<li><font color="blue"> Cross validation set: 20%</font></li>
+<li><font color="blue"> Test set: 20%</font>
+
+</li>
+</ul>
+<p>We can now calculate three separate error values for the three different sets using the following method:</p>
+<ol>
+<li>Optimize the parameters in Θ using the training set for each polynomial degree.</li>
+<li>Find the polynomial degree d with the least error using the cross validation set.</li>
+<li>Estimate the generalization error using the test set with $J_{test}(\Theta^{(d)})$, (d = theta from polynomial with lower error);</li>
+</ol>
+<blockquote>
+<p>This way, the degree of the polynomial d has not been trained using the test set.</p>
+</blockquote>
+<h2 id="3-Diagnosing-Bias-vs-Variance"><a href="#3-Diagnosing-Bias-vs-Variance" class="headerlink" title="3. Diagnosing Bias vs. Variance"></a>3. Diagnosing Bias vs. Variance</h2><p>In this section we examine the relationship between the degree of the polynomial d and the underfitting or overfitting of our hypothesis.</p>
+<ul>
+<li>We need to distinguish whether <code>bias</code> or <code>variance</code> is the problem contributing to bad predictions.</li>
+<li>High bias is underfitting and high variance is overfitting. Ideally, we need to find a golden mean between these two.</li>
+</ul>
+<p>The training error will tend to <code>decrease</code> as we increase the degree d of the polynomial.</p>
+<p>At the same time, the cross validation error will tend to decrease as we increase d up to a point, and then it will increase as d is increased, forming a convex curve.</p>
+<p><strong>High bias (underfitting)</strong>: both $J_{train}(\Theta)$ and $J_{CV}(\Theta)$ will be high. Also, $J_{CV}(\Theta) \approx J_{train}(\Theta)$.</p>
+<p><strong>High variance (overfitting)</strong>: $J_{train}(\Theta)$ will be low and $J_{CV}(\Theta)$ will be much greater than $J_{train}(\Theta)$.</p>
+<p>The is summarized in the figure below:</p>
+<p><img src="/images/ml/ml-ng-w6-01-01.png" alt=""></p>
+<h2 id="4-Regularization-Bias-Variance"><a href="#4-Regularization-Bias-Variance" class="headerlink" title="4. Regularization Bias/Variance"></a>4. Regularization Bias/Variance</h2><p>Note: [The regularization term below and through out the video should be $\frac \lambda {2m} \sum_{j=1}^n \theta_j ^2$ and NOT $\frac \lambda {2m} \sum_{j=1}^m \theta_j ^2$]</p>
+<p><img src="/images/ml/ml-ng-w6-01-02.png" alt=""></p>
+<p>In the figure above, we see that as λ increases, our fit becomes more rigid. On the other hand, as λ approaches 0, we tend to over overfit the data. So how do we choose our parameter λ to get it ‘just right’ ? In order to choose the model and the regularization term λ, we need to:</p>
+<ol>
+<li>Create a list of lambdas (i.e. λ∈{0,0.01,0.02,0.04,0.08,0.16,0.32,0.64,1.28,2.56,5.12,10.24});</li>
+<li>Create a set of models with different degrees or any other variants.</li>
+<li>Iterate through the λs and for each λ go through all the models to learn some Θ.</li>
+<li>Compute the cross validation error using the learned Θ (computed with λ) on the $J_{CV}(\Theta)$ <strong>without</strong> regularization or λ = 0. <code>？？</code></li>
+<li>Select the best combo that produces the lowest error on the cross validation set.</li>
+<li>Using the best combo Θ and λ, apply it on $J_{test}(\Theta)$ to see if it has a good generalization of the problem.</li>
+</ol>
+<h2 id="5-Learning-Curves"><a href="#5-Learning-Curves" class="headerlink" title="5. Learning Curves"></a>5. Learning Curves</h2><p>Training an algorithm on a very few number of data points (such as 1, 2 or 3) will easily have 0 errors because we can always find a quadratic curve that touches exactly those number of points. Hence:</p>
+<ul>
+<li>As the training set gets larger, the error for a quadratic function increases.</li>
+<li>The error value will plateau out after a certain m, or training set size.</li>
+</ul>
+<p><strong>Experiencing high bias:</strong></p>
+<p>Low training set size: causes $J_{train}(\Theta)$ to be low and $J_{CV}(\Theta)$ to be high.</p>
+<p>Large training set size: causes both $J_{train}(\Theta)$ and $J_{CV}(\Theta)$  to be high with $J_{train}(\Theta)$≈$J_{CV}(\Theta)$.</p>
+<p>If a learning algorithm is suffering from high bias, getting more training data will not (by itself) help much.</p>
+<p><img src="/images/ml/ml-ng-w6-01-03.png" alt=""></p>
+<p>me : 随着train sets的增加，高偏差会降低，因为更容易找到合适的 Hypothesis 去拟合数据。所以CV error下降。</p>
+<p><strong>Experiencing high variance:</strong></p>
+<p><strong>Low training set size:</strong> $J_{train}(\Theta)$ will be low and $J_{CV}(\Theta)$ will be high.</p>
+<p><strong>Large training set size:</strong> $J_{train}(\Theta)$ increases with training set size and $J_{CV}(\Theta)$ continues to decrease without leveling off. Also, $J_{train}(\Theta)$ &lt; $J_{CV}(\Theta)$ but the difference between them remains significant.</p>
+<p>If a learning algorithm is suffering from high variance, getting more training data is likely to help.</p>
+<p><img src="/images/ml/ml-ng-w6-01-04.png" alt=""></p>
+<p>me : 随着 train sets 的增加，overfiting 越来越不容易。造成 CV error 下降。</p>
+<blockquote>
+<p>plateau out / leveling off 达到平稳状态<br><code>test error will be CV error on picture.</code></p>
+</blockquote>
+<h2 id="6-What-to-Do-Next-Revisited"><a href="#6-What-to-Do-Next-Revisited" class="headerlink" title="6. What to Do Next Revisited"></a>6. What to Do Next Revisited</h2><p><em>*Our decision process can be broken down as follows</em>:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Getting more training examples</td>
+<td>Fixes high variance</td>
+</tr>
+<tr>
+<td>Trying smaller sets of features</td>
+<td>Fixes high variance</td>
+</tr>
+<tr>
+<td>Increasing λ</td>
+<td>Fixes high variance</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Adding features</td>
+<td>Fixes high bias</td>
+</tr>
+<tr>
+<td>Adding polynomial features</td>
+<td>Fixes high bias</td>
+</tr>
+<tr>
+<td>Decreasing λ</td>
+<td>Fixes high bias</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-1-Diagnosing-NN"><a href="#6-1-Diagnosing-NN" class="headerlink" title="6.1 Diagnosing NN"></a>6.1 Diagnosing NN</h3><ul>
+<li><p>A neural network with fewer parameters is <strong>prone to underfitting</strong>. It is also <strong>computationally cheaper</strong>.</p>
+</li>
+<li><p>A large neural network with more parameters is <strong>prone to overfitting</strong>. It is also <strong>computationally expensive</strong>. </p>
+</li>
+</ul>
+<p>In this case you can use regularization (increase λ) to address the overfitting.</p>
+<h3 id="6-2-Model-Complexity-Effects"><a href="#6-2-Model-Complexity-Effects" class="headerlink" title="6.2 Model Complexity Effects"></a>6.2 Model Complexity Effects</h3><ul>
+<li><p>Lower-order polynomials (low model complexity) have high bias and low variance. In this case, the model fits poorly consistently.</p>
+</li>
+<li><p>Higher-order polynomials (high model complexity) fit the training data extremely well and the test data extremely poorly. These have low bias on the training data, but very high variance.</p>
+</li>
+<li><p>In reality, we would want to choose a model somewhere in between, that can generalize well but also fits the data reasonably well.</p>
+</li>
+</ul>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li><a href="https://www.coursera.org/learn/machine-learning/home/week/6" target="_blank" rel="external">coursera 6 @ng</a></li>
+</ul>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/"><strong>Coursera 6 - Advice for Applying Machine Learning *</strong></a>
+      <small class=article-date-index>&nbsp; 2017-05-24</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/" class="article-date">
+  <time datetime="2017-05-24T14:08:21.000Z" itemprop="datePublished">2017-05-24</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+
+<h2 id="1-Evaluating-a-Hypothesis"><a href="#1-Evaluating-a-Hypothesis" class="headerlink" title="1. Evaluating a Hypothesis"></a>1. Evaluating a Hypothesis</h2><p>Once we have done some <strong>trouble shooting</strong> for errors in our predictions by:</p>
+<ul>
+<li>Getting more training examples</li>
+<li>Trying smaller sets of features</li>
+<li>Trying additional features</li>
+<li>Trying polynomial features</li>
+<li>Increasing or decreasing $λ$</li>
+</ul>
+<p>We can move on to evaluate our new hypothesis.</p>
+<p>A hypothesis may have a low error for the training examples but still be inaccurate (because of overfitting). Thus, to evaluate a hypothesis, given a dataset of training examples, we can split up the data into two sets: a training set and a test set. Typically, the training set consists of 70% of your data and the test set is the remaining 30%.</p>
+<p>The new procedure using these two sets is then:</p>
+<ol>
+<li>Learn $\Theta$ and minimize $J_{train}(\Theta)$ using the training set</li>
+<li>Compute the test set error $J_{test}(\Theta)$</li>
+</ol>
+<p><strong>The test set error</strong></p>
+<ol>
+<li>For linear regression: $J_{test}(\Theta) = \dfrac{1}{2m_{test}} \sum_{i=1}^{m_{test}}(h_\Theta(x^{(i)}_{test}) - y^{(i)}_{test})^2$</li>
+<li>For classification ~ Misclassification error (aka 0/1 misclassification error):</li>
+</ol>
+<p>$$<br>err(h_\Theta(x),y) = \begin{matrix} 1 &amp; \mbox{if } h_\Theta(x) \geq 0.5\ and\ y = 0\ or\ h_\Theta(x) &lt; 0.5\ and\ y = 1\newline 0 &amp; \mbox otherwise \end{matrix}<br>$$</p>
+<p>This gives us a binary 0 or 1 error result based on a misclassification. The average test error for the test set is:</p>
+<p>$$<br>\text{Test Error} = \dfrac{1}{m_{test}} \sum^{m_{test}}_{i=1} err(h_\Theta(x^{(i)}_{test}), y^{(i)}_{test})<br>$$</p>
+<p>This gives us the proportion of the test data that was misclassified.</p>
+<blockquote>
+<p>inaccurate[ɪn’ækjərət]、procedure [prə’sidʒɚ] 比例<br>remaining [ri’men..]、 Misclassification [‘mis,klæsifi’keiʃən]<br>validation [,vælə’deʃən] 确认，批准</p>
+</blockquote>
+<h2 id="2-Model-Selection"><a href="#2-Model-Selection" class="headerlink" title="2. Model Selection"></a>2. Model Selection</h2><p><strong>Train/Validtion/Test Sets</strong></p>
+<p>Just because a learning algorithm fits a training set well, that does not mean it is a good hypothesis. It could over fit and as a result your predictions on the test set would be poor. The error of your hypothesis as measured on the data set with which you trained the parameters will be lower than the error on any other data set.</p>
+<p>Given many models with different polynomial degrees, we can use a systematic approach to identify the ‘best’ function. In order to choose the model of your hypothesis, you can test each degree of polynomial and look at the error result.</p>
+<p>One way to break down our dataset into the three sets is:</p>
+<ul>
+<li><font color="blue"> Training set: 60%</font></li>
+<li><font color="blue"> Cross validation set: 20%</font></li>
+<li><font color="blue"> Test set: 20%</font>
+
+</li>
+</ul>
+<p>We can now calculate three separate error values for the three different sets using the following method:</p>
+<ol>
+<li>Optimize the parameters in Θ using the training set for each polynomial degree.</li>
+<li>Find the polynomial degree d with the least error using the cross validation set.</li>
+<li>Estimate the generalization error using the test set with $J_{test}(\Theta^{(d)})$, (d = theta from polynomial with lower error);</li>
+</ol>
+<blockquote>
+<p>This way, the degree of the polynomial d has not been trained using the test set.</p>
+</blockquote>
+<h2 id="3-Diagnosing-Bias-vs-Variance"><a href="#3-Diagnosing-Bias-vs-Variance" class="headerlink" title="3. Diagnosing Bias vs. Variance"></a>3. Diagnosing Bias vs. Variance</h2><p>In this section we examine the relationship between the degree of the polynomial d and the underfitting or overfitting of our hypothesis.</p>
+<ul>
+<li>We need to distinguish whether <code>bias</code> or <code>variance</code> is the problem contributing to bad predictions.</li>
+<li>High bias is underfitting and high variance is overfitting. Ideally, we need to find a golden mean between these two.</li>
+</ul>
+<p>The training error will tend to <code>decrease</code> as we increase the degree d of the polynomial.</p>
+<p>At the same time, the cross validation error will tend to decrease as we increase d up to a point, and then it will increase as d is increased, forming a convex curve.</p>
+<p><strong>High bias (underfitting)</strong>: both $J_{train}(\Theta)$ and $J_{CV}(\Theta)$ will be high. Also, $J_{CV}(\Theta) \approx J_{train}(\Theta)$.</p>
+<p><strong>High variance (overfitting)</strong>: $J_{train}(\Theta)$ will be low and $J_{CV}(\Theta)$ will be much greater than $J_{train}(\Theta)$.</p>
+<p>The is summarized in the figure below:</p>
+<p><img src="/images/ml/ml-ng-w6-01-01.png" alt=""></p>
+<h2 id="4-Regularization-Bias-Variance"><a href="#4-Regularization-Bias-Variance" class="headerlink" title="4. Regularization Bias/Variance"></a>4. Regularization Bias/Variance</h2><p>Note: [The regularization term below and through out the video should be $\frac \lambda {2m} \sum_{j=1}^n \theta_j ^2$ and NOT $\frac \lambda {2m} \sum_{j=1}^m \theta_j ^2$]</p>
+<p><img src="/images/ml/ml-ng-w6-01-02.png" alt=""></p>
+<p>In the figure above, we see that as λ increases, our fit becomes more rigid. On the other hand, as λ approaches 0, we tend to over overfit the data. So how do we choose our parameter λ to get it ‘just right’ ? In order to choose the model and the regularization term λ, we need to:</p>
+<ol>
+<li>Create a list of lambdas (i.e. λ∈{0,0.01,0.02,0.04,0.08,0.16,0.32,0.64,1.28,2.56,5.12,10.24});</li>
+<li>Create a set of models with different degrees or any other variants.</li>
+<li>Iterate through the λs and for each λ go through all the models to learn some Θ.</li>
+<li>Compute the cross validation error using the learned Θ (computed with λ) on the $J_{CV}(\Theta)$ <strong>without</strong> regularization or λ = 0. <code>？？</code></li>
+<li>Select the best combo that produces the lowest error on the cross validation set.</li>
+<li>Using the best combo Θ and λ, apply it on $J_{test}(\Theta)$ to see if it has a good generalization of the problem.</li>
+</ol>
+<h2 id="5-Learning-Curves"><a href="#5-Learning-Curves" class="headerlink" title="5. Learning Curves"></a>5. Learning Curves</h2><p>Training an algorithm on a very few number of data points (such as 1, 2 or 3) will easily have 0 errors because we can always find a quadratic curve that touches exactly those number of points. Hence:</p>
+<ul>
+<li>As the training set gets larger, the error for a quadratic function increases.</li>
+<li>The error value will plateau out after a certain m, or training set size.</li>
+</ul>
+<p><strong>Experiencing high bias:</strong></p>
+<p>Low training set size: causes $J_{train}(\Theta)$ to be low and $J_{CV}(\Theta)$ to be high.</p>
+<p>Large training set size: causes both $J_{train}(\Theta)$ and $J_{CV}(\Theta)$  to be high with $J_{train}(\Theta)$≈$J_{CV}(\Theta)$.</p>
+<p>If a learning algorithm is suffering from high bias, getting more training data will not (by itself) help much.</p>
+<p><img src="/images/ml/ml-ng-w6-01-03.png" alt=""></p>
+<p>me : 随着train sets的增加，高偏差会降低，因为更容易找到合适的 Hypothesis 去拟合数据。所以CV error下降。</p>
+<p><strong>Experiencing high variance:</strong></p>
+<p><strong>Low training set size:</strong> $J_{train}(\Theta)$ will be low and $J_{CV}(\Theta)$ will be high.</p>
+<p><strong>Large training set size:</strong> $J_{train}(\Theta)$ increases with training set size and $J_{CV}(\Theta)$ continues to decrease without leveling off. Also, $J_{train}(\Theta)$ &lt; $J_{CV}(\Theta)$ but the difference between them remains significant.</p>
+<p>If a learning algorithm is suffering from high variance, getting more training data is likely to help.</p>
+<p><img src="/images/ml/ml-ng-w6-01-04.png" alt=""></p>
+<p>me : 随着 train sets 的增加，overfiting 越来越不容易。造成 CV error 下降。</p>
+<blockquote>
+<p>plateau out / leveling off 达到平稳状态<br><code>test error will be CV error on picture.</code></p>
+</blockquote>
+<h2 id="6-What-to-Do-Next-Revisited"><a href="#6-What-to-Do-Next-Revisited" class="headerlink" title="6. What to Do Next Revisited"></a>6. What to Do Next Revisited</h2><p><em>*Our decision process can be broken down as follows</em>:</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Getting more training examples</td>
+<td>Fixes high variance</td>
+</tr>
+<tr>
+<td>Trying smaller sets of features</td>
+<td>Fixes high variance</td>
+</tr>
+<tr>
+<td>Increasing λ</td>
+<td>Fixes high variance</td>
+</tr>
+<tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Adding features</td>
+<td>Fixes high bias</td>
+</tr>
+<tr>
+<td>Adding polynomial features</td>
+<td>Fixes high bias</td>
+</tr>
+<tr>
+<td>Decreasing λ</td>
+<td>Fixes high bias</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-1-Diagnosing-NN"><a href="#6-1-Diagnosing-NN" class="headerlink" title="6.1 Diagnosing NN"></a>6.1 Diagnosing NN</h3><ul>
+<li><p>A neural network with fewer parameters is <strong>prone to underfitting</strong>. It is also <strong>computationally cheaper</strong>.</p>
+</li>
+<li><p>A large neural network with more parameters is <strong>prone to overfitting</strong>. It is also <strong>computationally expensive</strong>. </p>
+</li>
+</ul>
+<p>In this case you can use regularization (increase λ) to address the overfitting.</p>
+<h3 id="6-2-Model-Complexity-Effects"><a href="#6-2-Model-Complexity-Effects" class="headerlink" title="6.2 Model Complexity Effects"></a>6.2 Model Complexity Effects</h3><ul>
+<li><p>Lower-order polynomials (low model complexity) have high bias and low variance. In this case, the model fits poorly consistently.</p>
+</li>
+<li><p>Higher-order polynomials (high model complexity) fit the training data extremely well and the test data extremely poorly. These have low bias on the training data, but very high variance.</p>
+</li>
+<li><p>In reality, we would want to choose a model somewhere in between, that can generalize well but also fits the data reasonably well.</p>
+</li>
+</ul>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li><a href="https://www.coursera.org/learn/machine-learning/home/week/6" target="_blank" rel="external">coursera 6 @ng</a></li>
+</ul>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ef-l4u1-Entertainment" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/05/24/ef-l4u1-Entertainment/"><strong>EF Entertainment</strong></a>
+      <small class=article-date-index>&nbsp; 2017-05-24</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/05/24/ef-l4u1-Entertainment/" class="article-date">
+  <time datetime="2017-05-23T23:06:16.000Z" itemprop="datePublished">2017-05-24</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/English/">English</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/05/24/ef-l4u1-Entertainment/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <style>
+img {
+        display: block !important;
+        width: 550px;
+        margin-left: 120px !important;
+}
+</style>
+
+<h2 id="1-describing-entertainment-options"><a href="#1-describing-entertainment-options" class="headerlink" title="1. describing entertainment options"></a>1. describing entertainment options</h2><ul>
+<li>a concert</li>
+<li>a musical</li>
+<li>a lecture</li>
+<li>a play</li>
+</ul>
+<p><img src="/images/english/ef-l4u1l1.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>Dialog</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S: Hey, Joe. <code>What are we going to do</code> tonight?</td>
+<td></td>
+</tr>
+<tr>
+<td>J: I know! Let’s go to that play downtown.</td>
+<td></td>
+</tr>
+<tr>
+<td>S: Nah, it’s too far.</td>
+<td></td>
+</tr>
+<tr>
+<td>J: Well, <code>what else is going on</code>?</td>
+<td></td>
+</tr>
+<tr>
+<td>S: Well, there’s a new movie at the theater. It’s ‘The Big Cheese’ with May Jackson.</td>
+<td></td>
+</tr>
+<tr>
+<td>J: Or we could go to the football game.</td>
+<td></td>
+</tr>
+<tr>
+<td>S: I do not enjoy watching football games.</td>
+<td></td>
+</tr>
+<tr>
+<td>J: Oh, yeah. So the movie sounds good.</td>
+<td></td>
+</tr>
+<tr>
+<td>S: Great!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-1-gerunds-amp-infinitives"><a href="#1-1-gerunds-amp-infinitives" class="headerlink" title="1.1 gerunds &amp; infinitives"></a>1.1 gerunds &amp; infinitives</h3><ul>
+<li>Frank enjoys cooking dinner for Lilei</li>
+<li>Blair <code>plans to eat</code> out.</li>
+<li>We’re <code>planning to go to</code> the soccer game. [‘sɒkə]</li>
+<li>I need to get some money for the concert.</li>
+<li>Bluce Lee <code>kept playing</code> his guitar until midnight</li>
+<li>We’re <code>thinking about</code> going to a concert.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>gerunds &amp; infinitives</th>
+<th>sentence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>like</td>
+<td>I like going to musicals.</td>
+</tr>
+<tr>
+<td>-</td>
+<td>I like to go to musicals.     </td>
+</tr>
+<tr>
+<td>love</td>
+<td>June loves eating in restaurants.</td>
+</tr>
+<tr>
+<td>-</td>
+<td>June loves to eat in restaurants.     </td>
+</tr>
+<tr>
+<td>begin</td>
+<td>It began to snow.</td>
+</tr>
+<tr>
+<td>-</td>
+<td>It began snowing.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-2-know-how-good-at"><a href="#1-2-know-how-good-at" class="headerlink" title="1.2 know how / good at"></a>1.2 know how / good at</h3><ul>
+<li>I don’t know how to swim. </li>
+<li>I’m terrible at driving.</li>
+</ul>
+<h3 id="1-3-describing-options"><a href="#1-3-describing-options" class="headerlink" title="1.3 describing options"></a>1.3 describing options</h3><ul>
+<li>What do you want to do?  </li>
+<li>What are we going to do tonight?</li>
+<li>What’s going on?     </li>
+</ul>
+<ul>
+<li>There are some great movies and plays going on this week.</li>
+<li>You could go swimming or you could go hiking.  </li>
+</ul>
+<ul>
+<li>What else is there to do?</li>
+<li>What else is going on?</li>
+</ul>
+<h2 id="2-talking-about-upcoming-events"><a href="#2-talking-about-upcoming-events" class="headerlink" title="2. talking about upcoming events"></a>2. talking about upcoming events</h2><ul>
+<li>bar</li>
+<li>stadium [‘steɪdɪəm]</li>
+<li>aquarium [ə’kweərɪəm]</li>
+<li>concert hall</li>
+<li>auditorium  [ɔːdɪ’tɔːrɪəm]</li>
+<li>Theater  [‘θɪətə]</li>
+<li>nightclub</li>
+<li>check it out</li>
+</ul>
+<p><img src="/images/english/ef-l4u1l2.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>Dialog</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[TODD] Hi, Could you <code>do me a favor</code>?</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] Sure, What do you need?</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] Well, Angela and I want to do <code>something special</code> this weekend. It’s our 20th <code>wedding anniversary</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] Wow! Twenty years together, Congratulations.</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] Thanks, Could you help me <code>find something interesting</code> ?</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] Springdale.com has all the events listed for the city.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] It covers the concert hall, the auditorium … , You really should check it out.</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] That’s a good idea.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] There’s an incredible same band at the Blue Banana.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] That’s the <code>hottest nightclub</code> in town right now. Do you and Angela like to dance?</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] Yes! But, Like a classical concert. Beethoven. Or Mozart.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] Here is a play,  How about Shakespeare? It’s ‘Hamlet’.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] It’s in the Main Street <code>Theater</code>[ˈθi:ətər] on Saturday.</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] Angela loves plays. Thank you so much!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="1-1-Prepositions-of-time-and-place"><a href="#1-1-Prepositions-of-time-and-place" class="headerlink" title="1.1 Prepositions of time and place"></a>1.1 Prepositions of time and place</h3><p><strong><code>on</code> for smaller areas, and for days and dates.</strong></p>
+<ul>
+<li>I live on Main Street.</li>
+<li>The lecture is on Monday.    </li>
+<li>My birthday is on April 17th.</li>
+</ul>
+<p><strong><code>at</code> for addresses</strong></p>
+<ul>
+<li>His house is at 465 Pine Street.</li>
+<li>The lecture is at the auditorium.</li>
+<li>At night, I like to read.</li>
+</ul>
+<p><strong><code>in</code></strong></p>
+<ul>
+<li>My brother is coming in February.</li>
+<li>I lived in France for one year.</li>
+</ul>
+<h3 id="1-2-Asking-for-help"><a href="#1-2-Asking-for-help" class="headerlink" title="1.2 Asking for help"></a>1.2 Asking for help</h3><ul>
+<li>Could you do me a favor? </li>
+<li>I’m sorry, but I’m really busy right now.</li>
+<li>The party will start at 10 in the morning and continue until 7 in the evening</li>
+</ul>
+<h3 id="1-3-Writing"><a href="#1-3-Writing" class="headerlink" title="1.3 Writing"></a>1.3 Writing</h3><p>This Saturday night, there is going to be a english lecture, ‘two minutes’. June is going to talk about “the important of time”. The lecture starts at 8 p.m. It’s at the Auditorium. Admission is free. I like learning english, so I am thinking about going.</p>
+<h2 id="3-planning-a-night-out-with-friends"><a href="#3-planning-a-night-out-with-friends" class="headerlink" title="3. planning a night out with friends"></a>3. planning a night out with friends</h2><h3 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h3><ul>
+<li>boring</li>
+<li>loud</li>
+<li>relaxing</li>
+<li>incredible</li>
+<li>horror [‘hɒrə]</li>
+<li>romance [ro’mæns]</li>
+<li>drama  [ˈdrɑmə] </li>
+<li>comedy [‘kɑmədi]</li>
+</ul>
+<p><img src="/images/english/ef-l4u1l3.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>Dialog</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M: Why don’t we go to that new sports bar?</td>
+<td></td>
+</tr>
+<tr>
+<td>F: ~</td>
+<td></td>
+</tr>
+<tr>
+<td>M: Yup, There is a football game</td>
+<td></td>
+</tr>
+<tr>
+<td>F: I hate the sports bar</td>
+<td></td>
+</tr>
+<tr>
+<td>M: Really, why?</td>
+<td></td>
+</tr>
+<tr>
+<td>F: Because that is boring, the music is so loud and diffcult convasition.</td>
+<td></td>
+</tr>
+<tr>
+<td>F: How about a quiet, relaxing dinner?</td>
+<td></td>
+</tr>
+<tr>
+<td>M: We do that a name</td>
+<td></td>
+</tr>
+<tr>
+<td>F: OK ! you are right, Let’s do something different.</td>
+<td></td>
+</tr>
+<tr>
+<td>M: I know, Let’s go to the movie. the New York</td>
+<td></td>
+</tr>
+<tr>
+<td>F: The horror  movie, I don’t think so, How about a romance, or a drama</td>
+<td></td>
+</tr>
+<tr>
+<td>M: Oh, look, really, It is incredible !</td>
+<td></td>
+</tr>
+<tr>
+<td>F: I love it. Can you buy the ticket ?</td>
+<td></td>
+</tr>
+<tr>
+<td>M: Sure, Thanks</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-Adjectives-for-events"><a href="#2-Adjectives-for-events" class="headerlink" title="2. Adjectives for events"></a>2. Adjectives for events</h3><ul>
+<li>interesting           </li>
+<li>boring</li>
+<li>relaxing</li>
+<li>exciting</li>
+<li>surprising</li>
+<li>fun</li>
+<li>incredible</li>
+<li>loud</li>
+<li>quiet</li>
+<li>wonderful</li>
+<li>terrible</li>
+</ul>
+<h3 id="3-New-York-text"><a href="#3-New-York-text" class="headerlink" title="3. New York, text"></a>3. New York, text</h3><table>
+<thead>
+<tr>
+<th>Dialog</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>J: Hi, Ann! Hey, how was your vacation? You went to New York, right?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Yeah.</td>
+<td></td>
+</tr>
+<tr>
+<td>J: How was it?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Oh, I love New York! It’s a really exciting  city.</td>
+<td></td>
+</tr>
+<tr>
+<td>J: Nah. It’s too big and too loud  for me. So, what did you do in New York?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Well, we went to a musical. That was fun  ! And we ate at some really interesting restaurants. The food was delicious.</td>
+<td></td>
+</tr>
+<tr>
+<td>J: It sounds wonderful.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: And the Museum of Modern Art was incredible !</td>
+<td></td>
+</tr>
+<tr>
+<td>J: That’s great! Well, I have a meeting. See you later.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Bye.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-‘Why’-and-‘because’"><a href="#4-‘Why’-and-‘because’" class="headerlink" title="4. ‘Why’ and ‘because’"></a>4. ‘Why’ and ‘because’</h3><ul>
+<li>Why did you go to Paris?</li>
+<li>I went to Paris because it’s beautiful!</li>
+</ul>
+<ul>
+<li>Why is Frank angry?</li>
+<li>I go to that restaurant     because it’s cheap, and the food is delicious.  </li>
+</ul>
+<h3 id="5-Suggesting-activities"><a href="#5-Suggesting-activities" class="headerlink" title="5. Suggesting activities"></a>5. Suggesting activities</h3><p>‘Let’s’ + base form of verb</p>
+<ul>
+<li>Let’s go to the dance performance. </li>
+</ul>
+<p>‘How about’ or ‘what about’ + verb + ‘-ing’</p>
+<ul>
+<li>What about meeting some friends?</li>
+</ul>
+<p>‘Could’ + base form of verb</p>
+<ul>
+<li>We could go out for a drink at Harry’s Bar.</li>
+</ul>
+<p>‘Why don’t we’ + base form of verb</p>
+<ul>
+<li>Why don’t we try a new restaurant?</li>
+</ul>
+<h2 id="4-going-to-the-movies"><a href="#4-going-to-the-movies" class="headerlink" title="4. going to the movies"></a>4. going to the movies</h2><h3 id="1-Vocabulary-1"><a href="#1-Vocabulary-1" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h3><ul>
+<li>The 8 o’clock show’s sold out now.</li>
+<li>There are still some tickets left</li>
+</ul>
+<p><img src="/images/english/ef-l4u1l4.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>Dialog</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>S: Jake? Jake! It’s 7 o’clock! The movie starts at 8!</td>
+<td></td>
+</tr>
+<tr>
+<td>J: Okay, Okay. I am ready.</td>
+<td></td>
+</tr>
+<tr>
+<td>S: Did you book the tickets?</td>
+<td></td>
+</tr>
+<tr>
+<td>J: The tickets.</td>
+<td></td>
+</tr>
+<tr>
+<td>S: The tickets you book them. right?</td>
+<td></td>
+</tr>
+<tr>
+<td>J: Ohhh.</td>
+<td></td>
+</tr>
+<tr>
+<td>S: I can’t believe it. How Could you forget to book the tickets? The 8 o’clock show is sold out now.</td>
+<td></td>
+</tr>
+<tr>
+<td>J: Sally, I’m really sorry. Is there a second show?</td>
+<td></td>
+</tr>
+<tr>
+<td>S: The next show begins at 10:30. There are still some tickets left. But it’s over after midnight.</td>
+<td></td>
+</tr>
+<tr>
+<td>J: That sounds good. I’m so sorry. I can’t believe I forgot. So, Do you want to watch some TV?</td>
+<td></td>
+</tr>
+<tr>
+<td>S: This is stupid!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-Simple-present"><a href="#2-Simple-present" class="headerlink" title="2. Simple present"></a>2. Simple present</h3><table>
+<thead>
+<tr>
+<th>begin、start、open</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The dance performance begins at 8 o’clock tonight.</td>
+<td></td>
+</tr>
+<tr>
+<td>Jim Department Store opens at 9 a.m. tomorrow.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>close、end、be over、finish</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The movie is over at 9:15 p.m.</td>
+<td></td>
+</tr>
+<tr>
+<td>She closes her shop at 6 o’clock.</td>
+<td></td>
+</tr>
+<tr>
+<td>The movie ends at midnight.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-Asking-for-info-about-movies"><a href="#3-Asking-for-info-about-movies" class="headerlink" title="3. Asking for info about movies"></a>3. Asking for info about movies</h3><ul>
+<li>Can you give me some information?</li>
+<li>Do you have a website?</li>
+<li>Can I buy tickets online?</li>
+<li>What’s your address?</li>
+<li>What time is the next show?</li>
+<li>Are tickets still available?</li>
+<li>How much are tickets?</li>
+</ul>
+<h3 id="4-Dialog-with-theater-‘θiətə"><a href="#4-Dialog-with-theater-‘θiətə" class="headerlink" title="4. Dialog with theater  [‘θiətə]"></a>4. Dialog with theater  [‘θiətə]</h3><table>
+<thead>
+<tr>
+<th>Dialog</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Good afternoon. Springdale Theater.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Good afternoon. Can you give me some information  about the film ‘Mommy Mommy’?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Certainly. What would you like to know?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: When is the next show  ?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: It’s at 3:15.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: That’s good. And are there still tickets for it?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Yes. That’s not a problem. Afternoons are never sold out.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: OK. And can I buy tickets online?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Yes, just go to our website  , www.springdaletheater.com.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: Thanks! Oh, and how much are tickets for adults  and children?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Adults are $13, and kids are $6.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-ef-l3u6-Jobs-and-companies" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2505,342 +3545,6 @@ img {
 
 
     
-      <article id="post-ml-python-numpy-shape" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/21/ml-python-numpy-shape/"><strong>Python numpy.shape 和 numpy.reshape</strong></a>
-      <small class=article-date-index>&nbsp; 2017-02-21</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/02/21/ml-python-numpy-shape/" class="article-date">
-  <time datetime="2017-02-21T08:43:21.000Z" itemprop="datePublished">2017-02-21</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/21/ml-python-numpy-shape/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <table>
-<thead>
-<tr>
-<th>Extension lib</th>
-<th>introduction</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Numpy</td>
-<td>提供数组支持，以及相应的高效处理函数</td>
-</tr>
-</tbody>
-</table>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy <span class="keyword">import</span> *  </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure>
-<h2 id="1-shape"><a href="#1-shape" class="headerlink" title="1. shape"></a>1. shape</h2><p>功能：给予数组一个新的形状，而不改变它的数据</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># list</span></span><br><span class="line">L=range(<span class="number">5</span>) <span class="comment"># [0, 1, 2, 3, 4]</span></span><br><span class="line">shape(L)   <span class="comment"># [5,]</span></span><br><span class="line">L=[[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]] </span><br><span class="line">shape(L)</span><br></pre></td></tr></table></figure>
-<p>(2, 3)</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># array</span></span><br><span class="line"></span><br><span class="line">arr=array(range(<span class="number">5</span>)) </span><br><span class="line"><span class="keyword">print</span> arr</span><br><span class="line">shape(arr)</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"======  two dimension  ======"</span></span><br><span class="line"></span><br><span class="line">arr=array([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>], [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]])</span><br><span class="line"><span class="keyword">print</span> arr</span><br><span class="line">shape(arr)</span><br></pre></td></tr></table></figure>
-<p>======  two dimension  ======<br>[[1 2 3]<br>[4 5 6]]</p>
-<p>(2, 3)</p>
-<h2 id="2-reshape"><a href="#2-reshape" class="headerlink" title="2. reshape"></a>2. reshape</h2><p>newshape：整数值或整数元组。新的形状应该兼容于原始形状。<br>如果是一个整数值，表示一个一维数组的长度；<br>如果是元组，一个元素值可以为-1，此时该元素值表示为指定，此时会从数组的长度和剩余的维度中推断出</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a=array([[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]])  </span><br><span class="line">reshape(a, <span class="number">6</span>)</span><br></pre></td></tr></table></figure>
-<p>array([1, 2, 3, 4, 5, 6])</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">reshape(a, (<span class="number">3</span>, <span class="number">-1</span>)) <span class="comment">#为指定的值将被推断出为2</span></span><br></pre></td></tr></table></figure>
-<p>array([[1, 2],<br>       [3, 4],<br>       [5, 6]])</p>
-<h2 id="Refence-article"><a href="#Refence-article" class="headerlink" title="Refence article"></a>Refence article</h2><p><a href="http://blog.csdn.net/u012005313/article/details/49383551" target="_blank" rel="external">numpy.shape</a></p>
-
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ops-mac-install-tensorflow" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/21/ops-mac-install-tensorflow/"><strong>Mac install tensorFlow</strong></a>
-      <small class=article-date-index>&nbsp; 2017-02-21</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/02/21/ops-mac-install-tensorflow/" class="article-date">
-  <time datetime="2017-02-21T01:54:16.000Z" itemprop="datePublished">2017-02-21</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/devops/">devops</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/21/ops-mac-install-tensorflow/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-instaled-pip"><a href="#1-instaled-pip" class="headerlink" title="1. instaled pip"></a>1. instaled pip</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 安装完后执行命令pip freeze列出安装的packages验证一下pip安装好没.</span></span><br><span class="line"></span><br><span class="line">$ pip freeze</span><br><span class="line">python-dateutil==1.5</span><br><span class="line">scikit-learn==0.18.dev0</span><br><span class="line">scipy==0.13.0b1</span><br><span class="line">six==1.10.0</span><br><span class="line">tensorflow==0.5.0</span><br><span class="line">terminado==0.6</span><br><span class="line">TFL==2.0.5</span><br><span class="line">tornado==4.3</span><br><span class="line">vboxapi==1.0</span><br><span class="line">virtualenv==15.1.0</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="2-install-tensorflow"><a href="#2-install-tensorflow" class="headerlink" title="2. install tensorflow"></a>2. install tensorflow</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Mac OS X, CPU only, Python 2.7:</span></span><br><span class="line">$ <span class="built_in">export</span> TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.0.0-py2-none-any.whl</span><br><span class="line"></span><br><span class="line"><span class="comment"># Only CPU-version is available at the moment.</span></span><br><span class="line">$ sudo pip install <span class="variable">$TF_BINARY_URL</span></span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>maybe by vpn in China</p>
-</blockquote>
-<h2 id="3-install-virtualenv"><a href="#3-install-virtualenv" class="headerlink" title="3. install virtualenv"></a>3. install virtualenv</h2><p>virtualenv是python的沙箱工具.我们毕竟是在自己机器上做实验,为了不来回修改各种环境变量,我们一般还是弄个沙箱完比较好.测试完直接删除就行,不用再去改各种配置文件.</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo pip install --upgrade virtualenv</span><br><span class="line"></span><br><span class="line">Collecting virtualenv</span><br><span class="line">  Downloading virtualenv-15.1.0-py2.py3-none-any.whl (1.8MB)</span><br><span class="line">    100% |████████████████████████████████| 1.8MB 156kB/s</span><br><span class="line">Installing collected packages: virtualenv</span><br><span class="line">Successfully installed virtualenv-15.1.0</span><br></pre></td></tr></table></figure>
-<p>安装好后创建一个工作目录,我直接在home里创建了个文件夹.</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ virtualenv --system-site-packages ~/tensorflow</span><br></pre></td></tr></table></figure>
-<p>然后进入目录激活沙箱.</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ cd ~/tensorflow</span><br><span class="line">$ source bin/activate</span><br></pre></td></tr></table></figure>
-<h2 id="4-install-tensorflow-in-virtualenv"><a href="#4-install-tensorflow-in-virtualenv" class="headerlink" title="4. install tensorflow in virtualenv"></a>4. install tensorflow in virtualenv</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">(tensorflow) ➜  tensorflow pip install <span class="variable">$TF_BINARY_URL</span></span><br></pre></td></tr></table></figure>
-<h2 id="5-run-tensorflow"><a href="#5-run-tensorflow" class="headerlink" title="5. run tensorflow"></a>5. run tensorflow</h2><p><a href="http://tensorflow.org/get_started/os_setup.md#try_your_first_tensorflow_program" target="_blank" rel="external">hello world</a></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">(tensorflow) ➜  tensorflow python</span><br><span class="line">Python 2.7.10 (default, Jul 14 2015, 19:46:27)</span><br><span class="line">[GCC 4.2.1 Compatible Apple LLVM 6.0 (clang-600.0.39)] on darwin</span><br><span class="line">Type "help", "copyright", "credits" or "license" for more information.</span><br><span class="line">&gt;&gt;&gt; import tensorflow as tf</span><br><span class="line">&gt;&gt;&gt; hello = tf.constant('Hello,TensorFlow!')</span><br><span class="line">&gt;&gt;&gt; sess = tf.Session()</span><br><span class="line">can't determine number of CPU cores: assuming 4</span><br><span class="line">I tensorflow/core/common_runtime/local_device.cc:25] Local device intra op parallelism threads: 4</span><br><span class="line">can't determine number of CPU cores: assuming 4</span><br><span class="line">I tensorflow/core/common_runtime/local_session.cc:45] Local session inter op parallelism threads: 4</span><br><span class="line">&gt;&gt;&gt; print sess.run(hello)</span><br><span class="line">Hello,TensorFlow!</span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-<p>let’s see this tensorflow dir</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  tensorflow ll</span><br><span class="line">total 4.0K</span><br><span class="line">drwxr-xr-x 16 hp staff 544 Feb 21 10:45 bin/</span><br><span class="line">drwxr-xr-x  3 hp staff 102 Feb 21 10:38 include/</span><br><span class="line">drwxr-xr-x  3 hp staff 102 Feb 21 10:38 lib/</span><br><span class="line">-rw-r--r--  1 hp staff  60 Feb 21 10:45 pip-selfcheck.json</span><br><span class="line">➜  tensorflow</span><br></pre></td></tr></table></figure>
-<h2 id="6-install-keras"><a href="#6-install-keras" class="headerlink" title="6. install keras"></a>6. install keras</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo pip install keras</span><br><span class="line"></span><br><span class="line">Successfully installed keras-1.2.2 pyyaml-3.12 theano-0.8.2</span><br></pre></td></tr></table></figure>
-<h2 id="Refence"><a href="#Refence" class="headerlink" title="Refence"></a>Refence</h2><ol>
-<li><a href="http://tensorflow.org" target="_blank" rel="external">tensorflow官方地址</a></li>
-<li><a href="https://pypi.python.org/pypi/pip" target="_blank" rel="external">pip官方地址</a></li>
-<li><a href="https://pypi.python.org/pypi/setuptools" target="_blank" rel="external">setuptools官方地址</a></li>
-<li><a href="http://www.111cn.net/phper/python/66848.htm" target="_blank" rel="external">python安装setuptools步骤详解</a></li>
-<li><a href="http://pan.baidu.com/s/1c1corG8" target="_blank" rel="external">about pdf文件下载</a></li>
-<li><a href="http://tflearn.org/installation/#upgrade-tensorflow" target="_blank" rel="external">tflearn.org/installation</a></li>
-</ol>
-
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ml-Abalone-Age-2017-02-17-1413" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/17/ml-Abalone-Age-2017-02-17-1413/"><strong>Abalone&#39;s Age</strong></a>
-      <small class=article-date-index>&nbsp; 2017-02-17</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/02/17/ml-Abalone-Age-2017-02-17-1413/" class="article-date">
-  <time datetime="2017-02-17T09:28:21.000Z" itemprop="datePublished">2017-02-17</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/17/ml-Abalone-Age-2017-02-17-1413/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Abalone’s-Age"><a href="#Abalone’s-Age" class="headerlink" title="Abalone’s Age"></a><a href="http://www.pkbigdata.com/common/cmpt/成电大数据培训实践_竞赛信息.html" target="_blank" rel="external">Abalone’s Age</a></h2><p>『Abalone’s Age』</p>
-<p>鲍鱼，在现代汉语中有多种含义。最常用的是指一种原始的海洋贝类，属于单壳软体动物，其只有半面外壳，壳坚厚、扁而宽，鲍鱼是中国传统的名贵食材，位居四大海味之首。<br>鲍鱼的优劣与年龄相关。一般来说，我们可以数鲍鱼的生长纹来确定鲍鱼的年龄，但数生长纹也是一件挺麻烦的事情。在这里，我们采用与鲍鱼年龄有关的因素来预测鲍鱼的年龄。</p>
-<p>构建Pybrain神经网络的基本步骤：</p>
-<ol>
-<li>构建神经网路</li>
-<li>构造数据集</li>
-<li>训练神经网络</li>
-<li>预测测试集结果</li>
-<li>提交,验证和分析</li>
-</ol>
-<h2 id="1-分析问题"><a href="#1-分析问题" class="headerlink" title="1. 分析问题"></a>1. 分析问题</h2><p>分析什么特征是更重要的</p>
-<p><strong><font color="red">先看看数据长什么样 </font></strong> 还是用pandas加载数据</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这个ipython notebook主要是我解决Kaggle Titanic问题的思路和过程</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment">#数据分析</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np <span class="comment">#科学计算</span></span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> Series,DataFrame</span><br><span class="line"></span><br><span class="line">data_train = pd.read_csv(<span class="string">"traindata.csv"</span>)</span><br><span class="line"><span class="keyword">print</span> data_train.columns</span><br><span class="line"><span class="keyword">print</span> <span class="string">"============ df info ============"</span></span><br><span class="line">data_train.info()</span><br></pre></td></tr></table></figure>
-<pre><code>Index([u&apos;Sex&apos;, u&apos;Length&apos;, u&apos;Diameter&apos;, u&apos;Hight&apos;, u&apos;Whole&apos;, u&apos;Shucked&apos;,
-       u&apos;Viscera&apos;, u&apos;Shell&apos;, u&apos;Rings&apos;],
-      dtype=&apos;object&apos;)
-============ df info ============
-&lt;class &apos;pandas.core.frame.DataFrame&apos;&gt;
-RangeIndex: 3177 entries, 0 to 3176
-Data columns (total 9 columns):
-Sex         3177 non-null object
-Length      3177 non-null float64
-Diameter    3177 non-null float64
-Hight       3177 non-null float64
-Whole       3177 non-null float64
-Shucked     3177 non-null float64
-Viscera     3177 non-null float64
-Shell       3177 non-null float64
-Rings       3177 non-null int64
-dtypes: float64(7), int64(1), object(1)
-memory usage: 223.5+ KB
-</code></pre><font color="blue">我们看大概有以下这些字段</font>
-
-<ol>
-<li>Sex</li>
-<li>Length</li>
-<li>Diameter</li>
-<li>Hight</li>
-<li>Whole</li>
-<li>Shucked</li>
-<li>Viscera</li>
-<li>Shell</li>
-<li>Rings =&gt; Age</li>
-</ol>
-<p>上面的数据说什么了？它告诉我们，一共有9 Column 数据，训练数据中总共有 3177 只 abalone，所有的数据都是全的。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_train.describe()</span><br></pre></td></tr></table></figure>
-<table>
-<thead>
-<tr>
-<th>~</th>
-<th>Length</th>
-<th>Diameter</th>
-<th>Hight</th>
-<th>Whole</th>
-<th>Shucked</th>
-<th>Viscera</th>
-<th>Shell</th>
-<th>Rings</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>count</td>
-<td>3177</td>
-<td>3177</td>
-<td>3177</td>
-<td>3177</td>
-<td>3177</td>
-<td>3177</td>
-<td>3177</td>
-<td>3177</td>
-</tr>
-<tr>
-<td>mean</td>
-<td>0.52</td>
-<td>0.41</td>
-<td>0.14</td>
-<td>0.83</td>
-<td>0.36</td>
-<td>0.18</td>
-<td>0.24</td>
-<td>9.92</td>
-</tr>
-</tbody>
-</table>
-<ul>
-<li><font color="blue">『对数据的认识太重要了！』<font></font></font></li>
-<li><font color="red">『对数据的认识太重要了！』<font></font></font></li>
-<li><font color="green">『对数据的认识太重要了！』<font></font></font></li>
-</ul>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_train</span><br></pre></td></tr></table></figure>
-<h2 id="2-准备数据"><a href="#2-准备数据" class="headerlink" title="2. 准备数据"></a>2. 准备数据</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 对 sex 进行 one-hot 编码</span></span><br><span class="line">dummies_Sex = pd.get_dummies(data_train[<span class="string">'Sex'</span>], prefix= <span class="string">'Sex'</span>)</span><br><span class="line"></span><br><span class="line">df = pd.concat([data_train, dummies_Sex], axis=<span class="number">1</span>)</span><br><span class="line">df.drop([<span class="string">'Sex'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">train_df = df</span><br><span class="line">train_df</span><br></pre></td></tr></table></figure>
-<h2 id="3-构造神经网络-NN"><a href="#3-构造神经网络-NN" class="headerlink" title="3. 构造神经网络 NN"></a>3. 构造神经网络 NN</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> Series,DataFrame</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas.io.data <span class="keyword">as</span> wb</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pybrain.structure <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> pybrain.datasets <span class="keyword">import</span> SupervisedDataSet</span><br><span class="line"><span class="keyword">from</span> pybrain.supervised.trainers <span class="keyword">import</span> BackpropTrainer</span><br><span class="line"></span><br><span class="line"><span class="comment"># createa neural network</span></span><br><span class="line">fnn = FeedForwardNetwork()</span><br><span class="line"></span><br><span class="line"><span class="comment"># create three layers, input layer:2 input unit; hidden layer: 10 units; output layer: 1 output</span></span><br><span class="line">inLayer = LinearLayer(<span class="number">10</span>, name=<span class="string">'inLayer'</span>)</span><br><span class="line">hiddenLayer0 = SigmoidLayer(<span class="number">3</span>, name=<span class="string">'hiddenLayer0'</span>)</span><br><span class="line">outLayer = LinearLayer(<span class="number">1</span>, name=<span class="string">'outLayer'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add three layers to the neural network</span></span><br><span class="line">fnn.addInputModule(inLayer)</span><br><span class="line">fnn.addModule(hiddenLayer0)</span><br><span class="line">fnn.addOutputModule(outLayer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># link three layers</span></span><br><span class="line">in_to_hidden0 = FullConnection(inLayer,hiddenLayer0)</span><br><span class="line">hidden0_to_out = FullConnection(hiddenLayer0, outLayer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the links to neural network</span></span><br><span class="line">fnn.addConnection(in_to_hidden0)</span><br><span class="line">fnn.addConnection(hidden0_to_out)</span><br><span class="line"></span><br><span class="line"><span class="comment"># make neural network come into effect</span></span><br><span class="line">fnn.sortModules()</span><br></pre></td></tr></table></figure>
-<h2 id="4-构造数据集"><a href="#4-构造数据集" class="headerlink" title="4. 构造数据集"></a>4. 构造数据集</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># obtain the original data</span></span><br><span class="line"></span><br><span class="line">x1 = train_df[<span class="string">'Length'</span>]</span><br><span class="line">x2 = train_df[<span class="string">'Diameter'</span>]</span><br><span class="line">x3 = train_df[<span class="string">'Hight'</span>]</span><br><span class="line">x4 = train_df[<span class="string">'Whole'</span>]</span><br><span class="line">x5 = train_df[<span class="string">'Shucked'</span>]</span><br><span class="line">x6 = train_df[<span class="string">'Viscera'</span>]</span><br><span class="line">x7 = train_df[<span class="string">'Shell'</span>]</span><br><span class="line">x8 = train_df[<span class="string">'Sex_F'</span>]</span><br><span class="line">x9 = train_df[<span class="string">'Sex_I'</span>]</span><br><span class="line">x10 = train_df[<span class="string">'Sex_M'</span>]</span><br><span class="line"></span><br><span class="line">y = train_df[<span class="string">'Rings'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># definite the dataset as two input , one output</span></span><br><span class="line">DS = SupervisedDataSet(<span class="number">10</span>,<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add data element to the dataset</span></span><br><span class="line"><span class="comment"># 往数据集内加样本点</span></span><br><span class="line"><span class="comment"># 假设x1，x2，x3是输入的三个维度向量，y是输出向量，并且它们的长度相同</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(len(train_df)):</span><br><span class="line">    DS.addSample([x1[i],x2[i],x3[i],x4[i],x5[i],x6[i],x7[i],x8[i],x9[i],x10[i]],[y[i]])</span><br><span class="line"></span><br><span class="line"><span class="comment"># you can get your input/output this way</span></span><br><span class="line"><span class="comment"># 如果要获得里面的输入／输出时，可以用</span></span><br><span class="line">X = DS[<span class="string">'input'</span>]</span><br><span class="line">Y = DS[<span class="string">'target'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># split the dataset into train dataset and test dataset</span></span><br><span class="line"><span class="comment"># 如果要把数据集切分成训练集和测试集，可以用下面的语句，训练集：测试集＝8:2</span></span><br><span class="line"><span class="comment"># 为了方便之后的调用，可以把输入和输出拎出来</span></span><br><span class="line">dataTrain, dataTest = DS.splitWithProportion(<span class="number">0.8</span>)</span><br><span class="line">xTrain, yTrain = dataTrain[<span class="string">'input'</span>],dataTrain[<span class="string">'target'</span>]</span><br><span class="line">xTest, yTest = dataTest[<span class="string">'input'</span>], dataTest[<span class="string">'target'</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"bulid data sets end ！"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#print xTest[1]</span></span><br><span class="line">type(xTest)</span><br></pre></td></tr></table></figure>
-<pre><code>bulid data sets end ！
-
-numpy.ndarray
-</code></pre><h2 id="5-训练神经网络"><a href="#5-训练神经网络" class="headerlink" title="5. 训练神经网络"></a>5. 训练神经网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># train the NN</span></span><br><span class="line"><span class="comment"># we use BP Algorithm</span></span><br><span class="line"><span class="comment"># verbose = True means print th total error</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"trainer start..."</span></span><br><span class="line">trainer = BackpropTrainer(fnn, dataTrain, verbose=<span class="keyword">False</span>,learningrate=<span class="number">0.01</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"run..."</span></span><br><span class="line"><span class="comment"># set the epoch times to make the NN  fit</span></span><br><span class="line">trainer.trainUntilConvergence(maxEpochs=<span class="number">500</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"trainer end!"</span></span><br></pre></td></tr></table></figure>
-<pre><code>trainer start...
-run...
-trainer end!
-</code></pre><h2 id="6-预测testdata"><a href="#6-预测testdata" class="headerlink" title="6. 预测testdata"></a>6. 预测testdata</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_test = pd.read_csv(<span class="string">"testdata.csv"</span>)</span><br><span class="line"><span class="comment"># 对 sex 进行 one-hot 编码</span></span><br><span class="line">dummies_Sex = pd.get_dummies(data_test[<span class="string">'Sex'</span>], prefix= <span class="string">'Sex'</span>)</span><br><span class="line"></span><br><span class="line">df = pd.concat([data_test, dummies_Sex], axis=<span class="number">1</span>)</span><br><span class="line">df.drop([<span class="string">'Sex'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">df_test = df</span><br><span class="line">df_test</span><br><span class="line"></span><br><span class="line">test = df_test.filter(regex=<span class="string">'Length|Diameter|Hight|Whole|Shucked|Viscera|Shell|Sex_F|Sex_I|Sex_M'</span>)</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">xTest = test.as_matrix()</span><br><span class="line">xTest</span><br><span class="line"><span class="comment"># prediction = fnn.activate(xTest[1])</span></span><br><span class="line"><span class="comment"># print("the prediction number is :",prediction," the real number is:  ",yTest[1])</span></span><br><span class="line">predict_resutl=[]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(len(xTest)):</span><br><span class="line">    res = fnn.activate(xTest[i])[<span class="number">0</span>]</span><br><span class="line">    predict_resutl.append(round(res))</span><br><span class="line"></span><br><span class="line">final_res = np.array(predict_resutl).T</span><br><span class="line"></span><br><span class="line">result = pd.DataFrame(&#123;<span class="string">'ID'</span>:data_test[<span class="string">'ID'</span>].as_matrix(), <span class="string">'Rings'</span>:final_res&#125;)</span><br><span class="line">result</span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result.to_csv(<span class="string">"abalone_predictions.csv"</span>, index=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
-
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
       <nav id="page-nav">
         <a class="extend prev" rel="prev" href="/page/5/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><a class="extend next" rel="next" href="/page/7/">Next &raquo;</a>
       </nav>
@@ -2851,7 +3555,7 @@ trainer end!
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2017 Libin Chan&nbsp;
+      &copy; 2018 Libin Chan&nbsp;
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
     </div>
   </div>
