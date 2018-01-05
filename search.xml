@@ -4,6 +4,81 @@
   
     
     <entry>
+      <title><![CDATA[Sklearn General Learning Model]]></title>
+      <url>http://iequa.com/2018/01/05/py-sklearn-2-general-learning-model/</url>
+      <content type="html"><![CDATA[<p>Sklearn 把所有机器学习的模式整合统一起来了，学会了一个模式就可以通吃其他不同类型的学习模式</p>
+<a id="more"></a>
+<h2 id="使用分类器"><a href="#使用分类器" class="headerlink" title="使用分类器"></a>使用分类器</h2><p>Sklearn 本身就有很多数据库，可以用来练习。 以 Iris 的数据为例，这种花有四个属性，花瓣的长宽，茎的长宽，根据这些属性把花分为三类。</p>
+<p>我们要用 分类器 去把四种类型的花分开。</p>
+<p><img src="/images/python/sklearn-2-general-learning-model.png" alt=""></p>
+<p>今天用 <code>KNN classifier</code>，就是选择几个临近点，综合它们做个平均来作为预测值</p>
+<h2 id="导入模块"><a href="#导入模块" class="headerlink" title="导入模块"></a>导入模块</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.neighbors <span class="keyword">import</span> KNeighborsClassifier</span><br></pre></td></tr></table></figure>
+<h2 id="创建数据"><a href="#创建数据" class="headerlink" title="创建数据"></a>创建数据</h2><p>加载 <code>iris</code> 的数据，把属性存在 <code>X</code>，类别标签存在 <code>y</code>：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">iris = datasets.load_iris()</span><br><span class="line"></span><br><span class="line">iris_X = iris.data</span><br><span class="line">iris_y = iris.target</span><br></pre></td></tr></table></figure>
+<p>观察一下数据集，<code>X</code> 有四个属性，<code>y</code> 有 <code>0</code>，<code>1</code>，<code>2</code> 三类：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(iris_X[:<span class="number">2</span>, :])</span><br><span class="line">print(iris_y)</span><br></pre></td></tr></table></figure>
+<pre><code>[[ 5.1  3.5  1.4  0.2]
+ [ 4.9  3.   1.4  0.2]]
+[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+ 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2
+ 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
+ 2 2]
+</code></pre><p>把数据集分为训练集和测试集，其中 <code>test_size=0.3</code>，即测试集占总数据的 30%：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">X_train, X_test, y_train, y_test = train_test_split(iris_X, iris_y, test_size=<span class="number">0.3</span>)</span><br></pre></td></tr></table></figure>
+<p>可以看到分开后的数据集，顺序也被打乱，这样更有利于学习模型：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(y_train)</span><br></pre></td></tr></table></figure>
+<pre><code>[0 0 2 2 1 0 2 0 1 1 0 2 1 2 2 0 0 1 0 1 0 2 1 1 1 2 2 1 0 0 2 2 2 2 2 1 0
+ 0 0 0 1 2 1 2 1 0 2 1 2 2 2 1 0 1 2 1 0 0 2 1 1 0 2 2 0 2 1 0 0 2 0 0 0 1
+ 2 0 1 1 2 2 0 1 0 2 2 0 1 0 0 1 2 1 1 2 2 1 1 0 0 2 0 0 1 1 0]
+</code></pre><h2 id="建立模型－训练－预测"><a href="#建立模型－训练－预测" class="headerlink" title="建立模型－训练－预测"></a>建立模型－训练－预测</h2><p>定义模块方式 <code>KNeighborsClassifier()</code>， 用 <code>fit</code> 来训练 <code>training data</code>，这一步就完成了训练的所有步骤， 后面的 <code>knn</code> 就已经是训练好的模型，可以直接用来 <code>predict</code> 测试集的数据， 对比用模型预测的值与真实的值，可以看到大概模拟出了数据，但是有误差，是不会完完全全预测正确的</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">knn = KNeighborsClassifier()</span><br><span class="line">knn.fit(X_train, y_train)</span><br><span class="line"></span><br><span class="line">print(knn.predict(X_test))</span><br><span class="line">print(y_test)</span><br></pre></td></tr></table></figure>
+<pre><code>[1 0 1 0 1 2 0 1 0 1 2 1 1 1 2 2 1 2 0 1 2 0 0 2 1 2 1 1 0 1 1 0 2 2 2 0 1
+ 0 2 0 2 0 1 2 1]
+[1 0 1 0 1 2 0 1 0 1 2 1 1 1 2 2 1 2 0 1 2 0 0 2 1 2 1 1 0 1 1 0 2 2 2 0 1
+ 0 2 0 2 0 2 2 1]
+</code></pre><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="http://scikit-learn.org/" target="_blank" rel="external">scikit-learn.org</a></li>
+<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="external">scikit-learn docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">scikit-learn morvanzhou</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Sklearn Common Attributes and Functions]]></title>
+      <url>http://iequa.com/2018/01/05/py-sklearn-4-common-attributes/</url>
+      <content type="html"><![CDATA[<p>今天来看 <code>Model</code> 的属性和功能, 这里以 <code>LinearRegressor</code> 为例，所以先导入包，数据，还有模型</p>
+<a id="more"></a>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression</span><br><span class="line"></span><br><span class="line">loaded_data = datasets.load_boston()</span><br><span class="line"></span><br><span class="line">data_X = loaded_data.data</span><br><span class="line">data_y = loaded_data.target</span><br><span class="line"></span><br><span class="line">model = LinearRegression()</span><br></pre></td></tr></table></figure>
+<h2 id="训练和预测"><a href="#训练和预测" class="headerlink" title="训练和预测"></a>训练和预测</h2><p>接下来 <code>model.fit</code> 和 <code>model.predict</code> 就属于 <code>Model</code> 的功能，用来训练模型，用训练好的模型预测</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">model.fit(data_X, data_y)</span><br><span class="line"></span><br><span class="line">print(model.predict(data_X[:<span class="number">4</span>, :]))</span><br></pre></td></tr></table></figure>
+<pre><code>[ 30.00821269  25.0298606   30.5702317   28.60814055]
+</code></pre><h2 id="参数和分数"><a href="#参数和分数" class="headerlink" title="参数和分数"></a>参数和分数</h2><p><code>model.coef_</code> 和 <code>model.intercept_</code> 属于 <code>Model</code> 的属性， 例如对于 <code>LinearRegressor</code> 这个模型，这两个属性分别输出模型的斜率和截距（与y轴的交点）</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(model.coef_)</span><br><span class="line">print(model.intercept_)</span><br></pre></td></tr></table></figure>
+<pre><code>[ -1.07170557e-01   4.63952195e-02   2.08602395e-02   2.68856140e+00
+  -1.77957587e+01   3.80475246e+00   7.51061703e-04  -1.47575880e+00
+   3.05655038e-01  -1.23293463e-02  -9.53463555e-01   9.39251272e-03
+  -5.25466633e-01]
+36.4911032804
+</code></pre><p><code>model.get_params()</code> 也是功能，它可以取出之前定义的参数</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(model.get_params())</span><br></pre></td></tr></table></figure>
+<pre><code>{&apos;copy_X&apos;: True, &apos;fit_intercept&apos;: True, &apos;n_jobs&apos;: 1, &apos;normalize&apos;: False}
+</code></pre><p><code>model.score(data_X, data_y)</code> 它可以对 <code>Model</code> 用 <code>R^2</code> 的方式进行打分，输出精确度。<br>关于 <code>R^2 coefficient of determination</code> 可以查看 <a href="https://en.wikipedia.org/wiki/Coefficient_of_determination" target="_blank" rel="external">Coefficient_of_determination</a></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(model.score(data_X, data_y)) <span class="comment"># R^2 coefficient of determination</span></span><br></pre></td></tr></table></figure>
+<pre><code>0.740607742865
+</code></pre><blockquote>
+<p>按标准的来说, 是要将数据分成训练数据和测试数据, 这里不是一个完整的测试, 只是展示 model 里面的一些属性. 正确率很少能真正100%, 取决于拟合度怎么样. 拟合度好, 正确率高</p>
+</blockquote>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="http://scikit-learn.org/" target="_blank" rel="external">scikit-learn.org</a></li>
+<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="external">scikit-learn docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">scikit-learn morvanzhou</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Sklearn DataSets]]></title>
       <url>http://iequa.com/2018/01/03/py-sklearn-3-database/</url>
       <content type="html"><![CDATA[<p>Sklearn 中的 <a href="http://scikit-learn.org/stable/modules/classes.html#module-sklearn.datasets" target="_blank" rel="external">data sets</a>，很多而且有用，可以用来学习算法模型</p>
@@ -52,7 +127,7 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Sklearn Choosing the right estimator]]></title>
+      <title><![CDATA[Sklearn Choosing The Right Estimator]]></title>
       <url>http://iequa.com/2018/01/03/py-sklearn-1-choosing-estimator/</url>
       <content type="html"><![CDATA[<p>Sciki-learn 选择学习方法，选择模型 <a href="http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html" target="_blank" rel="external">流程图</a></p>
 <a id="more"></a>
@@ -228,92 +303,123 @@
 <thead>
 <tr>
 <th>清辅音</th>
+<th>desc</th>
 <th>sample</th>
 <th>浊辅音</th>
+<th>desc</th>
 <th>sample</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><strong><em>p</em></strong></td>
+<td></td>
 <td>pen、map</td>
 <td><strong><em>b</em></strong></td>
+<td></td>
 <td>big、job</td>
 </tr>
 <tr>
 <td><strong><em>k</em></strong></td>
+<td></td>
 <td>book、week</td>
 <td><strong><em>g</em></strong></td>
+<td></td>
 <td>egg、dog</td>
 </tr>
 <tr>
 <td><strong><em>f</em></strong></td>
+<td></td>
 <td>wife、knife</td>
 <td><strong><em>v</em></strong></td>
+<td></td>
 <td>love、give</td>
 </tr>
 <tr>
 <td><strong><em>s</em></strong></td>
-<td>nice、rice</td>
+<td>舌头放嘴里</td>
+<td>sink、sick、month、nice、rice</td>
 <td><strong><em>z</em></strong></td>
+<td></td>
 <td>his、size</td>
 </tr>
 <tr>
 <td><strong><em>ʃ</em></strong></td>
+<td></td>
 <td>wish、dish</td>
 <td><strong><em>ʒ</em></strong></td>
+<td></td>
 <td>usually、vision</td>
 </tr>
 <tr>
 <td><strong><em>θ</em></strong></td>
-<td>bath、south</td>
+<td>用力吐舌头</td>
+<td>think、thick、mouth、month、bath</td>
 <td><strong><em>ð</em></strong></td>
+<td></td>
 <td>with、smooth</td>
 </tr>
 <tr>
 <td><strong><em>r</em></strong></td>
+<td></td>
 <td>sorry、story</td>
 <td><strong><em>h</em></strong></td>
+<td></td>
 <td>hand、home</td>
 </tr>
 <tr>
 <td><strong><em>tʃ</em></strong></td>
+<td></td>
 <td>teach、lunch</td>
 <td><strong><em>dʒ</em></strong></td>
+<td></td>
 <td>page、large</td>
 </tr>
 <tr>
 <td><strong><em>tr</em></strong></td>
+<td></td>
 <td>tree、trip</td>
 <td><strong><em>dr</em></strong></td>
+<td></td>
 <td>dress、dry</td>
 </tr>
 <tr>
 <td><strong><em>ts</em></strong></td>
+<td></td>
 <td>cats、hats</td>
 <td><strong><em>dz</em></strong></td>
+<td></td>
 <td>beds、cards</td>
 </tr>
 <tr>
 <td><strong><em>m</em></strong></td>
+<td></td>
 <td>mom、some</td>
 <td><strong><em>n</em></strong></td>
+<td></td>
 <td>pen、son、sun</td>
 </tr>
 <tr>
 <td><strong><em>ŋ</em></strong></td>
+<td></td>
 <td>drink</td>
 <td><strong><em>l</em></strong></td>
+<td></td>
 <td>let、ball</td>
 </tr>
 <tr>
 <td><strong><em>w</em></strong></td>
+<td></td>
 <td>why、water</td>
 <td><strong><em>j</em></strong></td>
+<td></td>
 <td>year、yellow</td>
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>clothes [kləʊðz] </p>
+</blockquote>
 <div class="limg1"><br><img src="/images/english/ielts-phonetic-symbol.jpg" height="100" width="650"><br></div>
 
 <h2 id="3-Part-of-Speech"><a href="#3-Part-of-Speech" class="headerlink" title="3. Part of Speech"></a>3. Part of Speech</h2><p><img src="/images/english/ielts-lucy-8-part-of-speech.png" height="100" width="680"></p>
@@ -8416,7 +8522,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -8583,7 +8689,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -14309,6 +14415,18 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://iequa.com/2016/10/27/acm-mst/</url>
+      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
+<a id="more"></a>
+<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Six Kinds of Sort algorithms]]></title>
       <url>http://iequa.com/2016/10/27/acm-sort/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -14322,18 +14440,6 @@ img {
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://iequa.com/2016/10/27/acm-mst/</url>
-      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
-<a id="more"></a>
-<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
