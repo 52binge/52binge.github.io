@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Sklearn Cross-validation 2 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Sklearn 中的 learning curve 可以很直观的看出我们的 model 学习的进度, 对比发现有没有 overfitting 的问题. 然后我们可以对我们的 model 进行调整, 克服 overfitting 的问题.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sklearn Cross-validation 2">
+<meta property="og:url" content="http://iequa.com/2018/01/09/py-sklearn-6-cross-validation-2/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="Sklearn 中的 learning curve 可以很直观的看出我们的 model 学习的进度, 对比发现有没有 overfitting 的问题. 然后我们可以对我们的 model 进行调整, 克服 overfitting 的问题.">
+<meta property="og:image" content="http://iequa.com/images/python/sklearn-6-cross-validation-2-output_7_0.png">
+<meta property="og:updated_time" content="2018-01-10T03:18:08.393Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Sklearn Cross-validation 2">
+<meta name="twitter:description" content="Sklearn 中的 learning curve 可以很直观的看出我们的 model 学习的进度, 对比发现有没有 overfitting 的问题. 然后我们可以对我们的 model 进行调整, 克服 overfitting 的问题.">
+<meta name="twitter:image" content="http://iequa.com/images/python/sklearn-6-cross-validation-2-output_7_0.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/nlp">Data Mining</a>
+        
+          <a class="main-nav-link" href="/ielts">IELTS</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-py-sklearn-6-cross-validation-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Sklearn Cross-validation 2
+      <small class=article-detail-date-index>&nbsp; 2018-01-09</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/01/09/py-sklearn-6-cross-validation-2/" class="article-date">
+  <time datetime="2018-01-09T02:17:21.000Z" itemprop="datePublished">2018-01-09</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/01/09/py-sklearn-6-cross-validation-2/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Sklearn 中的 <code>learning curve</code> 可以很直观的看出我们的 <code>model</code> 学习的进度, 对比发现有没有 <code>overfitting</code> 的问题. 然后我们可以对我们的 <code>model</code> 进行调整, 克服 <code>overfitting</code> 的问题.</p>
+<a id="more"></a>
+<h2 id="Learning-curve-检视过拟合"><a href="#Learning-curve-检视过拟合" class="headerlink" title="Learning curve 检视过拟合"></a>Learning curve 检视过拟合</h2><p>加载对应模块:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.learning_curve <span class="keyword">import</span> learning_curve <span class="comment">#学习曲线模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_digits <span class="comment">#digits数据集</span></span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC <span class="comment">#Support Vector Classifier</span></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span class="comment">#可视化模块</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure>
+<p>加载digits数据集，其包含的是手写体的数字，从0到9。<br>数据集总共有1797个样本，每个样本由64个特征组成， 分别为其手写体对应的8×8像素表示，每个特征取值0~16。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">digits = load_digits()</span><br><span class="line">X = digits.data</span><br><span class="line">y = digits.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#print(len(X[0]))</span></span><br></pre></td></tr></table></figure>
+<p>观察样本由小到大的学习曲线变化, 采用K折交叉验证 <code>cv=10</code>, 选择平均方差检视模型效能 <code>scoring=&#39;mean_squared_error&#39;</code>, 样本由小到大分成5轮检视学习曲线(<code>10%</code>, <code>25%</code>, <code>50%</code>, <code>75%</code>, <code>100%</code>):</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">train_sizes, train_loss, test_loss = learning_curve(</span><br><span class="line">    SVC(gamma=<span class="number">0.001</span>), X, y, cv=<span class="number">10</span>, scoring=<span class="string">'mean_squared_error'</span>,</span><br><span class="line">    train_sizes=[<span class="number">0.1</span>, <span class="number">0.25</span>, <span class="number">0.5</span>, <span class="number">0.75</span>, <span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#平均每一轮所得到的平均方差(共5轮，分别为样本10%、25%、50%、75%、100%)</span></span><br><span class="line">train_loss_mean = -np.mean(train_loss, axis=<span class="number">1</span>)</span><br><span class="line">test_loss_mean = -np.mean(test_loss, axis=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>可视化图形:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.plot(train_sizes, train_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"r"</span>,</span><br><span class="line">         label=<span class="string">"Training"</span>)</span><br><span class="line">plt.plot(train_sizes, test_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"g"</span>,</span><br><span class="line">        label=<span class="string">"Cross-validation"</span>)</span><br><span class="line"></span><br><span class="line">plt.xlabel(<span class="string">"Training examples"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Loss"</span>)</span><br><span class="line">plt.legend(loc=<span class="string">"best"</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/sklearn-6-cross-validation-2-output_7_0.png" width="400"><br></div>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="http://scikit-learn.org/" target="_blank" rel="external">scikit-learn.org</a></li>
+<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="external">scikit-learn docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">scikit-learn morvanzhou</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      <!--
+<p>
+坚持原创技术分享，您的支持将鼓励我继续创作！ <a href="/2017/11/05/pay-blog/">打赏</a>
+</p>
+-->
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-curve-检视过拟合"><span class="toc-number"></span> <span class="toc-text">Learning curve 检视过拟合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/Sklearn/">Sklearn</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/01/09/py-sklearn-6-cross-validation-3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Sklearn Cross-validation 3
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/01/08/py-sklearn-6-cross-validation-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Sklearn Cross-validation 1&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/01/09/py-sklearn-6-cross-validation-2/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
