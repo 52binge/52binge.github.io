@@ -28,6 +28,7 @@
 
   // 2018-01-12 add by blair
   $('.j_handlclick').on('click', function(){ 
+    //alert(111)
     window.open($(this).attr('href') + location.href);
   })
 
