@@ -4,10 +4,152 @@
   
     
     <entry>
-      <title><![CDATA[Matplotlib Set Coordinate axis (not finish)]]></title>
-      <url>http://iequa.com/2018/01/23/py-matplotlib-4-set-coordinate_axis/</url>
-      <content type="html"><![CDATA[<p>在 matplotlib 中如何设置坐标轴的范围, 单位长度.</p>
+      <title><![CDATA[Matplotlib Tick bbox]]></title>
+      <url>http://iequa.com/2018/01/23/py-matplotlib-7-tick/</url>
+      <content type="html"><![CDATA[<p>图中的内容较多，可通过设置相关内容的<code>透明度</code>来使图片更易于观察，也即是本节中的<code>bbox</code>参数设置来调节图像信息.</p>
 <a id="more"></a>
+<h2 id="生成图形"><a href="#生成图形" class="headerlink" title="生成图形"></a>生成图形</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">0.1</span>*x</span><br><span class="line"></span><br><span class="line">plt.figure()</span><br><span class="line"><span class="comment"># 在 plt 2.0.2 或更高的版本中, 设置 zorder 给 plot 在 z 轴方向排序</span></span><br><span class="line">plt.plot(x, y, linewidth=<span class="number">10</span>, zorder=<span class="number">1</span>)</span><br><span class="line">plt.ylim(<span class="number">-2</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">ax = plt.gca()</span><br><span class="line"></span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-7-tick-output_1_0.png" height="100" width="700"><br></div>
+
+<h2 id="调整坐标-bbox"><a href="#调整坐标-bbox" class="headerlink" title="调整坐标 bbox"></a>调整坐标 bbox</h2><p>然后对被遮挡的图像调节相关透明度，本例中设置 x轴 和 y轴 的刻度数字进行透明度设置</p>
+<p>其中<code>label.set_fontsize(12)</code>重新调节字体大小，<code>bbox</code>设置目的内容的透明度相关参数，<code>facecolor</code>调节 <code>box</code> 前景色，<code>edgecolor</code> 设置边框， 本处设置边框为无，<code>alpha</code>设置透明度. </p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> label <span class="keyword">in</span> ax.get_xticklabels() + ax.get_yticklabels():</span><br><span class="line">    label.set_fontsize(<span class="number">12</span>)</span><br><span class="line">    <span class="comment"># 在 plt 2.0.2 或更高的版本中, 设置 zorder 给 plot 在 z 轴方向排序</span></span><br><span class="line">    label.set_bbox(dict(facecolor=<span class="string">'white'</span>, edgecolor=<span class="string">'None'</span>, alpha=<span class="number">0.7</span>, zorder=<span class="number">2</span>))</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-7-tick-output_3_0.png" height="100" width="700"><br></div>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://matplotlib.org/" target="_blank" rel="external">matplotlib.org</a></li>
+<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="external">matplotlib docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">morvanzhou</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Matplotlib Annotation]]></title>
+      <url>http://iequa.com/2018/01/23/py-matplotlib-6-Annotation/</url>
+      <content type="html"><![CDATA[<p>当图线中某些特殊地方需要标注时，我们可以使用 <code>annotation</code>.  </p>
+<p>matplotlib 中的 <code>annotation</code> 有两种方法， 一种是用 plt 里面的 <code>annotate</code>，一种是直接用 plt 里面的 <code>text</code> 来写标注.</p>
+<a id="more"></a>
+<h2 id="画出基本图"><a href="#画出基本图" class="headerlink" title="画出基本图"></a>画出基本图</h2><p>首先，我们在坐标轴中绘制一条直线.</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-6-annotation-output_1_0.png" height="100" width="500"><br></div>
+
+<h2 id="移动坐标"><a href="#移动坐标" class="headerlink" title="移动坐标"></a>移动坐标</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动坐标</span></span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-6-annotation-output_3_0.png" height="100" width="550"><br></div>
+
+<p>然后标注出点<code>(x0, y0)</code>的位置信息. 用 <code>plt.plot([x0, x0,], [0, y0,], &#39;k--&#39;, linewidth=2.5)</code> 画出一条垂直于x轴的虚线.</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动坐标</span></span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">x0 = <span class="number">1</span></span><br><span class="line">y0 = <span class="number">2</span>*x0 + <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">###   plt.plot([x0, x0,], [0, y0,], 'k--', linewidth=2.5) 画出一条垂直于x轴的虚线.  ###</span></span><br><span class="line"></span><br><span class="line">plt.plot([x0, x0,], [<span class="number">0</span>, y0,], <span class="string">'k--'</span>, linewidth=<span class="number">2.5</span>)</span><br><span class="line"><span class="comment"># set dot styles</span></span><br><span class="line">plt.scatter([x0, ], [y0, ], s=<span class="number">50</span>, color=<span class="string">'b'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-6-annotation-output_5_0.png" height="100" width="550"><br></div>
+
+<h2 id="加注释-annotate"><a href="#加注释-annotate" class="headerlink" title="加注释 annotate"></a>加注释 annotate</h2><p>接下来我们就对<code>(x0, y0)</code>这个点进行标注.</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-4</span>, <span class="number">4</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">10</span>, <span class="number">6</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动坐标</span></span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">x0 = <span class="number">1</span></span><br><span class="line">y0 = <span class="number">2</span>*x0 + <span class="number">1</span></span><br><span class="line">plt.plot([x0, x0,], [<span class="number">0</span>, y0,], <span class="string">'k--'</span>, linewidth=<span class="number">2.5</span>)</span><br><span class="line"><span class="comment"># set dot styles</span></span><br><span class="line">plt.scatter([x0, ], [y0, ], s=<span class="number">50</span>, color=<span class="string">'b'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">############## 添加注释 annotate ###############</span></span><br><span class="line"></span><br><span class="line">plt.annotate(<span class="string">r'$2x+1=%s$'</span> % y0, xy=(x0, y0), xycoords=<span class="string">'data'</span>, xytext=(+<span class="number">30</span>, <span class="number">-30</span>),</span><br><span class="line">             textcoords=<span class="string">'offset points'</span>, fontsize=<span class="number">16</span>,</span><br><span class="line">             arrowprops=dict(arrowstyle=<span class="string">'-&gt;'</span>, connectionstyle=<span class="string">"arc3,rad=.2"</span>))</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-6-annotation-output_7_0.png" height="100" width="550"><br></div>
+
+<p>其中参数 <code>xycoords=&#39;data&#39;</code> 是说基于数据的值来选位置, <code>xytext=(+30, -30)</code> 和 <code>textcoords=&#39;offset points&#39;</code> 对于标注位置的描述 和 <code>xy</code> 偏差值, <code>arrowprops</code>是对图中箭头类型的一些设置.</p>
+<h2 id="加注释-text"><a href="#加注释-text" class="headerlink" title="加注释 text"></a>加注释 text</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.text(<span class="number">-3.7</span>, <span class="number">3</span>, <span class="string">r'$This\ is\ the\ some\ text. \mu\ \sigma_i\ \alpha_t$'</span>,</span><br><span class="line">         fontdict=&#123;<span class="string">'size'</span>: <span class="number">16</span>, <span class="string">'color'</span>: <span class="string">'r'</span>&#125;)</span><br></pre></td></tr></table></figure>
+<pre><code>Text(-3.7,3,&apos;$This\\ is\\ the\\ some\\ text. \\mu\\ \\sigma_i\\ \\alpha_t$&apos;)
+</code></pre><p>其中<code>-3.7, 3,</code>是选取text的位置, 空格需要用到转字符<code>\</code> ,<code>fontdict</code>设置文本字体.</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-4</span>, <span class="number">4</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">10</span>, <span class="number">6</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动坐标</span></span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">x0 = <span class="number">1</span></span><br><span class="line">y0 = <span class="number">2</span>*x0 + <span class="number">1</span></span><br><span class="line">plt.plot([x0, x0,], [<span class="number">0</span>, y0,], <span class="string">'k--'</span>, linewidth=<span class="number">2.5</span>)</span><br><span class="line"><span class="comment"># set dot styles</span></span><br><span class="line">plt.scatter([x0, ], [y0, ], s=<span class="number">50</span>, color=<span class="string">'b'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">############## 添加注释 annotate ###############</span></span><br><span class="line"></span><br><span class="line">plt.annotate(<span class="string">r'$2x+1=%s$'</span> % y0, xy=(x0, y0), xycoords=<span class="string">'data'</span>, xytext=(+<span class="number">30</span>, <span class="number">-30</span>),</span><br><span class="line">             textcoords=<span class="string">'offset points'</span>, fontsize=<span class="number">16</span>,</span><br><span class="line">             arrowprops=dict(arrowstyle=<span class="string">'-&gt;'</span>, connectionstyle=<span class="string">"arc3,rad=.2"</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">############# 添加注释 text #################</span></span><br><span class="line"></span><br><span class="line">plt.text(<span class="number">-3.7</span>, <span class="number">3</span>, <span class="string">r'$This\ is\ the\ some\ text. \mu\ \sigma_i\ \alpha_t$'</span>,</span><br><span class="line">         fontdict=&#123;<span class="string">'size'</span>: <span class="number">16</span>, <span class="string">'color'</span>: <span class="string">'r'</span>&#125;)</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-6-annotation-output_11_0.png" height="100" width="500"><br></div>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://matplotlib.org/" target="_blank" rel="external">matplotlib.org</a></li>
+<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="external">matplotlib docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">morvanzhou</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Matplotlib Legend]]></title>
+      <url>http://iequa.com/2018/01/23/py-matplotlib-5-legend/</url>
+      <content type="html"><![CDATA[<p>matplotlib 中的 <code>legend</code> 图例就是为了展示出每个数据对应的<code>图像名称</code>,可读性更好.</p>
+<a id="more"></a>
+<h2 id="添加图例-legend"><a href="#添加图例-legend" class="headerlink" title="添加图例 legend"></a>添加图例 legend</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y1 = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line">y2 = x**<span class="number">2</span></span><br><span class="line"></span><br><span class="line">plt.figure()</span><br><span class="line"><span class="comment">#set x limits</span></span><br><span class="line">plt.xlim((<span class="number">-1</span>, <span class="number">2</span>))</span><br><span class="line">plt.ylim((<span class="number">-2</span>, <span class="number">3</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># set new sticks</span></span><br><span class="line">new_sticks = np.linspace(<span class="number">-1</span>, <span class="number">2</span>, <span class="number">5</span>)</span><br><span class="line">plt.xticks(new_sticks)</span><br><span class="line"><span class="comment"># set tick labels</span></span><br><span class="line">plt.yticks([<span class="number">-2</span>, <span class="number">-1.8</span>, <span class="number">-1</span>, <span class="number">1.22</span>, <span class="number">3</span>],</span><br><span class="line">           [<span class="string">r'$really\ bad$'</span>, <span class="string">r'$bad$'</span>, <span class="string">r'$normal$'</span>, <span class="string">r'$good$'</span>, <span class="string">r'$really\ good$'</span>])</span><br></pre></td></tr></table></figure>
+<pre><code>([&lt;matplotlib.axis.YTick at 0x1195c3358&gt;,
+  &lt;matplotlib.axis.YTick at 0x112681080&gt;,
+  &lt;matplotlib.axis.YTick at 0x1195ce710&gt;,
+  &lt;matplotlib.axis.YTick at 0x1195f5240&gt;,
+  &lt;matplotlib.axis.YTick at 0x1195fc550&gt;],
+ &lt;a list of 5 Text yticklabel objects&gt;)
+</code></pre><p>对图中的两条线绘制图例，首先我们设置两条线的类型等信息（蓝色实线与红色虚线).</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># set line syles</span></span><br><span class="line">l1, = plt.plot(x, y1, label=<span class="string">'linear line'</span>)</span><br><span class="line">l2, = plt.plot(x, y2, color=<span class="string">'red'</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">'--'</span>, label=<span class="string">'square line'</span>)</span><br></pre></td></tr></table></figure>
+<p>需要注意的是 <code>l1,</code> <code>l2,</code> 要以<code>逗号</code>结尾, 因为 <code>plt.plot()</code> 返回的是一个list.</p>
+<p><code>legend</code> 将要显示的信息来自于上面代码中的 <code>label</code>. 所以我们只需要简单写一下代码, <code>plt</code> 就能自动的为我们添加图例.</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.legend(loc=<span class="string">'upper right'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-5-legend-1.png" height="100" width="650"><br></div>
+
+<p>参数 <code>loc=&#39;upper right&#39;</code> 表示图例将添加在图中的右上角.</p>
+<h2 id="调整位置和名称"><a href="#调整位置和名称" class="headerlink" title="调整位置和名称"></a>调整位置和名称</h2><p>如果我们想单独修改之前的 <code>label</code> 信息, 给不同类型的线条设置图例信息. 我们可以在 <code>plt.legend</code> 输入更多参数. 如果以下面这种形式添加 <code>legend</code>, 我们需要确保, 在上面的代码 <code>plt.plot(x, y2, label=&#39;linear line&#39;)</code> 和 <code>plt.plot(x, y1, label=&#39;square line&#39;)</code> 中有用变量 l1 和 l2 分别存储起来. </p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.legend(handles=[l1, l2], labels=[<span class="string">'up'</span>, <span class="string">'down'</span>],  loc=<span class="string">'best'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-5-legend-2.png" height="100" width="650"><br></div>
+
+<p>这样我们就能分别重新设置线条对应的 <code>label</code> 了.</p>
+<p>其中’loc’参数有多种，’best’表示自动分配最佳位置，其余的如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="string">'best'</span> : <span class="number">0</span>,          </span><br><span class="line"><span class="string">'upper right'</span>  : <span class="number">1</span>,</span><br><span class="line"><span class="string">'upper left'</span>   : <span class="number">2</span>,</span><br><span class="line"><span class="string">'lower left'</span>   : <span class="number">3</span>,</span><br><span class="line"><span class="string">'lower right'</span>  : <span class="number">4</span>,</span><br><span class="line"><span class="string">'right'</span>        : <span class="number">5</span>,</span><br><span class="line"><span class="string">'center left'</span>  : <span class="number">6</span>,</span><br><span class="line"><span class="string">'center right'</span> : <span class="number">7</span>,</span><br><span class="line"><span class="string">'lower center'</span> : <span class="number">8</span>,</span><br><span class="line"><span class="string">'upper center'</span> : <span class="number">9</span>,</span><br><span class="line"><span class="string">'center'</span>       : <span class="number">10</span>,</span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://matplotlib.org/" target="_blank" rel="external">matplotlib.org</a></li>
+<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="external">matplotlib docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">morvanzhou</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Matplotlib Coordinate axis]]></title>
+      <url>http://iequa.com/2018/01/23/py-matplotlib-4-coordinate_axis/</url>
+      <content type="html"><![CDATA[<p>如何移动 matplotlib 中 axis 坐标轴的位置.</p>
+<a id="more"></a>
+<h2 id="设置名字和位置"><a href="#设置名字和位置" class="headerlink" title="设置名字和位置"></a>设置名字和位置</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure>
+<p>使用 <code>np.linspace</code> 定义 <code>x</code> ：范围是(-3,3);个数是50.<br>仿真一维数据组(<code>x</code> ,<code>y1</code>)表示曲线1.  仿真一维数据组(<code>x</code> ,<code>y2</code>)表示曲线2.  </p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y1 = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line">y2 = x**<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>使用<code>plt.figure</code>定义一个图像窗口. </p>
+<p>使用<code>plt.plot</code>画(<code>x</code> ,<code>y2</code>)曲线. 使用<code>plt.plot</code>画(<code>x</code> ,<code>y1</code>)曲线，曲线的颜色属性(<code>color</code>)为红色; 曲线的宽度(<code>linewidth</code>) 为 1.0; 曲线的类型(<code>linestyle</code>)为虚线.   </p>
+<p>使用<code>plt.xlim</code>设置<code>x</code>坐标轴范围: (-1, 2); 使用<code>plt.ylim</code>设置<code>y</code>坐标轴范围: (-2, 3);   </p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.figure()</span><br><span class="line">plt.plot(x, y2)</span><br><span class="line">plt.plot(x, y1, color=<span class="string">'red'</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">'--'</span>)</span><br><span class="line">plt.xlim((<span class="number">-1</span>, <span class="number">2</span>))</span><br><span class="line">plt.ylim((<span class="number">-2</span>, <span class="number">3</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>(-2, 3)
+</code></pre><p>使用<code>np.linspace</code>定义范围以及个数：范围是(-1,2);个数是5. </p>
+<p>使用<code>plt.xticks</code>设置<code>x</code>轴刻度：范围是(-1,2);个数是5.<br>使用<code>plt.yticks</code>设置<code>y</code>轴刻度以及名称: 刻度为[-2, -1.8, -1, 1.22, 3]; 对应刻度的名称为[‘really bad’,’bad’,’normal’,’good’, ‘really good’].</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">new_ticks = np.linspace(<span class="number">-1</span>, <span class="number">2</span>, <span class="number">5</span>)</span><br><span class="line">plt.xticks(new_ticks)</span><br><span class="line">plt.yticks([<span class="number">-2</span>, <span class="number">-1.8</span>, <span class="number">-1</span>, <span class="number">1.22</span>, <span class="number">3</span>],[<span class="string">'$really\ bad$'</span>, <span class="string">'$bad$'</span>, <span class="string">'$normal$'</span>, <span class="string">'$good$'</span>, <span class="string">'$really\ good$'</span>])</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>function</th>
+<th>desc</th>
+<th>设置效果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>plt.gca</code></td>
+<td>获取当前坐标轴信息</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>.spines</code></td>
+<td>设置边框</td>
+<td>右侧边框 &amp; 上边框</td>
+</tr>
+<tr>
+<td><code>.set_color</code></td>
+<td>设置边框颜色</td>
+<td>默认白色</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-4-ax-4_1.png" height="100" width="700"><br></div>
+
+<h2 id="调整坐标轴"><a href="#调整坐标轴" class="headerlink" title="调整坐标轴"></a>调整坐标轴</h2><p>使用 <code>.xaxis.set_ticks_position</code>设置<code>x</code>坐标刻度数字或名称的位置：<code>bottom</code>.（所有位置：<code>top</code>，<code>bottom</code>，<code>both</code>，<code>default</code>，<code>none</code>）<br>使用 <code>.spines</code> 设置边框：<code>x</code>轴；<br>使用 <code>.set_position</code> 设置边框位置：<code>y=0</code> 的位置；（位置所有属性：<code>outward</code>，<code>axes</code>，<code>data</code>）  </p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line"></span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-4-ax-4_2.png" height="100" width="700"><br></div>
+
+<p>使用<code>.yaxis.set_ticks_position</code>设置<code>y</code>坐标刻度数字或名称的位置：<code>left</code>.（所有位置：<code>left</code>，<code>right</code>，<code>both</code>，<code>default</code>，<code>none</code>）</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br></pre></td></tr></table></figure>
+<p>使用<code>.spines</code>设置边框：<code>y</code>轴;<br>使用<code>.set_position</code>设置边框位置：<code>x=0</code>的位置；（位置所有属性：<code>outward</code>，<code>axes</code>，<code>data</code>）<br>使用<code>plt.show</code>显示图像.</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>,<span class="number">0</span>))</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/matplotlib-4-ax-4_3.png" height="100" width="700"><br></div>
+
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://matplotlib.org/" target="_blank" rel="external">matplotlib.org</a></li>
 <li><a href="https://matplotlib.org/contents.html" target="_blank" rel="external">matplotlib docs</a></li>
@@ -37,7 +179,7 @@
     
     <entry>
       <title><![CDATA[探索世界財富自由之路]]></title>
-      <url>http://iequa.com/2018/01/22/finance-blockchain-coin/</url>
+      <url>http://iequa.com/2018/01/22/py-finance-blockchain-coin/</url>
       <content type="html"><![CDATA[<p>財富自由: 指的是某个人再也不用为了满足生活必需而出售自己的时间了。我们要的自由，最根本不是财富，财富只是工具. <a id="more"></a> 我们要的自由，本质是时间的自主权。在你获得财富自由之后，还是会不断做的事情，比如: 专注成长而不是专注成功，很多人没有意识到的事，不管你获得了怎样的成功，你依然需要成长，财富自由不是终点，那只是通往终点过程中的一个里程碑而已。</p>
 <p>对于投机者，“炒币”需谨慎，应将风险控制在自己能够承受的范围内。PS：其实我真的不关心这个问题。</p>
 <h2 id="Blockchain"><a href="#Blockchain" class="headerlink" title="Blockchain"></a>Blockchain</h2><p>&nbsp;&nbsp;区块链本质上是一个去中心化的分布式账本数据库.  </p>
@@ -72,9 +214,11 @@
 <h2 id="other"><a href="#other" class="headerlink" title="other"></a>other</h2><ul>
 <li><p><a href="https://www.zhihu.com/question/38138675" target="_blank" rel="external">1. 未来哪些领域可能用区块链技术 ?</a></p>
 </li>
-<li><p><a href="https://www.feixiaohao.com/currencies/tether/" target="_blank" rel="external">2. What USDT ?</a>, <a href="https://zh.wikipedia.org/wiki/%E4%BB%A5%E5%A4%AA%E5%9D%8A" target="_blank" rel="external">What ETH ?</a></p>
+<li><p><a href="https://www.zhihu.com/question/38138675" target="_blank" rel="external">2. 数字货币与区块链原理 廖雪峰</a></p>
 </li>
-<li><p><a href="https://mp.weixin.qq.com/s/iTgBLYUOj4t7Kk-gPpPe-w" target="_blank" rel="external">3. 我的区块链世界观</a></p>
+<li><p><a href="https://www.feixiaohao.com/currencies/tether/" target="_blank" rel="external">3. What USDT ?</a>, <a href="https://zh.wikipedia.org/wiki/%E4%BB%A5%E5%A4%AA%E5%9D%8A" target="_blank" rel="external">What ETH ?</a></p>
+</li>
+<li><p><a href="https://mp.weixin.qq.com/s/iTgBLYUOj4t7Kk-gPpPe-w" target="_blank" rel="external">4. 我的区块链世界观</a></p>
 </li>
 </ul>
 <h2 id="next-⋯⋯"><a href="#next-⋯⋯" class="headerlink" title="next ⋯⋯"></a>next ⋯⋯</h2><blockquote>
@@ -8888,7 +9032,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -9055,7 +9199,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -16408,43 +16552,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -16486,6 +16593,43 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
