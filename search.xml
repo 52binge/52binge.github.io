@@ -4,6 +4,52 @@
   
     
     <entry>
+      <title><![CDATA[Hive 中 udf、udaf 和 udtf 的使用]]></title>
+      <url>http://iequa.com/2018/02/01/hadoop-hive-udf-udaf/</url>
+      <content type="html"><![CDATA[<p>Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库. </p>
+<p>Hive 是一个很开放的系统，很多内容都支持用户定制. 如 : 文件格式、MR脚本、自定义函数、自定义聚合函数 等.</p>
+<a id="more"></a>
+<h2 id="UDF"><a href="#UDF" class="headerlink" title="UDF"></a>UDF</h2><p>编写 UDF函数 的时候需要注意一下几点：</p>
+<ol>
+<li>自定义 UDF 需要继承 org.apache.hadoop.hive.ql.UDF</li>
+<li>需要实现 <code>evaluate</code> 函数</li>
+</ol>
+<p>以下是两个数求和函数的UDF。evaluate函数代表两个整型数据相加</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> hive.connect;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hive.ql.exec.UDF;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Add</span> <span class="keyword">extends</span> <span class="title">UDF</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">evaluate</span><span class="params">(Integer a, Integer b)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> == a || <span class="keyword">null</span> == b) &#123;  </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;  </span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">return</span> a + b;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="UDAF"><a href="#UDAF" class="headerlink" title="UDAF"></a>UDAF</h2><p>函数类需要继承 <strong>UDAF</strong> 类，内部类 <strong>Evaluator</strong> 需要实现 <strong>UDAFEvaluator</strong> 接口.</p>
+<p>Evaluator 需要实现 init、iterate、terminatePartial、merge、terminate 这几个函数.</p>
+<ol>
+<li><code>init</code>函数实现接口 UDAFEvaluator 的 init 函数.</li>
+<li><code>iterate</code>接收传入的参数，并进行内部的轮转。其返回类型为 boolean.</li>
+<li><code>terminatePartial</code>无参数，其为 iterate 函数轮转结束后，返回轮转数据.</li>
+<li><code>merge</code> 接收 terminatePartial 的返回结果，进行数据 merge 操作，其返回类型为boolean.</li>
+<li><code>terminate</code> 返回最终的聚集函数结果.</li>
+</ol>
+<p><a href="https://github.com/blair101/bigdata/tree/master/hadoop/hive_udf_udaf" target="_blank" rel="external">下面是一个简单的 UDAF 的 demo</a></p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.x.user_bhv;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.google.common.collect.Maps;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hive.ql.exec.UDAF;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hive.ql.exec.UDAFEvaluator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UDAFMergeIntToIntMap</span> <span class="keyword">extends</span> <span class="title">UDAF</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">PartialResult</span> </span>&#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; attributes;</span><br><span class="line"></span><br><span class="line">        PartialResult() &#123;</span><br><span class="line">            attributes = Maps.newHashMap();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">UnitIdUDAFEvaluator</span> <span class="keyword">implements</span> <span class="title">UDAFEvaluator</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> PartialResult partialResult;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">UnitIdUDAFEvaluator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>();</span><br><span class="line">            init();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"map init"</span>);</span><br><span class="line">            partialResult = <span class="keyword">new</span> PartialResult();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">iterate</span><span class="params">(Map&lt;Integer, Integer&gt; attributes_args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (attributes_args == <span class="keyword">null</span> || attributes_args.isEmpty()) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (Map.Entry&lt;Integer, Integer&gt; entry : attributes_args.entrySet()) &#123;</span><br><span class="line">                <span class="keyword">this</span>.partialResult.attributes.put(entry.getKey(), entry.getValue());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> PartialResult <span class="title">terminatePartial</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.partialResult;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">merge</span><span class="params">(PartialResult other)</span> </span>&#123; <span class="comment">// 参数不可能为 null</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (Map.Entry&lt;Integer, Integer&gt; entry : other.attributes.entrySet()) &#123;</span><br><span class="line">                <span class="keyword">this</span>.partialResult.attributes.put(entry.getKey(), entry.getValue());</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> Map&lt;Integer, Integer&gt; <span class="title">terminate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (partialResult == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HashMap&lt;Integer, Integer&gt;();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.partialResult.attributes;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 Hive 脚本中的使用示例 :</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">hql=<span class="string">"ADD jar <span class="variable">$&#123;jar_dir&#125;</span>/user_bhv_for_hive.jar;</span><br><span class="line">    CREATE TEMPORARY FUNCTION merge_int_to_int_map AS 'com.x.user_bhv.UDAFMergeIntToIntMap';</span><br><span class="line">    INSERT OVERWRITE TABLE <span class="variable">$&#123;table_user_buy_category&#125;</span></span><br><span class="line">    SELECT</span><br><span class="line">        mobile_number,</span><br><span class="line">        merge_int_to_int_map (level1_id_count_map)</span><br><span class="line">    FROM </span><br><span class="line">        ods_dm_e_coupon</span></span><br></pre></td></tr></table></figure>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><ol>
+<li>重载 evaluate 函数.</li>
+<li>UDF 函数中参数类型可以为Writable，也可为java中的基本数据对象.</li>
+<li>UDF 支持变长的参数.</li>
+<li>Hive 支持隐式类型转换.</li>
+<li>客户端退出时，创建的临时函数自动销毁.</li>
+<li>evaluate函数必须要返回类型值，空的话返回null，不能为void类型.</li>
+<li>UDF 和 UDAF 都可以重载.</li>
+<li>查看函数 SHOW FUNCTIONS.</li>
+</ol>
+<blockquote>
+<p>UDAF: User Defined Aggregation Function</p>
+</blockquote>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="http://blog.csdn.net/liuj2511981/article/details/8523084" target="_blank" rel="external">Hive 中 UDF、UDAF 和 UDTF 使用</a></li>
+<li><a href="https://github.com/blair101/bigdata/tree/master/hadoop/hive_udf_udaf" target="_blank" rel="external">bliar’s github hive udaf demo</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Flexible Task Scheduling Framework]]></title>
       <url>http://iequa.com/2018/01/30/hadoop-hive-bigdata-offline-demo/</url>
       <content type="html"><![CDATA[<p>本篇介绍一种 大数据离线开发模块的解决方案， 其实这是一个手写的适合离线调度的灵活小框架</p>
@@ -9470,7 +9516,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -9637,7 +9683,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -15358,6 +15404,18 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://iequa.com/2016/10/27/acm-mst/</url>
+      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
+<a id="more"></a>
+<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Six Kinds of Sort algorithms]]></title>
       <url>http://iequa.com/2016/10/27/acm-sort/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -15371,18 +15429,6 @@ img {
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://iequa.com/2016/10/27/acm-mst/</url>
-      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
-<a id="more"></a>
-<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
@@ -17009,6 +17055,43 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -17050,43 +17133,6 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -21072,7 +21118,7 @@ public final class Boolean
     
     <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-2.5-notes-array/</url>
+      <url>http://iequa.com/2013/02/02/java-se-2.4-notes-exception/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
 <a id="more"></a>
 <h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1. 环境配置"></a>1. 环境配置</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
@@ -21481,7 +21527,7 @@ JDK 1.5 之后 {
     
     <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-2.4-notes-exception/</url>
+      <url>http://iequa.com/2013/02/02/java-se-2.5-notes-array/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
 <a id="more"></a>
 <h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1. 环境配置"></a>1. 环境配置</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
