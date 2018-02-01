@@ -5,17 +5,17 @@
   
   <title>Greenplum ods - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="automation programmed pull data by datax -&amp;gt; ext -&amp;gt; ods">
+  <meta name="description" content="code : github ext_ods_table">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Greenplum ods">
 <meta property="og:url" content="http://iequa.com/2017/01/20/db-greenplum-mysql-ext-ods/index.html">
 <meta property="og:site_name" content="Home">
-<meta property="og:description" content="automation programmed pull data by datax -&amp;gt; ext -&amp;gt; ods">
+<meta property="og:description" content="code : github ext_ods_table">
 <meta property="og:image" content="http://iequa.com/images/db/greenplum-ods-flow.png">
-<meta property="og:updated_time" content="2017-04-13T23:45:41.000Z">
+<meta property="og:updated_time" content="2018-02-01T02:16:41.785Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Greenplum ods">
-<meta name="twitter:description" content="automation programmed pull data by datax -&amp;gt; ext -&amp;gt; ods">
+<meta name="twitter:description" content="code : github ext_ods_table">
 <meta name="twitter:image" content="http://iequa.com/images/db/greenplum-ods-flow.png">
   
   
@@ -112,7 +112,8 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="Preface"><a href="#Preface" class="headerlink" title="Preface"></a>Preface</h2><p><a href="https://github.com/blairchan/bigdata/tree/master/greenplum/ext_ods_table" target="_blank" rel="external">code : github ext_ods_table</a></p>
+        <p><a href="https://github.com/blair101/language/tree/master/greenplum" target="_blank" rel="external">code : github ext_ods_table</a></p>
+<a id="more"></a>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">运行本模块之前 :</span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> ext_ods_table</span><br><span class="line">mkdir <span class="built_in">log</span> flag</span><br><span class="line">mkdir -p <span class="built_in">log</span>/crontab</span><br><span class="line">mkdir data</span><br><span class="line"></span><br><span class="line">构造 datax json file， put it to **data** 目录</span><br></pre></td></tr></table></figure>
 <h2 id="1-Needs"><a href="#1-Needs" class="headerlink" title="1. Needs"></a>1. Needs</h2><p>&nbsp;&nbsp;&nbsp;&nbsp;程序自动化拉取数据进入原始层 ODS</p>
 <h2 id="2-Data-Flow"><a href="#2-Data-Flow" class="headerlink" title="2. Data Flow"></a>2. Data Flow</h2><p><img src="/images/db/greenplum-ods-flow.png" alt="ods flow"></p>
@@ -138,15 +139,7 @@ var _hmt = _hmt || [];
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">...</span><br><span class="line">sh ods_dm_shop.sh <span class="variable">$&#123;d1&#125;</span></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
 <p>(3). ods_dm_shop.sh</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># @date:   2017.01.20</span></span><br><span class="line"><span class="comment"># @desc:   mysql data -&gt; ext shop -&gt; ods shop</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment">###############################################################################</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;util_dir&#125;</span>/my_<span class="built_in">functions</span></span><br><span class="line"></span><br><span class="line">begin_time=<span class="string">"2010-01-01"</span></span><br><span class="line">end_time=<span class="variable">$&#123;d1&#125;</span></span><br><span class="line"></span><br><span class="line">import_gpdata_from_rds1 <span class="variable">$&#123;begin_time&#125;</span> <span class="variable">$&#123;end_time&#125;</span> <span class="variable">$&#123;data_dir&#125;</span>/xkeshi_com.ext/mysql2textfile-shop.json</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span>_ex <span class="string">"<span class="variable">$&#123;data_integration&#125;</span>/kitchen.sh -file=<span class="variable">$&#123;ktrs_dir&#125;</span>/ods_shop.kjb"</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;data_integration&#125;</span>/kitchen.sh -file=<span class="variable">$&#123;ktrs_dir&#125;</span>/ods_shop.kjb</span><br><span class="line">check_success</span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span>_ex <span class="string">"import shop end"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> 0</span><br></pre></td></tr></table></figure>
-<h2 id="5-Code-Deploy"><a href="#5-Code-Deploy" class="headerlink" title="5. Code Deploy"></a>5. Code Deploy</h2><blockquote>
-<p>/data0/dm/online/ext_ods_table  </p>
-<p>注意： 版本控制中，涉及的敏感 库地址，用户名，密码 等 不上传。</p>
-</blockquote>
-<h2 id="6-Frnd-Link"><a href="#6-Frnd-Link" class="headerlink" title="6. Frnd Link"></a>6. Frnd Link</h2><ol>
-<li><a href="https://github.com/blairchan/bigdata/tree/master/greenplum/ext_ods_table/doc" target="_blank" rel="external">pull data detail flow</a></li>
-<li><a href="https://github.com/blairchan/bigdata/blob/master/greenplum/ext_ods_table/doc/scheduling-framework.md" target="_blank" rel="external">scheduling-framework</a></li>
-</ol>
-
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>
       
      <!-- by blair add this if sentence at 20160725 -->
       <br>
@@ -188,7 +181,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Preface"><span class="toc-number"></span> <span class="toc-text">Preface</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Needs"><span class="toc-number"></span> <span class="toc-text">1. Needs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Data-Flow"><span class="toc-number"></span> <span class="toc-text">2. Data Flow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Involved-technology"><span class="toc-number"></span> <span class="toc-text">3. Involved technology</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Main-Code-Flow"><span class="toc-number"></span> <span class="toc-text">4. Main Code Flow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Code-Deploy"><span class="toc-number"></span> <span class="toc-text">5. Code Deploy</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Frnd-Link"><span class="toc-number"></span> <span class="toc-text">6. Frnd Link</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Needs"><span class="toc-number"></span> <span class="toc-text">1. Needs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Data-Flow"><span class="toc-number"></span> <span class="toc-text">2. Data Flow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Involved-technology"><span class="toc-number"></span> <span class="toc-text">3. Involved technology</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Main-Code-Flow"><span class="toc-number"></span> <span class="toc-text">4. Main Code Flow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
