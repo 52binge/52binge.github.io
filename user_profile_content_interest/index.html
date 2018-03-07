@@ -24,7 +24,7 @@
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
 <meta property="og:image" content="http://iequa.com/images/resume_project/user_interest_img.png">
-<meta property="og:updated_time" content="2018-03-07T07:12:10.085Z">
+<meta property="og:updated_time" content="2018-03-07T15:55:16.387Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用户内容兴趣挖掘文档">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -171,21 +171,38 @@ var _hmt = _hmt || [];
 <p>类别权重用模型预测时返回的分数表示，不做加和为1的归一化处理。</p>
 <h3 id="4-2-用户兴趣计算"><a href="#4-2-用户兴趣计算" class="headerlink" title="4.2 用户兴趣计算"></a>4.2 用户兴趣计算</h3><p>假设用户 $u$ 某一天访问的页面集合 $D = \lbrace d_i \rbrace, i = 1..m$ , 页面 $d_i$ 的类别概率分布是 $P_i = \lbrace p_{ij} \rbrace, j = 1..k$</p>
 <p>那么，$u$ 在某个兴趣类别 $c$ 上的分数:</p>
-<p>$$<br>score(u, c) = log(\sum_{i=1}^m I (p_{ic} &gt; 0.2) + 1) * \sum_{i=1}^m p_{ic}<br>$$</p>
-<p>其中$I (p_{ic} &gt; 0.2)$是指示函数，当时为 1，否则为 0。</p>
-<p>公式说明：<br>    影响分数的因素有两个：</p>
-<pre><code>1. 访问某一类别页面的个数，由前面的对数系数表示。
-2. 页面在该类别上的概率，由后面的概率求和表示。
-</code></pre><h3 id="4-3-兴趣合并"><a href="#4-3-兴趣合并" class="headerlink" title="4.3 兴趣合并"></a>4.3 兴趣合并</h3><h4 id="短期兴趣"><a href="#短期兴趣" class="headerlink" title="短期兴趣"></a>短期兴趣</h4><p>假设用户的历史兴趣集合为<br>m是兴趣总数，是第i个兴趣，是第i个兴趣的生成时间，用距离今天的天数表示。<br>对按照时间衰减：，a是衰减因子，取值0.8，30天衰减到初始值的0.1%左右。<br>  最后，对兴趣数目进行控制，最多只保留20种兴趣。</p>
-<h4 id="长期兴趣"><a href="#长期兴趣" class="headerlink" title="长期兴趣"></a>长期兴趣</h4><p>长期兴趣指用户在较长一段时间(至少3个月)内表现出的兴趣倾向。<br>  策略如下：</p>
+<p>$$<br>score(u, c) = log(\sum_{i=1}^m I (p_{ic} &gt; 0.2) <em> \sum_{i=1}^m p_{ic} </em> {Count}_{ui})<br>$$</p>
+<p>其中$I (p_{ic} &gt; 0.2)$是指示函数，当 $p_{ic} &gt; 0.2$ 时为 1，否则为 0。</p>
+<p>公式说明， 影响分数的因素有两个：</p>
+<ol>
+<li>访问某一类别页面的个数，由前面的对数系数表示。</li>
+<li>页面在该类别上的概率，由后面的概率求和表示。</li>
+</ol>
+<h3 id="4-3-兴趣合并"><a href="#4-3-兴趣合并" class="headerlink" title="4.3 兴趣合并"></a>4.3 兴趣合并</h3><h4 id="短期兴趣"><a href="#短期兴趣" class="headerlink" title="短期兴趣"></a>短期兴趣</h4><p>假设用户的历史兴趣集合为 $\lbrace (c_i, t_i) \rbrace, i = 1\ to\ m$</p>
+<p>$m$ 是兴趣总数，$c_i$ 是第$i$个兴趣，$t_i$ 是第$i$个兴趣的生成时间，用距离今天的天数表示。</p>
+<p>对 $c_i$ 按照时间衰减：${c_i}^{‘} = c_i * a^{t_{i}}$，$a$ 是衰减因子，取值 0.8，30天衰减到初始值的 0.1% 左右。</p>
+<p>最后，对兴趣数目进行控制，最多只保留 10 种兴趣。</p>
+<h4 id="长期兴趣"><a href="#长期兴趣" class="headerlink" title="长期兴趣"></a>长期兴趣</h4><p>长期兴趣指用户在较长一段时间(至少3个月)内表现出的兴趣倾向。</p>
+<p>策略如下：</p>
 <ol>
 <li>每周进行一次用户兴趣的合并。</li>
-<li>对于最近3个月的用户兴趣记录，统计如下两个指标：<br>a) 兴趣的周出现比例<br>计算公式：occur_ratio=出现的周数 /总周数<br>   如果occur_ratio小于阈值，则认为该兴趣非长期兴趣，过滤掉。阈值根据经验设定，默认设置为0.5。<br> b) 兴趣的出现间隔方差<br>  我们认为长期兴趣出现是呈现周期性的，用间隔方差表示。<br>  计算方法：根据兴趣的周出现序列，得到相邻两次出现的间隔序列，然后计算该序列的方差。举例：假设兴趣在第1、3、5、8、9、12周出现，计算出的间隔序列是：[2, 2, 3, 1, 3]，方差是0.7。<br>  如果间隔方差大于阈值，认为兴趣属于临时兴趣，非长期兴趣。<ol>
-<li>由于cookie容易被用户清理掉，生命周期较短，我们采用跨屏打通提供的新浪统一id对用户的长期行为进行跟踪。</li>
+<li>对于最近3个月的用户兴趣记录，统计如下两个指标:</li>
 </ol>
-</li>
+<p><code>兴趣的周出现比例</code></p>
+<p>计算公式：<strong><em>occur_ratio</em></strong> = 出现的周数 / 总周数<br>如果 <strong><em>occur_ratio</em></strong> 小于阈值，则认为该兴趣非长期兴趣，过滤掉。阈值根据经验设定，默认设置为0.5。</p>
+<p><code>兴趣的出现间隔方差</code></p>
+<p>我们认为长期兴趣出现是呈现周期性的，用间隔方差表示。<br>计算方法：根据兴趣的周出现序列，得到相邻两次出现的间隔序列，然后计算该序列的方差。举例：假设兴趣在第1、3、5、8、9、12周出现，计算出的间隔序列是：[2, 2, 3, 1, 3]，方差是0.56。</p>
+<p>如果间隔方差大于阈值，认为兴趣属于临时兴趣，非长期兴趣。</p>
+<hr>
+<p>由于cookie容易被用户清理掉，生命周期较短，我们采用跨屏打通提供的新浪统一id对用户的长期行为进行跟踪。</p>
+<h4 id="兴趣归一化"><a href="#兴趣归一化" class="headerlink" title="兴趣归一化"></a>兴趣归一化</h4><p>对分数进行加和 和 归一化， 得到用户的兴趣类别概率:</p>
+<p>$$<br>p(u, c) = \frac {score(u, c)} {\sum_{i=1}^k score(u, i)}<br>$$</p>
+<h2 id="4-技术点"><a href="#4-技术点" class="headerlink" title="4. 技术点"></a>4. 技术点</h2><ol>
+<li>词向量 Word2Vec</li>
+<li>log 访问次数的平滑处理</li>
+<li>时间衰减 &amp; 间隔方差判断长期兴趣</li>
 </ol>
-<h2 id="4-技术点"><a href="#4-技术点" class="headerlink" title="4. 技术点"></a>4. 技术点</h2><h2 id="next-⋯⋯"><a href="#next-⋯⋯" class="headerlink" title="next ⋯⋯"></a>next ⋯⋯</h2><blockquote>
+<h2 id="next-⋯⋯"><a href="#next-⋯⋯" class="headerlink" title="next ⋯⋯"></a>next ⋯⋯</h2><blockquote>
 <p>notes：next …</p>
 </blockquote>
 
@@ -195,7 +212,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-需求"><span class="toc-number"></span> <span class="toc-text">1. 需求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-系统流程图"><span class="toc-number"></span> <span class="toc-text">1.1 系统流程图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-数据源-amp-规范化"><span class="toc-number"></span> <span class="toc-text">2. 数据源 & 规范化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-数据源"><span class="toc-number"></span> <span class="toc-text">2.1 数据源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-规范化"><span class="toc-number"></span> <span class="toc-text">2.2 规范化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-特征计算"><span class="toc-number"></span> <span class="toc-text">3. 特征计算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-策略层"><span class="toc-number"></span> <span class="toc-text">4. 策略层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-page-分类"><span class="toc-number"></span> <span class="toc-text">4.1 page 分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-用户兴趣计算"><span class="toc-number"></span> <span class="toc-text">4.2 用户兴趣计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-兴趣合并"><span class="toc-number"></span> <span class="toc-text">4.3 兴趣合并</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#短期兴趣"><span class="toc-number"></span> <span class="toc-text">短期兴趣</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#长期兴趣"><span class="toc-number"></span> <span class="toc-text">长期兴趣</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-技术点"><span class="toc-number"></span> <span class="toc-text">4. 技术点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next-⋯⋯"><span class="toc-number"></span> <span class="toc-text">next ⋯⋯</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-需求"><span class="toc-number"></span> <span class="toc-text">1. 需求</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-系统流程图"><span class="toc-number"></span> <span class="toc-text">1.1 系统流程图</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-数据源-amp-规范化"><span class="toc-number"></span> <span class="toc-text">2. 数据源 & 规范化</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-数据源"><span class="toc-number"></span> <span class="toc-text">2.1 数据源</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-规范化"><span class="toc-number"></span> <span class="toc-text">2.2 规范化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-特征计算"><span class="toc-number"></span> <span class="toc-text">3. 特征计算</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-策略层"><span class="toc-number"></span> <span class="toc-text">4. 策略层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-page-分类"><span class="toc-number"></span> <span class="toc-text">4.1 page 分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-用户兴趣计算"><span class="toc-number"></span> <span class="toc-text">4.2 用户兴趣计算</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-兴趣合并"><span class="toc-number"></span> <span class="toc-text">4.3 兴趣合并</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#短期兴趣"><span class="toc-number"></span> <span class="toc-text">短期兴趣</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#长期兴趣"><span class="toc-number"></span> <span class="toc-text">长期兴趣</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#兴趣归一化"><span class="toc-number"></span> <span class="toc-text">兴趣归一化</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-技术点"><span class="toc-number"></span> <span class="toc-text">4. 技术点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next-⋯⋯"><span class="toc-number"></span> <span class="toc-text">next ⋯⋯</span></a></li></ol>
       </div>
     
     
