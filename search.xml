@@ -48,37 +48,69 @@
 </blockquote>
 <p><strong>做金融最大的本质就是在控制风险，在风险可控的情况下获得最大的利润</strong>.</p>
 <h2 id="个人对个人的信用贷款"><a href="#个人对个人的信用贷款" class="headerlink" title="个人对个人的信用贷款"></a>个人对个人的信用贷款</h2><p><img src="/images/finance/finance-5.jpg" width="770"></p>
-<ol>
-<li>中介会聪明 ，在第1，2个月，会 还款， 第3，4个月不还</li>
-</ol>
-<p>定义欺诈</p>
-<p>数据上</p>
+<blockquote>
+<p>一般的 P2P 平台，有的只做借款用户、有的只做出借用户，有的都做，会做一个需求的撮合<br>国内的信用风险还好，国外80%都是信用风险，20%是欺诈风险<br>国外有 faico 官方的评分，如果你不还钱可能也再也不能贷款了</p>
+<p>国内不还钱的话惩罚的措施跟不上，国内有些中介我不还钱的话，你找不到我的话，这个钱就是我空手套白狼的利润，这样催生了越来越多贷款的欺诈的情况，他们有一个黑产业链，从账号的获取到恶意的注册，再到互联网金融公司的平台申请贷款，有的中介会有一些现象，他们会到燕郊找一批老人妇女，然后说我给你3000元钱，你跟着我走一趟。还有一些客户对自己的资质没有信息，然后找中介包装一些材料。有好中介，有坏中介，如果坏中介带你贷了5W元钱，然后给你2.5W告诉你爱还不还，然后还可以带你的信息再去其他家平台再贷款，这样用户在不知情的情况下会背负很多债务信息。</p>
+<p>中介做的事，就是不停的去试各个P2P平台产品，发现其中漏洞，这些中介比产品经理还要了解这个产品，然后他帮助他的客户去做包装，这样比如一下子可能进来 100 个欺诈用户，每个用户5W，这样一下子就是500W，对企业来说损失很大，然后在这种高额收入的诱惑下，这些中介会升级自己的伪造技术。</p>
+<p>所以对于线上反欺诈来说，对于你看不见用户，只面对数据，要发现数据之间的异常，然后用户与用户之间有没有异常之间的相似度。</p>
+<p>–</p>
+<p>对于做互联网金融一般情况是 正负样本 是极度不平衡的，这样的情况对于 SVM 这种分类器是不合适的，所以在做金融的评分卡或者欺诈的模型也好，这样对特征的处理还有对样本的非平衡的处理是比较高的。SVM 可以用来提取一些简单的提取组合类的特征，但是如果做基础分类器的话，效果并不是特别好</p>
+<p>对于分类器来说的话，有监督学习的模型还很多</p>
+<p>好坏用户的定义，一本是根据用户的贷后表现，是定义好坏用户的<br>的用户借款，借款 5W元，可能是分期还款 12个月，这样每个月都会还一笔固定的额度<br>所以一般信用风险的话，在挺长的时间可以按时还款</p>
+<p>欺诈的话，分布是不一样的，他可能 第 1，2 期 是还的，之后是不还的。因为中介也越来越聪明，给他自己留出时间，躲避催收的手段，也躲避追踪等等</p>
+<p>第3，4期之后可能就不会还款了</p>
+<p>所以我们在定义模型负样本的话，我们可能定义为 m1+ 信用风险</p>
+</blockquote>
+<p>m3+ 90天以上不还款的话，我们可以定义为欺诈风险</p>
+<p>这是在数据上的</p>
 <p> 用户 m1+ 信用风险</p>
-<p> 负样本 : m3+ (90天以上) 以上不还款， 定为 欺诈风险 </p>
+<p> <code>负样本</code> : m3+ (90天以上) 以上不还款， 定为 欺诈风险 </p>
 <p>欺诈还有其他方式，贷钱审核</p>
-<p> 触碰 拒贷规则，造假行为 定义为 欺诈风险 负样本</p>
+<p> 还有触碰到拒贷规则，造假行为 定义为 欺诈风险 <code>负样本</code></p>
 <p> 调查员 ： 是中介 或者 有欺诈风向的，进入黑名单中，定义为欺诈风险</p>
-<p>好用户：</p>
-<p> 一天都不逾期还款</p>
-<p>灰用户: (不放在训练中，否则会给模型带来很多额外的信息，影响效果)</p>
+<p><code>好用户</code>：一天都不逾期还款</p>
+<p><code>灰用户</code>: (不放在训练中，否则会给模型带来很多额外的信息，影响效果)</p>
 <p> 90天之内可以还款</p>
-<p>和 CTR 预估的相比是 有一个周期性质的</p>
+<p>金融模型 和 CTR 预估的相比是 有一个周期性质的</p>
 <ol>
 <li>广告点击的话，用户点击，立马有一个样本出现</li>
 <li>做长期现金贷，选择样本是选择半年之前的用户，作为样本</li>
 </ol>
-<p>真实场景正负样本比例 ： 10~30 ： 1</p>
+<p>真实场景正负样本比例 ： (10~30) ： 1</p>
 <blockquote>
-<p>数据的不平衡： 降采样、过采样, SMOTE  等 如 3：1， 5：1 来做一个模型, 坏样本是全部取的,做评分卡的时候是需要做的<br>做机器学习的模型 如 GBRT、RF 等，他们对不平衡的数据是有 容忍的，这种情况直接用真实数据进行训练，也能得到很好的一个效果</p>
-<p>过采样实际用的不多，如果负样本实在是过少 都 &lt;100 个， 那么可以考虑 减低我们的观察周期， 或者 欺诈定义的并不是一个很严格 来放进来</p>
+<p>数据的不平衡： 降采样、过采样, SMOTE  等 如 降采样正负样本成 3：1， 5：1 来做一个模型, 坏样本是全部取的, 做评分卡的时候是需要做的。</p>
+<p>做机器学习的模型 如 GBRT、RF 等，他们对不平衡的数据是有 容忍的，这种情况直接用真实数据进行训练，也能得到很好的一个效果</p>
+<p>过采样 实际用的不多，如果负样本实在是过少 都 &lt;100 个， 那么可以考虑 减低我们的观察周期， 或者 欺诈定义的并不是一个很严格 来放进来多一些的 负样本过来来做训练，或者在拒贷里面找一些人过来</p>
+<p>SMOTE 是在分布上模拟一些数据，模拟完的数据，可以帮助你做训练，比较经典，但是我没有在工作中用过，拿真实的数据做训练，是更贴近真实的情况</p>
 </blockquote>
-<p>对于做评分卡的模型：比如用 LR 的话，样本的平衡要在 10：1 范围内， LR对变量 和 相关性的筛选 和 数据平衡 有要求</p>
+<p><strong>模型选型</strong></p>
+<p>对于做评分卡的模型 或者 LR 的话，样本的平衡要在 10：1 范围内， LR对变量 和 相关性的筛选 和 数据平衡 有要求</p>
 <p>做模型，至少要用 RF 来做模型， 或者 GBDT、GBRT，这种 boosting 的模型，对于样本的不平衡容忍度更高一些，他们对于学习 更小而细微 的特征和变量 可以 学习的更深一些。</p>
 <p>——-看下代码———————</p>
 <p>Lending Club 2016 的借贷数据，课后 Q3，Q4 可以一起做一下，半年的数据做训练 是很好的。</p>
-<p>Lending Club 创立于2016， 主要做一个提供 P2P 贷款的中介服务，2016年底在 纽 上市，后来爆出来很多丑闻，创始人离职，股价下跌。</p>
+<p>Lending Club 创立于2016， 主要做一个提供 P2P 贷款的平台中介服务，2016年底在 纽交所上市，后来爆出来很多丑闻，创始人离职，股价下跌。</p>
+<p>但是不管怎么样，它的数据在我们做反欺诈等是非常有重要的。</p>
+<hr>
+<p>看下数据，其实我也不能完全了解这些所有字段的含义</p>
+<ol>
+<li>int_rate 利率</li>
+<li>term 待多少期</li>
+<li>grade 等级 C、B、D，7个等级吧</li>
+<li>sub_grade 会分为更细的等级，</li>
+<li>后面这些是从 feco 获取的数据吧</li>
+</ol>
+<p>我们的目的是判断，来了一个用户，之后这些特征都要，我们判断他是不是一个欺诈用户</p>
+<p><strong>如果用户填写假资料</strong></p>
 <p>用户贷款之后的表现，如果填的真假我们不了解，填写的是假资料，但是之后还款表现好那么它还是一个好用户。</p>
-<p>拿到的Q3数据，9W+ 的数据，列数 122 列</p>
+<p><strong>数据上</strong></p>
+<p>我只取了2016年Q3数据，9W+ 的数据，列数 122 列</p>
+<p>数据有 99124行， 去掉表头，有 99123 行</p>
+<p>我们初步做特征筛选…, 我们在看的时候，可以分片分片的看这 122 个列…</p>
+<p>id 和 member_id 不作为特征，可以直接去掉, 带 % 的可以直接去掉 %， 变为 float 的</p>
+<hr>
+<blockquote>
+<p>听课到 46 分钟</p>
+</blockquote>
 <p>employment title</p>
 <hr>
 <p>删不删除变量，需要看模型，LR 需要删除，GBRT 不用删除也可以.</p>
@@ -15256,18 +15288,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://iequa.com/2016/10/27/acm-mst/</url>
-      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
-<a id="more"></a>
-<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Six Kinds of Sort algorithms]]></title>
       <url>http://iequa.com/2016/10/27/acm-sort/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -15281,6 +15301,18 @@ img {
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://iequa.com/2016/10/27/acm-mst/</url>
+      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
+<a id="more"></a>
+<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
@@ -16907,6 +16939,43 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -16948,43 +17017,6 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -20872,7 +20904,7 @@ public final class Boolean
     
     <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-2.4-notes-exception/</url>
+      <url>http://iequa.com/2013/02/02/java-se-2.5-notes-array/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
 <a id="more"></a>
 <h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1. 环境配置"></a>1. 环境配置</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
@@ -21281,7 +21313,7 @@ JDK 1.5 之后 {
     
     <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-2.5-notes-array/</url>
+      <url>http://iequa.com/2013/02/02/java-se-2.4-notes-exception/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
 <a id="more"></a>
 <h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1. 环境配置"></a>1. 环境配置</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
