@@ -11,10 +11,13 @@
 <meta property="og:url" content="http://iequa.com/2018/04/23/ml-internet-finance-data-science-3/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="用户全流程欺诈⻛险评分体系">
-<meta property="og:updated_time" content="2018-04-24T12:09:37.704Z">
+<meta property="og:image" content="http://iequa.com/images/finance/finance-18.jpg">
+<meta property="og:image" content="http://iequa.com/images/finance/finance-19.jpg">
+<meta property="og:updated_time" content="2018-04-24T12:56:08.536Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理）">
 <meta name="twitter:description" content="用户全流程欺诈⻛险评分体系">
+<meta name="twitter:image" content="http://iequa.com/images/finance/finance-18.jpg">
   
   
     <link rel="icon" href="/favicon.png">
@@ -160,26 +163,36 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>Lending Club 2016 的借贷数据，Q3，Q4 可以一起做一下，半年的数据做训练是更好的.</p>
 </blockquote>
+<h3 id="1-Data"><a href="#1-Data" class="headerlink" title="1. Data"></a>1. Data</h3><p>Lending Club 2016年Q3数据：<a href="https://www.lendingclub.com/info/download-data.action" target="_blank" rel="external">https://www.lendingclub.com/info/download-data.action</a></p>
+<p>参考：<a href="http://kldavenport.com/lending-club-data-analysis-revisted-with-python/" target="_blank" rel="external">http://kldavenport.com/lending-club-data-analysis-revisted-with-python/</a></p>
+<p><img src="/images/finance/finance-18.jpg" width="900"></p>
 <p>看下数据，其实我也不能完全了解这些所有字段的含义</p>
+<blockquote>
 <ol>
 <li>int_rate 利率</li>
 <li>term 待多少期</li>
 <li>grade 等级 C、B、D，7个等级吧</li>
-<li>sub_grade 会分为更细的等级，</li>
-<li>后面这些是从 feco 获取的数据吧</li>
+<li>sub_grade 会分为更细的等级.</li>
+<li>后面这些是从 FICO 获取的数据吧…</li>
 </ol>
-<p>我们的目的是判断，来了一个用户，之后这些特征都要，我们判断他是不是一个欺诈用户</p>
-<p><strong>如果用户填写假资料</strong></p>
-<p>用户贷款之后的表现，如果填的真假我们不了解，填写的是假资料，但是之后还款表现好那么它还是一个好用户。</p>
-<p><strong>数据上</strong></p>
-<p>我只取了2016年Q3数据，9W+ 的数据，列数 122 列</p>
-<p>数据有 99124行， 去掉表头，有 99123 行</p>
-<p>我们初步做特征筛选…, 我们在看的时候，可以分片分片的看这 122 个列…</p>
-<p>id 和 member_id 不作为特征，可以直接去掉, 带 % 的可以直接去掉 %， 变为 float 的</p>
-<hr>
-<blockquote>
-<p>听课到 46 分钟</p>
 </blockquote>
+<p>我们的目的是判断，来了一个用户，之后输入该用户的这些特征，我们判断他是不是一个欺诈用户</p>
+<p><strong>如果用户填写假资料</strong></p>
+<blockquote>
+<p>用户贷款之后的表现，如果填的真假我们不了解，填写的是假资料，但是之后还款表现好那么它还是一个好用户.</p>
+</blockquote>
+<p><strong>数据上</strong> </p>
+<blockquote>
+<p>我只取了2016年Q3数据，9W+ 的数据，列数 122 列。数据有 99124行， 去掉表头，有 99123 行</p>
+</blockquote>
+<h2 id="2-Keep-what-we-need"><a href="#2-Keep-what-we-need" class="headerlink" title="2. Keep what we need"></a>2. Keep what we need</h2><blockquote>
+<p>我们初步做特征筛选…, 我们在看的时候，可以分片分片的看这 122 个列…</p>
+</blockquote>
+<p><img src="/images/finance/finance-19.jpg" width="850"></p>
+<blockquote>
+<p>id 和 member_id 不作为特征，可以直接去掉, int_rate 带 % 的可以直接去掉 %， 变为 float 的</p>
+</blockquote>
+<p><strong>Loan Amount Requested Verus the Funded Amount</strong></p>
 <p>employment title</p>
 <hr>
 <p>删不删除变量，需要看模型，LR 需要删除，GBRT 不用删除也可以.</p>
@@ -260,7 +273,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#反欺诈是一种机器学习过程"><span class="toc-number"></span> <span class="toc-text">反欺诈是一种机器学习过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正负样本"><span class="toc-number"></span> <span class="toc-text">正负样本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型选型"><span class="toc-number"></span> <span class="toc-text">模型选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lending-Club"><span class="toc-number"></span> <span class="toc-text">Lending Club</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#反欺诈是一种机器学习过程"><span class="toc-number"></span> <span class="toc-text">反欺诈是一种机器学习过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正负样本"><span class="toc-number"></span> <span class="toc-text">正负样本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型选型"><span class="toc-number"></span> <span class="toc-text">模型选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lending-Club"><span class="toc-number"></span> <span class="toc-text">Lending Club</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Data"><span class="toc-number"></span> <span class="toc-text">1. Data</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Keep-what-we-need"><span class="toc-number"></span> <span class="toc-text">2. Keep what we need</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
