@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   
-  <title>互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理中） - Home</title>
+  <title>互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理） - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="用户全流程欺诈⻛险评分体系">
 <meta property="og:type" content="article">
-<meta property="og:title" content="互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理中）">
+<meta property="og:title" content="互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理）">
 <meta property="og:url" content="http://iequa.com/2018/04/23/ml-internet-finance-data-science-3/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="用户全流程欺诈⻛险评分体系">
-<meta property="og:updated_time" content="2018-04-24T09:21:52.926Z">
+<meta property="og:updated_time" content="2018-04-24T12:09:37.704Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理中）">
+<meta name="twitter:title" content="互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理）">
 <meta name="twitter:description" content="用户全流程欺诈⻛险评分体系">
   
   
@@ -80,7 +80,7 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理中）
+      互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理）
       <small class=article-detail-date-index>&nbsp; 2018-04-23</small>
     </h1>
   
@@ -112,7 +112,7 @@ var _hmt = _hmt || [];
       
         <p>用户全流程欺诈⻛险评分体系</p>
 <a id="more"></a>
-<blockquote>
+<h2 id="反欺诈是一种机器学习过程"><a href="#反欺诈是一种机器学习过程" class="headerlink" title="反欺诈是一种机器学习过程"></a>反欺诈是一种机器学习过程</h2><blockquote>
 <p>对于做互联网金融一般情况是 正负样本 是极度不平衡的(最高可以达到 100 : 1), 这样的情况对于 SVM 这种分类器是不合适的，所以在做金融的<strong>评分卡模型</strong> 或 <strong>欺诈模型</strong> 也好，这样对特征的处理 和 样本的非平衡处理是比较高的.</p>
 <p>好坏用户的定义，一般是根据用户的贷后表现，来定义好坏用户的.</p>
 </blockquote>
@@ -130,6 +130,7 @@ var _hmt = _hmt || [];
 </ol>
 <p>所以我们在定义模型负样本的话，我们可能定义为 m1+ 信用风险、m3+ (90天以上不还款的话)，我们可以定义为欺诈风险</p>
 <p><code>坏用户</code> ： 欺诈风险用户<br><code>好用户</code> ： 一天都不逾期还款<br><code>灰用户</code> ： m1+ 未还款，但是90天之内可以还款的 (不放在训练中，否则会给模型带来很多额外的信息，影响效果)</p>
+<p>灰用户不放在模型中，这样训练出的模型对好坏用户的区分程度也越高.</p>
 </blockquote>
 <p>金融模型 和 CTR预估 相比是 有一个周期性质的</p>
 <blockquote>
@@ -138,21 +139,27 @@ var _hmt = _hmt || [];
 <li>做长期现金贷，选择样本是选择半年之前的用户，作为样本</li>
 </ol>
 </blockquote>
-<h2 id="模型策略"><a href="#模型策略" class="headerlink" title="模型策略"></a>模型策略</h2><p>真实场景正负样本比例 ： (10~30) ： 1</p>
+<h2 id="正负样本"><a href="#正负样本" class="headerlink" title="正负样本"></a>正负样本</h2><p>真实场景正负样本比例 <code>(10~30) ：1</code> （成熟平台的风险是越来越小的，所以我们拿到的 <code>正负样本比例</code>是逐步增加的）.</p>
+<p>数据的不平衡处理 ： <strong>降采样</strong>、<strong>过采样</strong>、<strong>SMOTE</strong></p>
+<ul>
+<li><p><strong>降采样</strong> ： 正负样本成 3:1， 5:1 来做一个模型,  坏样本是全部取的, (一般这种情况 做评分卡的时候是需要做的)</p>
+</li>
+<li><p><strong>过采样</strong> ： 实际用的不多，如果负样本实在是过少 都 &lt;100 个， 那么可以考虑 减低我们的观察周期， 或者 欺诈定义的并不是一个很严格 来放进来多一些的 负样本过来来做训练，或者在拒贷里面找一些人过来.</p>
+</li>
+<li><p><strong>SMOTE</strong> ： 是在分布上模拟一些数据，模拟完的数据可以做训练，比较经典拿真实的数据做训练是更贴近真实的情况.</p>
 <blockquote>
-<p>数据的不平衡： 降采样、过采样, SMOTE  等 如 降采样正负样本成 3：1， 5：1 来做一个模型, 坏样本是全部取的, 做评分卡的时候是需要做的。</p>
-<p>做机器学习的模型 如 GBRT、RF 等，他们对不平衡的数据是有 容忍的，这种情况直接用真实数据进行训练，也能得到很好的一个效果</p>
-<p>过采样 实际用的不多，如果负样本实在是过少 都 &lt;100 个， 那么可以考虑 减低我们的观察周期， 或者 欺诈定义的并不是一个很严格 来放进来多一些的 负样本过来来做训练，或者在拒贷里面找一些人过来</p>
-<p>SMOTE 是在分布上模拟一些数据，模拟完的数据，可以帮助你做训练，比较经典，但是我没有在工作中用过，拿真实的数据做训练，是更贴近真实的情况</p>
+<p>做模型 如 GBRT、RF 等，他们对不平衡的数据是有容忍的，这种直接用真实数据进行训练，也能得到很好的效果.</p>
 </blockquote>
-<p><strong>模型选型</strong></p>
-<p>对于做评分卡的模型 或者 LR 的话，样本的平衡要在 10：1 范围内， LR对变量 和 相关性的筛选 和 数据平衡 有要求</p>
-<p>做模型，至少要用 RF 来做模型， 或者 GBDT、GBRT，这种 boosting 的模型，对于样本的不平衡容忍度更高一些，他们对于学习 更小而细微 的特征和变量 可以 学习的更深一些。</p>
-<p>——-看下代码———————</p>
-<p>Lending Club 2016 的借贷数据，课后 Q3，Q4 可以一起做一下，半年的数据做训练 是很好的。</p>
-<p>Lending Club 创立于2016， 主要做一个提供 P2P 贷款的平台中介服务，2016年底在 纽交所上市，后来爆出来很多丑闻，创始人离职，股价下跌。</p>
-<p>但是不管怎么样，它的数据在我们做反欺诈等是非常有重要的。</p>
-<hr>
+</li>
+</ul>
+<h2 id="模型选型"><a href="#模型选型" class="headerlink" title="模型选型"></a>模型选型</h2><blockquote>
+<p>对于做评分卡的模型 或者 LR 的话，样本的平衡要在 10:1 范围内， LR 对变量相关性的筛选 和 数据平衡 有要求</p>
+<p>做模型，至少要用 RF 来做模型， 或者 GBDT、GBRT，这种 Boosting 的模型，对于样本的不平衡容忍度更高一些，他们对于学习 更小而细微 的特征和变量 可以学习的更深一些.</p>
+</blockquote>
+<h2 id="Lending-Club"><a href="#Lending-Club" class="headerlink" title="Lending Club"></a>Lending Club</h2><p>Lending Club 创立于 2016年， 主要做一个提供 P2P 贷款的平台中介服务，2016年底在 纽交所上市，后来爆出来很多丑闻，创始人离职，股价下跌. 但是不管怎么样，它的数据在我们做反欺诈等是非常有重要的.</p>
+<blockquote>
+<p>Lending Club 2016 的借贷数据，Q3，Q4 可以一起做一下，半年的数据做训练是更好的.</p>
+</blockquote>
 <p>看下数据，其实我也不能完全了解这些所有字段的含义</p>
 <ol>
 <li>int_rate 利率</li>
@@ -253,7 +260,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#模型策略"><span class="toc-number"></span> <span class="toc-text">模型策略</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#反欺诈是一种机器学习过程"><span class="toc-number"></span> <span class="toc-text">反欺诈是一种机器学习过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正负样本"><span class="toc-number"></span> <span class="toc-text">正负样本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型选型"><span class="toc-number"></span> <span class="toc-text">模型选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lending-Club"><span class="toc-number"></span> <span class="toc-text">Lending Club</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
