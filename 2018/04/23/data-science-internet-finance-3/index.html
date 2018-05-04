@@ -11,13 +11,14 @@
 <meta property="og:url" content="http://iequa.com/2018/04/23/data-science-internet-finance-3/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="用户全流程欺诈⻛险评分体系">
-<meta property="og:image" content="http://iequa.com/images/datascience/finance-18.jpg">
+<meta property="og:image" content="http://iequa.com/images/datascience/finance-LC-18.jpg">
 <meta property="og:image" content="http://iequa.com/images/datascience/finance-19.jpg">
-<meta property="og:updated_time" content="2018-05-02T14:40:57.223Z">
+<meta property="og:image" content="http://iequa.com/images/datascience/finance-LC-20.png">
+<meta property="og:updated_time" content="2018-05-02T06:52:30.309Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="互联网金融风控中的数据科学 (part3) ： Lending Club 的数据试验（正在整理）">
 <meta name="twitter:description" content="用户全流程欺诈⻛险评分体系">
-<meta name="twitter:image" content="http://iequa.com/images/datascience/finance-18.jpg">
+<meta name="twitter:image" content="http://iequa.com/images/datascience/finance-LC-18.jpg">
   
   
     <link rel="icon" href="/favicon.png">
@@ -165,7 +166,7 @@ var _hmt = _hmt || [];
 </blockquote>
 <h3 id="1-Data"><a href="#1-Data" class="headerlink" title="1. Data"></a>1. Data</h3><p>Lending Club 2016年Q3数据：<a href="https://www.lendingclub.com/info/download-data.action" target="_blank" rel="external">https://www.lendingclub.com/info/download-data.action</a></p>
 <p>参考：<a href="http://kldavenport.com/lending-club-data-analysis-revisted-with-python/" target="_blank" rel="external">http://kldavenport.com/lending-club-data-analysis-revisted-with-python/</a></p>
-<p><img src="/images/datascience/finance-18.jpg" width="900"></p>
+<p><img src="/images/datascience/finance-LC-18.jpg" width="900"></p>
 <p>看下数据，其实我也不能完全了解这些所有字段的含义</p>
 <blockquote>
 <ol>
@@ -188,11 +189,14 @@ var _hmt = _hmt || [];
 <h2 id="2-Keep-what-we-need"><a href="#2-Keep-what-we-need" class="headerlink" title="2. Keep what we need"></a>2. Keep what we need</h2><blockquote>
 <p>我们初步做特征筛选…, 我们在看的时候，可以分片分片的看这 122 个列…</p>
 </blockquote>
-<p><img src="/images/datascience/finance-19.jpg" width="850"></p>
+<h3 id="2-1-df-ix-4-7-特征分析"><a href="#2-1-df-ix-4-7-特征分析" class="headerlink" title="2.1 df.ix[:4,:7] 特征分析"></a>2.1 df.ix[:4,:7] 特征分析</h3><p><img src="/images/datascience/finance-19.jpg" width="850"></p>
 <blockquote>
 <p>id 和 member_id 不作为特征，可以直接去掉, int_rate 带 % 的可以直接去掉 %， 变为 float 的</p>
 </blockquote>
 <p><strong>Loan Amount Requested Verus the Funded Amount</strong></p>
+<p><img src="/images/datascience/finance-LC-20.png" width="850"></p>
+<h3 id="2-2-df-ix-5-8-15-特征分析"><a href="#2-2-df-ix-5-8-15-特征分析" class="headerlink" title="2.2 df.ix[:5,8:15] 特征分析"></a>2.2 df.ix[:5,8:15] 特征分析</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df.ix[:<span class="number">5</span>,<span class="number">8</span>:<span class="number">15</span>]</span><br><span class="line"></span><br><span class="line">print(df.emp_title.value_counts().head())</span><br><span class="line">print(df.emp_title.value_counts().tail())</span><br><span class="line">df.emp_title.unique().shape </span><br><span class="line"><span class="comment"># 37421 emp_title， 太多了，可信度不高，我们也无法做 emp_title 非数值型变量的 one-hot enconding</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">df.drop([&apos;emp_title&apos;],1, inplace=True)</span><br></pre></td></tr></table></figure>
 <p>employment title</p>
 <hr>
 <p>删不删除变量，需要看模型，LR 需要删除，GBRT 不用删除也可以.</p>
@@ -273,7 +277,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#反欺诈是一种机器学习过程"><span class="toc-number"></span> <span class="toc-text">反欺诈是一种机器学习过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正负样本"><span class="toc-number"></span> <span class="toc-text">正负样本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型选型"><span class="toc-number"></span> <span class="toc-text">模型选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lending-Club"><span class="toc-number"></span> <span class="toc-text">Lending Club</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Data"><span class="toc-number"></span> <span class="toc-text">1. Data</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Keep-what-we-need"><span class="toc-number"></span> <span class="toc-text">2. Keep what we need</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#反欺诈是一种机器学习过程"><span class="toc-number"></span> <span class="toc-text">反欺诈是一种机器学习过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正负样本"><span class="toc-number"></span> <span class="toc-text">正负样本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型选型"><span class="toc-number"></span> <span class="toc-text">模型选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lending-Club"><span class="toc-number"></span> <span class="toc-text">Lending Club</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Data"><span class="toc-number"></span> <span class="toc-text">1. Data</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Keep-what-we-need"><span class="toc-number"></span> <span class="toc-text">2. Keep what we need</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-df-ix-4-7-特征分析"><span class="toc-number"></span> <span class="toc-text">2.1 df.ix[:4,:7] 特征分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-df-ix-5-8-15-特征分析"><span class="toc-number"></span> <span class="toc-text">2.2 df.ix[:5,8:15] 特征分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -300,6 +304,14 @@ var _hmt = _hmt || [];
   
     
 <nav id="article-nav">
+  
+    <a href="/2018/05/01/deeplearning-ai-Neural-Networks-and-Deep-Learning-week1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          deeplearning.ai Neural Networks and Deep Learning (week1)
+        
+      </div>
+    </a>
   
   
     <a href="/2018/04/21/data-science-internet-finance-2/" id="article-nav-older" class="article-nav-link-wrap">
