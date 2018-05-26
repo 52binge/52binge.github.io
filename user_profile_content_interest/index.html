@@ -24,7 +24,7 @@
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
 <meta property="og:image" content="http://iequa.com/images/resume_project/user_interest_img.png">
-<meta property="og:updated_time" content="2018-04-29T01:32:17.349Z">
+<meta property="og:updated_time" content="2018-05-26T12:00:07.477Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="用户内容兴趣挖掘文档">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -142,8 +142,8 @@ var _hmt = _hmt || [];
 
 <h2 id="1-需求"><a href="#1-需求" class="headerlink" title="1. 需求"></a>1. 需求</h2><p>用户兴趣挖掘系统，基于用户在新浪网及博客上的访问历史，通过对日志及网页的分析，推测并记录用户的兴趣。 </p>
 <h3 id="1-1-系统流程图"><a href="#1-1-系统流程图" class="headerlink" title="1.1 系统流程图"></a>1.1 系统流程图</h3><p><img src="/images/resume_project/user_interest_img.png" alt=""></p>
-<h2 id="2-数据源-amp-规范化"><a href="#2-数据源-amp-规范化" class="headerlink" title="2. 数据源 &amp; 规范化"></a>2. 数据源 &amp; 规范化</h2><h3 id="2-1-数据源"><a href="#2-1-数据源" class="headerlink" title="2.1 数据源"></a>2.1 数据源</h3><p>数据源 来自 上游 信息系统部提供的 suda log hive表，分别记录了新浪网的网页信息，blog 等博客信息. blog的文章正文需要用 crawler 爬虫模块抓取.</p>
-<h3 id="2-2-规范化"><a href="#2-2-规范化" class="headerlink" title="2.2 规范化"></a>2.2 规范化</h3><p>规范化一些垃圾网页，去掉一些正文长度小于 200 字的网页。</p>
+<h2 id="2-数据源-amp-规范化"><a href="#2-数据源-amp-规范化" class="headerlink" title="2. 数据源 &amp; 规范化"></a>2. 数据源 &amp; 规范化</h2><h3 id="2-1-数据源"><a href="#2-1-数据源" class="headerlink" title="2.1 数据源"></a>2.1 数据源</h3><p>数据源 来自 上游 信息系统部提供的 suda log hive表，分别记录了新浪网的网页信息，blog 等博客信息. </p>
+<h3 id="2-2-规范化"><a href="#2-2-规范化" class="headerlink" title="2.2 规范化"></a>2.2 规范化</h3><p>规范化一些垃圾网页，曝光度低于量 和 去掉一些正文长度小于 200 字的网页…</p>
 <h2 id="3-特征计算"><a href="#3-特征计算" class="headerlink" title="3. 特征计算"></a>3. 特征计算</h2><p>One : 对于每个要推荐的内容,我们需要建立一份资料 :</p>
 <blockquote>
 <p>比如词 $k_i$ 在文档 $d_j$ 中的权重 $w_{ij}$ (常用的方法比如 TF-IDF)</p>
@@ -170,17 +170,25 @@ var _hmt = _hmt || [];
 <h2 id="4-策略层"><a href="#4-策略层" class="headerlink" title="4. 策略层"></a>4. 策略层</h2><h3 id="4-1-page-分类"><a href="#4-1-page-分类" class="headerlink" title="4.1 page 分类"></a>4.1 page 分类</h3><p>内容兴趣二级分类，大部分类可以支持到二级分类，返回二级类目的id；部分类：读书、游戏等，只支持到一级分类，返回一级类目的id。</p>
 <p>类别权重用模型预测时返回的分数表示，不做加和为1的归一化处理。</p>
 <h3 id="4-2-用户兴趣计算"><a href="#4-2-用户兴趣计算" class="headerlink" title="4.2 用户兴趣计算"></a>4.2 用户兴趣计算</h3><p>假设用户 $u$ 某一天访问的页面集合 $D = \lbrace d_i \rbrace, i = 1..m$ , 页面 $d_i$ 的类别概率分布是 $P_i = \lbrace p_{ij} \rbrace, j = 1..k$</p>
-<p>那么，$u$ 在某个兴趣类别 $c$ 上的分数:</p>
-<p>$$<br>score(u, c) = log(\sum_{i=1}^m I (p_{ic} &gt; 0.2) <em> \sum_{i=1}^m p_{ic} </em> {Count}_{ui})<br>$$</p>
-<p>其中$I (p_{ic} &gt; 0.2)$是指示函数，当 $p_{ic} &gt; 0.2$ 时为 1，否则为 0。</p>
-<p>公式说明， 影响分数的因素有两个：</p>
-<ol>
-<li>访问某一类别页面的个数，由前面的对数系数表示。</li>
-<li>页面在该类别上的概率，由后面的概率求和表示。</li>
-</ol>
+<!--
+
+那么，$u$ 在某个兴趣类别 $c$ 上的分数:
+
+$$
+score(u, c) = log(\sum\_{i=1}^m I (p\_{ic} > 0.2) * \sum\_{i=1}^m p\_{ic} * {Count}\_{ui})
+$$
+
+其中$I (p\_{ic} > 0.2)$是指示函数，当 $p\_{ic} > 0.2$ 时为 1，否则为 0。
+
+公式说明， 影响分数的因素有两个：
+
+1. 访问某一类别页面的个数，由前面的对数系数表示。
+2. 页面在该类别上的概率，由后面的概率求和表示。
+
+-->
 <h3 id="4-3-兴趣合并"><a href="#4-3-兴趣合并" class="headerlink" title="4.3 兴趣合并"></a>4.3 兴趣合并</h3><h4 id="短期兴趣"><a href="#短期兴趣" class="headerlink" title="短期兴趣"></a>短期兴趣</h4><p>假设用户的历史兴趣集合为 $\lbrace (c_i, t_i) \rbrace, i = 1\ to\ m$</p>
 <p>$m$ 是兴趣总数，$c_i$ 是第$i$个兴趣，$t_i$ 是第$i$个兴趣的生成时间，用距离今天的天数表示。</p>
-<p>对 $c_i$ 按照时间衰减：${c_i}^{‘} = c_i * a^{t_{i}}$，$a$ 是衰减因子，取值 0.8，30天衰减到初始值的 0.1% 左右。</p>
+<p>对 $c_i$ 按照时间衰减：${c_i}^{‘} = c_i * a^{t_{i}}$，$a$ 是衰减因子，取值 0.8。</p>
 <p>最后，对兴趣数目进行控制，最多只保留 10 种兴趣。</p>
 <h4 id="长期兴趣"><a href="#长期兴趣" class="headerlink" title="长期兴趣"></a>长期兴趣</h4><p>长期兴趣指用户在较长一段时间(至少3个月)内表现出的兴趣倾向。</p>
 <p>策略如下：</p>
@@ -198,8 +206,9 @@ var _hmt = _hmt || [];
 <h4 id="兴趣归一化"><a href="#兴趣归一化" class="headerlink" title="兴趣归一化"></a>兴趣归一化</h4><p>对分数进行加和 和 归一化， 得到用户的兴趣类别概率:</p>
 <p>$$<br>p(u, c) = \frac {score(u, c)} {\sum_{i=1}^k score(u, i)}<br>$$</p>
 <h2 id="4-技术点"><a href="#4-技术点" class="headerlink" title="4. 技术点"></a>4. 技术点</h2><ul>
-<li>词向量 Word2Vec</li>
+<li>词向量特征处理</li>
 <li>log 访问次数的平滑处理</li>
+<li>LR &amp; Random Forest</li>
 <li>时间衰减 &amp; 间隔方差判断长期兴趣</li>
 </ul>
 <h2 id="next-⋯⋯"><a href="#next-⋯⋯" class="headerlink" title="next ⋯⋯"></a>next ⋯⋯</h2><blockquote>
