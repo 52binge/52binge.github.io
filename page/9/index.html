@@ -72,75 +72,6 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
-      <article id="post-spark-ALS" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/05/07/spark-ALS/"><strong>Spark ALS</strong></a>
-      <small class=article-date-index>&nbsp; 2017-05-07</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/05/07/spark-ALS/" class="article-date">
-  <time datetime="2017-05-07T02:28:21.000Z" itemprop="datePublished">2017-05-07</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/05/07/spark-ALS/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="http://spark.apache.org/examples.html" target="_blank" rel="external">Spark.apache.org</a><br><a href="http://blog.javachen.com/2015/06/07/spark-configuration.html" target="_blank" rel="external">Java Chen Spark</a></p>
-<p>以下为手动计算流程 :</p>
-<h3 id="4-2-启动-spark-shell"><a href="#4-2-启动-spark-shell" class="headerlink" title="4.2 启动 spark-shell"></a>4.2 启动 spark-shell</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
-<h3 id="4-3-输入输出-相关变量"><a href="#4-3-输入输出-相关变量" class="headerlink" title="4.3 输入输出:相关变量"></a>4.3 输入输出:相关变量</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">val inputTable = <span class="string">"mds_user_coupon_bhv"</span></span><br><span class="line">val inputUrl = <span class="string">"jdbc:mysql://192.168.xxx.xx:3306/com_profile?user=your_name&amp;password=your_password"</span></span><br><span class="line">val outputTable = <span class="string">"mds_rs_shop_coupon_tmp"</span></span><br></pre></td></tr></table></figure>
-<h3 id="4-4-核心程序代码"><a href="#4-4-核心程序代码" class="headerlink" title="4.4 核心程序代码"></a>4.4 核心程序代码</h3><figure class="highlight"><table><tr><td class="code"><pre><span class="line">package com.x.rs.service</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat</span><br><span class="line">import java.util.Date</span><br><span class="line">import java.util.Properties</span><br><span class="line"></span><br><span class="line">import org.apache.spark.sql.Row</span><br><span class="line">import org.apache.spark.sql.types._</span><br><span class="line"></span><br><span class="line">import org.apache.spark.&#123;SparkConf, SparkContext&#125;</span><br><span class="line"></span><br><span class="line">import org.apache.spark.mllib.recommendation.&#123;ALS, Rating&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">  * Date : 2017-04-20</span><br><span class="line">  * Author : Blair Chan</span><br><span class="line">  */</span><br><span class="line">object RsCouponCalc &#123;</span><br><span class="line">  def main(args: Array[String]) &#123;</span><br><span class="line"></span><br><span class="line">    println("start...")</span><br><span class="line"></span><br><span class="line">    if (args.length &lt; 3) &#123;</span><br><span class="line">      System.err.println("Usage: &lt;file&gt;")</span><br><span class="line">      System.exit(1)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    val inputTable = args(0) // Should be some file on your system // conf = new SparkConf().setAppName(appName).setMaster("local");</span><br><span class="line">    val inputUrl = args(1)</span><br><span class="line">    val outputTable = args(2)</span><br><span class="line"></span><br><span class="line">    val conf = new SparkConf().setAppName("SparkRsOne");</span><br><span class="line">    val sc = new SparkContext(conf)</span><br><span class="line">    val sqlContext = new org.apache.spark.sql.SQLContext(sc)</span><br><span class="line"></span><br><span class="line">    //    val rawData = sc.textFile(inputFile)</span><br><span class="line">    //    val rawRatings = rawData.map(_.split("\t").take(3))</span><br><span class="line"></span><br><span class="line">    val url = inputUrl</span><br><span class="line">    val prop = new Properties()</span><br><span class="line"></span><br><span class="line">    val dfForRawData = sqlContext.read.jdbc(url, inputTable, prop)</span><br><span class="line"></span><br><span class="line">    val ratings_tmp = dfForRawData.map &#123; row =&gt; (row(1).toString().toInt, row(4).toString().toInt, row(6).toString().toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val ratings = ratings_tmp.map &#123; case (uid, couponId, rating) =&gt; Rating(uid.toInt, couponId.toInt, rating.toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val model = ALS.train(ratings, 50, 10, 0.01)</span><br><span class="line"></span><br><span class="line">    model.userFeatures.count</span><br><span class="line"></span><br><span class="line">    val K = 10</span><br><span class="line"></span><br><span class="line">    model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val originResultRdd1 = model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val curDate = new Date()</span><br><span class="line">    val createDateString = new SimpleDateFormat("yyyy-MM-dd").format(curDate)</span><br><span class="line"></span><br><span class="line">    val originResultRdd2 = originResultRdd1.map(tuple =&gt; &#123;</span><br><span class="line">      val uid = tuple._1</span><br><span class="line">      val product = tuple._2.map &#123; case Rating(user, product, score) =&gt; (product.toString, score.toString) &#125;</span><br><span class="line">      (uid, product)</span><br><span class="line">    &#125;).flatMap &#123;</span><br><span class="line">      case (uid, product) =&gt; &#123;</span><br><span class="line">        product.map &#123; case (itemId, score) =&gt; Row.apply(uid.toLong, itemId.toString, score.toDouble, createDateString.toString) &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // println(originResultRdd2.first())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val schema = StructType(</span><br><span class="line">      StructField("uid", LongType) ::</span><br><span class="line">        StructField("coupon_id", LongType) ::</span><br><span class="line">        StructField("score", DoubleType) ::</span><br><span class="line">        StructField("calc_date", StringType) :: Nil)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val df = sqlContext.createDataFrame(originResultRdd2, schema)</span><br><span class="line"></span><br><span class="line">    df.insertIntoJDBC(url, outputTable, false)</span><br><span class="line">    // 设置为 true，则为 删除表，然后自动创建，再插入</span><br><span class="line"></span><br><span class="line">    println("end !")</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>DF 通过插入 RMDB.  schema 可以通过反射来使得程序扩展性提高。</p>
-</blockquote>
-<p><a href="http://www.cnblogs.com/yaohaitao/articles/5681984.html" target="_blank" rel="external">spark sql internet</a></p>
-
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
       <article id="post-spark-SQL" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2036,6 +1967,210 @@ img {
 <li><a href="http://dbaplus.cn/news-21-341-1.html" target="_blank" rel="external">聊聊Greenplum的那些事</a></li>
 </ul>
 
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ef-l6u2-Going-to-the-doctor&#39;s-l4" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/12/27/ef-l6u2-Going-to-the-doctor's-l4/"><strong>Going to the doctor&#39;s L4 Accidents and injuries</strong></a>
+      <small class=article-date-index>&nbsp; 2016-12-27</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/12/27/ef-l6u2-Going-to-the-doctor's-l4/" class="article-date">
+  <time datetime="2016-12-26T23:15:16.000Z" itemprop="datePublished">2016-12-27</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/English/">English</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/12/27/ef-l6u2-Going-to-the-doctor's-l4/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <style>
+img {
+        display: block !important;
+        width: 500px;
+        margin-left: 200px !important;
+}
+</style>
+
+<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
+<li>unconscious</li>
+</ul>
+<p><img src="/images/english/ef-l6u2l4.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>A: JAKE - B: PAM - C: SIMON</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I fell down some stairs.</td>
+<td></td>
+</tr>
+<tr>
+<td>How did you do that?</td>
+<td></td>
+</tr>
+<tr>
+<td>I was walking down some stairs. I wasn’t paying attention.</td>
+<td></td>
+</tr>
+<tr>
+<td>You were paying attention. He was paying attention to a woman.</td>
+<td></td>
+</tr>
+<tr>
+<td>I think the stairs were wet.</td>
+<td></td>
+</tr>
+<tr>
+<td>When did this happen?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JAKE] Yeah. I bruised three ribs and, sprained my right wrist.</td>
+<td></td>
+</tr>
+<tr>
+<td>[PAM] How are you coping with the crutches?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JAKE] No problem at all.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-because-of-the-pain"><a href="#2-because-of-the-pain" class="headerlink" title="2. because of the pain"></a>2. because of the pain</h2><p>I was walking down the street when I slipped and fell down, and broke my leg. I haven’t been sleeping since it happened because of the pain. It really hurts!</p>
+<table>
+<thead>
+<tr>
+<th>because of the pain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I was walking down the street …</td>
+<td></td>
+</tr>
+<tr>
+<td>… when I slipped and fell down …</td>
+<td></td>
+</tr>
+<tr>
+<td>… and broke my leg.</td>
+<td></td>
+</tr>
+<tr>
+<td>I haven’t been sleeping …</td>
+<td></td>
+</tr>
+<tr>
+<td>… since it happened.</td>
+<td></td>
+</tr>
+<tr>
+<td>It really hurts!</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-Expressions"><a href="#3-Expressions" class="headerlink" title="3. Expressions"></a>3. Expressions</h2><table>
+<thead>
+<tr>
+<th>Ex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I fell off a wall and broke my leg.</td>
+<td></td>
+</tr>
+<tr>
+<td>I sprained my wrist.</td>
+<td></td>
+</tr>
+<tr>
+<td>I have a bruise on my arm.</td>
+<td></td>
+</tr>
+<tr>
+<td>I fell down and bruised my shoulder.</td>
+<td></td>
+</tr>
+<tr>
+<td>I broke my arm while playing volleyball.</td>
+<td></td>
+</tr>
+<tr>
+<td>I was running for a bus when I sprained my ankle.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Possessive adjectives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>He called his doctor because he had a fever.</td>
+<td></td>
+</tr>
+<tr>
+<td>I’m a patient of Dr. Brennan’s. == I’m Dr. Brennan’s patient.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-Reading"><a href="#4-Reading" class="headerlink" title="4. Reading"></a>4. Reading</h2><p>I guess the strangest accident I have ever had was when I was at school. I was playing a game where you had to lie on the ground, and all the others jumped on top of you. It was fine until the biggest kid in school came and jumped on top, too! I broke my finger, <code>bruised my ribs</code> and <code>sprained</code> my wrist. I spent the night in the hospital, and it took me a couple of months to get better.</p>
+<h2 id="5-Writing"><a href="#5-Writing" class="headerlink" title="5. Writing"></a>5. Writing</h2><p>I had an accident last winter when I was arriving at work. I was coming into the building, climbing the steps, when I slipped on the icy floor. I fell down the steps and <code>broke my ankle</code>. I also <code>sprained my left wrist and bruised my back badly</code>. I had to go to the hospital, and I stayed there for three days. I hurt a lot! I had to stay at home for two more weeks before I could go back to work.</p>
+<hr>
+<div class="video-container"><iframe src="//www.youtube.com/embed/XDm4bNQGwWE" frameborder="0" allowfullscreen></iframe></div>
       
     </div>
 	
