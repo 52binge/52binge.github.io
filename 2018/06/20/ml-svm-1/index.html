@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>深入浅出 Entropy Based - Home</title>
+  <title>Support Vecor Machine (六部曲) - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
@@ -13,8 +13,8 @@
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
 <meta property="og:type" content="article">
-<meta property="og:title" content="深入浅出 Entropy Based">
-<meta property="og:url" content="http://iequa.com/2016/09/12/ml-entropy-base/index.html">
+<meta property="og:title" content="Support Vecor Machine (六部曲)">
+<meta property="og:url" content="http://iequa.com/2018/06/20/ml-svm-1/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
@@ -23,9 +23,9 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta property="og:updated_time" content="2018-03-06T09:45:44.061Z">
+<meta property="og:updated_time" content="2018-06-22T03:40:49.089Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="深入浅出 Entropy Based">
+<meta name="twitter:title" content="Support Vecor Machine (六部曲)">
 <meta name="twitter:description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
     jax: [&quot;input/TeX&quot;],
@@ -90,7 +90,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-ml-entropy-base" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-ml-svm-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -98,8 +98,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      深入浅出 Entropy Based
-      <small class=article-detail-date-index>&nbsp; 2016-09-12</small>
+      Support Vecor Machine (六部曲)
+      <small class=article-detail-date-index>&nbsp; 2018-06-20</small>
     </h1>
   
 
@@ -109,8 +109,8 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2016/09/12/ml-entropy-base/" class="article-date">
-  <time datetime="2016-09-12T08:06:16.000Z" itemprop="datePublished">2016-09-12</time>
+      <!--<a href="/2018/06/20/ml-svm-1/" class="article-date">
+  <time datetime="2018-06-20T08:08:21.000Z" itemprop="datePublished">2018-06-20</time>
 </a>-->
       <!-- 
   <div class="article-category">
@@ -121,7 +121,7 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/09/12/ml-entropy-base/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2018/06/20/ml-svm-1/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -142,32 +142,27 @@ var _hmt = _hmt || [];
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
 </script>
 
-
-<h2 id="1-Entropy-的含义？"><a href="#1-Entropy-的含义？" class="headerlink" title="1. Entropy 的含义？"></a>1. Entropy 的含义？</h2><blockquote>
-<p>自然界的事物，如果任其自身发展，最终都会达到尽可能的平衡或互补状态</p>
-<p>一盒火柴，（人为或外力）有序地将其摆放在一个小盒子里，如果不小心火柴盒打翻了，火柴会“散乱”地洒在地板上。此时火柴虽然很乱，但这是它自身发展的结果。</p>
-</blockquote>
-<p>熵Entropy是描述事物无序性的参数，熵越大则无序性越强。</p>
-<blockquote>
-<p>在信息论中，我们用熵表示一个随机变量的不确定性，那么如何量化信息的不确定性呢？<br>设一次随机事件（用随机变量$X$表示）它可能会有 $x_1，x_2，⋯，x_m$ 共 m 个不同的结果，每个结果出现的概率分别为 $p_1，p_2，⋯，p_m$，那么 $X$ 的不确定度，即信息Entropy为：</p>
-</blockquote>
-<p>$$<br>H(X) =\sum_{i=1}^{m} p_i \cdot \log_{2} \frac{1}{p_i} = - \sum_{i=1}^{m} p_i \cdot \log_{2} p_i<br>$$</p>
-<h2 id="2-Entropy"><a href="#2-Entropy" class="headerlink" title="2. Entropy"></a>2. Entropy</h2><p>Information Entropy [‘entrəpɪ]</p>
-<p>Entropy 表示的是不确定度的度量，如果某个数据集的类别的不确定程度越高，则其 entropy 就越大。</p>
-<p><strong><em>example</em></strong> : </p>
-<p>将一个立方体A抛向空中，记落地时着地的面为 $c$, $c$ 的取值为{1,2,3,4,5,6} </p>
-<blockquote>
-<p>$$<br>info(c) = - (1/6 \cdot log_{2}(1/6)+…+1/6 \cdot log_{2}(1/6)) = -1 \cdot log(1/6) = 2.58；<br>$$</p>
-</blockquote>
-<p>四面体抛入空中 :</p>
-<blockquote>
-<p>$$<br>info(c) = - (1/4 \cdot log_{2}(1/4)+…+1/4 \cdot log_{2}(1/4)) = -1 \cdot log(1/4) = 2；<br>$$</p>
-</blockquote>
-<p>球体抛入空中 :</p>
-<blockquote>
-<p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
-</blockquote>
-
+<p>Support Vecor Machine, 自一诞生便由于它良好的分类性能席卷了机器学习领域，并牢牢压制了神经网络领域好多年。 如果不考虑集成学习的算法，不考虑特定的训练数据集，在分类算法中的表现SVM说是排第一估计是没有什么异议的.</p>
+<a id="more"></a>
+<h2 id="1-SVM-间隔-Margin"><a href="#1-SVM-间隔-Margin" class="headerlink" title="1. SVM 间隔 Margin"></a>1. SVM 间隔 Margin</h2><ol>
+<li>写在前面</li>
+<li>支持向量机（SVM）的目标是什么？</li>
+<li>什么是分离超平面， Margin</li>
+</ol>
+<p>详细可参 : <a href="https://blog.csdn.net/han_xiaoyang/article/details/52678373" target="_blank" rel="external">机器学习系列(13)_SVM碎碎念part1：间隔</a></p>
+<h2 id="2-SVM-向量与空间距离"><a href="#2-SVM-向量与空间距离" class="headerlink" title="2. SVM 向量与空间距离"></a>2. SVM 向量与空间距离</h2><ol>
+<li>写在前面</li>
+<li>从向量到距离计算 (向量定义、计算方向向量、向量的和与差、向量内积、向量正交投影)</li>
+<li>SVM的超平面 (3.1 计算点到超平面距离、3.2 计算超平面的间隔)</li>
+</ol>
+<p>详细可参 : <a href="https://blog.csdn.net/han_xiaoyang/article/details/52679559" target="_blank" rel="external">机器学习系列(14)_SVM碎碎念part2：SVM中的向量与空间距离</a></p>
+<h2 id="3-SVM-如何找到最优分离超平面"><a href="#3-SVM-如何找到最优分离超平面" class="headerlink" title="3. SVM 如何找到最优分离超平面"></a>3. SVM 如何找到最优分离超平面</h2><ol>
+<li>如何找到最优超平面</li>
+<li>步骤1： 找到两个平行超平面，可以划分数据并且两平面之间没有数据点。</li>
+<li>步骤2： 两个超平面之间的距离最大化</li>
+</ol>
+<p>详细可参 : <a href="https://blog.csdn.net/han_xiaoyang/article/details/52683653" target="_blank" rel="external">机器学习系列(15)_SVM碎碎念part3：如何找到最优分离超平面</a></p>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2>
       
      <!-- by blair add this if sentence at 20160725 -->
       <br>
@@ -209,7 +204,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Entropy-的含义？"><span class="toc-number"></span> <span class="toc-text">1. Entropy 的含义？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Entropy"><span class="toc-number"></span> <span class="toc-text">2. Entropy</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-SVM-间隔-Margin"><span class="toc-number"></span> <span class="toc-text">1. SVM 间隔 Margin</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SVM-向量与空间距离"><span class="toc-number"></span> <span class="toc-text">2. SVM 向量与空间距离</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-SVM-如何找到最优分离超平面"><span class="toc-number"></span> <span class="toc-text">3. SVM 如何找到最优分离超平面</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
       </div>
     
     
@@ -226,7 +221,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/entropy/">entropy</a>
+    <a class="article-tag-link" href="/tags/machine-learning/">machine-learning</a>
   </div>
 
 
@@ -237,17 +232,9 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/" id="article-nav-newer" class="article-nav-link-wrap">
-      <div class="article-nav-title"><span>&lt;</span>&nbsp;
-        
-          数学之美 03 statistical language model
-        
-      </div>
-    </a>
   
-  
-    <a href="/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">数学之美 19 数学模型的重要性 &amp; 20 最大熵模型&nbsp;<span>&gt;</span></div>
+    <a href="/2018/06/20/ml-kernel-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Kernel-Based&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -276,7 +263,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2016/09/12/ml-entropy-base/';
+  var disqus_url = 'http://iequa.com/2018/06/20/ml-svm-1/';
   
   (function(){
     var dsq = document.createElement('script');
