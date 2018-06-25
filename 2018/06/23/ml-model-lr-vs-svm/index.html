@@ -23,7 +23,7 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta property="og:updated_time" content="2018-06-23T09:08:50.642Z">
+<meta property="og:updated_time" content="2018-06-25T09:03:56.377Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="LR 与 SVM 的异同">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -195,7 +195,39 @@ var _hmt = _hmt || [];
 </ol>
 <h2 id="3-SVM-和-LR-的比较"><a href="#3-SVM-和-LR-的比较" class="headerlink" title="3. SVM 和 LR 的比较"></a>3. SVM 和 LR 的比较</h2><p>两种方法都是常见的分类算法，从目标函数来看，区别在于逻辑回归采用的是logistical loss，svm采用的是hinge loss。这两个损失函数的目的都是<strong>增加对分类影响较大的数据点的权重，减少与分类关系较小的数据点的权重</strong>。</p>
 <p>SVM 的处理方法是只考虑support vectors，也就是和分类最相关的少数点，去学习分类器。而LR通过非线性映射，大大减小了离分类平面较远的点的权重，相对提升了与分类最相关的数据点的权重。两者的根本目的都是一样的。此外，根据需要，两个方法都可以增加不同的正则化项，如l1,l2等等。所以在很多实验中，两种算法的结果是很接近的。</p>
-<p>逻辑回归相对来说模型更简单，好理解，实现起来，特别是大规模线性分类时比较方便。而SVM的理解和优化相对来说复杂一些。但是SVM的理论基础更加牢固，有一套结构化风险最小化的理论基础，虽然一般使用的人不太会去关注。还有很重要的一点，SVM转化为对偶问题后，分类只需要计算与少数几个支持向量的距离，这个在进行复杂核函数计算时优势很明显，能够大大简化模型和计算量。</p>
+<p>LR 相对来说模型更简单，好理解，实现起来，特别是大规模线性分类时比较方便。而SVM的理解和优化相对来说复杂一些。但是SVM的理论基础更加牢固，有一套结构化风险最小化的理论基础，虽然一般使用的人不太会去关注。还有很重要的一点，SVM转化为对偶问题后，分类只需要计算与少数几个支持向量的距离，这个在进行复杂核函数计算时优势很明显，能够大大简化模型和计算量。</p>
+<h3 id="LR-amp-SVM-不同点"><a href="#LR-amp-SVM-不同点" class="headerlink" title="LR &amp; SVM 不同点"></a>LR &amp; SVM 不同点</h3><blockquote>
+<p>要说有什么本质区别，那就是两个模型对数据和参数的敏感程度不同</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">model</th>
+<th style="text-align:center">desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>Linear SVM</strong></td>
+<td style="text-align:center">比较依赖 penalty的系数 和 数据表达空间的测度</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>LR(自带正则项)</strong></td>
+<td style="text-align:center">比较依赖对参数做 L1 regularization 的系数</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>但是由于他们或多或少都是线性分类器，所以实际上对低维度数据overfitting的能力都比较有限，相比之下对高维度数据，LR的表现会更加稳定，为什么呢？</p>
+<p>因为Linear SVM在计算margin有多“宽”的时候是依赖数据表达上的距离测度的，换句话说如果这个测度不好（badly scaled，这种情况在高维数据尤为显著），所求得的所谓Large margin就没有意义了，这个问题即使换用kernel trick（比如用Gaussian kernel）也无法完全避免。</p>
+<p>所以使用<strong>Linear SVM</strong>都需要先对数据做<strong>normalization</strong>，而求解LR（without regularization）时则不需要或者结果不敏感。</p>
+<p>注：不带正则化的LR，其做normalization的目的是为了方便选择优化过程的起始值，不代表最后的解的performance会跟normalization相关，而其线性约束是可以被放缩的（等式两边可同时乘以一个系数），所以做normalization只是为了求解优化模型过程中更容易选择初始值。</p>
+</blockquote>
+<h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><blockquote>
+<p>具体到 loss function 上来看， LR 用的是 <code>log-loss</code>, SVM 用的是 <code>hinge-loss</code>, 两者的相似之处在于 loss 在错误分类的时候都很大，但是对于正确分类的点，hinge-loss 就不管了，而 log-loss 还要考虑进去。此外因为 log-loss 在 mis-classified 的点上是指数级增长的，而 hinge-loss 是线性增长，所以 <strong>LR 在偶尔出现 mis-label 的情况下的表现会比较糟糕</strong>。</p>
+<p>另外 regularization 在这里没有区别，L1/L2 两个都能用，效果也差不多。Class imbalance 的话 SVM 一般用 weight 解决，LR 因为可以预测概率，所以也可以直接对最后的结果进行调整，取不同的阈值来达到理想的效果。</p>
+<p>实践中 LR 的速度明显更快，维度小的时候 bias 小 也不容易 overfit. 相反 Kernel SVM 在大规模数据集的情况下基本不实用，但是如果数据集本身比较小而且维度高的的话一般 SVM 表现更好。</p>
+</blockquote>
 <h2 id="4-LR-amp-SVM-选型"><a href="#4-LR-amp-SVM-选型" class="headerlink" title="4. LR &amp; SVM 选型"></a>4. LR &amp; SVM 选型</h2><p>在Andrew NG的课里讲到过：</p>
 <ol>
 <li>如果Feature的数量很大，跟样本数量差不多，这时候选用LR或者是Linear Kernel的SVM</li>
@@ -252,7 +284,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-为什么将LR和SVM放在一起来进行比较？"><span class="toc-number"></span> <span class="toc-text">1. 为什么将LR和SVM放在一起来进行比较？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是分类算法"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是分类算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是线性分类算法"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是线性分类算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是判别模型"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是判别模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-LR-和-SVM-的-不同"><span class="toc-number"></span> <span class="toc-text">2. LR 和 SVM 的 不同</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-SVM-和-LR-的比较"><span class="toc-number"></span> <span class="toc-text">3. SVM 和 LR 的比较</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-LR-amp-SVM-选型"><span class="toc-number"></span> <span class="toc-text">4. LR & SVM 选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-为什么将LR和SVM放在一起来进行比较？"><span class="toc-number"></span> <span class="toc-text">1. 为什么将LR和SVM放在一起来进行比较？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是分类算法"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是分类算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是线性分类算法"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是线性分类算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是判别模型"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是判别模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-LR-和-SVM-的-不同"><span class="toc-number"></span> <span class="toc-text">2. LR 和 SVM 的 不同</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-SVM-和-LR-的比较"><span class="toc-number"></span> <span class="toc-text">3. SVM 和 LR 的比较</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-amp-SVM-不同点"><span class="toc-number"></span> <span class="toc-text">LR & SVM 不同点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#loss-function"><span class="toc-number"></span> <span class="toc-text">loss function</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-LR-amp-SVM-选型"><span class="toc-number"></span> <span class="toc-text">4. LR & SVM 选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
       </div>
     
     
