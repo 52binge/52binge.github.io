@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="decision tree learning">
 <meta property="og:image" content="http://iequa.com/images/ml/decision-tree/decision-tree-2.png">
-<meta property="og:updated_time" content="2018-06-28T12:39:59.377Z">
+<meta property="og:updated_time" content="2018-06-29T07:43:51.523Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="统计学习方法笔记 (五) - Decision Tree">
 <meta name="twitter:description" content="decision tree learning">
@@ -125,6 +125,9 @@ var _hmt = _hmt || [];
 <p><img src="/images/ml/decision-tree/decision-tree-2.png" width="530" img=""></p>
 <a id="more"></a>
 <h2 id="1-决策树模型"><a href="#1-决策树模型" class="headerlink" title="1. 决策树模型"></a>1. 决策树模型</h2><p>决策树（decision tree）是一个树结构（可以是二叉树或非二叉树）</p>
+<blockquote>
+<p>关于 ID3 与 C4.5 的具体计算流程示例，请参见 <a href="/2016/08/16/ml-5-decisionTree-part1/">desicion tree (part1)</a></p>
+</blockquote>
 <h3 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1. 定义"></a>1.1. 定义</h3><p>分类决策树模型是一种描述对实例进行分类的树形结构，其中包含两种类型的节点</p>
 <ol>
 <li>内部节点: 表示一个 feature（属性）</li>
@@ -263,7 +266,7 @@ var _hmt = _hmt || [];
 </blockquote>
 </li>
 </ul>
-<h3 id="5-1-CART-回归树"><a href="#5-1-CART-回归树" class="headerlink" title="5.1 CART 回归树"></a>5.1 CART 回归树</h3><p>设 $X$, $Y$ 分别为输入和输出变量，其中 $Y$ 为连续变量，给定训练数据集 $D= \lbrace (x_1, y_1), (x_2, y_2),…,(x_N, y_N) \rbrace$</p>
+<h3 id="5-1-二叉回归树"><a href="#5-1-二叉回归树" class="headerlink" title="5.1 二叉回归树"></a>5.1 二叉回归树</h3><p>设 $X$, $Y$ 分别为输入和输出变量，其中 $Y$ 为连续变量，给定训练数据集 $D= \lbrace (x_1, y_1), (x_2, y_2),…,(x_N, y_N) \rbrace$</p>
 <blockquote>
 <p>决策树的生成就是递归地构建二叉决策树的过程，对回归树用平方误差最小化准则，对分类树用基尼指数最小化准则，进行特征选择，生成二叉树</p>
 </blockquote>
@@ -320,8 +323,125 @@ var _hmt = _hmt || [];
 </tbody>
 </table>
 <p><strong>首先来看这个优化问题</strong></p>
-<p>$$<br>\min_{j,s}[\min_{c_1} \sum_{x_i\in R_1(j,s)}(y_i-c<em>1)^2 + \min\</em>{c<em>2} \sum\</em>{x_i\in R_\2(j,s)}(y_i-c_2)^2]<br>$$</p>
-<h4 id="5-2-2-分类树"><a href="#5-2-2-分类树" class="headerlink" title="5.2.2 分类树"></a>5.2.2 分类树</h4><h2 id="6-决策树模型的优缺点"><a href="#6-决策树模型的优缺点" class="headerlink" title="6. 决策树模型的优缺点"></a>6. 决策树模型的优缺点</h2><h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<p>$$<br>\min_{j,s}[\min_{c_1} \sum_{x_i\in R_1(j,s)}(y_i-c_1)^2 + \min_{c_2} \sum_{x_i\in R_2(j,s)}(y_i-c_2)^2]<br>$$</p>
+<p>求解训练数据的切分点s:</p>
+<p>$$<br>R_1(j,s)=\lbrace x\mid x^{(j)} \le s \rbrace , \quad R_2(j,s)=\lbrace x \mid x^{(j)} \gt s \rbrace<br>$$</p>
+<p>容易求得在 $R_1$,$R_2$ 内部使得平方损失误差达到最小值的 $c_1$,$c_2$ 为：</p>
+<p>$$<br>c_1={1\over N_1}\sum_{x_i \in R_1}y_i , \quad c_2={1\over N_2}\sum_{x_i \in R_2}y_i<br>$$</p>
+<p>这里 $N_1$,$N_2$ 是 $R_1$,$R_2$的样本点数。</p>
+<p>求训练数据的切分点，根据所给数据，考虑如下切分点：</p>
+<p>$$1.5,2.5,3.5,4.5,5.5,6.5,7.5,8.5,9.5$$</p>
+<p>对各切分点，不难求出相应的 $R_1$ , $R_2$ , $c_1$ , $c_2$ 及</p>
+<p>$$<br>m(s)=\min_{j,s}[\min_{c_1} \sum_{x_i\in R_1(j,s)}(y_i-c_1)^2 + \min_{c_2} \sum_{x_i\in R_2(j,s)}(y_i-c_2)^2]<br>$$</p>
+<p>例如，当 $s=1.5$ 时，$R_1 = \lbrace 1\rbrace$, $R_2 = \lbrace 2, 3 , \ldots , 10\rbrace$, $c_1 = 5.56$, $c_2 = 7.50$, </p>
+<p>$$<br>m(s)=\min_{j,s}[\min_{c_1} \sum_{x_i\in R_1(j,s)}(y_i-c_1)^2 + \min_{c_2} \sum_{x_i\in R_2(j,s)}(y_i-c_2)^2] = 0+15.72 = 15.72<br>$$</p>
+<p>现将$s$及$m(s)$的计算结果列表如下：</p>
+<table>
+<thead>
+<tr>
+<th>s</th>
+<th>1.5</th>
+<th>2.5</th>
+<th>3.5</th>
+<th>4.5</th>
+<th>5.5</th>
+<th>6.5</th>
+<th>7.5</th>
+<th>8.5</th>
+<th>9.5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>m(s)</td>
+<td>15.72</td>
+<td>12.07</td>
+<td>8.36</td>
+<td>5.78</td>
+<td>3.91</td>
+<td>1.93</td>
+<td>8.01</td>
+<td>11.73</td>
+<td>15.74</td>
+</tr>
+</tbody>
+</table>
+<p>由上表可知，当$x=6.5$的时候达到最小值，此时 $R_1 = \lbrace 1 ,2 , \ldots , 6\rbrace$, $R_2 ={7 ,8 ,9 , 10}$, $c_1 = 6.24$, $c_2 = 8.9$</p>
+<p>所以回归树 $T_1(x)$ 为：</p>
+<p>$$<br>T_1(x) =<br>\begin{cases}<br>6.24, &amp; x\lt 6.5 \\<br>8.91, &amp; x \ge 6.5 \\<br>\end{cases}<br>$$</p>
+<p>$$<br>f_1(x) = T_1(x)<br>$$</p>
+<p>用 $f_1(x)$ 拟合训练数据的残差见下表，表中 $r_{2i} = y_i - f_1(x_i),i=1,2,\ldots , 10$</p>
+<table>
+<thead>
+<tr>
+<th>$x_i$</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+<th>8</th>
+<th>9</th>
+<th>10</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$y_i$</td>
+<td>-0.68</td>
+<td>-0.54</td>
+<td>-0.33</td>
+<td>0.16</td>
+<td>0.56</td>
+<td>0.81</td>
+<td>-0.01</td>
+<td>-0.21</td>
+<td>0.09</td>
+<td>0.14</td>
+</tr>
+</tbody>
+</table>
+<p>用$f_1(x)$拟合训练数据的平方误差：</p>
+<p>$$<br>L(y,f_1(x)) = \sum_{i=1}^{10}(y_i-f_1(x_i))^2 = 1.93<br>$$</p>
+<p>第2步求 $T_2(x)$.方法与求 $T_1(x)$ 一样，只是拟合的数据是上表的残差，可以得到：</p>
+<p>$$<br>T_2(x) =<br>\begin{cases}<br>-0.52, &amp; x\lt 3.5 \\<br>0.22, &amp; x \ge 3.5 \\<br>\end{cases}<br>$$</p>
+<p>$$<br>f_2(x) = f_1(x) + T_2(x)=<br>\begin{cases}<br>5.72, &amp; x\lt 3.5 \\<br>6.46, &amp; 3.5\le x \lt 6.5 \\<br>9.13, &amp; x\ge 6.5 \\<br>\end{cases}<br>$$</p>
+<p>用$f_2(x)$拟合训练数据的平方误差是：</p>
+<p>$$<br>L(y,f_2(x)) = \sum_{i=1}^{10}(y_i-f_2(x_i))^2 = 0.79<br>$$</p>
+<p>继续求得</p>
+<p>$$<br>T_3(x) =<br>\begin{cases}<br>0.15, &amp; x\lt 6.5 \\<br>-0.22, &amp; x \ge 6.5 \\<br>\end{cases}<br>\quad L(y,f_3(x)) = 0.47 ,<br>$$</p>
+<p>$$<br>T_4(x) =<br>\begin{cases}<br>-0.16, &amp; x\lt 4.5 \\<br>0.11, &amp; x \ge 4.5 \\<br>\end{cases}<br>\quad L(y,f_3(x)) = 0.30 ,<br>$$</p>
+<p>$$<br>T_5(x) =<br>\begin{cases}<br>0.07, &amp; x\lt 6.5 \\<br>-0.11, &amp; x \ge 6.5 \\<br>\end{cases}<br>\quad L(y,f_3(x)) = 0.23 ,<br>$$</p>
+<p>$$<br>T_6(x) =<br>\begin{cases}<br>-0.15, &amp; x\lt 2.5 \<br>0.04, &amp; x \ge 2.5 \<br>\end{cases}<br>$$</p>
+<p>$$<br>f_6(x) = f_5(x)+T_6(x) =T_1(x)+ \ldots + T_5(x) + T_6(x)=<br>\begin{cases}<br>5.63, &amp; x\lt 2.5 \\<br>5.82, &amp; 2.5 \le x\lt 3.5 \\<br>6.56, &amp; 3.5 \le x\lt 4.5 \\<br>6.83, &amp; 4.5 \le x\lt 6.5 \\<br>8.95, &amp; x\ge 6.5 \\<br>\end{cases}<br>$$</p>
+<p>用$f_6(x)$拟合训练数据的平方损失误差是</p>
+<p>$$<br>L(y,f_6(x)) = \sum_{i=1}^{10}(y_i-f_6(x_i))^2 = 0.71<br>$$</p>
+<p>假设此时已经满足误差要求，那么 $f(x) = f_6(x)$ 即为所求的回归树。</p>
+<h3 id="5-2-二叉分类树"><a href="#5-2-二叉分类树" class="headerlink" title="5.2 二叉分类树"></a>5.2 二叉分类树</h3><p>二叉分类树中用基尼指数（Gini Index）作为最优特征选择的度量标准。基尼指数定义如下：</p>
+<p>同样以分类系统为例，数据集 $D$ 中类别 $C$ 可能的取值为 $c_1$,$c_2$,⋯,$c_k$（$k$是类别数），一个样本属于类别 $c_i$ 的概率为 $p(i)$。那么概率分布的基尼指数公式表示为：</p>
+<p>$$<br>Gini(D) = 1 - \sum_{i=1}^{k} {p_i}^2<br>$$</p>
+<blockquote>
+<p>其中 $p_i = \frac{类别属于c_i的样本数}{总样本数}$。如果所有样本类别相同，则 $p_1=1,p_2=p_3=⋯=p_k=0$，则有 $Gini(C)=0$，此时数据不纯度最低。$Gini(D)$ 的物理含义是表示数据集 $D$ 的不确定性。数值越大，其不确定性越大（这点与信息熵相似）</p>
+<p>如果$k=2$（二分类问题，类别命名为正类和负类），若样本属于正类的概率是$p$，那么对应基尼指数为：</p>
+<p>$$<br>Gini(D) = 2 p (1-p) \qquad\qquad (n.ml.1.3.6)<br>$$</p>
+</blockquote>
+<p>如果数据集 $D$ 根据特征 $f$ 是否取某一可能值 $f_{\ast}$，将 $D$ 划分为 $D_1$ 和 $D_2$ 两部分，即 $D_1={(x, y) \in D | f(x) = f_{\ast}}, D_2=D-D_1$。那么特征$f$ 在数据集 $D$ 基尼指数定义为：</p>
+<p>$$<br>Gini(D, f=f_{\ast}) = \frac{\vert D_1 \vert}{\vert D \vert} Gini(D_1) + \frac{\vert D_2 \vert}{\vert D \vert} Gini(D_2) \qquad\qquad (ml.1.3.3)<br>$$</p>
+<p>在实际操作中，<strong>通过遍历所有特征（如果是连续值，需做离散化）及其取值</strong>，选择基尼指数最小所对应的特征和特征值。</p>
+<h2 id="6-决策树模型的优缺点"><a href="#6-决策树模型的优缺点" class="headerlink" title="6. 决策树模型的优缺点"></a>6. 决策树模型的优缺点</h2><h3 id="6-1-优点"><a href="#6-1-优点" class="headerlink" title="6.1 优点"></a>6.1 优点</h3><ul>
+<li>可解释性–模拟人类决策过程</li>
+<li>训练、预测效率较高–关于其切分方式，每次是在一个条件下的局部空间划分样本，而类似Adaboost则是每次在整个空间划分样本，所以就决策树而言相对高效</li>
+<li>适用于类别类型数据–decision set(穷举类别特征值然后按照特征值的子集集合来划分样本)</li>
+<li>能够很方便的由二分类模型转换为多分类模型–主要修改不纯度计算以及返回值的设置</li>
+<li>能够处理缺失特征值–用其他的特征值来替代进行划分(一般要求替代特征划分结果接近缺失特征值)</li>
+<li>易于实现</li>
+</ul>
+<h3 id="6-2-缺点"><a href="#6-2-缺点" class="headerlink" title="6.2 缺点"></a>6.2 缺点</h3><ul>
+<li>经验多于理论，大多数决策树模型是根据经验来判断的，效果好坏尚无较好的理论支撑</li>
+</ul>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
 <li><a href="http://www.cnblogs.com/fengfenggirl/p/classsify_decision_tree.html" target="_blank" rel="external">逗比算法工程师</a>、<a href="http://www.52caml.com/" target="_blank" rel="external">算法杂货铺</a></li>
 <li><a href="http://www.cnblogs.com/leoo2sk/archive/2010/09/19/decision-tree.html" target="_blank" rel="external">52caml</a>、<a href="http://izhaoyi.top/2017/06/19/Decision-Tree" target="_blank" rel="external">懒死骆驼</a></li>
 <li><a href="http://blog.csdn.net/ljp812184246/article/details/47402639" target="_blank" rel="external">决策树ID3、C4.5、CART算法：信息熵，区别，剪枝理论总结</a></li>
@@ -370,7 +490,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-决策树模型"><span class="toc-number"></span> <span class="toc-text">1. 决策树模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-定义"><span class="toc-number"></span> <span class="toc-text">1.1. 定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-if-then规则集合"><span class="toc-number"></span> <span class="toc-text">1.2. if-then规则集合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-条件概率分布"><span class="toc-number"></span> <span class="toc-text">1.3. 条件概率分布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-决策树的学习"><span class="toc-number"></span> <span class="toc-text">2. 决策树的学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-目的"><span class="toc-number"></span> <span class="toc-text">2.1 目的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-策略"><span class="toc-number"></span> <span class="toc-text">2.2 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-学习算法"><span class="toc-number"></span> <span class="toc-text">2.3 学习算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-特征选择"><span class="toc-number"></span> <span class="toc-text">3. 特征选择</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-信息增益-Information-gain"><span class="toc-number"></span> <span class="toc-text">3.1 信息增益 Information gain</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-信息增益比-Gain-ratio"><span class="toc-number"></span> <span class="toc-text">3.2 信息增益比 Gain ratio</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-决策树的生成"><span class="toc-number"></span> <span class="toc-text">4. 决策树的生成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-ID3"><span class="toc-number"></span> <span class="toc-text">4.1 ID3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-C4-5"><span class="toc-number"></span> <span class="toc-text">4.2 C4.5</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-CART-classification-and-regression-tree"><span class="toc-number"></span> <span class="toc-text">5. CART(classification and regression tree)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-CART-回归树"><span class="toc-number"></span> <span class="toc-text">5.1 CART 回归树</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#概念强调"><span class="toc-number"></span> <span class="toc-text">概念强调</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#最小二叉回归树生成算法"><span class="toc-number"></span> <span class="toc-text">最小二叉回归树生成算法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-2-分类树"><span class="toc-number"></span> <span class="toc-text">5.2.2 分类树</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-决策树模型的优缺点"><span class="toc-number"></span> <span class="toc-text">6. 决策树模型的优缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-决策树模型"><span class="toc-number"></span> <span class="toc-text">1. 决策树模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-定义"><span class="toc-number"></span> <span class="toc-text">1.1. 定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-if-then规则集合"><span class="toc-number"></span> <span class="toc-text">1.2. if-then规则集合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-条件概率分布"><span class="toc-number"></span> <span class="toc-text">1.3. 条件概率分布</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-决策树的学习"><span class="toc-number"></span> <span class="toc-text">2. 决策树的学习</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-目的"><span class="toc-number"></span> <span class="toc-text">2.1 目的</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-策略"><span class="toc-number"></span> <span class="toc-text">2.2 策略</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-学习算法"><span class="toc-number"></span> <span class="toc-text">2.3 学习算法</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-特征选择"><span class="toc-number"></span> <span class="toc-text">3. 特征选择</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-信息增益-Information-gain"><span class="toc-number"></span> <span class="toc-text">3.1 信息增益 Information gain</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-信息增益比-Gain-ratio"><span class="toc-number"></span> <span class="toc-text">3.2 信息增益比 Gain ratio</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-决策树的生成"><span class="toc-number"></span> <span class="toc-text">4. 决策树的生成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-ID3"><span class="toc-number"></span> <span class="toc-text">4.1 ID3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-C4-5"><span class="toc-number"></span> <span class="toc-text">4.2 C4.5</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-CART-classification-and-regression-tree"><span class="toc-number"></span> <span class="toc-text">5. CART(classification and regression tree)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-二叉回归树"><span class="toc-number"></span> <span class="toc-text">5.1 二叉回归树</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#概念强调"><span class="toc-number"></span> <span class="toc-text">概念强调</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#最小二叉回归树生成算法"><span class="toc-number"></span> <span class="toc-text">最小二叉回归树生成算法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-二叉分类树"><span class="toc-number"></span> <span class="toc-text">5.2 二叉分类树</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-决策树模型的优缺点"><span class="toc-number"></span> <span class="toc-text">6. 决策树模型的优缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-优点"><span class="toc-number"></span> <span class="toc-text">6.1 优点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-缺点"><span class="toc-number"></span> <span class="toc-text">6.2 缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
       </div>
     
     
