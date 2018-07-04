@@ -257,23 +257,50 @@
 </blockquote>
 <h2 id="5-CART-classification-and-regression-tree"><a href="#5-CART-classification-and-regression-tree" class="headerlink" title="5. CART(classification and regression tree)"></a>5. CART(classification and regression tree)</h2><ul>
 <li>CART 假设决策树是二叉树，而 ID3,C4.5 生成的过程中并无此假设，这也导致了两者的根本不同，ID3,C4.5 每次选择出最佳特征之后，是按照该特征的每一个取值划分子树；</li>
-<li>CART 则是对每一个特征、每一个特征的每一个取值计算基尼指数（分类树）然后从所有特征、所有特征对应的取值计算所得的基尼指数中最小的特征及特征值作为切分点来划分子树，而划分依据则是判断实例对应特征的值是否等于该选定的特征值</li>
+<li>CART 则是对每一个特征、每一个特征的每一个取值计算基尼指数（分类树）然后从所有特征对应的取值计算所得的基尼指数中最小的特征及特征值作为<code>切分点</code>来划分子树，并在这些子空间上确定预测的概率分布，也就是在输入给定的条件下输出对应的条件概率分布.</li>
 </ul>
-<p><strong>与ID3,C4.5的区别</strong></p>
-<ul>
-<li>子树划分（特征选择）的准则不同<blockquote>
-<p>回归树，平方误差最小化准则<br>分类树，基尼指数最小化准则</p>
+<h3 id="5-1-CART-纯度度量"><a href="#5-1-CART-纯度度量" class="headerlink" title="5.1 CART 纯度度量"></a>5.1 CART 纯度度量</h3><p>CART 中用于选择变量的不纯性度量是 <strong>Gini index</strong>；如果目标变量是标称的，并且是具有两个以上的类别，则 CART 可能考虑将目标类别合并成两个超类别（双化）；如果目标变量是连续的，则 CART 找出一组基于树的回归方程来预测目标变量。</p>
+<table>
+<thead>
+<tr>
+<th>Algorithm</th>
+<th>Feature Selection</th>
+<th>Author</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CART</td>
+<td>回归树： 最小二乘<br>分类树： 基尼指数 Gini index</td>
+<td>Breiman. 1984<br>(Classification and Regression Tree 分类与回归树)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="5-2-CART-步骤"><a href="#5-2-CART-步骤" class="headerlink" title="5.2 CART 步骤"></a>5.2 CART 步骤</h3><p><code>build decision tree</code>时通常采用自上而下的方法，在每一步选择一个最好的属性来分裂。 “最好” 的定义是使得子节点中的训练集尽量的纯。不同的算法使用不同的指标来定义”最好”。</p>
+<p><strong>CART</strong> 是在给定输入随机变量 $X$ 条件下求得输出随机变量 $Y$ 的条件概率分布的学习方法。</p>
+<blockquote>
+<p>可以看出CART算法在叶节点表示上不同于ID3、C4.5方法，后二者叶节点对应数据子集通过“多数表决”的方式来确定一个类别（固定一个值）；而CART算法的叶节点对应类别的概率分布。如此看来，我们可以很容易地用 CART 来学习一个 <code>multi-label</code> 的分类任务。</p>
 </blockquote>
-</li>
+<p><strong>CART</strong> 算法也主要由两步组成:</p>
+<ul>
+<li>决策树的生成：基于训练数据集生成一棵二分决策树；</li>
+<li>决策树的剪枝：用验证集对已生成的二叉决策树进行剪枝，剪枝的标准为损失函数最小化。</li>
 </ul>
-<h3 id="5-1-二叉回归树"><a href="#5-1-二叉回归树" class="headerlink" title="5.1 二叉回归树"></a>5.1 二叉回归树</h3><p>设 $X$, $Y$ 分别为输入和输出变量，其中 $Y$ 为连续变量，给定训练数据集 $D= \lbrace (x_1, y_1), (x_2, y_2),…,(x_N, y_N) \rbrace$</p>
+<p>由于分类树与回归树在递归地构建二叉决策树的过程中，选择特征划分的准则不同。</p>
+<ul>
+<li>二叉分类树构建过程中采用<code>基尼指数（Gini Index）</code>为特征选择标准；</li>
+<li>二叉回归树采用<code>平方误差最小化</code>作为特征选择标准。</li>
+</ul>
+<h3 id="5-3-树的构建"><a href="#5-3-树的构建" class="headerlink" title="5.3 树的构建"></a>5.3 树的构建</h3><h4 id="5-3-1-二叉回归树"><a href="#5-3-1-二叉回归树" class="headerlink" title="5.3.1 二叉回归树"></a>5.3.1 二叉回归树</h4><p>设 $X$, $Y$ 分别为输入和输出变量，其中 $Y$ 为连续变量，给定训练数据集 $D= \lbrace (x_1, y_1), (x_2, y_2),…,(x_N, y_N) \rbrace$</p>
 <blockquote>
 <p>决策树的生成就是递归地构建二叉决策树的过程，对回归树用平方误差最小化准则，对分类树用基尼指数最小化准则，进行特征选择，生成二叉树</p>
 </blockquote>
 <p>一个回归树对应着输入空间（即特征空间）的一个划分以及在划分的单元上的输出值，所以我们的主要目的是要构建回归树，也就是<strong>如何划分输入空间</strong>，因为一旦划分好输入空间，如将输入空间划分为 $M$ 个单元, $R_1, R_2, … , R_M$ , 并且在每个单元 $R_m$ 上有一个固定的输出值 $c_m$，那么回归树的模型就可以表示为</p>
 <p>$$<br>f(x)=\sum_{m=1}^Mc_mI(x \in R_m)<br>$$</p>
-<h4 id="概念强调"><a href="#概念强调" class="headerlink" title="概念强调"></a>概念强调</h4><p><code>首先要强调的是 CART假设决策树是二叉树，内部结点特征的取值只有“是”和“否”，左分支是取值为“是”的分支，有分支则相反。这样的决策树等价于递归地二分每个特征</code>.</p>
-<h4 id="最小二叉回归树生成算法"><a href="#最小二叉回归树生成算法" class="headerlink" title="最小二叉回归树生成算法"></a>最小二叉回归树生成算法</h4><blockquote>
+<p><strong>概念强调</strong></p>
+<p><code>首先要强调的是 CART假设决策树是二叉树，内部结点特征的取值只有“是”和“否”，左分支是取值为“是”的分支，有分支则相反。这样的决策树等价于递归地二分每个特征</code>.</p>
+<p><strong>最小二叉回归树生成算法</strong></p>
+<blockquote>
 <p>输入：训练数据集$D$；<br>输出：回归树 $f(x)$</p>
 <p>算法：在训练集所在的输入空间中，递归地将每个区域划分为两个子区域并决定每个子区域上输出值，构建二叉决策树</p>
 </blockquote>
@@ -419,17 +446,159 @@
 <p>用$f_6(x)$拟合训练数据的平方损失误差是</p>
 <p>$$<br>L(y,f_6(x)) = \sum_{i=1}^{10}(y_i-f_6(x_i))^2 = 0.71<br>$$</p>
 <p>假设此时已经满足误差要求，那么 $f(x) = f_6(x)$ 即为所求的回归树。</p>
-<h3 id="5-2-二叉分类树"><a href="#5-2-二叉分类树" class="headerlink" title="5.2 二叉分类树"></a>5.2 二叉分类树</h3><p>二叉分类树中用基尼指数（Gini Index）作为最优特征选择的度量标准。基尼指数定义如下：</p>
-<p>同样以分类系统为例，数据集 $D$ 中类别 $C$ 可能的取值为 $c_1$,$c_2$,⋯,$c_k$（$k$是类别数），一个样本属于类别 $c_i$ 的概率为 $p(i)$。那么概率分布的基尼指数公式表示为：</p>
-<p>$$<br>Gini(D) = 1 - \sum_{i=1}^{k} {p_i}^2<br>$$</p>
+<h4 id="5-3-2-二叉分类树"><a href="#5-3-2-二叉分类树" class="headerlink" title="5.3.2 二叉分类树"></a>5.3.2 二叉分类树</h4><p>二叉分类树中用基尼指数（Gini Index）作为最优特征选择的度量标准。基尼指数定义如下：</p>
+<p><strong>Gini Index :</strong></p>
+<ol>
+<li>是一种不等性度量；</li>
+<li>通常用来度量收入不平衡，可以用来度量任何不均匀分布；</li>
+<li>是介于0~1之间的数，0-完全相等，1-完全不相等；</li>
+<li>总体内包含的类别越杂乱，GINI指数就越大（跟熵的概念很相似）</li>
+</ol>
+<p><strong>Gini Index :</strong></p>
+<p>同样以分类系统为例，数据集 $D$ 中类别 $C$ 可能的取值为$c_1, c_2, \cdots, c_k$ （$k$是类别数），一个样本属于类别 $c_i$ 的概率为$p(i)$。那么概率分布的 Gini index 公式表示为：</p>
+<p>$$<br>Gini(D) = 1 - \sum_{i=1}^{k} {p_i}^2    \qquad(fmt.2.1.1)<br>$$</p>
 <blockquote>
-<p>其中 $p_i = \frac{类别属于c_i的样本数}{总样本数}$。如果所有样本类别相同，则 $p_1=1,p_2=p_3=⋯=p_k=0$，则有 $Gini(C)=0$，此时数据不纯度最低。$Gini(D)$ 的物理含义是表示数据集 $D$ 的不确定性。数值越大，其不确定性越大（这点与信息熵相似）</p>
-<p>如果$k=2$（二分类问题，类别命名为正类和负类），若样本属于正类的概率是$p$，那么对应基尼指数为：</p>
-<p>$$<br>Gini(D) = 2 p (1-p) \qquad\qquad (n.ml.1.3.6)<br>$$</p>
+<p>其中$p_i = \frac{类别属于c_i的样本数}{总样本数}$。如果所有的样本 Category 相同，则 $p_1 = 1, p_2 = p_3 = \cdots = p_k = 0$，则有$p_1 = 1, p_2 = p_3 = \cdots = p_k = 0$，此时数据不纯度最低。$Gini(D)$ 的物理含义是表示数据集 $D$ 的不确定性。数值越大，表明其不确定性越大（这一点与 <a href="https://en.wikipedia.org/wiki/Heuristic_(computer_science)" target="_blank" rel="external">Info Entropy</a> 相似）。<br>如果 $k=2$（二分类问题，类别命名为正类和负类），若样本属于正类的概率是 $p$，那么对应基尼指数为：</p>
+<p>$$<br>\begin{align} Gini(D) &amp; = 1 - [p^2 + {(1-p)}^2] \\ &amp; = \underline {2p (1-p)} \qquad\qquad (fmt.2.1.2)<br>\end{align}<br>$$</p>
 </blockquote>
-<p>如果数据集 $D$ 根据特征 $f$ 是否取某一可能值 $f_{\ast}$，将 $D$ 划分为 $D_1$ 和 $D_2$ 两部分，即 $D_1={(x, y) \in D | f(x) = f_{\ast}}, D_2=D-D_1$。那么特征$f$ 在数据集 $D$ 基尼指数定义为：</p>
-<p>$$<br>Gini(D, f=f_{\ast}) = \frac{\vert D_1 \vert}{\vert D \vert} Gini(D_1) + \frac{\vert D_2 \vert}{\vert D \vert} Gini(D_2) \qquad\qquad (ml.1.3.3)<br>$$</p>
-<p>在实际操作中，<strong>通过遍历所有特征（如果是连续值，需做离散化）及其取值</strong>，选择基尼指数最小所对应的特征和特征值。</p>
+<p>如果数据集 $D$ 根据特征 $f$ 是否取某一可能值 $f_∗$，将 $D$ 划分为 $D_1={(x, y) \in D | f(x) = f_{\ast}}, D_2=D-D_1$。那么特征 $f$ 在数据集 $D$ 上的 Gini index 定义为：</p>
+<p>$$<br>Gini(D, f=f_{\ast}) = \frac{\vert D_1 \vert}{\vert D \vert} Gini(D_1) + \frac{\vert D_2 \vert}{\vert D \vert} Gini(D_2) \qquad\qquad (fmt.2.1.3)<br>$$</p>
+<p>代表性的例子说明 :</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>阴晴(F)</th>
+<th>温度(F)</th>
+<th>湿度(F)</th>
+<th>刮风(F)</th>
+<th>是否玩（C）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>sunny</td>
+<td>hot</td>
+<td>high</td>
+<td>false</td>
+<td>否</td>
+</tr>
+<tr>
+<td>2</td>
+<td>sunny</td>
+<td>hot</td>
+<td>high</td>
+<td>true</td>
+<td>否</td>
+</tr>
+<tr>
+<td>3</td>
+<td>overcast</td>
+<td>hot</td>
+<td>high</td>
+<td>false</td>
+<td>是</td>
+</tr>
+<tr>
+<td>4</td>
+<td>rainy</td>
+<td>mild</td>
+<td>high</td>
+<td>false</td>
+<td>是</td>
+</tr>
+<tr>
+<td>5</td>
+<td>rainy</td>
+<td>cool</td>
+<td>normal</td>
+<td>false</td>
+<td>是</td>
+</tr>
+<tr>
+<td>6</td>
+<td>rainy</td>
+<td>cool</td>
+<td>normal</td>
+<td>true</td>
+<td>否</td>
+</tr>
+<tr>
+<td>7</td>
+<td>overcast</td>
+<td>cool</td>
+<td>normal</td>
+<td>true</td>
+<td>是</td>
+</tr>
+<tr>
+<td>8</td>
+<td>sunny</td>
+<td>mild</td>
+<td>high</td>
+<td>false</td>
+<td>否</td>
+</tr>
+<tr>
+<td>9</td>
+<td>sunny</td>
+<td>cool</td>
+<td>normal</td>
+<td>false</td>
+<td>是</td>
+</tr>
+<tr>
+<td>10</td>
+<td>rainy</td>
+<td>mild</td>
+<td>normal</td>
+<td>false</td>
+<td>是</td>
+</tr>
+<tr>
+<td>11</td>
+<td>sunny</td>
+<td>mild</td>
+<td>normal</td>
+<td>true</td>
+<td>是</td>
+</tr>
+<tr>
+<td>12</td>
+<td>overcast</td>
+<td>mild</td>
+<td>high</td>
+<td>true</td>
+<td>是</td>
+</tr>
+<tr>
+<td>13</td>
+<td>overcast</td>
+<td>hot</td>
+<td>normal</td>
+<td>false</td>
+<td>是</td>
+</tr>
+<tr>
+<td>14</td>
+<td>rainy</td>
+<td>mild</td>
+<td>high</td>
+<td>true</td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p><strong>下图是 IG 的决策树，并不是 二分分类树 ${Gini}$ ${index}$ 决策树, 放这里仅仅是为了感知一下</strong></p>
+<p><img src="/images/ml/decision-tree/decision-tree-2.png" width="530" img=""></p>
+<p>在实际操作中，通过遍历所有特征（如果是连续值，需做离散化）及其取值，选择 $Min_{gini-index}$ 所对应的特征和特征值。</p>
+<p>这里仍然以天气数据为例，给出特征<strong>阴晴</strong>的 Gini index 计算过程。</p>
+<blockquote>
+<p>(1). 当特征“阴晴”取值为”sunny”时，$D_1 = {1,2,8,9,11}, |D_1|=5$；$D_2={3,4,5,6,7,10,12,13,14}, |D_2|=9$. 数据自己对应的类别数分别为 $(+2,-3)、(+7,-2)$。因此 $Gini(D_1) = 2 \cdot \frac{3}{5} \cdot \frac{2}{5} = \frac{12}{25}$；$Gini(D_2) = 2 \cdot \frac{7}{9} \cdot \frac{2}{9} = \frac{28}{81}$. 对应的基尼指数为：<br>$$<br>Gini(C, “阴晴”=”sunny”) = \frac{5}{14} Gini(D_1) + \frac{9}{14} Gini(D_2) = \frac{5}{14} \frac{12}{25} + \frac{9}{14} \frac{28}{81} = 0.394 \quad(exp.2.2.1)<br>$$<br>(2). 当特征“阴晴”取值为”overcast”时，$D_1 = {2,7,12,13}, |D_1|=4$；$D_2={1,2,4,5,6,8,9,10,11,14}, |D_2|=10$。$D_1$、$D_2$ 数据自己对应的类别数分别为 $(+4,-0)、(+5,-5)$。因此 $Gini(D_1) = 2 \cdot 1 \cdot 0 = 0；Gini(D_2) = 2 \cdot \frac{5}{10} \cdot \frac{5}{10} = \frac{1}{2}$ 对应的基尼指数为：<br>$$<br>Gini(C, “阴晴”=”overcast”) = \frac{4}{14} Gini(D_1) + \frac{10}{14} Gini(D_2) = 0 + \frac{10}{14} \cdot \frac{1}{2} = \frac{5}{14} = 0.357 \quad(exp.2.2.2)<br>$$</p>
+<p>(3). 当特征“阴晴”取值为”rainy”时，$D_1 = {4,5,6,10,14}, |D_1|=5$; $D_2={1,2,3,7,8,9,11,12,13}, |D_2|=9$。 $D_1$、$D_2$ 数据自己对应的类别数分别为 $(+3,−2)、(+6,−3)$。因此 $Gini(D_1) = 2 \cdot \frac{3}{5} \cdot \frac{2}{5} = \frac{12}{25}$；$Gini(D_2) = 2 \cdot \frac{6}{9} \cdot \frac{3}{9} = \frac{4}{9}$。 对应的基尼指数为：<br>$$<br>Gini(C, “阴晴”=”rainy”) = \frac{5}{14} Gini(D_1) + \frac{9}{14} Gini(D_2) = \frac{5}{14} \frac{12}{25} + \frac{9}{14} \frac{4}{9} = \frac{4}{7} = 0.457 \quad(exp.2.2.3)<br>$$</p>
+</blockquote>
+<p>如果特征”阴晴”是最优特征的话，那么特征取值为”overcast”应作为划分节点。</p>
 <h2 id="6-决策树模型的优缺点"><a href="#6-决策树模型的优缺点" class="headerlink" title="6. 决策树模型的优缺点"></a>6. 决策树模型的优缺点</h2><h3 id="6-1-优点"><a href="#6-1-优点" class="headerlink" title="6.1 优点"></a>6.1 优点</h3><ul>
 <li>可解释性–模拟人类决策过程</li>
 <li>训练、预测效率较高–关于其切分方式，每次是在一个条件下的局部空间划分样本，而类似Adaboost则是每次在整个空间划分样本，所以就决策树而言相对高效</li>
@@ -10648,7 +10817,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -10815,7 +10984,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -16239,18 +16408,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://iequa.com/2016/10/27/acm-mst/</url>
-      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
-<a id="more"></a>
-<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Six Kinds of Sort algorithms]]></title>
       <url>http://iequa.com/2016/10/27/acm-sort/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -16264,6 +16421,18 @@ img {
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://iequa.com/2016/10/27/acm-mst/</url>
+      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
+<a id="more"></a>
+<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
@@ -17890,6 +18059,43 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -17931,43 +18137,6 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -20294,97 +20463,6 @@ img {
 <p>topic modelling for humans！NLP</p>
 </blockquote>
 ]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Bayes Model]]></title>
-      <url>http://iequa.com/2016/06/22/ml-bayes-model/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$'], ['\[','\]'] ],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>Thomas Bayes（1702-1763）《An essay towards solving a problem in the doctrine of chances》</p>
-<a id="more"></a>
-<table>
-<thead>
-<tr>
-<th>symbol</th>
-<th>meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>\( x_j \)</td>
-<td>第 $j$ 维特征</td>
-</tr>
-<tr>
-<td>$ x $</td>
-<td>一条样本的特征向量, $ x = (x_1, x_2, …, x_n) $</td>
-</tr>
-<tr>
-<td>$ x^{(i)} $</td>
-<td>第 $i$ 条样本</td>
-</tr>
-<tr>
-<td>$ x^{(i)}_j $</td>
-<td>第 $i$ 条样本的第$j$ 维特征</td>
-</tr>
-<tr>
-<td>$ y^{(i)} $</td>
-<td>第 $i$ 条样本的结果 (label)</td>
-</tr>
-<tr>
-<td>\( X \)</td>
-<td>所有样本的特征全集, 即 $X = (x^{(1)}, x^{(2)}, …, x^{(m)})^T$</td>
-</tr>
-<tr>
-<td>\( Y \)</td>
-<td>所有样本的label全集, 即 $Y = (y^{(1)}, y^{(2)}, … , y^{(m)})^T$</td>
-</tr>
-<tr>
-<td>\( w \)</td>
-<td>第 $j$ 维特征</td>
-</tr>
-<tr>
-<td>\( w_j \)</td>
-<td>参数向量， 即 $ w = (w_0, w_1, …, w_n) $</td>
-</tr>
-</tbody>
-</table>
-<p>这是一个 民间学术“屌丝” 在死后才 <strong>逆袭</strong> 的故事</p>
-<p><img src="/images/ml/ml-bayes-01.png" alt="bayes01.png"></p>
-<h2 id="1-Naive-Bayes-method"><a href="#1-Naive-Bayes-method" class="headerlink" title="1. Naive Bayes method"></a>1. Naive Bayes method</h2><blockquote>
-<p>比如，一个朋友创业，你明明知道创业的结果就两种，即要么成功要么失败，但你依然会忍不住去估计他创业成功的几率有多大？你如果对他为人比较了解，而且有方法、思路清晰、有毅力、且能团结周围的人，你会不由自主的估计他创业成功的几率可能在80%以上。这种不同于 “非黑即白、非0即1”的思考方式，便是<strong>贝叶斯式的思考方式</strong>。</p>
-</blockquote>
-<h3 id="preface"><a href="#preface" class="headerlink" title="preface"></a>preface</h3><p>贝叶斯派 认为参数 $ \theta $ 是随机变量，而样本 $ \chi $ 是固定的，由于样本 $ \chi $ 是固定的，所以他们重点研究的是参数 $ \theta $ 的分布。</p>
-<p>贝叶斯派 既然把 参数 $ \theta $ 看做是一个随机变量，所以要计算的分布，便得事先知道的无条件分布，即在有样本之前（或观察到X之前），有着怎样的分布呢？</p>
-<p>比如往台球桌上扔一个球，这个球落会落在何处呢？如果是不偏不倚的把球抛出去，那么此球落在台球桌上的任一位置都有着相同的机会，即球落在台球桌上某一位置的概率服从均匀分布。这种在实验之前定下的属于基本前提性质的分布称为先验分布，或的无条件分布。</p>
-<p>至此，贝叶斯派提出了一个思考问题的固定模式 :  </p>
-<p><strong><code>先验分布 == 无条件分布</code></strong></p>
-<p><strong>先验分布 $ \pi(\theta) $ + 样本信息 $ \chi $ =&gt; 后验分布  $ \pi(\theta | \chi ) $</strong></p>
-<h3 id="先验信息"><a href="#先验信息" class="headerlink" title="先验信息"></a>先验信息</h3><p>先验信息一般来源于经验跟历史资料。比如 : 林丹跟某选手对决，解说一般会根据林丹历次比赛的成绩对此次比赛的胜负做个大致的判断。</p>
-<h3 id="后验分布"><a href="#后验分布" class="headerlink" title="后验分布"></a>后验分布</h3><p>  而后验分布  $ \pi(\theta | \chi ) $ 一般也认为是在给定样本 $ \chi $ 的情况下的 $ \theta $ 条件分布，而使  $ \pi(\theta | \chi ) $ 达到最大的值 $ \theta_{MD} $ 称为最大后验估计，类似于经典统计学中的极大似然估计。</p>
-<blockquote>
-<p> 综合起来看，则好比是人类刚开始时对大自然只有少得可怜的先验知识，但随着不断观察、实验获得更多的样本、结果，使得人们对自然界的规律摸得越来越透彻。所以，贝叶斯方法既符合人们日常生活的思考方式，也符合人们认识自然的规律，经过不断的发展，最终占据统计学领域的半壁江山。</p>
-</blockquote>
-<h2 id="2-Naive-Bayes-theorem"><a href="#2-Naive-Bayes-theorem" class="headerlink" title="2. Naive Bayes theorem"></a>2. Naive Bayes theorem</h2><p><strong>条件概率</strong>（又称后验概率）就是事件 $A$ 在另外一个事件 $B$ 已经发生条件下的发生概率。条件概率表示为 $P(A|B)$</p>
-<p>$$<br>P(A|B) = \frac{P(A \bigcap B)}{P(B)}<br>$$</p>
-<blockquote>
-<p>联合概率 ${P(A \bigcap B)}$ , ${P(A, B)}$</p>
-<p>事件 $B$ 发生之前，我们对事件 $A$ 的发生有一个基本的概率判断，称为 $A$ 的先验概率，用 $P(A)$ 表示；</p>
-<p>事件 $B$ 发生之后，我们对事件 $A$ 的发生概率重新评估，称为 $A$ 的后验概率，用 $P(A|B)$ 表示；</p>
-</blockquote>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>]]></content>
     </entry>
     
     <entry>
