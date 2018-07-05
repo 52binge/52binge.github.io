@@ -25,7 +25,7 @@
       processEscapes:">
 <meta property="og:image" content="http://iequa.com/images/ml/ensumble/under_over.png">
 <meta property="og:image" content="http://iequa.com/images/ml/ensumble/stacking-1.jpg">
-<meta property="og:updated_time" content="2018-07-05T07:39:55.332Z">
+<meta property="og:updated_time" content="2018-07-05T08:05:54.401Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Ensumble 集成学习小记">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -147,8 +147,19 @@ var _hmt = _hmt || [];
 
 <p>本文主要基于周志华《机器学习》一书第八章 集成学习内容做的整理笔记，此外查阅了网上的一些博客和问答网站</p>
 <a id="more"></a>
-<h2 id="1-Ensumble-概念"><a href="#1-Ensumble-概念" class="headerlink" title="1. Ensumble 概念"></a>1. Ensumble 概念</h2><blockquote>
-<p>Ensumble 是通过构建并结合多个<code>学习器</code>来完成学习任务。</p>
+<h2 id="1-Ensumble-概念"><a href="#1-Ensumble-概念" class="headerlink" title="1. Ensumble 概念"></a>1. Ensumble 概念</h2><p>Ensumble 是通过构建并结合多个<code>学习器</code>来完成学习任务。</p>
+<blockquote>
+<p>曾经听过一句话，”Feature为主，Ensemble为后”。</p>
+</blockquote>
+<p>Feature 决定了模型效果的上限，而 Ensemble 就是让你更接近这个上限。</p>
+<blockquote>
+<p>Ensemble 讲究“好而不同”，不同是指模型的学习到的侧重面不一样。</p>
+<p>举个直观的例子，比如数学考试，A的函数题做的比B好，B的几何题做的比A好，那么他们合作完成的分数通常比他们各自单独完成的要高。</p>
+<p>常见的Ensemble方法有Bagging、Boosting、Stacking、Blending.</p>
+<p>Notes:  Stacking 与 Blending 类似，<a href="https://mlwave.com/kaggle-ensembling-guide/" target="_blank" rel="external">区别可参见</a></p>
+</blockquote>
+<p><strong>ensumble 中的 好而不同</strong></p>
+<blockquote>
 <p>如何使得集成学习性能比最好的单一学习器更好？</p>
 <ul>
 <li>准确性</li>
@@ -171,7 +182,7 @@ var _hmt = _hmt || [];
 <h2 id="2-Boosting"><a href="#2-Boosting" class="headerlink" title="2. Boosting"></a>2. Boosting</h2><blockquote>
 <p>首先从初始训练集训练出一个基学习器，再根据基学习器的表现对训练样本分布进行调整，使得先前基学习器做错的训练样本在后续受到更多的关注，然后基于调整后的样本分布来训练下一个基学习器；如此重复进行，直至基学习器数目达到事先指定的值T,最终将这T个基学习器进行加权组合.</p>
 </blockquote>
-<h3 id="adaboost"><a href="#adaboost" class="headerlink" title="adaboost"></a>adaboost</h3><blockquote>
+<h3 id="2-1-adaboost"><a href="#2-1-adaboost" class="headerlink" title="2.1 adaboost"></a>2.1 adaboost</h3><blockquote>
 <p>推导方式，基于“加性模型”，即基于基学习器的线性组合<br>如何在每一轮修改样本分布</p>
 <ul>
 <li>重赋权法：在每一轮训练中，根据样本分布为每一个训练样本重新赋予一个权重（比如《机器学习实战》一书中就是利用这种方法构建提升树算法，通过修改权重来计算每一轮的损失）</li>
@@ -183,7 +194,7 @@ var _hmt = _hmt || [];
 <p>西瓜书上的算法还提到训练的每一轮开始都要检查当前学习器是否比随机猜测好，若条件不满足则抛弃当前学习器，这种情形可能会导致学习过程未达到T轮即停止，所以有重采样的方法来进行重启动避免出现此种情况；但是另一方面《统计学习方法》以及《机器学习实战》中的算法并未有这条判断语句；</p>
 <p>《机器学习》一书中提到，从统计学的出发认为AdaBoost实质上是基于加性模型（后续指出这一视角阐释的是一个与AdaBoost很相似的过程而非其本身），以类似牛顿迭代法来优化指数损失函数，通过将迭代优化过程替换为其他优化方法产生了GradientBoosting、LPBoost等；而这里也提到每一种变体针对不同的问题（噪声、数据不平衡等）而拥有不同的权重更新规则.</p>
 </blockquote>
-<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><blockquote>
+<h3 id="2-2-特点"><a href="#2-2-特点" class="headerlink" title="2.2 特点"></a>2.2 特点</h3><blockquote>
 <p>从bias-variance分解的角度来看，Boosting主要关注降低 bias，因此Boosting能基于泛化性能相当弱的学习器构建出很强的集成（与bagging不同）</p>
 </blockquote>
 <p>Notes: boosting 对于噪音数据较为敏感</p>
@@ -194,16 +205,16 @@ var _hmt = _hmt || [];
 <li>“好” — 使用相互有交叠的采样子集</li>
 </ul>
 </blockquote>
-<h3 id="工作机制"><a href="#工作机制" class="headerlink" title="工作机制"></a>工作机制</h3><p>基于自助采样法（bootstrap sampling）— “有放回地全抽”</p>
+<h3 id="3-1-工作机制"><a href="#3-1-工作机制" class="headerlink" title="3.1 工作机制"></a>3.1 工作机制</h3><p>基于自助采样法（bootstrap sampling）— “有放回地全抽”</p>
 <blockquote>
 <p>从训练集从进行<strong>子抽样组成每个基模型所需要的子训练集</strong>，对所有基模型预测的结果进行综合产生最终的预测结果,至于为什么叫bootstrap aggregation，因为它抽取训练样本的时候采用的就是bootstrap的方法！</p>
 </blockquote>
-<h3 id="优点（相对于boosting）"><a href="#优点（相对于boosting）" class="headerlink" title="优点（相对于boosting）"></a>优点（相对于boosting）</h3><ul>
+<h3 id="3-2-优点（相对于boosting）"><a href="#3-2-优点（相对于boosting）" class="headerlink" title="3.2 优点（相对于boosting）"></a>3.2 优点（相对于boosting）</h3><ul>
 <li>高效 - 训练一个bagging集成与直接使用基学习器算法训练一个学习器的复杂度同阶</li>
 <li>baggign能不经修改地用于多分类、回归任务（标准AdaBoosting只能适用于二分类任务）</li>
 <li>包外估计——自助采样过程中剩余的样本可以作为验证集来对泛化性能进行“包外估计”</li>
 </ul>
-<h3 id="特点-1"><a href="#特点-1" class="headerlink" title="特点"></a>特点</h3><blockquote>
+<h3 id="3-3-特点"><a href="#3-3-特点" class="headerlink" title="3.3 特点"></a>3.3 特点</h3><blockquote>
 <p>从偏差-方差角度看，Bagging主要关注降低方差，因此它在不剪枝决策树、神经网络等易受样本扰动的学习器上效用明显.</p>
 </blockquote>
 <h2 id="4-Random-Forest-随机森林"><a href="#4-Random-Forest-随机森林" class="headerlink" title="4. Random Forest 随机森林"></a>4. Random Forest 随机森林</h2><p>Bagging 的一个扩展变体</p>
@@ -269,15 +280,16 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>可以将K个模型对Test Data的预测结果求平均，也可以用所有的Train Data重新训练一个新模型来预测Test Data</p>
 </blockquote>
-<h2 id="多样性"><a href="#多样性" class="headerlink" title="多样性"></a>多样性</h2><h3 id="误差-分歧分解"><a href="#误差-分歧分解" class="headerlink" title="误差-分歧分解"></a>误差-分歧分解</h3><ul>
+<h2 id="6-多样性"><a href="#6-多样性" class="headerlink" title="6. 多样性"></a>6. 多样性</h2><h3 id="6-1-误差-分歧分解"><a href="#6-1-误差-分歧分解" class="headerlink" title="6.1 误差-分歧分解"></a>6.1 误差-分歧分解</h3><ul>
 <li>集成学习“好而不同”的理论分析，见《机器学习》P185~186</li>
-<li>寻找集成泛化误差、个体学习器泛化误差、个体学习器间的分歧三者之间的关系</li>
+<li>寻找 集成泛化误差、个体学习器泛化误差、个体学习器间 的分歧三者之间的关系</li>
 </ul>
-<h3 id="多样性度量"><a href="#多样性度量" class="headerlink" title="多样性度量"></a>多样性度量</h3><blockquote>
+<h3 id="6-2-多样性度量"><a href="#6-2-多样性度量" class="headerlink" title="6.2 多样性度量"></a>6.2 多样性度量</h3><blockquote>
 <p>多样性度量是用于度量集成中个体分类器的多样性，即估算个体学习器的多样化程度，典型做法是考虑个体分类器的两两相似/不相似性</p>
+<p>度量方法 {不合度量、相关系数、Q-统计量、k-统计量} </p>
+<p>Notes: 目前我还没有做过这种类似测试 😢</p>
 </blockquote>
-<p>度量方法 {不合度量、相关系数、Q-统计量、k-统计量}</p>
-<h3 id="多样性增强"><a href="#多样性增强" class="headerlink" title="多样性增强"></a>多样性增强</h3><p>如何增强多样性？——在学习过程中引入随机性</p>
+<h3 id="6-3-多样性增强"><a href="#6-3-多样性增强" class="headerlink" title="6.3 多样性增强"></a>6.3 多样性增强</h3><p>如何增强多样性？— 在学习过程中引入随机性</p>
 <ol>
 <li>数据样本扰动</li>
 <li>输入属性扰动</li>
@@ -292,15 +304,17 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>从初始属性集中抽取若干个属性子集、基于每个属性子集训练一个基学习器（如随机子空间算法），最后结合</p>
 </blockquote>
-<p><strong>输出表示扰动</strong></p>
-<p>对输出表示进行操纵，比如<br>1、对训练样本的类标记稍作变动（翻转法）<br>2、对输出表示进行转化，如输出调制法<br>3、将原任务拆解成多个可同时求解的子任务，如Ecoc法</p>
 <p><strong>算法参数扰动</strong></p>
-<p>随机设置不同的参数，比如<br>1、负相关法<br>2、对参数较少的算法，可将其学习过程中某些环节用其他类似方式替代</p>
+<p>通常可以通过随机设置不同的参数，从而产生差别较大的个体学习器。</p>
 <p><strong>Notes:</strong></p>
 <blockquote>
 <ul>
-<li>数据样本扰动中相对的稳定基学习器包括：线性学习器、支持向量机、朴素贝叶斯、k近邻学习器等</li>
-<li>对于算法参数扰动，与交叉验证做比较，交叉验证常常是在不同参数组合模型里选择最优参数组合模型，而集成则是将这些不同参数组合的模型结合起来，所以集成学习技术的实际计算开销并不比使用单一学习器大很多</li>
+<li><p>数据样本扰动中相对的稳定基学习器包括：线性学习器、支持向量机、朴素贝叶斯、k近邻学习器等</p>
+</li>
+<li><p>输入属性扰动 : 感觉典型的是 Random Forest 就做了这件事.</p>
+</li>
+<li><p>对于算法参数扰动，与交叉验证做比较，交叉验证常常是在不同参数组合模型里选择最优参数组合模型，而集成则是将这些不同参数组合的模型结合起来，所以集成学习技术的实际计算开销并不比使用单一学习器大很多</p>
+</li>
 </ul>
 </blockquote>
 <h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
@@ -355,7 +369,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Ensumble-概念"><span class="toc-number"></span> <span class="toc-text">1. Ensumble 概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Boosting"><span class="toc-number"></span> <span class="toc-text">2. Boosting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#adaboost"><span class="toc-number"></span> <span class="toc-text">adaboost</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#特点"><span class="toc-number"></span> <span class="toc-text">特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Bagging-Bootstrap-aggregating"><span class="toc-number"></span> <span class="toc-text">3. Bagging (Bootstrap aggregating )</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#工作机制"><span class="toc-number"></span> <span class="toc-text">工作机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#优点（相对于boosting）"><span class="toc-number"></span> <span class="toc-text">优点（相对于boosting）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#特点-1"><span class="toc-number"></span> <span class="toc-text">特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Random-Forest-随机森林"><span class="toc-number"></span> <span class="toc-text">4. Random Forest 随机森林</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-概述"><span class="toc-number"></span> <span class="toc-text">4.1 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-特点"><span class="toc-number"></span> <span class="toc-text">4.2 特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-bagging-vs-随机森林"><span class="toc-number"></span> <span class="toc-text">4.3 bagging vs. 随机森林</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-结合策略"><span class="toc-number"></span> <span class="toc-text">5. 结合策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-学习器结合的好处"><span class="toc-number"></span> <span class="toc-text">5.1 学习器结合的好处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-策略"><span class="toc-number"></span> <span class="toc-text">5.2 策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#多样性"><span class="toc-number"></span> <span class="toc-text">多样性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#误差-分歧分解"><span class="toc-number"></span> <span class="toc-text">误差-分歧分解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多样性度量"><span class="toc-number"></span> <span class="toc-text">多样性度量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多样性增强"><span class="toc-number"></span> <span class="toc-text">多样性增强</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Ensumble-概念"><span class="toc-number"></span> <span class="toc-text">1. Ensumble 概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Boosting"><span class="toc-number"></span> <span class="toc-text">2. Boosting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-adaboost"><span class="toc-number"></span> <span class="toc-text">2.1 adaboost</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-特点"><span class="toc-number"></span> <span class="toc-text">2.2 特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Bagging-Bootstrap-aggregating"><span class="toc-number"></span> <span class="toc-text">3. Bagging (Bootstrap aggregating )</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-工作机制"><span class="toc-number"></span> <span class="toc-text">3.1 工作机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-优点（相对于boosting）"><span class="toc-number"></span> <span class="toc-text">3.2 优点（相对于boosting）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-特点"><span class="toc-number"></span> <span class="toc-text">3.3 特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Random-Forest-随机森林"><span class="toc-number"></span> <span class="toc-text">4. Random Forest 随机森林</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-概述"><span class="toc-number"></span> <span class="toc-text">4.1 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-特点"><span class="toc-number"></span> <span class="toc-text">4.2 特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-bagging-vs-随机森林"><span class="toc-number"></span> <span class="toc-text">4.3 bagging vs. 随机森林</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-结合策略"><span class="toc-number"></span> <span class="toc-text">5. 结合策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-学习器结合的好处"><span class="toc-number"></span> <span class="toc-text">5.1 学习器结合的好处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-策略"><span class="toc-number"></span> <span class="toc-text">5.2 策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-多样性"><span class="toc-number"></span> <span class="toc-text">6. 多样性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-误差-分歧分解"><span class="toc-number"></span> <span class="toc-text">6.1 误差-分歧分解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-多样性度量"><span class="toc-number"></span> <span class="toc-text">6.2 多样性度量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-多样性增强"><span class="toc-number"></span> <span class="toc-text">6.3 多样性增强</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
       </div>
     
     
@@ -383,17 +397,9 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2018/07/03/ml-8-xgboost/" id="article-nav-newer" class="article-nav-link-wrap">
-      <div class="article-nav-title"><span>&lt;</span>&nbsp;
-        
-          Boosting - Xgboost
-        
-      </div>
-    </a>
   
-  
-    <a href="/2018/06/29/ml-8-gradient-boosting-part1/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">学习笔记(八) - Boosting&nbsp;<span>&gt;</span></div>
+    <a href="/2018/07/03/ml-8-xgboost/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Boosting - Xgboost&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
