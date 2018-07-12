@@ -37,7 +37,9 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C1W2-14_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C1W2-16_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C1W2-16_2.png">
-<meta property="og:updated_time" content="2018-07-11T12:34:16.831Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C1W2-17_1.jpg">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C1W2-18_1.png">
+<meta property="og:updated_time" content="2018-07-12T13:06:58.018Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="deeplearning.ai Neural Networks and Deep Learning (week2)">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -165,7 +167,7 @@ var _hmt = _hmt || [];
 <p><img src="/images/deeplearning/C1W2-2.jpg" width="750"></p>
 <h2 id="一-基本概念回顾"><a href="#一-基本概念回顾" class="headerlink" title="一. 基本概念回顾"></a>一. 基本概念回顾</h2><p>这次Andrew出的系列课程在符号上有所改动(和机器学习课程中的行列有所区别, 主要是为了后面代码实现方便), 如下图所示.</p>
 <p><img src="/images/deeplearning/C1W2-3_1.jpg" width="700"></p>
-<p>更多关于本系列课程的符号点<a href="http://7xrrje.com1.z0.glb.clouddn.com/deeplearningnotation.pdf" target="_blank" rel="external">这里</a>同样地, 参数也有所变化(bias 单独拿出来作为$b$, 而不是添加 $\theta_0$)</p>
+<p>更多关于本系列课程的符号点<a href="http://daniellaah.github.io/2017/deeplearning-ai-Neural-Networks-and-Deep-Learning-week2.html" target="_blank" rel="external">这里</a>同样地, 参数也有所变化(bias 单独拿出来作为$b$, 而不是添加 $\theta_0$)</p>
 <!-- more -->
 <h2 id="1-Notation"><a href="#1-Notation" class="headerlink" title="1. Notation"></a>1. Notation</h2><p>更多关于本系列课程的符号点<a href="http://7xrrje.com1.z0.glb.clouddn.com/deeplearningnotation.pdf" target="_blank" rel="external">这里</a>同样地, 参数也有所变化($bias$ 单独拿出来作为$b$, 而不是添加 $\theta_0$</p>
 <h2 id="2-Logistic-Regression"><a href="#2-Logistic-Regression" class="headerlink" title="2. Logistic Regression"></a>2. Logistic Regression</h2><p><img src="/images/deeplearning/C1W2-4_1.jpg" width="750"></p>
@@ -192,8 +194,22 @@ var _hmt = _hmt || [];
 <p>上面的式子可以用下面的计算图来表达:</p>
 <p><img src="/images/deeplearning/C1W2-16_2.png" width="700"></p>
 <p>有了上面的图之后, 我们现在来计算反向传播.</p>
+<p>首先我们来计算 $\frac{dL}{da}$:</p>
+<p>$$<br>\begin{align} \frac{dL}{da} &amp; = - (\frac{y}{a} - \frac{(1-y)}{(1-a)}) \end{align}<br>$$</p>
+<p>通过链式法则, 计算 $\frac{dL}{dz}$:</p>
+<p>$$<br>\begin{align} \frac{dL}{dz} &amp; = \frac{dL}{da}\frac{da}{dz} \\ \\ &amp; = - (\frac{y}{a} - \frac{(1-y)}{(1-a)})\sigma(z)(1-\sigma(z)) \\ \\ &amp; = - (\frac{y}{a} - \frac{(1-y)}{(1-a)})a(1-a)) \\ \\ &amp; = -y(1-a) + (1-y)a \\ \\ &amp; = a - y \end{align}<br>$$</p>
+<p>最后计算 $\frac{dL}{dw1}, \frac{dL}{dw2}, \frac{dL}{db}$:</p>
+<p>$$<br>\frac{dL}{dw_1} = \frac{dL}{dz}\frac{dz}{dw_1} = (a - y)x_1<br>$$</p>
+<p>$$<br>\frac{dL}{dw_2} = \frac{dL}{dz}\frac{dz}{dw_2} = (a - y)x_2<br>$$</p>
+<p>$$<br>\frac{dL}{db} = \frac{dL}{dz}\frac{dz}{db} = a - y<br>$$</p>
+<p>怎么样? 是不是很简单呢? 这里我们所有的计算都是针对一个训练样本的. 当然我们不可能只有一个样本, 那么对于整个训练集, 我们应该怎么做呢? 其实很简单, 我们只需要将 $J(w, b)$ 拆开来写就很清晰.</p>
+<p>$$<br>J(w, b) = \frac{1}{m}(L(a^{(1)}, y^{(1)}) + L(a^{(2)}, y^{(2)}) + … + L(a^{(m)}, y^{m)}))<br>$$</p>
+<p><img src="/images/deeplearning/C1W2-17_1.jpg" width="750"></p>
+<p>对于每一个样本都有一个对应的 $dz^{(i)}$, 而对于 $dw, db$ 来说是对于所有求平均.</p>
+<p><img src="/images/deeplearning/C1W2-18_1.png" width="750"></p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="http://7xrrje.com1.z0.glb.clouddn.com/deeplearningnotation.pdf" target="_blank" rel="external">网易云课堂 - 第一周深度学习概论</a></li>
+<li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
+<li><a href="http://daniellaah.github.io/2017/deeplearning-ai-Neural-Networks-and-Deep-Learning-week2.html" target="_blank" rel="external">deeplearning.ai 专项课程一第二周</a></li>
 </ul>
 
       
@@ -268,7 +284,7 @@ var _hmt = _hmt || [];
     <a href="/2018/07/11/ml-1-L1-L2/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          l1、l2正则化小记 (待完善)
+          l1、l2正则化小记 (not finish)
         
       </div>
     </a>
