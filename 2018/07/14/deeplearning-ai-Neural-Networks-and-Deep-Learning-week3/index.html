@@ -24,7 +24,11 @@
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-1_1.png">
-<meta property="og:updated_time" content="2018-07-15T06:57:46.512Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-2_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-3_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-4_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-5_1.png">
+<meta property="og:updated_time" content="2018-07-15T08:22:26.589Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Neural Networks and Deep Learning (week3)">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -144,10 +148,38 @@ var _hmt = _hmt || [];
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
 </script>
 
-<p>我们要正式地进入神经网络的学习. 当然, 我们先从简单的只有一个隐藏层的神经网络开始.<br>在学习完本周内容之后, 我们将会使用Python实现一个单个隐藏层的神经网络, 并在Planar data上测试.</p>
+<p>我们要正式地进入神经网络的学习. 当然, 我们先从简单的只有一个隐藏层的神经网络开始. </p>
+<p>在学习完本周内容之后, 我们将会使用Python实现一个单个隐藏层的神经网络, 并在Planar data上测试.</p>
 <a id="more"></a>
-<h2 id="常用符号与基本概念"><a href="#常用符号与基本概念" class="headerlink" title="常用符号与基本概念"></a>常用符号与基本概念</h2><p><img src="/images/deeplearning/C1W3-1_1.png" width="750"></p>
-<h2 id="Neural-Network-Representation"><a href="#Neural-Network-Representation" class="headerlink" title="Neural Network Representation"></a>Neural Network Representation</h2><h2 id="本周内容回顾"><a href="#本周内容回顾" class="headerlink" title="本周内容回顾"></a>本周内容回顾</h2><ul>
+<h2 id="1-常用符号与基本概念"><a href="#1-常用符号与基本概念" class="headerlink" title="1. 常用符号与基本概念"></a>1. 常用符号与基本概念</h2><p><img src="/images/deeplearning/C1W3-1_1.png" width="750"></p>
+<blockquote>
+<p>该神经网络完全可以使用上一周所讲的计算图来表示, 和 $LR$ 计算图的区别仅仅在于多了一个 $z$ 和 $a$ 的计算而已. </p>
+<p>如果你已经完全掌握了上一周的内容, 那么其实你已经知道了神经网络的前向传播, 反向传播(梯度计算)等等.</p>
+<p>要注意的是各种参数, 中间变量$(a, z)$的维度问题. 关于神经网络的基本概念, 这里就不赘述了. 见下图回顾一下:</p>
+</blockquote>
+<p><img src="/images/deeplearning/C1W3-2_1.png" width="750"></p>
+<h2 id="2-神经网络中的前向传播"><a href="#2-神经网络中的前向传播" class="headerlink" title="2. 神经网络中的前向传播"></a>2. 神经网络中的前向传播</h2><blockquote>
+<p>我们先以一个训练样本来看神经网络中的前向传播.<br>我们只看这个神经网络中的输入层和隐藏层的第一个激活单元(如下图右边所示). 其实这就是一个Logistic Regression. </p>
+<ol>
+<li>神经网络中输入层和隐藏层(不看输出层), 这就不就是四个LR放在一起吗? </li>
+<li>在LR中 $z$ 和 $a$ 的计算我们已经掌握了, 那么在神经网络中 $z$ 和 $a$ 又是什么呢? </li>
+</ol>
+<p><strong>我们记隐藏层第一个 $z$ 为 $z_1$, 第二个 $z$ 记为 $z_2$ 以此类推</strong>.<br>只要将这四个 $z$ 纵向叠加在一起称为一个<strong><code>列向量</code> 即可得到神经网络中这一层的$z$</strong>($a$同理).</p>
+</blockquote>
+<p><img src="/images/deeplearning/C1W3-3_1.png" width="750"></p>
+<p>那么这一层的 $w, b$ 又是如何得到的? 别忘了, 对于参数 $w$ 来说, 它本身就是一个列项量, 那么它是如何做纵向叠加的呢? 我们只需要将其转置变成一个横向量, 再纵向叠加即可.</p>
+<p><img src="/images/deeplearning/C1W3-4_1.png" width="750"></p>
+<p>得到隐藏层的 $a$ 之后, 我们可以将其视为输入, 现只看神经网络的隐藏层和输出层, 我们发现这不就是个 $LR$ 嘛.</p>
+<p><img src="/images/deeplearning/C1W3-5_1.png" width="750"></p>
+<p>这里总结一下各种变量的维度(注意这里是针对一个训练样本来说的, $n_L$ 代表的 $L$ 层的节点个数):</p>
+<ul>
+<li>$w.shape : (n_L, n_{(L-1)})$</li>
+<li>$b.shape : (n_L, 1)$</li>
+<li>$z.shape : (n_L, 1)$</li>
+<li>$a.shape : (n_L, 1)$</li>
+</ul>
+<p>那么如果有 $m$ 个训练样本这些变量的维度又是怎样的呢. 我们思考哪些变量的维度会随着样本数的变化二变化. $w$ 是参数显然它的维度是不会变的. 而输入每一个样本都会有一个 $z$ 和 $a$, 还记得 $X$ 的形式吗? 同样地, $Z$ 就是将每个样本算出来的 $z$ 横向叠加(A同理). 具体计算过程如下图:</p>
+<h2 id="3-神经网络中的激活函数"><a href="#3-神经网络中的激活函数" class="headerlink" title="3. 神经网络中的激活函数"></a>3. 神经网络中的激活函数</h2><h2 id="4-神经网络中的反向传播"><a href="#4-神经网络中的反向传播" class="headerlink" title="4. 神经网络中的反向传播"></a>4. 神经网络中的反向传播</h2><h2 id="5-神经网络中的参数初始化"><a href="#5-神经网络中的参数初始化" class="headerlink" title="5. 神经网络中的参数初始化"></a>5. 神经网络中的参数初始化</h2><h2 id="6-用Python搭建简单神经网络"><a href="#6-用Python搭建简单神经网络" class="headerlink" title="6. 用Python搭建简单神经网络"></a>6. 用Python搭建简单神经网络</h2><h2 id="7-本周内容回顾"><a href="#7-本周内容回顾" class="headerlink" title="7. 本周内容回顾"></a>7. 本周内容回顾</h2><ul>
 <li>学习了神经网络的基本概念</li>
 <li>掌握了神经网络中各种变量的维度</li>
 <li>掌握了神经网络中的前向传播与反向传播</li>
@@ -158,6 +190,7 @@ var _hmt = _hmt || [];
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://daniellaah.github.io/2017/deeplearning-ai-Neural-Networks-and-Deep-Learning-week3.html" target="_blank" rel="external">deeplearning.ai 专项课程一第三周</a></li>
+<li><a href="https://www.coursera.org/specializations/deep-learning" target="_blank" rel="external">Coursera - Deep Learning Specialization</a></li>
 </ul>
 
       
@@ -201,7 +234,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#常用符号与基本概念"><span class="toc-number"></span> <span class="toc-text">常用符号与基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Neural-Network-Representation"><span class="toc-number"></span> <span class="toc-text">Neural Network Representation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#本周内容回顾"><span class="toc-number"></span> <span class="toc-text">本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-常用符号与基本概念"><span class="toc-number"></span> <span class="toc-text">1. 常用符号与基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-神经网络中的前向传播"><span class="toc-number"></span> <span class="toc-text">2. 神经网络中的前向传播</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-神经网络中的激活函数"><span class="toc-number"></span> <span class="toc-text">3. 神经网络中的激活函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-神经网络中的反向传播"><span class="toc-number"></span> <span class="toc-text">4. 神经网络中的反向传播</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-神经网络中的参数初始化"><span class="toc-number"></span> <span class="toc-text">5. 神经网络中的参数初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-用Python搭建简单神经网络"><span class="toc-number"></span> <span class="toc-text">6. 用Python搭建简单神经网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
