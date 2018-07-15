@@ -51,7 +51,32 @@
 <li>$a.shape : (n_L, 1)$</li>
 </ul>
 <p>那么如果有 $m$ 个训练样本这些变量的维度又是怎样的呢. 我们思考哪些变量的维度会随着样本数的变化二变化. $w$ 是参数显然它的维度是不会变的. 而输入每一个样本都会有一个 $z$ 和 $a$, 还记得 $X$ 的形式吗? 同样地, $Z$ 就是将每个样本算出来的 $z$ 横向叠加(A同理). 具体计算过程如下图:</p>
-<h2 id="3-神经网络中的激活函数"><a href="#3-神经网络中的激活函数" class="headerlink" title="3. 神经网络中的激活函数"></a>3. 神经网络中的激活函数</h2><h2 id="4-神经网络中的反向传播"><a href="#4-神经网络中的反向传播" class="headerlink" title="4. 神经网络中的反向传播"></a>4. 神经网络中的反向传播</h2><h2 id="5-神经网络中的参数初始化"><a href="#5-神经网络中的参数初始化" class="headerlink" title="5. 神经网络中的参数初始化"></a>5. 神经网络中的参数初始化</h2><h2 id="6-用Python搭建简单神经网络"><a href="#6-用Python搭建简单神经网络" class="headerlink" title="6. 用Python搭建简单神经网络"></a>6. 用Python搭建简单神经网络</h2><h2 id="7-本周内容回顾"><a href="#7-本周内容回顾" class="headerlink" title="7. 本周内容回顾"></a>7. 本周内容回顾</h2><ul>
+<p><img src="/images/deeplearning/C1W3-6_1.png" width="750"></p>
+<p><img src="/images/deeplearning/C1W3-7_1.png" width="750"></p>
+<p><img src="/images/deeplearning/C1W3-8_1.png" width="750"></p>
+<h2 id="3-神经网络中的激活函数"><a href="#3-神经网络中的激活函数" class="headerlink" title="3. 神经网络中的激活函数"></a>3. 神经网络中的激活函数</h2><p>四中常用的激活函数: Sigmoid, Tanh, ReLU, Leaky ReLU.</p>
+<p>其中sigmoid我们已经见过了, 它的输出可以看成一个概率值, 往往用在输出层. 对于中间层来说, 往往是ReLU的效果最好.</p>
+<p><img src="/images/deeplearning/C1W3-9_1.png" width="750"></p>
+<p>以上激活函数的导数请自行在草稿纸上推导.</p>
+<p><img src="/images/deeplearning/C1W3-10_1.png" width="750"></p>
+<p><img src="/images/deeplearning/C1W3-11_1.png" width="750"></p>
+<p><img src="/images/deeplearning/C1W3-12_1.png" width="750"></p>
+<p>为什么需要激活函数? 如果没有激活函数, 那么不论多少层的神经网络都只相当于一个LR. 证明如下:</p>
+<p><img src="/images/deeplearning/C1W3-13_1.png" width="750"></p>
+<h2 id="4-神经网络中的反向传播"><a href="#4-神经网络中的反向传播" class="headerlink" title="4. 神经网络中的反向传播"></a>4. 神经网络中的反向传播</h2><p>反向传播最主要的就是计算梯度, 在上一周的内容中, 我们已经知道了LR梯度的计算. 同样地我们使用计算图来计算神经网络中的各种梯度.</p>
+<p><img src="/images/deeplearning/C1W3-14.png" width="750"></p>
+<p>下图右边为在m个训练样本上的向量化表达:</p>
+<p><img src="/images/deeplearning/C1W3-15_1.png" width="750"></p>
+<h2 id="5-神经网络中的参数初始化"><a href="#5-神经网络中的参数初始化" class="headerlink" title="5. 神经网络中的参数初始化"></a>5. 神经网络中的参数初始化</h2><p>在LR中我们的参数 $w$ 初始化为0, 如果在神经网络中也是用相同的初始化, 那么一个隐藏层的每个节点都是相同的, 不论迭代多少次. 这显然是不合理的, 所以我们应该随机地初始化 $w$ 从而解决这个sysmetry breaking problem.</p>
+<p><img src="/images/deeplearning/C1W3-16_1.png" width="750"></p>
+<p>具体初始化代码可参见下图, 其中乘以0.01是为了让参数较小, 加速梯度下降(如激活函数为tanh时, 若参数较大则 $z$ 也较大, 此时的梯度接近于0, 更新缓慢).</p>
+<p><img src="/images/deeplearning/C1W3-17_1.png" width="750"></p>
+<h2 id="6-用Python搭建简单神经网络"><a href="#6-用Python搭建简单神经网络" class="headerlink" title="6. 用Python搭建简单神经网络"></a>6. 用Python搭建简单神经网络</h2><p>使用Python+Numpy实现一个简单的神经网络. 以下为参考代码</p>
+<p>SimpleNeuralNetwork.py</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sigmoid</span><span class="params">(z)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">1.</span> / (<span class="number">1.</span>+np.exp(-z))</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimpleNeuralNetwork</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="comment"># simple neural network with one hidden layer</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, input_size, hidden_layer_size)</span>:</span></span><br><span class="line">        self.paramters = self.__parameter_initailizer(input_size, hidden_layer_size)</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__parameter_initailizer</span><span class="params">(self, n_x, n_h)</span>:</span></span><br><span class="line">        <span class="comment"># W cannot be initialized with zeros</span></span><br><span class="line">        W1 = np.random.randn(n_h, n_x) * <span class="number">0.01</span></span><br><span class="line">        b1 = np.zeros((n_h, <span class="number">1</span>))</span><br><span class="line">        W2 = np.random.randn(<span class="number">1</span>, n_h) * <span class="number">0.01</span></span><br><span class="line">        b2 = np.zeros((<span class="number">1</span>, <span class="number">1</span>))</span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="string">'W1'</span>: W1,<span class="string">'b1'</span>: b1,<span class="string">'W2'</span>: W2,<span class="string">'b2'</span>: b2&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__forward_propagation</span><span class="params">(self, X)</span>:</span></span><br><span class="line">        W1 = self.paramters[<span class="string">'W1'</span>]</span><br><span class="line">        b1 = self.paramters[<span class="string">'b1'</span>]</span><br><span class="line">        W2 = self.paramters[<span class="string">'W2'</span>]</span><br><span class="line">        b2 = self.paramters[<span class="string">'b2'</span>]</span><br><span class="line">        <span class="comment"># forward propagation</span></span><br><span class="line">        Z1 = np.dot(W1, X) + b1</span><br><span class="line">        A1 = np.tanh(Z1)</span><br><span class="line">        Z2 = np.dot(W2, A1) + b2</span><br><span class="line">        A2 = sigmoid(Z2)</span><br><span class="line">        cache = &#123;<span class="string">'Z1'</span>: Z1,<span class="string">'A1'</span>: A1,<span class="string">'Z2'</span>: Z2,<span class="string">'A2'</span>: A2&#125;</span><br><span class="line">        <span class="keyword">return</span> A2, cache</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__compute_cost</span><span class="params">(self, A2, Y)</span>:</span></span><br><span class="line">        m = A2.shape[<span class="number">1</span>]</span><br><span class="line">        cost = -np.sum(Y*np.log(A2) + (<span class="number">1</span>-Y)*np.log(<span class="number">1</span>-A2)) / m</span><br><span class="line">        <span class="keyword">return</span> cost</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">cost_function</span><span class="params">(self, X, Y)</span>:</span></span><br><span class="line">        <span class="comment"># use the result from forward propagation and the label Y to compute cost</span></span><br><span class="line">        A2, cache = self.__forward_propagation(X)</span><br><span class="line">        cost = self.__compute_cost(A2, Y)</span><br><span class="line">        <span class="keyword">return</span> cost</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__backward_propagation</span><span class="params">(self, cache, Y)</span>:</span></span><br><span class="line">        A1, A2 = cache[<span class="string">'A1'</span>], cache[<span class="string">'A2'</span>]</span><br><span class="line">        W2 = self.paramters[<span class="string">'W2'</span>]</span><br><span class="line">        m = X.shape[<span class="number">1</span>]</span><br><span class="line">        <span class="comment"># backward propagation computes gradients</span></span><br><span class="line">        dZ2 = A2 - Y</span><br><span class="line">        dW2 = np.dot(dZ2, A1.T) / m</span><br><span class="line">        db2 = np.sum(dZ2, axis=<span class="number">1</span>, keepdims=<span class="keyword">True</span>) / m</span><br><span class="line">        dZ1 = np.dot(W2.T, dZ2) * (<span class="number">1</span> - np.power(A1, <span class="number">2</span>))</span><br><span class="line">        dW1 = np.dot(dZ1, X.T) / m</span><br><span class="line">        db1 = np.sum(dZ1, axis=<span class="number">1</span>, keepdims=<span class="keyword">True</span>) / m</span><br><span class="line">        grads = &#123;<span class="string">'dW1'</span>: dW1,<span class="string">'db1'</span>: db1,<span class="string">'dW2'</span>: dW2,<span class="string">'db2'</span>: db2&#125;</span><br><span class="line">        <span class="keyword">return</span> grads</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__update_parameters</span><span class="params">(self, grads, learning_rate)</span>:</span></span><br><span class="line">        self.paramters[<span class="string">'W1'</span>] -= learning_rate * grads[<span class="string">'dW1'</span>]</span><br><span class="line">        self.paramters[<span class="string">'b1'</span>] -= learning_rate * grads[<span class="string">'db1'</span>]</span><br><span class="line">        self.paramters[<span class="string">'W2'</span>] -= learning_rate * grads[<span class="string">'dW2'</span>]</span><br><span class="line">        self.paramters[<span class="string">'b2'</span>] -= learning_rate * grads[<span class="string">'db2'</span>]</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">fit</span><span class="params">(self, X, Y, num_iterations, learning_rate, print_cost=False, print_num=<span class="number">100</span>)</span>:</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(num_iterations):</span><br><span class="line">            <span class="comment"># forward propagation</span></span><br><span class="line">            A2, cache = self.__forward_propagation(X)</span><br><span class="line">            <span class="comment"># compute cost</span></span><br><span class="line">            cost = self.cost_function(X, Y)</span><br><span class="line">            <span class="comment"># backward propagation</span></span><br><span class="line">            grads = self.__backward_propagation(cache, Y)</span><br><span class="line">            <span class="comment"># update parameters</span></span><br><span class="line">            self.__update_parameters(grads, learning_rate)</span><br><span class="line">            <span class="comment"># print cost</span></span><br><span class="line">            <span class="keyword">if</span> i % print_num == <span class="number">0</span> <span class="keyword">and</span> print_cost:</span><br><span class="line">                <span class="keyword">print</span> (<span class="string">"Cost after iteration %i: %f"</span> %(i, cost))</span><br><span class="line">        <span class="keyword">return</span> self</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">predict_prob</span><span class="params">(self, X)</span>:</span></span><br><span class="line">        <span class="comment"># result of forward_propagation is the probability</span></span><br><span class="line">        A2, _ = self.__forward_propagation(X)</span><br><span class="line">        <span class="keyword">return</span> A2</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">predict</span><span class="params">(self, X, threshold=<span class="number">0.5</span>)</span>:</span></span><br><span class="line">        pred_prob = self.predict_prob(X)</span><br><span class="line">        threshold_func = np.vectorize(<span class="keyword">lambda</span> x: <span class="number">1</span> <span class="keyword">if</span> x &gt; threshold <span class="keyword">else</span> <span class="number">0</span>)</span><br><span class="line">        Y_prediction = threshold_func(pred_prob)</span><br><span class="line">        <span class="keyword">return</span> Y_prediction</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">accuracy_score</span><span class="params">(self, X, Y)</span>:</span></span><br><span class="line">        pred = self.predict(X)</span><br><span class="line">        <span class="keyword">return</span> len(Y[pred == Y]) / Y.shape[<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<p>main.py</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Package imports</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">from</span> testCases <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">import</span> sklearn</span><br><span class="line"><span class="keyword">import</span> sklearn.datasets</span><br><span class="line"><span class="keyword">import</span> sklearn.linear_model</span><br><span class="line"><span class="keyword">from</span> planar_utils <span class="keyword">import</span> plot_decision_boundary, sigmoid, load_planar_dataset, load_extra_datasets</span><br><span class="line">%matplotlib inline</span><br><span class="line"></span><br><span class="line">np.random.seed(<span class="number">1</span>) <span class="comment"># set a seed so that the results are consistent</span></span><br><span class="line">X, Y = load_planar_dataset()</span><br><span class="line"><span class="comment"># Please note that the above code is from the programming assignment</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> SimpleNeuralNetwork</span><br><span class="line">np.random.seed(<span class="number">3</span>)</span><br><span class="line">num_iter = <span class="number">10001</span></span><br><span class="line">learning_rate = <span class="number">1.2</span></span><br><span class="line">input_size = X.shape[<span class="number">0</span>]</span><br><span class="line">hidden_layer_size = <span class="number">4</span></span><br><span class="line">clf = SimpleNeuralNetwork(input_size=input_size,</span><br><span class="line">                          hidden_layer_size=hidden_layer_size)\</span><br><span class="line">        .fit(X, Y, num_iter, learning_rate, <span class="keyword">True</span>, <span class="number">1000</span>)</span><br><span class="line">train_acc = clf.accuracy_score(X, Y)</span><br><span class="line">print(<span class="string">'training accuracy: &#123;&#125;%'</span>.format(train_acc*<span class="number">100</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># output</span></span><br><span class="line"><span class="comment"># Cost after iteration 0: 0.693162</span></span><br><span class="line"><span class="comment"># Cost after iteration 1000: 0.258625</span></span><br><span class="line"><span class="comment"># Cost after iteration 2000: 0.239334</span></span><br><span class="line"><span class="comment"># Cost after iteration 3000: 0.230802</span></span><br><span class="line"><span class="comment"># Cost after iteration 4000: 0.225528</span></span><br><span class="line"><span class="comment"># Cost after iteration 5000: 0.221845</span></span><br><span class="line"><span class="comment"># Cost after iteration 6000: 0.219094</span></span><br><span class="line"><span class="comment"># Cost after iteration 7000: 0.220628</span></span><br><span class="line"><span class="comment"># Cost after iteration 8000: 0.219400</span></span><br><span class="line"><span class="comment"># Cost after iteration 9000: 0.218482</span></span><br><span class="line"><span class="comment"># Cost after iteration 10000: 0.217738</span></span><br><span class="line"><span class="comment"># training accuracy: 90.5%</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> hidden_layer_size <span class="keyword">in</span> [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">20</span>, <span class="number">50</span>]:</span><br><span class="line">    clf = SimpleNeuralNetwork(input_size=input_size,</span><br><span class="line">                               hidden_layer_size=hidden_layer_size)\</span><br><span class="line">            .fit(X, Y, num_iter, learning_rate, <span class="keyword">False</span>)</span><br><span class="line">    print(<span class="string">'&#123;&#125; hidden units, cost: &#123;&#125;, accuracy: &#123;&#125;%'</span></span><br><span class="line">           .format(hidden_layer_size,</span><br><span class="line">                   clf.cost_function(X, Y),</span><br><span class="line">                   clf.accuracy_score(X, Y)))</span><br><span class="line"><span class="comment"># output</span></span><br><span class="line"><span class="comment"># 1 hidden units, cost: 0.6315593779798304, accuracy: 67.5%</span></span><br><span class="line"><span class="comment"># 2 hidden units, cost: 0.5727606525435293, accuracy: 67.25%</span></span><br><span class="line"><span class="comment"># 3 hidden units, cost: 0.2521014374551156, accuracy: 91.0%</span></span><br><span class="line"><span class="comment"># 4 hidden units, cost: 0.24703039056643344, accuracy: 91.25%</span></span><br><span class="line"><span class="comment"># 5 hidden units, cost: 0.17206481441467936, accuracy: 91.5%</span></span><br><span class="line"><span class="comment"># 20 hidden units, cost: 0.16003869681611513, accuracy: 92.25%</span></span><br><span class="line"><span class="comment"># 50 hidden units, cost: 0.16000569403994763, accuracy: 92.5%</span></span><br></pre></td></tr></table></figure>
+<h2 id="7-本周内容回顾"><a href="#7-本周内容回顾" class="headerlink" title="7. 本周内容回顾"></a>7. 本周内容回顾</h2><ul>
 <li>学习了神经网络的基本概念</li>
 <li>掌握了神经网络中各种变量的维度</li>
 <li>掌握了神经网络中的前向传播与反向传播</li>
@@ -372,55 +397,6 @@
     </entry>
     
     <entry>
-      <title><![CDATA[Boosting - Xgboost]]></title>
-      <url>http://iequa.com/2018/07/03/ml-8-xgboost/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>Github上和机器学习工具包（如sklearn）中有很多优秀的开源boosting实现。在这里重点介绍<a href="https://weibo.com/u/2397265244?is_all=1" target="_blank" rel="external">@陈天奇怪</a>同学的 <a href="https://github.com/dmlc/xgboost.git" target="_blank" rel="external">Xgboost</a>.</p>
-<p>Kaggle上的许多数据挖掘竞赛，Boosting 类方法都帮助参赛者取得了好成绩. 其中很多优秀战果都是用的 <a href="https://github.com/dmlc/xgboost.git" target="_blank" rel="external">Xgboost</a>神器</p>
-<a id="more"></a>
-<p>Xgboost 提供了Graident Boosting算法的框架，给出了GBDT，GBRT，GBM具体实现。提供了多语言接口（C++, Python, Java, R等），供大家方便使用。</p>
-<p>最新版本的xgboost是基于分布式通信协议rabit开发的，可部署在分布式资源调度系统上（如yarn，s3等）。我们完全可以利用最新版的xgboost在分布式环境下解决分类、预估等场景问题。</p>
-<blockquote>
-<p>XGBoost是DMLC（即分布式机器学习社区）下面的一个子项目，由@陈天奇怪，@李沐等机器学习大神发起。<br>Rabit是一个为分布式机器学习提供Allreduce和Broadcast编程范式和容错功能的开源库（也是@陈天奇同学的又一神器）。它主要是解决MPI系统机器之间无容错功能的问题，并且主要针对Allreduce和Broadcast接口提供可容错功能。</p>
-</blockquote>
-<h3 id="1-Overfitting-过拟合"><a href="#1-Overfitting-过拟合" class="headerlink" title="1. Overfitting 过拟合"></a>1. Overfitting 过拟合</h3><p>XGBoost里可以使用两种方式防止 Overfitting</p>
-<p>直接控制模型复杂度</p>
-<ul>
-<li><strong>max_depth</strong>,基学习器的深度，增加该值会使基学习器变得更加复杂，荣易过拟合，设为0表示不设限制，对于<code>depth-wise</code>的基学习器学习方法需要控制深度</li>
-<li><strong>min_child_weight</strong>，子节点所需的样本权重和(hessian)的最小阈值，若是基学习器切分后得到的叶节点中样本权重和低于该阈值则不会进一步切分，在线性模型中该值就对应每个节点的最小样本数，该值越大模型的学习约保守，同样用于防止模型过拟合</li>
-<li><strong>gamma</strong>，叶节点进一步切分的最小损失下降的阈值(超过该值才进一步切分)，越大则模型学习越保守，用来控制基学习器的复杂度(有点LightGBM里的leaf-wise切分的意味)</li>
-</ul>
-<p>给模型训练增加随机性使其对噪声数据更加鲁棒</p>
-<ul>
-<li>行采样：subsample</li>
-<li>列采样：colsample_bytree</li>
-<li>步长：eta即shrinkage</li>
-</ul>
-<h3 id="2-数据类别分布不均"><a href="#2-数据类别分布不均" class="headerlink" title="2. 数据类别分布不均"></a>2. 数据类别分布不均</h3><h3 id="3-调参"><a href="#3-调参" class="headerlink" title="3. 调参"></a>3. 调参</h3><h3 id="4-一般参数"><a href="#4-一般参数" class="headerlink" title="4. 一般参数"></a>4. 一般参数</h3><h3 id="5-基学习器参数"><a href="#5-基学习器参数" class="headerlink" title="5. 基学习器参数"></a>5. 基学习器参数</h3><h3 id="6-任务参数"><a href="#6-任务参数" class="headerlink" title="6. 任务参数"></a>6. 任务参数</h3><h3 id="7-命令行参数"><a href="#7-命令行参数" class="headerlink" title="7. 命令行参数"></a>7. 命令行参数</h3><h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
-<li><a href="http://www.cnblogs.com/fengfenggirl/p/classsify_decision_tree.html" target="_blank" rel="external">逗比算法工程师</a></li>
-<li><a href="http://www.52caml.com/" target="_blank" rel="external">算法杂货铺</a></li>
-<li><a href="http://www.cnblogs.com/leoo2sk/archive/2010/09/19/decision-tree.html" target="_blank" rel="external">52caml</a></li>
-<li>《机器学习导论》</li>
-<li>《统计学习方法》</li>
-<li><a href="http://izhaoyi.top/2017/06/19/Decision-Tree" target="_blank" rel="external">懒死骆驼</a></li>
-</ul>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Ensumble 集成学习小记]]></title>
       <url>http://iequa.com/2018/07/03/ml-9-ensumble-part1/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -618,6 +594,55 @@
 <li><a href="https://zhuanlan.zhihu.com/p/27424282" target="_blank" rel="external">分分钟带你杀入Kaggle Top 1%</a></li>
 <li><a href="http://izhaoyi.top/2017/07/03/ensemble/" target="_blank" rel="external">懒死骆驼</a></li>
 <li>机器学习技法</li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Boosting - Xgboost]]></title>
+      <url>http://iequa.com/2018/07/03/ml-8-xgboost/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>Github上和机器学习工具包（如sklearn）中有很多优秀的开源boosting实现。在这里重点介绍<a href="https://weibo.com/u/2397265244?is_all=1" target="_blank" rel="external">@陈天奇怪</a>同学的 <a href="https://github.com/dmlc/xgboost.git" target="_blank" rel="external">Xgboost</a>.</p>
+<p>Kaggle上的许多数据挖掘竞赛，Boosting 类方法都帮助参赛者取得了好成绩. 其中很多优秀战果都是用的 <a href="https://github.com/dmlc/xgboost.git" target="_blank" rel="external">Xgboost</a>神器</p>
+<a id="more"></a>
+<p>Xgboost 提供了Graident Boosting算法的框架，给出了GBDT，GBRT，GBM具体实现。提供了多语言接口（C++, Python, Java, R等），供大家方便使用。</p>
+<p>最新版本的xgboost是基于分布式通信协议rabit开发的，可部署在分布式资源调度系统上（如yarn，s3等）。我们完全可以利用最新版的xgboost在分布式环境下解决分类、预估等场景问题。</p>
+<blockquote>
+<p>XGBoost是DMLC（即分布式机器学习社区）下面的一个子项目，由@陈天奇怪，@李沐等机器学习大神发起。<br>Rabit是一个为分布式机器学习提供Allreduce和Broadcast编程范式和容错功能的开源库（也是@陈天奇同学的又一神器）。它主要是解决MPI系统机器之间无容错功能的问题，并且主要针对Allreduce和Broadcast接口提供可容错功能。</p>
+</blockquote>
+<h3 id="1-Overfitting-过拟合"><a href="#1-Overfitting-过拟合" class="headerlink" title="1. Overfitting 过拟合"></a>1. Overfitting 过拟合</h3><p>XGBoost里可以使用两种方式防止 Overfitting</p>
+<p>直接控制模型复杂度</p>
+<ul>
+<li><strong>max_depth</strong>,基学习器的深度，增加该值会使基学习器变得更加复杂，荣易过拟合，设为0表示不设限制，对于<code>depth-wise</code>的基学习器学习方法需要控制深度</li>
+<li><strong>min_child_weight</strong>，子节点所需的样本权重和(hessian)的最小阈值，若是基学习器切分后得到的叶节点中样本权重和低于该阈值则不会进一步切分，在线性模型中该值就对应每个节点的最小样本数，该值越大模型的学习约保守，同样用于防止模型过拟合</li>
+<li><strong>gamma</strong>，叶节点进一步切分的最小损失下降的阈值(超过该值才进一步切分)，越大则模型学习越保守，用来控制基学习器的复杂度(有点LightGBM里的leaf-wise切分的意味)</li>
+</ul>
+<p>给模型训练增加随机性使其对噪声数据更加鲁棒</p>
+<ul>
+<li>行采样：subsample</li>
+<li>列采样：colsample_bytree</li>
+<li>步长：eta即shrinkage</li>
+</ul>
+<h3 id="2-数据类别分布不均"><a href="#2-数据类别分布不均" class="headerlink" title="2. 数据类别分布不均"></a>2. 数据类别分布不均</h3><h3 id="3-调参"><a href="#3-调参" class="headerlink" title="3. 调参"></a>3. 调参</h3><h3 id="4-一般参数"><a href="#4-一般参数" class="headerlink" title="4. 一般参数"></a>4. 一般参数</h3><h3 id="5-基学习器参数"><a href="#5-基学习器参数" class="headerlink" title="5. 基学习器参数"></a>5. 基学习器参数</h3><h3 id="6-任务参数"><a href="#6-任务参数" class="headerlink" title="6. 任务参数"></a>6. 任务参数</h3><h3 id="7-命令行参数"><a href="#7-命令行参数" class="headerlink" title="7. 命令行参数"></a>7. 命令行参数</h3><h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li><a href="http://www.cnblogs.com/fengfenggirl/p/classsify_decision_tree.html" target="_blank" rel="external">逗比算法工程师</a></li>
+<li><a href="http://www.52caml.com/" target="_blank" rel="external">算法杂货铺</a></li>
+<li><a href="http://www.cnblogs.com/leoo2sk/archive/2010/09/19/decision-tree.html" target="_blank" rel="external">52caml</a></li>
+<li>《机器学习导论》</li>
+<li>《统计学习方法》</li>
+<li><a href="http://izhaoyi.top/2017/06/19/Decision-Tree" target="_blank" rel="external">懒死骆驼</a></li>
 </ul>
 ]]></content>
     </entry>
@@ -11350,7 +11375,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -11517,7 +11542,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -18592,43 +18617,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -18670,6 +18658,43 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
