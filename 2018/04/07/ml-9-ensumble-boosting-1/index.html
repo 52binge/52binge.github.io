@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Ensemble Learning (part1) - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ensemble Learning (part1)">
+<meta property="og:url" content="http://iequa.com/2018/04/07/ml-9-ensumble-boosting-1/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta property="og:image" content="http://iequa.com/images/ml/ensumble/ml-ensemble-1.png">
+<meta property="og:image" content="http://iequa.com/images/ml/ensumble/ml-ensemble-2-bagging.jpeg">
+<meta property="og:image" content="http://iequa.com/images/ml/ensumble/ml-ensemble-3-bagging.jpeg">
+<meta property="og:updated_time" content="2018-07-06T15:07:21.740Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ensemble Learning (part1)">
+<meta name="twitter:description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta name="twitter:image" content="http://iequa.com/images/ml/ensumble/ml-ensemble-1.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/english">English</a>
+        
+          <a class="main-nav-link" href="/ai">AI</a>
+        
+          <a class="main-nav-link" href="/deeplearning">DL</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/project_frame">Project</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-ml-9-ensumble-boosting-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Ensemble Learning (part1)
+      <small class=article-detail-date-index>&nbsp; 2018-04-07</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/04/07/ml-9-ensumble-boosting-1/" class="article-date">
+  <time datetime="2018-04-07T08:08:21.000Z" itemprop="datePublished">2018-04-07</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/04/07/ml-9-ensumble-boosting-1/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>Ensemble learning（集成学习）：是目前机器学习的一大热门方向，所谓集成学习简单理解就是指采用多个分类器对数据集进行预测，从而提高整体分类器的泛化能力。</p>
+<a id="more"></a>
+<ol>
+<li>Bootstraping</li>
+<li>Bagging、Boosting、Stacking</li>
+</ol>
+<h2 id="Bootstraping"><a href="#Bootstraping" class="headerlink" title="Bootstraping"></a>Bootstraping</h2><p>Bootstraping的名称来自成语 “pull up by your own bootstraps”，意思是依靠你自己的资源，它是一种有放回的抽样方法.</p>
+<blockquote>
+<p>注:Bootstrap本义是指高靴子口后面的悬挂物、小环、带子，是穿靴子时用手向上拉的工具。“pull up by your own bootstraps”即“通过拉靴子让自己上 升”，意思是“不可能发生的事情”。后来意思发 生了转变，隐喻“不需要外界帮助，仅依靠自身力 量让自己变得更好”</p>
+</blockquote>
+<p>bootstraping 的思想和步骤如下：</p>
+<p>举个🌰：我要统计鱼塘里面的鱼的条数，怎么统计呢？假设鱼塘总共有鱼1000条，我是开了上帝视角的，但是你是不知道里面有多少。</p>
+<p>步骤：</p>
+<ol>
+<li>承包鱼塘，不让别人捞鱼(规定总体分布不变)。</li>
+<li>自己捞鱼，捞100条，都打上标签(构造样本)</li>
+<li>把鱼放回鱼塘，休息一晚(使之混入整个鱼群，确保之后抽样随机)</li>
+<li>开始捞鱼，每次捞100条，数一下，自己昨天标记的鱼有多少条，占比多少(一次重采样取分布)。</li>
+<li>重复3，4步骤n次。建立分布。</li>
+</ol>
+<blockquote>
+<p>假设一下，第一次重新捕鱼100条，发现里面有标记的鱼12条，记下为12%，放回去，再捕鱼100条，发现标记的为9条，记下9%，重复重复好多次之后，假设取置信区间95%，你会发现，每次捕鱼平均在10条左右有标记，所以，我们可以大致推测出鱼塘有1000条左右。其实是一个很简单的类似于一个比例问题。这也是因为提出者Efron给统计学顶级期刊投稿的时候被拒绝的理由–”太简单”。这也就解释了，为什么在小样本的时候，bootstrap效果较好，你这样想，如果我想统计大海里有多少鱼，你标记100000条也没用啊，因为实际数量太过庞大，你取的样本相比于太过渺小，最实际的就是，你下次再捕100000的时候，发现一条都没有标记，，，这TM就尴尬了。。</p>
+</blockquote>
+<p><strong>Bootstrap 经典语录</strong></p>
+<blockquote>
+<p>Bootstrap是现代统计学较为流行的一种统计方法，在小样本时效果很好。通过方差的估计可以构造置信区间等，其运用范围得到进一步延伸。<br>就是一个在自身样本重采样的方法来估计真实分布的问题</p>
+<p>当我们不知道样本分布的时候，bootstrap方法最有用。</p>
+</blockquote>
+<h2 id="Ensemble-learning"><a href="#Ensemble-learning" class="headerlink" title="Ensemble learning"></a>Ensemble learning</h2><p>了解 boosting 和 bagging 之前，先了解一下什么是 ensemble，一句话，三个臭皮匠顶个诸葛亮，一箭易折十箭难折，千里之堤溃于蚁穴 …😄😄😄 ，在分类的表现上就是，多个弱分类器组合变成强分类器。</p>
+<p><img src="/images/ml/ensumble/ml-ensemble-1.png" width="500"></p>
+<blockquote>
+<p>假设各弱分类器间具有一定差异性（如不同的算法，或相同算法不同参数配置），这会导致生成的分类决策边界不同，也就是说它们在决策时会犯不同的错误。将它们结合后能得到更合理的边界，减少整体错误，实现更好的分类效果。</p>
+</blockquote>
+<h3 id="Bagging-bootstrap-aggregation"><a href="#Bagging-bootstrap-aggregation" class="headerlink" title="Bagging (bootstrap aggregation)"></a>Bagging (bootstrap aggregation)</h3><blockquote>
+<p>bagging：从训练集从进行子抽样组成每个基模型所需要的子训练集，对所有基模型预测的结果进行综合产生最终的预测结果,至于为什么叫bootstrap aggregation，因为它抽取训练样本的时候采用的就是bootstrap的方法！</p>
+</blockquote>
+<p>Bagging 策略过程 😄 :</p>
+<ol>
+<li>从样本集中重采样(有重复的)选出n个样本</li>
+<li>在所有属性上，对这n个样本建立分类器 (ID3、C4.5、CART、SVM、Logistic回归等)</li>
+<li>重复以上两步m次，即获得了m个分类器</li>
+<li>将数据放在这m个分类器上，最后根据这m个分类器的投票结果，决定数据属于哪一类.</li>
+<li>投票机制 (多数服从少数, 民主政治) 看到底分到哪一类(分类问题)</li>
+</ol>
+<p><img src="/images/ml/ensumble/ml-ensemble-2-bagging.jpeg" width="600"></p>
+<p><strong>Bagging 代表算法 - Random Forest</strong></p>
+<p>随机森林算法是机器学习、计算机视觉等领域内应用极为广泛的一个算法，它不仅可以用来做分类，也可用来做回归即预测，一般随机森林机由多个决策树构成，相比于单个决策树算法，它分类、预测效果更好，不容易出现过度拟合的情况。</p>
+<p>1.训练样本选择方面的Random：</p>
+<blockquote>
+<p>Bootstrap方法随机选择子样本</p>
+</blockquote>
+<p>2.特征选择方面的Random：</p>
+<blockquote>
+<p>属性集中随机选择k个属性，每个树节点分裂时，从这随机的k个属性，选择最优的(如何选择最优又有各种最大增益的方法，不在本文讨论范围内)。</p>
+</blockquote>
+<p><strong>决策树</strong></p>
+<p>决策树对训练样本有良好的分类能力，只要我们的层数不加限制，我们甚至可以把它分的没有任何误差，这样可能导致你的泛化能力很弱。 缓解的方法就是 1. 剪枝 2. 随机森林</p>
+<p>剪枝 我还没用过，所以我们看常用的 随机森林 Romdom Forest</p>
+<p>决策树 ： 特征选择</p>
+<ol>
+<li>ID3 仅具有教学价值</li>
+<li>gini 系数，作为指标比较多，在实践当中</li>
+</ol>
+<p><strong>Random Forest 构造流程</strong></p>
+<p><img src="/images/ml/ensumble/ml-ensemble-3-bagging.jpeg" width="600"></p>
+<blockquote>
+<ol>
+<li>用 Random(训练样本用Bootstrap方法，选择分离叶子节点用上面的2)的方式构造一棵决策树(CART)</li>
+<li>用1的方法构造很多决策树, 不剪枝, 许多决策树构成一片森林，决策树之间没有联系</li>
+<li>测试数据进入每一棵决策树，每棵树做出自己的判断，然后投票选出最终所属类别(默认每棵树权重一致)</li>
+</ol>
+</blockquote>
+<p><strong>Random Forest 优点</strong></p>
+<blockquote>
+<ol>
+<li>不容易出现过拟合，因为选择训练样本的时候就不是全部样本。</li>
+<li>既可以处理属性为离散值的量，比如ID3算法来构造树，也可以处理属性为连续值的量，比如C4.5算法来构造树</li>
+<li>对于高维数据集的处理能力令人兴奋，它可以处理成千上万的输入变量，并确定最重要的变量，因此被认为是一个不错的降维方法。该模型能够输出变量的重要性程度，这是一个非常便利的功能。</li>
+<li>分类不平衡的情况时，随机森林能够提供平衡数据集误差的有效方法</li>
+</ol>
+</blockquote>
+<p><strong>Random Forest 缺点</strong></p>
+<blockquote>
+<ol>
+<li>随机森林在解决回归问题时并没有像它在分类中表现的那么好，这是因为它并不能给出一个连续型的输出。当进行回归时，随机森林不能够作出超越训练集数据范围的预测，这可能导致在对某些还有特定噪声的数据进行建模时出现过度拟合。</li>
+<li>对于许多统计建模者来说，随机森林给人的感觉像是一个黑盒子——你几乎无法控制模型内部的运行，只能在不同的参数和随机种子之间进行尝试。</li>
+</ol>
+<p>优缺点，需要与杰神商讨再?</p>
+</blockquote>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li><a href="https://www.jianshu.com/p/708dff71df3a" target="_blank" rel="external">Bagging（Bootstrap aggregating）、随机森林（random forests）、AdaBoost</a></li>
+<li><a href="https://blog.csdn.net/xlinsist/article/details/51475345" target="_blank" rel="external">Bootstrap(自助法)，Bagging，Boosting(提升)</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Bootstraping"><span class="toc-number"></span> <span class="toc-text">Bootstraping</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Ensemble-learning"><span class="toc-number"></span> <span class="toc-text">Ensemble learning</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Bagging-bootstrap-aggregation"><span class="toc-number"></span> <span class="toc-text">Bagging (bootstrap aggregation)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/machine-learning/">machine-learning</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/04/11/ml-9-ensumble-boosting-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Ensemble Learning (part2)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/02/01/hadoop-hive-udf-udaf/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hive 中 udf、udaf 和 udtf 的使用&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/04/07/ml-9-ensumble-boosting-1/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

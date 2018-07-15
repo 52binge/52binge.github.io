@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Kaggle_Titanic - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="neural networks example - pybrain kaggle titanic">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kaggle_Titanic">
+<meta property="og:url" content="http://iequa.com/2017/02/16/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="neural networks example - pybrain kaggle titanic">
+<meta property="og:updated_time" content="2018-07-15T06:57:46.516Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kaggle_Titanic">
+<meta name="twitter:description" content="neural networks example - pybrain kaggle titanic">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/english">English</a>
+        
+          <a class="main-nav-link" href="/ai">AI</a>
+        
+          <a class="main-nav-link" href="/deeplearning">DL</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/project_frame">Project</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Kaggle_Titanic
+      <small class=article-detail-date-index>&nbsp; 2017-02-16</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/02/16/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/" class="article-date">
+  <time datetime="2017-02-16T09:28:21.000Z" itemprop="datePublished">2017-02-16</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/02/16/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="泰坦尼克号"><a href="#泰坦尼克号" class="headerlink" title="泰坦尼克号"></a><a href="https://www.kaggle.com/c/titanic" target="_blank" rel="external">泰坦尼克号</a></h2><p>『Jack and Rose』的故事，豪华游艇倒了，大家都惊恐逃生，可是救生艇的数量有限，无法人人都有，副船长发话了『lady and kid first！』，所以是否获救其实并非随机，而是基于一些背景有rank先后的。<br><br>训练和测试数据是一些乘客的个人信息以及存活状况，要尝试根据它生成合适的模型并预测其他人的存活状况。<br></p>
+<p>这是一个二分类问题，很多分类算法都可以解决。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">构建Pybrain神经网络的基本步骤：</span><br><span class="line"></span><br><span class="line">1. 构建神经网路</span><br><span class="line">2. 构造数据集</span><br><span class="line">3. 训练神经网络</span><br><span class="line">4. 预测测试集结果</span><br><span class="line">5. 验证和分析</span><br></pre></td></tr></table></figure>
+<h2 id="1-分析问题"><a href="#1-分析问题" class="headerlink" title="1. 分析问题"></a>1. 分析问题</h2><blockquote>
+<p>分析什么特征是更重要的</p>
+</blockquote>
+<p>先看看数据长什么样？ 还是用pandas加载数据</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 这个ipython notebook主要是我解决Kaggle Titanic问题的思路和过程</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment">#数据分析</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np <span class="comment">#科学计算</span></span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> Series,DataFrame</span><br><span class="line"></span><br><span class="line">data_train = pd.read_csv(<span class="string">"Train.csv"</span>)</span><br><span class="line"><span class="keyword">print</span> data_train.columns</span><br><span class="line"><span class="keyword">print</span> <span class="string">"============ df info ============"</span></span><br><span class="line">data_train.info()</span><br></pre></td></tr></table></figure>
+<pre><code>Index([u&apos;PassengerId&apos;, u&apos;Survived&apos;, u&apos;Pclass&apos;, u&apos;Name&apos;, u&apos;Sex&apos;, u&apos;Age&apos;,
+       u&apos;SibSp&apos;, u&apos;Parch&apos;, u&apos;Ticket&apos;, u&apos;Fare&apos;, u&apos;Cabin&apos;, u&apos;Embarked&apos;],
+      dtype=&apos;object&apos;)
+============ df info ============
+&lt;class &apos;pandas.core.frame.DataFrame&apos;&gt;
+RangeIndex: 891 entries, 0 to 890
+Data columns (total 12 columns):
+PassengerId    891 non-null int64
+Survived       891 non-null int64
+Pclass         891 non-null int64
+Name           891 non-null object
+Sex            891 non-null object
+Age            714 non-null float64
+SibSp          891 non-null int64
+Parch          891 non-null int64
+Ticket         891 non-null object
+Fare           891 non-null float64
+Cabin          204 non-null object
+Embarked       889 non-null object
+dtypes: float64(2), int64(5), object(5)
+memory usage: 83.6+ KB
+</code></pre><p>我们看大概有以下这些字段</p>
+<p>PassengerId =&gt; 乘客ID<br>Pclass =&gt; 乘客等级(1/2/3等舱位)<br>Name =&gt; 乘客姓名<br>Sex =&gt; 性别<br>Age =&gt; 年龄<br>SibSp =&gt; 堂兄弟/妹个数<br>Parch =&gt; 父母与小孩个数<br>Ticket =&gt; 船票信息<br>Fare =&gt; 票价<br>Cabin =&gt; 客舱<br>Embarked =&gt; 登船港口</p>
+<p>上面的数据说什么了？它告诉我们，训练数据中总共有891名乘客，但是很不幸，我们有些属性的数据不全，比如说：</p>
+<ul>
+<li>Age（年龄）属性只有714名乘客有记录</li>
+<li>Cabin（客舱）更是只有204名乘客是已知的</li>
+</ul>
+<p>再瞄一眼具体数据数值情况，得到数值型数据的一些分布(因为有些属性，比如姓名，是文本型；而另外一些属性，比如登船港口，是类目型。这些我们用下面的函数是看不到的)</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_train.describe()</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>-</th>
+<th>PassengerId</th>
+<th>Survived</th>
+<th>Pclass</th>
+<th>Age</th>
+<th>SibSp</th>
+<th>Parch</th>
+<th>Fare</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>count</td>
+<td>891.000000</td>
+<td>891.000000</td>
+<td>891.000000</td>
+<td>714.000000</td>
+<td>891.000000</td>
+<td>891.000000</td>
+<td>891.000000</td>
+</tr>
+<tr>
+<td>mean</td>
+<td>446.000000</td>
+<td>0.383838</td>
+<td>2.308642</td>
+<td>29.699118</td>
+<td>0.523008</td>
+<td>0.381594</td>
+<td>32.204208</td>
+</tr>
+</tbody>
+</table>
+<p><font color="red">mean字段告诉我们，大概0.383838的人最后获救了，2/3等舱的人数比1等舱要多，平均乘客年龄大概是29.7岁(计算这个时候会略掉无记录的)等等…<font></font></font></p>
+<ul>
+<li><font color="blue">『对数据的认识太重要了！』<font></font></font></li>
+<li><font color="red">『对数据的认识太重要了！』<font></font></font></li>
+<li><font color="green">『对数据的认识太重要了！』<font></font></font></li>
+</ul>
+<p>总结 : </p>
+<ol>
+<li>Cabin，没看出什么明显特征，缺失值又太多</li>
+<li>Age：可以尝试补全缺失的数据</li>
+</ol>
+<p><strong>通常遇到缺值的情况，我们会有几种常见的处理方式</strong><br><br></p>
+<ol>
+<li>如果缺值的样本占总数比例极高，我们可能就直接舍弃了，作为特征加入的话，可能反倒带入noise，影响最后的结果了</li>
+<li>如果缺值的样本适中，而该属性非连续值特征属性(比如说类目属性)，那就把NaN作为一个新类别，加到类别特征中</li>
+<li>如果缺值的样本适中，而该属性为连续值特征属性，有时候我们会考虑给定一个step(比如这里的age，我们可以考虑每隔2/3岁为一个步长)，然后把它离散化，之后把NaN作为一个type加到属性类目中。</li>
+<li>有些情况下，缺失的值个数并不是特别多，那我们也可以试着根据已有的值，拟合一下数据，补充上。</li>
+</ol>
+<p>本例中，后两种处理方式应该都是可行的，我们先试试拟合补全吧(没有特别多的背景可供我们拟合，这不一定是一个好的选择)</p>
+<p>我们这里用scikit-learn中的RandomForest来拟合一下缺失的年龄数据<br></p>
+<ol>
+<li>从数据来估计 Age 应该是比较重要的, 还有毕竟 副船长发话了『lady and kid first！』</li>
+<li>Cabin 缺失值太多了，先按Cabin有无数据，将这个属性处理成Yes和No两种类型吧</li>
+</ol>
+<h2 id="2-准备数据"><a href="#2-准备数据" class="headerlink" title="2. 准备数据"></a>2. 准备数据</h2><ol>
+<li>Age 与 cabin 补全</li>
+<li>one-hot 编码</li>
+<li>Feature Scaling</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 我们这里用scikit-learn中的RandomForest来拟合一下缺失的年龄数据</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn.ensemble <span class="keyword">import</span> RandomForestRegressor</span><br><span class="line"> </span><br><span class="line"><span class="comment">### 使用 RandomForestClassifier 填补缺失的年龄属性</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_missing_ages</span><span class="params">(df)</span>:</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 把已有的数值型特征取出来丢进Random Forest Regressor中</span></span><br><span class="line">    age_df = df[[<span class="string">'Age'</span>,<span class="string">'Fare'</span>, <span class="string">'Parch'</span>, <span class="string">'SibSp'</span>, <span class="string">'Pclass'</span>]]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 乘客分成已知年龄和未知年龄两部分</span></span><br><span class="line">    known_age = age_df[age_df.Age.notnull()].as_matrix()</span><br><span class="line">    unknown_age = age_df[age_df.Age.isnull()].as_matrix()</span><br><span class="line"></span><br><span class="line">    <span class="comment"># y即目标年龄</span></span><br><span class="line">    y = known_age[:, <span class="number">0</span>] <span class="comment">## Age ‘s value list</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># X即特征属性值</span></span><br><span class="line">    X = known_age[:, <span class="number">1</span>:] <span class="comment">## Fare 的值 list</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># fit到RandomForestRegressor之中</span></span><br><span class="line">    rfr = RandomForestRegressor(random_state=<span class="number">0</span>, n_estimators=<span class="number">2000</span>, n_jobs=<span class="number">-1</span>)</span><br><span class="line">    rfr.fit(X, y)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 用得到的模型进行未知年龄结果预测</span></span><br><span class="line">    predictedAges = rfr.predict(unknown_age[:, <span class="number">1</span>::])</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 用得到的预测结果填补原缺失数据</span></span><br><span class="line">    df.loc[ (df.Age.isnull()), <span class="string">'Age'</span> ] = predictedAges </span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> df, rfr</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">set_Cabin_type</span><span class="params">(df)</span>:</span></span><br><span class="line">    df.loc[ (df.Cabin.notnull()), <span class="string">'Cabin'</span> ] = <span class="string">"Yes"</span></span><br><span class="line">    df.loc[ (df.Cabin.isnull()), <span class="string">'Cabin'</span> ] = <span class="string">"No"</span></span><br><span class="line">    <span class="keyword">return</span> df</span><br><span class="line"></span><br><span class="line">data_train, rfr = set_missing_ages(data_train)</span><br><span class="line">data_train = set_Cabin_type(data_train)</span><br><span class="line">data_train</span><br></pre></td></tr></table></figure>
+<p><strong>one-hot 编码</strong></p>
+<p>因为逻辑回归建模时，需要输入的特征都是数值型特征，我们通常会先对类目型的特征因子化/one-hot编码。 <br><br>什么叫做因子化/one-hot编码？举个例子：<font><br></font></p>
+<p>以Embarked为例，原本一个属性维度，因为其取值可以是[‘S’,’C’,’Q‘]，而将其平展开为’Embarked_C’,’Embarked_S’, ‘Embarked_Q’三个属性<font><br></font></p>
+<ol>
+<li>原Embarked取S的，在此处的”Embarked_S”下取值为1，在’Embarked_C’, ‘Embarked_Q’下取值为0<br></li>
+<li>原Embarked取C的，在此处的”Embarked_C”下取值为1，在’Embarked_S’, ‘Embarked_Q’下取值为0<br></li>
+<li>原Embarked取Q的，在此处的”Embarked_Q”下取值为1，在’Embarked_C’, ‘Embarked_S’下取值为0<br></li>
+</ol>
+<p>我们使用pandas的”get_dummies”来完成这个工作，并拼接在原来的”data_train”之上，如下所示。<br></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 因为逻辑回归建模时，需要输入的特征都是数值型特征</span></span><br><span class="line"><span class="comment"># 我们先对类目型的特征离散/因子化</span></span><br><span class="line"><span class="comment"># 以Cabin为例，原本一个属性维度，因为其取值可以是['yes','no']，而将其平展开为'Cabin_yes','Cabin_no'两个属性</span></span><br><span class="line"><span class="comment"># 原本Cabin取值为yes的，在此处的'Cabin_yes'下取值为1，在'Cabin_no'下取值为0</span></span><br><span class="line"><span class="comment"># 原本Cabin取值为no的，在此处的'Cabin_yes'下取值为0，在'Cabin_no'下取值为1</span></span><br><span class="line"><span class="comment"># 我们使用pandas的get_dummies来完成这个工作，并拼接在原来的data_train之上，如下所示</span></span><br><span class="line">dummies_Cabin = pd.get_dummies(data_train[<span class="string">'Cabin'</span>], prefix= <span class="string">'Cabin'</span>)</span><br><span class="line"></span><br><span class="line">dummies_Embarked = pd.get_dummies(data_train[<span class="string">'Embarked'</span>], prefix= <span class="string">'Embarked'</span>)</span><br><span class="line"></span><br><span class="line">dummies_Sex = pd.get_dummies(data_train[<span class="string">'Sex'</span>], prefix= <span class="string">'Sex'</span>)</span><br><span class="line"></span><br><span class="line">dummies_Pclass = pd.get_dummies(data_train[<span class="string">'Pclass'</span>], prefix= <span class="string">'Pclass'</span>)</span><br><span class="line">df = pd.concat([data_train, dummies_Cabin, dummies_Embarked, dummies_Sex, dummies_Pclass], axis=<span class="number">1</span>)</span><br><span class="line">df.drop([<span class="string">'Pclass'</span>, <span class="string">'Name'</span>, <span class="string">'Sex'</span>, <span class="string">'Ticket'</span>, <span class="string">'Cabin'</span>, <span class="string">'Embarked'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">df</span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th>PassengerId</th>
+<th>…</th>
+<th>Embarked_C</th>
+<th>Embarked_Q</th>
+<th>Embarked_S</th>
+<th>Sex_female</th>
+<th>Sex_male</th>
+<th>Pclass_1</th>
+<th>Pclass_2</th>
+<th>Pclass_3</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>…</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>1.0</td>
+<td>0.0</td>
+<td>0.0</td>
+<td>1.0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Feature Scaling</strong></p>
+<p><font color="red">Age和Fare两个属性，乘客的数值幅度变化，scaling，其实就是将一些变化幅度较大的特征化到[-1,1]之内。<font></font></font></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 接下来我们要接着做一些数据预处理的工作，比如scaling，将一些变化幅度较大的特征化到[-1,1]之内</span></span><br><span class="line"><span class="comment"># 这样可以加速logistic regression的收敛</span></span><br><span class="line"><span class="keyword">import</span> sklearn.preprocessing <span class="keyword">as</span> preprocessing</span><br><span class="line">scaler = preprocessing.StandardScaler()</span><br><span class="line">age_scale_param = scaler.fit(df[<span class="string">'Age'</span>])</span><br><span class="line">df[<span class="string">'Age_scaled'</span>] = scaler.fit_transform(df[<span class="string">'Age'</span>], age_scale_param)</span><br><span class="line">fare_scale_param = scaler.fit(df[<span class="string">'Fare'</span>])</span><br><span class="line">df[<span class="string">'Fare_scaled'</span>] = scaler.fit_transform(df[<span class="string">'Fare'</span>], fare_scale_param)</span><br><span class="line">df</span><br><span class="line">train_df = df.filter(regex=<span class="string">'Survived|Age_.*|SibSp|Parch|Fare_.*|Cabin_.*|Embarked_.*|Sex_.*|Pclass_.*'</span>)</span><br><span class="line">train_df</span><br></pre></td></tr></table></figure>
+<h2 id="3-构造神经网络"><a href="#3-构造神经网络" class="headerlink" title="3. 构造神经网络"></a>3. 构造神经网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pandas <span class="keyword">import</span> Series,DataFrame</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pandas.io.data <span class="keyword">as</span> wb</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> pybrain.structure <span class="keyword">import</span> *</span><br><span class="line"><span class="keyword">from</span> pybrain.datasets <span class="keyword">import</span> SupervisedDataSet</span><br><span class="line"><span class="keyword">from</span> pybrain.supervised.trainers <span class="keyword">import</span> BackpropTrainer</span><br><span class="line"></span><br><span class="line"><span class="comment"># createa neural network</span></span><br><span class="line">fnn = FeedForwardNetwork()</span><br><span class="line"></span><br><span class="line"><span class="comment"># create three layers, input layer:2 input unit; hidden layer: 10 units; output layer: 1 output</span></span><br><span class="line">inLayer = LinearLayer(<span class="number">9</span>, name=<span class="string">'inLayer'</span>)</span><br><span class="line">hiddenLayer0 = SigmoidLayer(<span class="number">1</span>, name=<span class="string">'hiddenLayer0'</span>)</span><br><span class="line">outLayer = LinearLayer(<span class="number">1</span>, name=<span class="string">'outLayer'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add three layers to the neural network</span></span><br><span class="line">fnn.addInputModule(inLayer)</span><br><span class="line">fnn.addModule(hiddenLayer0)</span><br><span class="line">fnn.addOutputModule(outLayer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># link three layers</span></span><br><span class="line">in_to_hidden0 = FullConnection(inLayer,hiddenLayer0)</span><br><span class="line">hidden0_to_out = FullConnection(hiddenLayer0, outLayer)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add the links to neural network</span></span><br><span class="line">fnn.addConnection(in_to_hidden0)</span><br><span class="line">fnn.addConnection(hidden0_to_out)</span><br><span class="line"></span><br><span class="line"><span class="comment"># make neural network come into effect</span></span><br><span class="line">fnn.sortModules()</span><br></pre></td></tr></table></figure>
+<h2 id="4-构造数据集"><a href="#4-构造数据集" class="headerlink" title="4. 构造数据集"></a>4. 构造数据集</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># obtain the original data</span></span><br><span class="line"></span><br><span class="line">x1 = train_df[<span class="string">'SibSp'</span>]</span><br><span class="line">x2 = train_df[<span class="string">'Parch'</span>]</span><br><span class="line">x3 = train_df[<span class="string">'Sex_female'</span>]</span><br><span class="line">x4 = train_df[<span class="string">'Sex_male'</span>]</span><br><span class="line">x5 = train_df[<span class="string">'Pclass_1'</span>]</span><br><span class="line">x6 = train_df[<span class="string">'Pclass_2'</span>]</span><br><span class="line">x7 = train_df[<span class="string">'Pclass_3'</span>]</span><br><span class="line">x8 = train_df[<span class="string">'Age_scaled'</span>]</span><br><span class="line">x9 = train_df[<span class="string">'Fare_scaled'</span>]</span><br><span class="line"></span><br><span class="line">y = train_df[<span class="string">'Survived'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># definite the dataset as two input , one output</span></span><br><span class="line">DS = SupervisedDataSet(<span class="number">9</span>,<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># add data element to the dataset</span></span><br><span class="line"><span class="comment"># 往数据集内加样本点</span></span><br><span class="line"><span class="comment"># 假设x1，x2，x3是输入的三个维度向量，y是输出向量，并且它们的长度相同</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(len(train_df)):</span><br><span class="line">    DS.addSample([x1[i],x2[i],x3[i],x4[i],x5[i],x6[i],x7[i],x8[i],x9[i]],[y[i]])</span><br><span class="line"></span><br><span class="line"><span class="comment"># you can get your input/output this way</span></span><br><span class="line"><span class="comment"># 如果要获得里面的输入／输出时，可以用</span></span><br><span class="line">X = DS[<span class="string">'input'</span>]</span><br><span class="line">Y = DS[<span class="string">'target'</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># split the dataset into train dataset and test dataset</span></span><br><span class="line"><span class="comment"># 如果要把数据集切分成训练集和测试集，可以用下面的语句，训练集：测试集＝8:2</span></span><br><span class="line"><span class="comment"># 为了方便之后的调用，可以把输入和输出拎出来</span></span><br><span class="line">dataTrain, dataTest = DS.splitWithProportion(<span class="number">0.8</span>)</span><br><span class="line">xTrain, yTrain = dataTrain[<span class="string">'input'</span>],dataTrain[<span class="string">'target'</span>]</span><br><span class="line">xTest, yTest = dataTest[<span class="string">'input'</span>], dataTest[<span class="string">'target'</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"bulid data sets end ！"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#print xTest[1]</span></span><br><span class="line">type(xTest)</span><br></pre></td></tr></table></figure>
+<pre><code>bulid data sets end ！
+numpy.ndarray
+</code></pre><h2 id="5-训练神经网络"><a href="#5-训练神经网络" class="headerlink" title="5. 训练神经网络"></a>5. 训练神经网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># train the NN</span></span><br><span class="line"><span class="comment"># we use BP Algorithm</span></span><br><span class="line"><span class="comment"># verbose = True means print th total error</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">"trainer start..."</span></span><br><span class="line">trainer = BackpropTrainer(fnn, dataTrain, verbose=<span class="keyword">False</span>,learningrate=<span class="number">0.01</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"run..."</span></span><br><span class="line"><span class="comment"># set the epoch times to make the NN  fit</span></span><br><span class="line">trainer.trainUntilConvergence(maxEpochs=<span class="number">500</span>)</span><br><span class="line"><span class="keyword">print</span> <span class="string">"trainer end!"</span></span><br></pre></td></tr></table></figure>
+<pre><code>trainer start...
+run...
+trainer end!
+</code></pre><h2 id="6-预测-test-csv"><a href="#6-预测-test-csv" class="headerlink" title="6. 预测 test.csv"></a>6. 预测 test.csv</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data_test = pd.read_csv(<span class="string">"test.csv"</span>)</span><br><span class="line">data_test.loc[ (data_test.Fare.isnull()), <span class="string">'Fare'</span> ] = <span class="number">0</span></span><br><span class="line"><span class="comment"># 接着我们对test_data做和train_data中一致的特征变换</span></span><br><span class="line"><span class="comment"># 首先用同样的RandomForestRegressor模型填上丢失的年龄</span></span><br><span class="line">tmp_df = data_test[[<span class="string">'Age'</span>,<span class="string">'Fare'</span>, <span class="string">'Parch'</span>, <span class="string">'SibSp'</span>, <span class="string">'Pclass'</span>]]</span><br><span class="line">null_age = tmp_df[data_test.Age.isnull()].as_matrix()</span><br><span class="line"><span class="comment"># 根据特征属性X预测年龄并补上</span></span><br><span class="line">X = null_age[:, <span class="number">1</span>:]</span><br><span class="line">predictedAges = rfr.predict(X)</span><br><span class="line">data_test.loc[ (data_test.Age.isnull()), <span class="string">'Age'</span> ] = predictedAges</span><br><span class="line"></span><br><span class="line">data_test = set_Cabin_type(data_test)</span><br><span class="line">dummies_Cabin = pd.get_dummies(data_test[<span class="string">'Cabin'</span>], prefix= <span class="string">'Cabin'</span>)</span><br><span class="line">dummies_Embarked = pd.get_dummies(data_test[<span class="string">'Embarked'</span>], prefix= <span class="string">'Embarked'</span>)</span><br><span class="line">dummies_Sex = pd.get_dummies(data_test[<span class="string">'Sex'</span>], prefix= <span class="string">'Sex'</span>)</span><br><span class="line">dummies_Pclass = pd.get_dummies(data_test[<span class="string">'Pclass'</span>], prefix= <span class="string">'Pclass'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">df_test = pd.concat([data_test, dummies_Cabin, dummies_Embarked, dummies_Sex, dummies_Pclass], axis=<span class="number">1</span>)</span><br><span class="line">df_test.drop([<span class="string">'Pclass'</span>, <span class="string">'Name'</span>, <span class="string">'Sex'</span>, <span class="string">'Ticket'</span>, <span class="string">'Cabin'</span>, <span class="string">'Embarked'</span>], axis=<span class="number">1</span>, inplace=<span class="keyword">True</span>)</span><br><span class="line">df_test[<span class="string">'Age_scaled'</span>] = scaler.fit_transform(df_test[<span class="string">'Age'</span>], age_scale_param)</span><br><span class="line">df_test[<span class="string">'Fare_scaled'</span>] = scaler.fit_transform(df_test[<span class="string">'Fare'</span>], fare_scale_param)</span><br><span class="line">df_test</span><br><span class="line"></span><br><span class="line">test = df_test.filter(regex=<span class="string">'SibSp|Parch|Sex_female|Sex_male|Pclass_1|Pclass_2|Pclass_3|Age_scaled|Fare_scaled'</span>)</span><br><span class="line">xTest = test.as_matrix()</span><br><span class="line"><span class="comment"># prediction = fnn.activate(xTest[1])</span></span><br><span class="line"><span class="comment"># print("the prediction number is :",prediction," the real number is:  ",yTest[1])</span></span><br><span class="line">predict_resutl=[]</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> np.arange(len(xTest)):</span><br><span class="line">    res = fnn.activate(xTest[i])[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">if</span> (res &gt; <span class="number">0.5</span>) :</span><br><span class="line">        res = <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span> :</span><br><span class="line">        res = <span class="number">0</span></span><br><span class="line">    predict_resutl.append(res)</span><br><span class="line"></span><br><span class="line">final_res = np.array(predict_resutl).T</span><br><span class="line"></span><br><span class="line">result = pd.DataFrame(&#123;<span class="string">'PassengerId'</span>:data_test[<span class="string">'PassengerId'</span>].as_matrix(), <span class="string">'Survived'</span>:final_res&#125;)</span><br><span class="line">result</span><br></pre></td></tr></table></figure>
+<h2 id="7-结果写入文件"><a href="#7-结果写入文件" class="headerlink" title="7. 结果写入文件"></a>7. 结果写入文件</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">result.to_csv(<span class="string">"logistic_regression_predictions.csv"</span>, index=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="8-验证和分析"><a href="#8-验证和分析" class="headerlink" title="8. 验证和分析"></a>8. 验证和分析</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> mod <span class="keyword">in</span> fnn.modules:</span><br><span class="line">  <span class="keyword">print</span> (<span class="string">"Module:"</span>, mod.name)</span><br><span class="line">  <span class="keyword">if</span> mod.paramdim &gt; <span class="number">0</span>:</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"--parameters:"</span>, mod.params)</span><br><span class="line">  <span class="keyword">for</span> conn <span class="keyword">in</span> fnn.connections[mod]:</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"-connection to"</span>, conn.outmod.name)</span><br><span class="line">    <span class="keyword">if</span> conn.paramdim &gt; <span class="number">0</span>:</span><br><span class="line">       <span class="keyword">print</span> (<span class="string">"- parameters"</span>, conn.params)</span><br><span class="line">  <span class="keyword">if</span> hasattr(fnn, <span class="string">"recurrentConns"</span>):</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"Recurrent connections"</span>)</span><br><span class="line">    <span class="keyword">for</span> conn <span class="keyword">in</span> fnn.recurrentConns:</span><br><span class="line">       <span class="keyword">print</span> (<span class="string">"-"</span>, conn.inmod.name, <span class="string">" to"</span>, conn.outmod.name)</span><br><span class="line">       <span class="keyword">if</span> conn.paramdim &gt; <span class="number">0</span>:</span><br><span class="line">          <span class="keyword">print</span> (<span class="string">"- parameters"</span>, conn.params)</span><br></pre></td></tr></table></figure>
+<pre><code>(&apos;Module:&apos;, &apos;outLayer&apos;)
+(&apos;Module:&apos;, &apos;inLayer&apos;)
+(&apos;-connection to&apos;, &apos;hiddenLayer0&apos;)
+(&apos;- parameters&apos;, array([-0.47294263, -0.04334279,  0.77615167, -2.03865708,  2.38243634,
+        0.69678661, -0.82062356, -0.70921933, -0.12044558]))
+(&apos;Module:&apos;, &apos;hiddenLayer0&apos;)
+(&apos;-connection to&apos;, &apos;outLayer&apos;)
+(&apos;- parameters&apos;, array([ 1.08050317]))
+</code></pre><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="http://blog.csdn.net/han_xiaoyang/article/details/49797143" target="_blank" rel="external">寒小阳-Titanic</a></li>
+<li><a href="http://www.zengmingxia.com/topics/computing/" target="_blank" rel="external">一蓑烟雨任平生</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#泰坦尼克号"><span class="toc-number"></span> <span class="toc-text">泰坦尼克号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-分析问题"><span class="toc-number"></span> <span class="toc-text">1. 分析问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-准备数据"><span class="toc-number"></span> <span class="toc-text">2. 准备数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-构造神经网络"><span class="toc-number"></span> <span class="toc-text">3. 构造神经网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-构造数据集"><span class="toc-number"></span> <span class="toc-text">4. 构造数据集</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-训练神经网络"><span class="toc-number"></span> <span class="toc-text">5. 训练神经网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-预测-test-csv"><span class="toc-number"></span> <span class="toc-text">6. 预测 test.csv</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-结果写入文件"><span class="toc-number"></span> <span class="toc-text">7. 结果写入文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-验证和分析"><span class="toc-number"></span> <span class="toc-text">8. 验证和分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/Neural-Networks/">Neural Networks</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/02/17/ml-sample-Abalone-Age-2017-02-17-1413/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Abalone&#39;s Age
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/02/13/ml-coursera-ng-w4-nn-03/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Coursera Week 5 - Neural Networks II&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2017/02/16/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

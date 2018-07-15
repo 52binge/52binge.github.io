@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>LR 与 SVM 的异同 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LR 与 SVM 的异同">
+<meta property="og:url" content="http://iequa.com/2018/06/23/ml-model-lr-vs-svm/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta property="og:updated_time" content="2018-07-06T15:07:21.741Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="LR 与 SVM 的异同">
+<meta name="twitter:description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/english">English</a>
+        
+          <a class="main-nav-link" href="/ai">AI</a>
+        
+          <a class="main-nav-link" href="/deeplearning">DL</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/project_frame">Project</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-ml-model-lr-vs-svm" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      LR 与 SVM 的异同
+      <small class=article-detail-date-index>&nbsp; 2018-06-23</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/06/23/ml-model-lr-vs-svm/" class="article-date">
+  <time datetime="2018-06-23T08:08:21.000Z" itemprop="datePublished">2018-06-23</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/06/23/ml-model-lr-vs-svm/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>LR 和 SVM 之间的相同点和不同点, 查询了网络上的一些资料，特整理汇总如下 : 😄</p>
+<ol>
+<li>LR 和 SVM 放在一起来进行比较, why？</li>
+<li>LR 和 SVM 的 相同点和不同点?</li>
+</ol>
+<a id="more"></a>
+<h2 id="1-为什么将LR和SVM放在一起来进行比较？"><a href="#1-为什么将LR和SVM放在一起来进行比较？" class="headerlink" title="1. 为什么将LR和SVM放在一起来进行比较？"></a>1. 为什么将LR和SVM放在一起来进行比较？</h2><p>回答这个问题其实就是回答LR和SVM有什么相同点</p>
+<h3 id="LR-和-SVM-都是分类算法"><a href="#LR-和-SVM-都是分类算法" class="headerlink" title="LR 和 SVM 都是分类算法"></a>LR 和 SVM 都是分类算法</h3><blockquote>
+<p>判断一个算法是分类还是回归算法的唯一标准就是样本label的类型，如果label是离散的，就是分类算法，如果label是连续的，就是回归算法。很明显，LR的训练数据的label是“0或者1”，当然是分类算法.</p>
+</blockquote>
+<h3 id="LR-和-SVM-都是线性分类算法"><a href="#LR-和-SVM-都是线性分类算法" class="headerlink" title="LR 和 SVM 都是线性分类算法"></a>LR 和 SVM 都是线性分类算法</h3><blockquote>
+<p>如果不考虑核函数，LR和SVM都是线性分类算法，也就是说他们的分类决策面都是线性</p>
+<p>这里要先说明一点，那就是LR也是可以用核函数的，至于为什么通常在SVM中运用核函数而不在LR中运用，后面讲到他们之间区别的时候会重点分析。总之，原始的LR和SVM都是线性分类器，这也是为什么通常没人问你决策树和LR什么区别，决策树和SVM什么区别，你说一个非线性分类器和一个线性分类器有什么区别？</p>
+</blockquote>
+<h3 id="LR-和-SVM-都是判别模型"><a href="#LR-和-SVM-都是判别模型" class="headerlink" title="LR 和 SVM 都是判别模型"></a>LR 和 SVM 都是判别模型</h3><table>
+<thead>
+<tr>
+<th>-</th>
+<th style="text-align:center">generative approach</th>
+<th style="text-align:center">discriminative approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>定义</td>
+<td style="text-align:center">由数据学习联合概率分布$P(X,Y)$ 然后,<br>求出在$X$情况下，$P(Y)$作为预测的模型</td>
+<td style="text-align:center">决策函数$f(x)$或条件概率分布$P(X)$作为预测模型</td>
+</tr>
+<tr>
+<td>特点</td>
+<td style="text-align:center">1. 可还原出$P(X,Y)$；<br> 2. 学习收敛速度更快；<br> 3. 存在隐变量时仍可用</td>
+<td style="text-align:center">1. 直接面对预测，准确率更高些; <br> 2. 便于数据抽象，特征定义使用;</td>
+</tr>
+<tr>
+<td>模型</td>
+<td style="text-align:center">native bayes、hidden markov</td>
+<td style="text-align:center">Logistic Regression、SVM、Gradient Boosting、CRF.. </td>
+</tr>
+<tr>
+<td>Note</td>
+<td style="text-align:center">给定输入$X$产生输出$Y$的生成关系</td>
+<td style="text-align:center">对给定的输入$X$，应预测什么样的输出$Y$</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>discriminative model</strong> 判别模型不关心数据是怎么生成的，关心信号之间的差别，后用差别来对给定的一个信号进行分类<br>常见的判别模型有：KNN、SVM、LR</p>
+</blockquote>
+<h2 id="2-LR-和-SVM-的-不同"><a href="#2-LR-和-SVM-的-不同" class="headerlink" title="2. LR 和 SVM 的 不同"></a>2. LR 和 SVM 的 不同</h2><ol>
+<li>Linear SVM 和 LR 都是线性分类器</li>
+<li>Linear SVM 不直接依赖数据分布，分类平面不受一部分样本点影响；LR则受所有数据点的影响，如果数据不同类别strongly unbalance一般需要先对数据做balancing。</li>
+<li>Linear SVM 依赖数据表达的距离测度，所以需要对数据先做normalization；LR不受其影响</li>
+<li>Linear SVM 依赖penalty的系数，实验中需要做validation</li>
+<li>Linear SVM 和 LR 的 performance 都会收到outlier的影响，其敏感程度而言，谁更好很难下明确结论.</li>
+</ol>
+<h2 id="3-SVM-和-LR-的比较"><a href="#3-SVM-和-LR-的比较" class="headerlink" title="3. SVM 和 LR 的比较"></a>3. SVM 和 LR 的比较</h2><p>两种方法都是常见的分类算法，从目标函数来看，区别在于逻辑回归采用的是logistical loss，svm采用的是hinge loss。这两个损失函数的目的都是<strong>增加对分类影响较大的数据点的权重，减少与分类关系较小的数据点的权重</strong>。</p>
+<p>SVM 的处理方法是只考虑support vectors，也就是和分类最相关的少数点，去学习分类器。而LR通过非线性映射，大大减小了离分类平面较远的点的权重，相对提升了与分类最相关的数据点的权重。两者的根本目的都是一样的。此外，根据需要，两个方法都可以增加不同的正则化项，如l1,l2等等。所以在很多实验中，两种算法的结果是很接近的。</p>
+<p>LR 相对来说模型更简单，好理解，实现起来，特别是大规模线性分类时比较方便。而SVM的理解和优化相对来说复杂一些。但是SVM的理论基础更加牢固，有一套结构化风险最小化的理论基础，虽然一般使用的人不太会去关注。还有很重要的一点，SVM转化为对偶问题后，分类只需要计算与少数几个支持向量的距离，这个在进行复杂核函数计算时优势很明显，能够大大简化模型和计算量。</p>
+<h3 id="LR-amp-SVM-不同点"><a href="#LR-amp-SVM-不同点" class="headerlink" title="LR &amp; SVM 不同点"></a>LR &amp; SVM 不同点</h3><blockquote>
+<p>要说有什么本质区别，那就是两个模型对数据和参数的敏感程度不同</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">model</th>
+<th style="text-align:center">desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>Linear SVM</strong></td>
+<td style="text-align:center">比较依赖 penalty的系数 和 数据表达空间的测度</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>LR(自带正则项)</strong></td>
+<td style="text-align:center">比较依赖对参数做 L1 regularization 的系数</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>但是由于他们或多或少都是线性分类器，所以实际上对低维度数据overfitting的能力都比较有限，相比之下对高维度数据，LR的表现会更加稳定，为什么呢？</p>
+<p>因为Linear SVM在计算margin有多“宽”的时候是依赖数据表达上的距离测度的，换句话说如果这个测度不好（badly scaled，这种情况在高维数据尤为显著），所求得的所谓Large margin就没有意义了，这个问题即使换用kernel trick（比如用Gaussian kernel）也无法完全避免。</p>
+<p>所以使用<strong>Linear SVM</strong>都需要先对数据做<strong>normalization</strong>，而求解LR（without regularization）时则不需要或者结果不敏感。</p>
+<p>注：不带正则化的LR，其做normalization的目的是为了方便选择优化过程的起始值，不代表最后的解的performance会跟normalization相关，而其线性约束是可以被放缩的（等式两边可同时乘以一个系数），所以做normalization只是为了求解优化模型过程中更容易选择初始值。</p>
+</blockquote>
+<h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><blockquote>
+<p>具体到 loss function 上来看， LR 用的是 <code>log-loss</code>, SVM 用的是 <code>hinge-loss</code>, 两者的相似之处在于 loss 在错误分类的时候都很大，但是对于正确分类的点，hinge-loss 就不管了，而 log-loss 还要考虑进去。此外因为 log-loss 在 mis-classified 的点上是指数级增长的，而 hinge-loss 是线性增长，所以 <strong>LR 在偶尔出现 mis-label 的情况下的表现会比较糟糕</strong>。</p>
+<p>另外 regularization 在这里没有区别，L1/L2 两个都能用，效果也差不多。Class imbalance 的话 SVM 一般用 weight 解决，LR 因为可以预测概率，所以也可以直接对最后的结果进行调整，取不同的阈值来达到理想的效果。</p>
+<p>实践中 LR 的速度明显更快，维度小的时候 bias 小 也不容易 overfit. 相反 Kernel SVM 在大规模数据集的情况下基本不实用，但是如果数据集本身比较小而且维度高的的话一般 SVM 表现更好。</p>
+</blockquote>
+<h2 id="4-LR-amp-SVM-选型"><a href="#4-LR-amp-SVM-选型" class="headerlink" title="4. LR &amp; SVM 选型"></a>4. LR &amp; SVM 选型</h2><p>在Andrew NG的课里讲到过：</p>
+<ol>
+<li>如果Feature的数量很大，跟样本数量差不多，这时候选用LR或者是Linear Kernel的SVM</li>
+<li>如果Feature的数量比较小，样本数量一般，不算大也不算小，选用SVM+Gaussian Kernel</li>
+<li>如果Feature的数量比较小，而样本数量很多，需要手工添加一些feature变成第一种情况</li>
+</ol>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li><a href="https://www.cnblogs.com/zhizhan/p/5038747.html" target="_blank" rel="external">LR 与 SVM的异同</a></li>
+<li><a href="http://izhaoyi.top/2017/06/02/Note-StatisticalML/" target="_blank" rel="external">懒死骆驼 - 统计学习方法笔记(一)</a></li>
+<li><a href="https://www.zhihu.com/question/24900876" target="_blank" rel="external">知乎 : 最小二乘、极大似然、梯度下降有何区别？</a></li>
+<li><a href="https://www.zhihu.com/question/26768865/answer/139613835" target="_blank" rel="external">知乎 : Linear SVM 和 LR 有什么异同？</a></li>
+<li><a href="http://www.cnblogs.com/peizhe123/p/5674730.html" target="_blank" rel="external">白开水加糖 SVM与LR的比较</a></li>
+<li><a href="http://izhaoyi.top/2017/09/03/model-pre/" target="_blank" rel="external">懒死骆驼 - 口述模型整理</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-为什么将LR和SVM放在一起来进行比较？"><span class="toc-number"></span> <span class="toc-text">1. 为什么将LR和SVM放在一起来进行比较？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是分类算法"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是分类算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是线性分类算法"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是线性分类算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-和-SVM-都是判别模型"><span class="toc-number"></span> <span class="toc-text">LR 和 SVM 都是判别模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-LR-和-SVM-的-不同"><span class="toc-number"></span> <span class="toc-text">2. LR 和 SVM 的 不同</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-SVM-和-LR-的比较"><span class="toc-number"></span> <span class="toc-text">3. SVM 和 LR 的比较</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#LR-amp-SVM-不同点"><span class="toc-number"></span> <span class="toc-text">LR & SVM 不同点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#loss-function"><span class="toc-number"></span> <span class="toc-text">loss function</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-LR-amp-SVM-选型"><span class="toc-number"></span> <span class="toc-text">4. LR & SVM 选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/machine-learning/">machine-learning</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/06/27/ml-5-decisionTree-part2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          学习笔记(五) - Decision Tree
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/06/20/ml-svm-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Support Vecor Machine (六部曲)&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/06/23/ml-model-lr-vs-svm/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
