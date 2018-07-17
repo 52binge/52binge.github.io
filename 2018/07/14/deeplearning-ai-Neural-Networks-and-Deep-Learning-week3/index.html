@@ -40,7 +40,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-15_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-16_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-17_1.png">
-<meta property="og:updated_time" content="2018-07-17T03:37:31.509Z">
+<meta property="og:updated_time" content="2018-07-17T12:15:06.084Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Neural Networks and Deep Learning (week3)">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -202,9 +202,22 @@ var _hmt = _hmt || [];
 <p><img src="/images/deeplearning/C1W3-9_1.png" width="750"></p>
 <p>以上激活函数的导数请自行在草稿纸上推导.</p>
 <p><img src="/images/deeplearning/C1W3-10_1.png" width="750"></p>
+<blockquote>
+<p>derivative of <strong><code>sigmoid</code></strong> activation function</p>
+</blockquote>
 <p><img src="/images/deeplearning/C1W3-11_1.png" width="750"></p>
+<blockquote>
+<p>derivative of <strong><code>tanh</code></strong> activation function</p>
+</blockquote>
 <p><img src="/images/deeplearning/C1W3-12_1.png" width="750"></p>
+<blockquote>
+<p>derivative of <strong><code>ReLU and Leaky ReLU</code></strong> activation function</p>
+</blockquote>
 <p>为什么需要激活函数? 如果没有激活函数, 那么不论多少层的神经网络都只相当于一个LR. 证明如下:</p>
+<blockquote>
+<p><strong>it turns out that if you use a linear activation function or alternatively if you don’t have an activation function, then no matter how many layers your neural network has, always doing just computing a linear activation function, so you might as well not have any hidden layers.</strong></p>
+<p>so unless you throw a non-linearity in there, then you’re not computing more interesting functions.</p>
+</blockquote>
 <p><img src="/images/deeplearning/C1W3-13_1.png" width="750"></p>
 <blockquote>
 <p>你可以在隐藏层用 tanh，输出层用 sigmoid，说明不同层的激活函数可以不一样。</p>
@@ -217,7 +230,11 @@ var _hmt = _hmt || [];
 <p><strong>ReLU (rectified linear unit) is well</strong>, z = 0 的时候，你可以给导数赋值为 0 or 1，虽然这个点是不可微的. 但<strong>实现</strong>没有影响.</p>
 <p>虽然 z &lt; 0, 的时候，斜率为0， 但在实践中，有足够多的隐藏单元 令 z &gt; 0, 对大多数训练样本来说是很快的.</p>
 </blockquote>
-<h2 id="4-神经网络中的反向传播"><a href="#4-神经网络中的反向传播" class="headerlink" title="4. 神经网络中的反向传播"></a>4. 神经网络中的反向传播</h2><blockquote>
+<p>Notes:</p>
+<blockquote>
+<p>so the one place you might use as linear activation function, others usually in the output layer.</p>
+</blockquote>
+<h2 id="4-神经网络中的反向传播-back-propagation"><a href="#4-神经网络中的反向传播-back-propagation" class="headerlink" title="4. 神经网络中的反向传播 back propagation"></a>4. 神经网络中的反向传播 back propagation</h2><blockquote>
 <p>反向传播最主要的就是计算梯度, 在上一周的内容中, 我们已经知道了LR梯度的计算. </p>
 <p>同样的方式, 我们使用<strong>计算图</strong>来计算<strong>神经网络中的各种梯度</strong>.</p>
 </blockquote>
@@ -225,12 +242,25 @@ var _hmt = _hmt || [];
 <p>$$<br>dz^{[2]} = \frac{dL}{dz}= \frac{dL}{da^{[2]}}\frac{da^{[2]}}{dz^{[2]}}=a^{[2]}-y<br>$$</p>
 <p>$$<br>dW^{[2]}=\frac{dL}{dW^{[2]}}=\frac{dL}{dz^{[2]}}\frac{dz^{[2]}}{dW^{[2]}}=dz^{[2]}a^{[1]}<br>$$</p>
 <p>$$<br>db^{[2]}=\frac{dL}{db^{[2]}}=\frac{dL}{dz^{[2]}}\frac{dz^{[2]}}{db^{[2]}}=dz^{[2]}<br>$$</p>
-<p>反向传播…</p>
+<blockquote>
+<p><strong>backward propagation :</strong></p>
+</blockquote>
 <p>$$<br>dz^{[1]} = \frac{dL}{dz^{[2]}}\frac{dz^{[2]}}{da^{[1]}}\frac{da^{[1]}}{dz^{[1]}}=W^{[2]T}dz^{[2]}*g^{[1]’}(z^{[1]})<br>$$</p>
 <p>$$<br>dW^{[1]}=\frac{dL}{dW^{[1]}}=\frac{dL}{dz^{[1]}}\frac{dz^{[1]}}{dW^{[1]}}=dz^{[1]}x^T<br>$$</p>
 <p>$$<br>db^{[1]}=\frac{dL}{db^{[1]}}=\frac{dL}{dz^{[1]}}\frac{dz^{[1]}}{db^{[1]}}=dz^{[1]}<br>$$</p>
+<blockquote>
+<p>Notes: $\frac{dL}{dz^{[2]}} = dz^{[2]}$ ， $\frac{dz^{[2]}}{da^{[1]}} = W^{[2]}$ ， $\frac{da^{[1]}}{dz^{[1]}}=g^{[1]’}(z^{[1]})$</p>
+</blockquote>
 <p>下图右边为在$m$个训练样本上的向量化表达:</p>
 <p><img src="/images/deeplearning/C1W3-15_1.png" width="750"></p>
+<blockquote>
+<p>Notes: </p>
+<ul>
+<li>$n^[0]$ = input features</li>
+<li>$n^[1]$ = hidden units</li>
+<li>$n^[2]$ = output units</li>
+</ul>
+</blockquote>
 <h2 id="5-神经网络中的参数初始化"><a href="#5-神经网络中的参数初始化" class="headerlink" title="5. 神经网络中的参数初始化"></a>5. 神经网络中的参数初始化</h2><p>在LR中我们的参数 $w$ 初始化为0, 如果在神经网络中也是用相同的初始化, 那么一个隐藏层的每个节点都是相同的, 不论迭代多少次. 这显然是不合理的, 所以我们应该随机地初始化 $w$ 从而解决这个sysmetry breaking problem.</p>
 <p><img src="/images/deeplearning/C1W3-16_1.png" width="750"></p>
 <p>具体初始化代码可参见下图, 其中乘以0.01是为了让参数较小, 加速梯度下降(如激活函数为tanh时, 若参数较大则 $z$ 也较大, 此时的梯度接近于0, 更新缓慢).</p>
@@ -295,7 +325,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-常用符号与基本概念"><span class="toc-number"></span> <span class="toc-text">1. 常用符号与基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-神经网络中的前向传播"><span class="toc-number"></span> <span class="toc-text">2. 神经网络中的前向传播</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-神经网络中的激活函数"><span class="toc-number"></span> <span class="toc-text">3. 神经网络中的激活函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-神经网络中的反向传播"><span class="toc-number"></span> <span class="toc-text">4. 神经网络中的反向传播</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-神经网络中的参数初始化"><span class="toc-number"></span> <span class="toc-text">5. 神经网络中的参数初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-用Python搭建简单神经网络"><span class="toc-number"></span> <span class="toc-text">6. 用Python搭建简单神经网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-常用符号与基本概念"><span class="toc-number"></span> <span class="toc-text">1. 常用符号与基本概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-神经网络中的前向传播"><span class="toc-number"></span> <span class="toc-text">2. 神经网络中的前向传播</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-神经网络中的激活函数"><span class="toc-number"></span> <span class="toc-text">3. 神经网络中的激活函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-神经网络中的反向传播-back-propagation"><span class="toc-number"></span> <span class="toc-text">4. 神经网络中的反向传播 back propagation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-神经网络中的参数初始化"><span class="toc-number"></span> <span class="toc-text">5. 神经网络中的参数初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-用Python搭建简单神经网络"><span class="toc-number"></span> <span class="toc-text">6. 用Python搭建简单神经网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
