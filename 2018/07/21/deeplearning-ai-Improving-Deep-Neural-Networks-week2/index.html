@@ -27,10 +27,11 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-2_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-3_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-4_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_0.jpg">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-6_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-7.png">
-<meta property="og:updated_time" content="2018-07-23T09:24:07.788Z">
+<meta property="og:updated_time" content="2018-07-24T09:21:45.240Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Improving Deep Neural Networks (week2) - Optimization Algorithm">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -165,47 +166,79 @@ var _hmt = _hmt || [];
 <p>但是如果每次处理训练数据的一部分即进行梯度下降法，则我们的算法速度会执行的更快。而处理的这些一小部分训练子集即称为Mini-batch。</p>
 </blockquote>
 <p><img src="/images/deeplearning/C2W2-1_1.png" width="700"></p>
+<blockquote>
+<p>如图，以1000为单位，将数据划分，令 $x^{\{1\}}=\{x^{(1)},x^{(2)}……x^{(5000)}\}$, 一般用 $x^{ \{ t \} }$, $y^{ \{t\} }$ 表示划分后的 mini-batch.</p>
+<p>注意区分该系列教学视频的符号标记：</p>
+<ul>
+<li>小括号() 表示具体的某一个元素，指一个具体的值，例如 $x^{(i)}$</li>
+<li>中括号[] 表示神经网络中的某一层,例如 $Z^{[l]}$</li>
+<li>大括号{} 表示将数据细分后的一个集合,例如 $x^{\{1\}} = \{x^{(1)},x^{(2)}……x^{(5000)}\}$</li>
+</ul>
+</blockquote>
 <p><strong>算法核心</strong></p>
 <p><img src="/images/deeplearning/C2W2-2_1.png" width="700"></p>
 <blockquote>
-<p>对于普通的梯度下降法，一个epoch只能进行一次梯度下降；而对于Mini-batch梯度下降法，一个epoch可以进行Mini-batch的个数次梯度下降。</p>
+<p>假设我们有5,000,000个数据，每1000作为一个集合，计入上面所提到的 $x^{\{1\}}=\{x^{(1)},x^{(2)}……x^{(5000)}\},……$</p>
+<ol>
+<li>需要迭代运行5000次神经网络运算.</li>
+<li>每一次迭代其实与之前笔记中所提到的计算过程一样，首先是前向传播，但是每次计算的数量是1000.</li>
+<li>计算损失函数，如果有正则化，则记得加上正则项</li>
+<li>反向传播</li>
+</ol>
+<p>注意，mini-batch相比于之前一次性计算所有数据不仅速度快，而且反向传播需要计算5000次，所以效果也更好.</p>
+</blockquote>
+<p>epoch</p>
+<blockquote>
+<ul>
+<li>对于普通的梯度下降法，一个epoch只能进行一次梯度下降；</li>
+<li>对于Mini-batch梯度下降法，一个epoch可以进行Mini-batch的个数次梯度下降;</li>
+</ul>
 </blockquote>
 <h3 id="不同size大小的比较"><a href="#不同size大小的比较" class="headerlink" title="不同size大小的比较"></a>不同size大小的比较</h3><p>普通的batch梯度下降法和Mini-batch梯度下降法代价函数的变化趋势，如下图所示：</p>
 <p><img src="/images/deeplearning/C2W2-3_1.png" width="700"></p>
-<p><strong>Batch梯度下降:</strong></p>
+<p><strong>Batch梯度下降</strong> （如下图中蓝色）:</p>
 <blockquote>
 <ul>
 <li>对所有m个训练样本执行一次梯度下降，每一次迭代时间较长；</li>
 <li>Cost function 总是向减小的方向下降。</li>
 </ul>
+<p>说明: mini-batch size = m，此时即为 Batch gradient descent $(x^,y^)=(X,Y)$</p>
 </blockquote>
-<p><strong>随机梯度下降:</strong></p>
+<p><strong>随机梯度下降</strong> （如下图中紫色）:</p>
 <blockquote>
 <p>-对每一个训练样本执行一次梯度下降，但是丢失了向量化带来的计算加速；</p>
 <ul>
-<li>Cost function总体的趋势向最小值的方向下降，但是无法到达全局最小值点，呈现波动的形式。</li>
+<li>Cost function总体的趋势向最小值的方向下降，但是无法到达全局最小值点，呈现波动的形式.</li>
 </ul>
-<p>杰哥？</p>
+<p>说明: mini-batch size = 1，此时即为 Stochastic gradient descent $(x^{\{t\}},y^{\{t\}})=(x^{(i)},y^{(i)})$</p>
 </blockquote>
-<p><strong>Mini-batch梯度下降:</strong></p>
+<p><strong>Mini-batch梯度下降</strong> （如下图中绿色）:</p>
 <blockquote>
 <ul>
-<li>选一个 $1&lt;size&lt;m$ 的合适的size进行Mini-batch梯度下降，可以实现快速学习，也应用了向量化带来的好处</li>
+<li>选一个 $1&lt;size&lt;m$ 的合适的 size 进行 Mini-batch 梯度下降，可实现快速学习，也应用了向量化带来的好处</li>
 <li>Cost function 的下降处于前两者之间</li>
 </ul>
 </blockquote>
 <p><img src="/images/deeplearning/C2W2-4_1.png" width="700"></p>
 <h3 id="Mini-batch-大小的选择"><a href="#Mini-batch-大小的选择" class="headerlink" title="Mini-batch 大小的选择"></a>Mini-batch 大小的选择</h3><blockquote>
 <ul>
-<li>如果训练样本的大小比较小时，如 $m⩽2000$ 时 —— 选择batch梯度下降法；</li>
+<li>如果训练样本的大小比较小时，如 $m⩽2000$ 时 — 选择batch梯度下降法；</li>
 <li>如果训练样本的大小比较大时，典型的大小为：$2^{6}、2^{7}、\cdots、2^{10}$</li>
-<li>Mini-batch的大小要符合 CPU/GPU 内存.</li>
+<li>Mini-batch的大小要符合 CPU/GPU 内存， 运算起来会更快一些.</li>
 </ul>
 </blockquote>
-<h2 id="2-Exponentially-weighted-averages"><a href="#2-Exponentially-weighted-averages" class="headerlink" title="2. Exponentially weighted averages"></a>2. Exponentially weighted averages</h2><p>指数加权平均的关键函数： </p>
-<p>$$<br>v_{t} = \beta v_{t-1}+(1-\beta)\theta_{t}<br>$$</p>
+<h2 id="2-Exponentially-weighted-averages"><a href="#2-Exponentially-weighted-averages" class="headerlink" title="2. Exponentially weighted averages"></a>2. Exponentially weighted averages</h2><p>为了理解后面会提到的各种优化算法，我们需要用到指数加权平均，在统计学中也叫做指数加权移动平均.</p>
+<p>首先我们假设有一年的温度数据，如下图所示</p>
+<p><img src="/images/deeplearning/C2W2-5_0.jpg" width="500"></p>
+<p>我们现在需要计算出一个温度趋势曲线，计算方法(<code>指数加权平均实现</code>)如下：</p>
+<p>$$<br>v_{0} =0 \\<br>v_{1}= \beta v_{0}+(1-\beta)\theta_{1} \\<br>v_{2}= \beta v_{1}+(1-\beta)\theta_{2} \\<br>v_{3}= \beta v_{2}+(1-\beta)\theta_{3} \\<br>\ldots<br>$$</p>
+<blockquote>
+<p>上面的 $θ_t$ 表示第 $t$ 天的温度，β 是可调节的参数，$V_t$ 表示 $\frac{1}{1-β}$ 天的每日温度</p>
+</blockquote>
 <p>下图是一个关于天数和温度的散点图：</p>
-<p><img src="/images/deeplearning/C2W2-5_1.png" width="700"></p>
+<p><img src="/images/deeplearning/C2W2-5_1.png" width="600"></p>
+<p>指数加权平均的关键函数： </p>
+<p>$$<br>v_{t} = \beta v_{t-1}+(1-\beta)\theta_{t}<br>$$</p>
 <blockquote>
 <ul>
 <li>当β=0.9时，指数加权平均最后的结果如下图中<strong>红色</strong>线所示；</li>
@@ -224,10 +257,6 @@ var _hmt = _hmt || [];
 <p>上式中所有$θ$前面的系数相加起来为1或者接近于1，称之为偏差修正.</p>
 <blockquote>
 <p>总体来说存在，$(1-\varepsilon)^{1/\varepsilon}=\dfrac{1}{e}$, 在我们的例子中，$1-\varepsilon=\beta=0.9$, 即 $0.9^{10}\approx 0.35\approx\dfrac{1}{e}$ . 相当于大约10天后，系数的峰值（这里是0.1）下降到原来的 $\dfrac{1}{e}$，只关注了过去10天的天气.</p>
-</blockquote>
-<h3 id="指数加权平均实现"><a href="#指数加权平均实现" class="headerlink" title="指数加权平均实现"></a>指数加权平均实现</h3><p>$$<br>v_{0} =0 \\<br>v_{1}= \beta v_{0}+(1-\beta)\theta_{1} \\<br>v_{2}= \beta v_{1}+(1-\beta)\theta_{2} \\<br>v_{3}= \beta v_{2}+(1-\beta)\theta_{3} \\<br>\ldots<br>$$</p>
-<blockquote>
-<p>因为，在计算当前时刻的平均值，只需要前一天的平均值和当前时刻的值，所以在数据量非常大的情况下，指数加权平均在节约计算成本的方面是一种非常有效的方式，可以很大程度上减少计算机资源存储和内存的占用。</p>
 </blockquote>
 <h3 id="指数加权平均的偏差修正-Bias-correction"><a href="#指数加权平均的偏差修正-Bias-correction" class="headerlink" title="指数加权平均的偏差修正 Bias correction"></a>指数加权平均的偏差修正 Bias correction</h3><p>在我们执行指数加权平均的公式时，当β=0.98时，得到的并不是图中的绿色曲线，而是下图中的紫色曲线，其起点比较低。</p>
 <p><img src="/images/deeplearning/C2W2-7.png" width="650"></p>
@@ -304,7 +333,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Mini-batch"><span class="toc-number"></span> <span class="toc-text">1. Mini-batch</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不同size大小的比较"><span class="toc-number"></span> <span class="toc-text">不同size大小的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mini-batch-大小的选择"><span class="toc-number"></span> <span class="toc-text">Mini-batch 大小的选择</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Exponentially-weighted-averages"><span class="toc-number"></span> <span class="toc-text">2. Exponentially weighted averages</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#理解指数加权平均"><span class="toc-number"></span> <span class="toc-text">理解指数加权平均</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指数加权平均实现"><span class="toc-number"></span> <span class="toc-text">指数加权平均实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指数加权平均的偏差修正-Bias-correction"><span class="toc-number"></span> <span class="toc-text">指数加权平均的偏差修正 Bias correction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Momentum"><span class="toc-number"></span> <span class="toc-text">3. Momentum</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-RMSprop"><span class="toc-number"></span> <span class="toc-text">4. RMSprop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Adam-Adaptive-Moment-Estimation"><span class="toc-number"></span> <span class="toc-text">5. Adam (Adaptive Moment Estimation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Learning-rate-decay"><span class="toc-number"></span> <span class="toc-text">6. Learning rate decay</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Mini-batch"><span class="toc-number"></span> <span class="toc-text">1. Mini-batch</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不同size大小的比较"><span class="toc-number"></span> <span class="toc-text">不同size大小的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mini-batch-大小的选择"><span class="toc-number"></span> <span class="toc-text">Mini-batch 大小的选择</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Exponentially-weighted-averages"><span class="toc-number"></span> <span class="toc-text">2. Exponentially weighted averages</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#理解指数加权平均"><span class="toc-number"></span> <span class="toc-text">理解指数加权平均</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指数加权平均的偏差修正-Bias-correction"><span class="toc-number"></span> <span class="toc-text">指数加权平均的偏差修正 Bias correction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Momentum"><span class="toc-number"></span> <span class="toc-text">3. Momentum</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-RMSprop"><span class="toc-number"></span> <span class="toc-text">4. RMSprop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Adam-Adaptive-Moment-Estimation"><span class="toc-number"></span> <span class="toc-text">5. Adam (Adaptive Moment Estimation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Learning-rate-decay"><span class="toc-number"></span> <span class="toc-text">6. Learning rate decay</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
       </div>
     
     
