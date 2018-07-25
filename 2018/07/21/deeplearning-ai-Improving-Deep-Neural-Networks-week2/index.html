@@ -28,10 +28,11 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-3_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-4_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_0.jpg">
-<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_1.png">
-<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-6_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_2.jpg">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_3.jpg">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_4.jpg">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-7.png">
-<meta property="og:updated_time" content="2018-07-24T09:21:45.240Z">
+<meta property="og:updated_time" content="2018-07-25T08:06:41.741Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Improving Deep Neural Networks (week2) - Optimization Algorithm">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -228,6 +229,8 @@ var _hmt = _hmt || [];
 </ul>
 </blockquote>
 <h2 id="2-Exponentially-weighted-averages"><a href="#2-Exponentially-weighted-averages" class="headerlink" title="2. Exponentially weighted averages"></a>2. Exponentially weighted averages</h2><p>为了理解后面会提到的各种优化算法，我们需要用到指数加权平均，在统计学中也叫做指数加权移动平均.</p>
+<p>指数加权平均的关键函数： </p>
+<p>$$<br>v_{t} = \beta v_{t-1}+(1-\beta)\theta_{t}<br>$$</p>
 <p>首先我们假设有一年的温度数据，如下图所示</p>
 <p><img src="/images/deeplearning/C2W2-5_0.jpg" width="500"></p>
 <p>我们现在需要计算出一个温度趋势曲线，计算方法(<code>指数加权平均实现</code>)如下：</p>
@@ -235,20 +238,19 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>上面的 $θ_t$ 表示第 $t$ 天的温度，β 是可调节的参数，$V_t$ 表示 $\frac{1}{1-β}$ 天的每日温度</p>
 </blockquote>
-<p>下图是一个关于天数和温度的散点图：</p>
-<p><img src="/images/deeplearning/C2W2-5_1.png" width="600"></p>
-<p>指数加权平均的关键函数： </p>
-<p>$$<br>v_{t} = \beta v_{t-1}+(1-\beta)\theta_{t}<br>$$</p>
+<!--下图是一个关于天数和温度的散点图：
+<img src="/images/deeplearning/C2W2-5_1.png" width="600" />
+-->
+<h3 id="当-β-0-9、0-98、0-5-的情况"><a href="#当-β-0-9、0-98、0-5-的情况" class="headerlink" title="当 β=0.9、0.98、0.5 的情况"></a>当 β=0.9、0.98、0.5 的情况</h3><p>当β=0.9时，指数加权平均最后的结果如下图中<strong>红色</strong>线所示；</p>
+<p><img src="/images/deeplearning/C2W2-5_2.jpg" width="600"></p>
+<p>当β=0.98时，指数加权平均最后的结果如下图中<strong>绿色</strong>线所示, 绿线相比较红线要平滑一些，是因为对过去温度的权重更大，所以当天天气温度的影响降低，在温度变化时，适应得更缓慢一些；</p>
+<p><img src="/images/deeplearning/C2W2-5_3.jpg" width="600"></p>
+<p>当β=0.5时，指数加权平均最后的结果如下图中<strong>黄色</strong>线所示；</p>
+<p><img src="/images/deeplearning/C2W2-5_4.jpg" width="600"></p>
+<!--<img src="/images/deeplearning/C2W2-6_1.png" width="700" />
+-->
 <blockquote>
-<ul>
-<li>当β=0.9时，指数加权平均最后的结果如下图中<strong>红色</strong>线所示；</li>
-<li>当β=0.98时，指数加权平均最后的结果如下图中<strong>绿色</strong>线所示；</li>
-<li>当β=0.5时，指数加权平均最后的结果如下图中<strong>黄色</strong>线所示；</li>
-</ul>
-</blockquote>
-<p><img src="/images/deeplearning/C2W2-6_1.png" width="700"></p>
-<blockquote>
-<p> The most common value for $\beta$ is 0.9.</p>
+<p> Notes: The most common value for $\beta$ is 0.9.</p>
 </blockquote>
 <h3 id="理解指数加权平均"><a href="#理解指数加权平均" class="headerlink" title="理解指数加权平均"></a>理解指数加权平均</h3><p>例子，当β=0.9时： </p>
 <p>$$<br>v_{100} = 0.9v_{99}+0.1\theta_{100} \\ v_{99} = 0.9v_{98}+0.1\theta_{99} \\ v_{98} = 0.9v_{97}+0.1\theta_{98} \\<br>\ldots<br>$$</p>
@@ -333,7 +335,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Mini-batch"><span class="toc-number"></span> <span class="toc-text">1. Mini-batch</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不同size大小的比较"><span class="toc-number"></span> <span class="toc-text">不同size大小的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mini-batch-大小的选择"><span class="toc-number"></span> <span class="toc-text">Mini-batch 大小的选择</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Exponentially-weighted-averages"><span class="toc-number"></span> <span class="toc-text">2. Exponentially weighted averages</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#理解指数加权平均"><span class="toc-number"></span> <span class="toc-text">理解指数加权平均</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指数加权平均的偏差修正-Bias-correction"><span class="toc-number"></span> <span class="toc-text">指数加权平均的偏差修正 Bias correction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Momentum"><span class="toc-number"></span> <span class="toc-text">3. Momentum</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-RMSprop"><span class="toc-number"></span> <span class="toc-text">4. RMSprop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Adam-Adaptive-Moment-Estimation"><span class="toc-number"></span> <span class="toc-text">5. Adam (Adaptive Moment Estimation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Learning-rate-decay"><span class="toc-number"></span> <span class="toc-text">6. Learning rate decay</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Mini-batch"><span class="toc-number"></span> <span class="toc-text">1. Mini-batch</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不同size大小的比较"><span class="toc-number"></span> <span class="toc-text">不同size大小的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mini-batch-大小的选择"><span class="toc-number"></span> <span class="toc-text">Mini-batch 大小的选择</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Exponentially-weighted-averages"><span class="toc-number"></span> <span class="toc-text">2. Exponentially weighted averages</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#当-β-0-9、0-98、0-5-的情况"><span class="toc-number"></span> <span class="toc-text">当 β=0.9、0.98、0.5 的情况</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#理解指数加权平均"><span class="toc-number"></span> <span class="toc-text">理解指数加权平均</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指数加权平均的偏差修正-Bias-correction"><span class="toc-number"></span> <span class="toc-text">指数加权平均的偏差修正 Bias correction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Momentum"><span class="toc-number"></span> <span class="toc-text">3. Momentum</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-RMSprop"><span class="toc-number"></span> <span class="toc-text">4. RMSprop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Adam-Adaptive-Moment-Estimation"><span class="toc-number"></span> <span class="toc-text">5. Adam (Adaptive Moment Estimation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Learning-rate-decay"><span class="toc-number"></span> <span class="toc-text">6. Learning rate decay</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
       </div>
     
     
