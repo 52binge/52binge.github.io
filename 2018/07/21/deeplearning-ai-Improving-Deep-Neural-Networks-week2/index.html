@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_3.jpg">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_4.jpg">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-7.png">
-<meta property="og:updated_time" content="2018-07-25T08:06:41.741Z">
+<meta property="og:updated_time" content="2018-07-25T09:08:12.483Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Improving Deep Neural Networks (week2) - Optimization Algorithm">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -260,7 +260,7 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>总体来说存在，$(1-\varepsilon)^{1/\varepsilon}=\dfrac{1}{e}$, 在我们的例子中，$1-\varepsilon=\beta=0.9$, 即 $0.9^{10}\approx 0.35\approx\dfrac{1}{e}$ . 相当于大约10天后，系数的峰值（这里是0.1）下降到原来的 $\dfrac{1}{e}$，只关注了过去10天的天气.</p>
 </blockquote>
-<h3 id="指数加权平均的偏差修正-Bias-correction"><a href="#指数加权平均的偏差修正-Bias-correction" class="headerlink" title="指数加权平均的偏差修正 Bias correction"></a>指数加权平均的偏差修正 Bias correction</h3><p>在我们执行指数加权平均的公式时，当β=0.98时，得到的并不是图中的绿色曲线，而是下图中的紫色曲线，其起点比较低。</p>
+<h3 id="指数加权平均的偏差修正-Bias-correction"><a href="#指数加权平均的偏差修正-Bias-correction" class="headerlink" title="指数加权平均的偏差修正 Bias correction"></a>指数加权平均的偏差修正 Bias correction</h3><p>在我们执行指数加权平均的公式时，当β=0.98时，得到的并不是图中的<strong>绿色</strong>曲线，而是下图中的<strong>紫色</strong>曲线，其起点比较低。</p>
 <p><img src="/images/deeplearning/C2W2-7.png" width="650"></p>
 <p><strong>原因</strong>： </p>
 <blockquote>
@@ -275,8 +275,28 @@ var _hmt = _hmt || [];
 </ul>
 <p>$$<br>1-\beta^{t}=1-(0.98)^{2}=0.0396<br>$$</p>
 <p>$$<br>\dfrac{v_{2}}{0.0396}=\dfrac{0.0196\theta_{1}+0.02\theta_{2}}{0.0396}<br>$$</p>
-<p>偏差修正得到了绿色的曲线，在开始的时候，能够得到比紫色曲线更好的计算平均的效果。随着t逐渐增大，$\beta^{t}$接近于0，所以后面绿色的曲线和紫色的曲线逐渐重合了。</p>
+<p>偏差修正得到了绿色的曲线，在开始的时候，能够得到比紫色曲线更好的计算平均的效果。随着t逐渐增大，$\beta^{t}$接近于0，所以后面绿色的曲线和紫色的曲线逐渐重合了.</p>
 <p>虽然存在这种问题，但是在实际过程中，一般会忽略前期均值偏差的影响</p>
+</blockquote>
+<p><strong>偏差修正 举个🌰, 以便于大家理解:</strong></p>
+<blockquote>
+<p>首先我们假设的是 $β=0.98, V_0=0$, 然后由 $V_t=βV_{t-1}+(1-β)θ_t$ 可知</p>
+<ul>
+<li><p>$V_1=0.98V_0+0.02θ_1=0.02θ_1$</p>
+</li>
+<li><p>$V_2=0.98V_1+0.02θ_2=0.0196θ_1+0.02θ_2$</p>
+</li>
+</ul>
+<p>假设 $θ_1=40℃$,那么 $V_1=0.02*40=0.8℃$，这显然相差太大，同理对于后面的温度的计算也只会是变差越来越大. 所以我们需要进行偏差修正，具体方法如下：</p>
+<p>$$<br>V_t=\frac{βV_{t-1}+(1-β)θ_t}{1-β^t}<br>$$</p>
+<p>注意 ：！！！上面公式中的 $V_{t-1}$ 是未修正的值.</p>
+<p>为方便说明，令 $β=0.98,θ_1=40℃,θ_2=39℃$, 则</p>
+<ul>
+<li>当 $t=1,θ_1=40℃$ 时，$V_1=\frac{0.02*40}{1-0.98}=40$ ,哇哦, 有没有很巧的感觉，再看</li>
+<li>当 $t=2,θ_2=39℃$ 时，$V_2 = \frac{0.98}{1}$ </li>
+</ul>
+<p>$ = \frac {0.98<em>(0.02</em>θ_1) + 0.02*39 } {1-0.98^2} = 39.49$</p>
+<p>所以，记住你如果直接用修正后的 $V_{t−1}$ 值代入计算就大错特错了.</p>
 </blockquote>
 <h2 id="3-Momentum"><a href="#3-Momentum" class="headerlink" title="3. Momentum"></a>3. Momentum</h2><p>动量梯度下降的基本思想就是<code>计算梯度的指数加权平均数</code>，并利用该梯度来更新权重</p>
 <p>在我们优化 Cost function 的时候，以下图所示的函数图为例：</p>
