@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-9_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-11.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-12_1.png">
-<meta property="og:updated_time" content="2018-07-27T11:40:11.432Z">
+<meta property="og:updated_time" content="2018-07-27T12:46:36.046Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Improving Deep Neural Networks (week2) - Optimization Algorithm">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -306,8 +306,10 @@ var _hmt = _hmt || [];
 <h3 id="Momentum-解释版"><a href="#Momentum-解释版" class="headerlink" title="Momentum 解释版"></a>Momentum 解释版</h3><p>通常情况我们在训练深度神经网络的时候把数据拆解成一小批一小批地进行训练，这就是我们常用的mini-batch SGD训练算法，然而虽然这种算法能够带来很好的训练速度，但是在到达最优点的时候并不能够总是真正到达最优点，而是在最优点附近徘徊。另一个缺点就是这种算法需要我们挑选一个合适的学习率，当我们采用小的学习率的时候，会导致网络在训练的时候收敛太慢；当我们采用大的学习率的时候，会导致在训练过程中优化的幅度跳过函数的范围，也就是可能跳过最优点。我们所希望的仅仅是网络在优化的时候网络的损失函数有一个很好的收敛速度同时又不至于摆动幅度太大。</p>
 <p>所以Momentum优化器刚好可以解决我们所面临的问题，它主要是基于梯度的移动指数加权平均。假设在当前的迭代步骤第 t 步中，那么基于Momentum优化算法可以写成下面的公式： </p>
 <p>$$<br>{v_{dw}} = \beta {v_{dw}} + (1 - \beta )dW \\ {v_{db}} = \beta {v_{db}} + (1 - \beta )db \\ W = W - \alpha {v_{dw}} \\ b = b - \alpha {v_{db}}<br>$$</p>
-<p>其中，在上面的公式中${v_{dw}}$和${v_{db}}$分别是损失函数在前$t−1$轮迭代过程中累积的梯度梯度动量，$\beta$ 是梯度累积的一个指数，这里我们一般设置值为0.9。所以Momentum优化器的主要思想就是利用了类似与移动指数加权平均的方法来对网络的参数进行平滑处理的，让梯度的摆动幅度变得更小。 </p>
+<blockquote>
+<p>在上面的公式中${v_{dw}}$和${v_{db}}$分别是损失函数在前$t−1$轮迭代过程中累积的梯度梯度动量，$\beta$ 是梯度累积的一个指数，这里我们一般设置值为0.9。所以Momentum优化器的主要思想就是利用了类似与移动指数加权平均的方法来对网络的参数进行平滑处理的，让梯度的摆动幅度变得更小。 </p>
 <p>dW和db分别是损失函数反向传播时候所求得的梯度，下面两个公式是网络权重向量和偏置向量的更新公式，α是网络的学习率。当我们使用Momentum优化算法的时候，可以解决mini-batch SGD优化算法更新幅度摆动大的问题，同时可以使得网络的收敛速度更快。</p>
+</blockquote>
 <h3 id="Momentum-详细版"><a href="#Momentum-详细版" class="headerlink" title="Momentum 详细版"></a>Momentum 详细版</h3><p>在我们优化 Cost function 的时候，以下图所示的函数图为例：</p>
 <p>首先介绍一下一般的梯度算法收敛情况是这样的</p>
 <p><img src="/images/deeplearning/C2W2-8_1.png" width="750"></p>
@@ -344,20 +346,27 @@ var _hmt = _hmt || [];
 <p>$$<br>W = W - \alpha \frac {dW} { \sqrt {s_{dw}} + \varepsilon } \\<br>b = b - \alpha \frac {db} { \sqrt{s_{db}}  + \varepsilon }<br>$$</p>
 <blockquote>
 <p>这样做，能给保留微分平方的加权平均数</p>
-</blockquote>
 <p>算法的主要思想就用上面的公式表达完毕了。在上面的公式中 ${s_{dw}}$ 和 ${s_{db}}$ 分别是损失函数在前t−1轮迭代过程中累积的梯度梯度动量，β 是梯度累积的一个指数。所不同的是，RMSProp算法对梯度计算了<strong>微分平方加权平均数</strong>。这种做法有利于消除了摆动幅度大的方向，用来修正摆动幅度，使得各个维度的摆动幅度都较小。另一方面也使得网络函数收敛更快。（比如当 dW 或者 db 中有一个值比较大的时候，那么我们在更新权重或者偏置的时候除以它之前累积的梯度的平方根，这样就可以使得更新幅度变小）。为了防止分母为零，使用了一个很小的数值 $\epsilon$ 来进行平滑，一般取值为$10^{-8}$。</p>
+</blockquote>
 <h2 id="5-Adam-Adaptive-Moment-Estimation"><a href="#5-Adam-Adaptive-Moment-Estimation" class="headerlink" title="5. Adam (Adaptive Moment Estimation)"></a>5. Adam (Adaptive Moment Estimation)</h2><p>有了上面两种优化算法，一种可以使用类似于物理中的动量来累积梯度，另一种可以使得收敛速度更快同时使得波动的幅度更小。那么讲两种算法结合起来所取得的表现一定会更好。Adam（Adaptive Moment Estimation）算法是将Momentum算法和RMSProp算法结合起来使用的一种算法，我们所使用的参数基本和上面讲的一致，在训练的最开始我们需要初始化梯度的累积量和平方累积量。 </p>
 <p>$$<br>{v_{dw}} = 0,{v_{db}} = 0;{s_{dw}} = 0,{s_{db}} = 0<br>$$</p>
 <p>假设在训练的第 $t$ 轮训练中，我们首先可以计算得到 Momentum 和 RMSProp 的参数更新： </p>
 <p>$$<br>{v_{dw}} = {\beta _1}{v_{dw}} + (1 - {\beta _1})dW \\<br>{v_{db}} = {\beta _1}{v_{db}} + (1 - {\beta _1})db \\<br>{s_{dw}} = {\beta _2}{s_{dw}} + (1 - {\beta _2})d{W^2} \\<br>{s_{db}} = {\beta _2}{s_{db}} + (1 - {\beta _2})d{b^2} \\<br>$$</p>
 <p>由于移动指数平均在迭代开始的初期会导致和开始的值有较大的差异，所以我们需要对上面求得的几个值做偏差修正</p>
 <p>$$<br>v_{dw}^c = \frac {v_{dw}} {1 - \beta _1^t} \\<br>v_{db}^c = \frac {v_{db}} {1 - \beta _1^t} \\<br>s_{dw}^c = \frac {s_{dw}} {1 - \beta _2^t} \\<br>s_{db}^c = \frac {s_{db}} {1 - \beta _2^t}<br>$$</p>
-<p>通过上面的公式，我们就可以求得在第 $t$ 轮迭代过程中，参数梯度累积量的修正值，从而接下来就可以根据Momentum和RMSProp算法的结合来对权重和偏置进行更新。 </p>
-<p>$$<br>W = W - \alpha \frac {v_{dw}^c} {\sqrt {s_{dw}^c}  + \varepsilon }} \\<br>b = b - \alpha \frac {v_{db}^c} {\sqrt {s_{db}^c}  + \varepsilon }}<br>$$</p>
+<p>通过上面的公式，我们就可以求得在第 $t$ 轮迭代过程中，参数梯度累积量的修正值，从而接下来就可以根据Momentum和RMSProp算法的结合来对权重和偏置进行更新.</p>
+<p>$$<br>W = W - \alpha \frac {v_{dw}^c} {\sqrt {s_{dw}^c}  + \varepsilon } \\<br>b = b - \alpha \frac {v_{db}^c} {\sqrt {s_{db}^c}  + \varepsilon }<br>$$</p>
 <p>上面的所有步骤就是Momentum算法和RMSProp算法结合起来从而形成Adam算法。在Adam算法中，参数 ${\beta_1}$ 所对应的就是Momentum算法中的 ${\beta}$ 值，一般取0.9，参数 ${\beta_2}$ 所对应的就是RMSProp算法中的 ${\beta}$ 值，一般我们取0.999，而 $\epsilon$ 是一个平滑项，我们一般取值为 ${10^{ - 8}}$，而学习率 $\alpha$ 则需要我们在训练的时候进行微调。</p>
 <blockquote>
 <p>通过上面的三个算法基本讲述了神经网络中的优化器，理解了这三个算法其他的算法也就引刃而解了.</p>
-<p>Adam 优化算法 我会毫不犹豫的推荐给你， 它是 Momentum 和 RMSprop 的结合. 事实证明，它其实解决了很多问题.</p>
+<p>Adam 优化算法 我会毫不犹豫的推荐给你， 它是 Momentum 和 RMSprop 的结合. 事实证明，它其实解决了很多问题. </p>
+<p>Adam 中的超参数 ${\beta_1}$ 、${\beta_2}$  一般不需要调整，业内经常很少有人会调整他们.  $\epsilon$ 是一个平滑项，一般取值为 ${10^{ - 8}}$, 基本更不需要调整.</p>
+</blockquote>
+<p>Adaptive Moment Estimation</p>
+<blockquote>
+<p>${\beta_1}$ 用于计算这个微分 (computing the mean of the derivatives, this is called the first moment).</p>
+<p>${\beta_2}$ 用于计算平方数的指数加权平均数 (compute exponentially weighted average of the squares. this is called the second moment)</p>
+<p>So that gives rise to the name <code>Adaptive Moment Estimation</code>.</p>
 </blockquote>
 <h2 id="6-Learning-rate-decay"><a href="#6-Learning-rate-decay" class="headerlink" title="6. Learning rate decay"></a>6. Learning rate decay</h2><h2 id="7-本周内容回顾"><a href="#7-本周内容回顾" class="headerlink" title="7. 本周内容回顾"></a>7. 本周内容回顾</h2><ul>
 <li>改善深层神经网络：超参数调试、正则化</li>
