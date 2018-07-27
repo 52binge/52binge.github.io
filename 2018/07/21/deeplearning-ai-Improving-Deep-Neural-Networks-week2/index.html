@@ -32,7 +32,12 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_3.jpg">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-5_4.jpg">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-7.png">
-<meta property="og:updated_time" content="2018-07-25T09:18:38.521Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-8_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-10_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-9_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-11.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W2-12_1.png">
+<meta property="og:updated_time" content="2018-07-27T11:40:11.432Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Improving Deep Neural Networks (week2) - Optimization Algorithm">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -298,11 +303,61 @@ var _hmt = _hmt || [];
 <p>所以，记住你如果直接用修正后的 $V_{t−1}$ 值代入计算就大错特错了.</p>
 </blockquote>
 <h2 id="3-Momentum"><a href="#3-Momentum" class="headerlink" title="3. Momentum"></a>3. Momentum</h2><p>动量梯度下降的基本思想就是<code>计算梯度的指数加权平均数</code>，并利用该梯度来更新权重</p>
-<p>在我们优化 Cost function 的时候，以下图所示的函数图为例：</p>
+<h3 id="Momentum-解释版"><a href="#Momentum-解释版" class="headerlink" title="Momentum 解释版"></a>Momentum 解释版</h3><p>通常情况我们在训练深度神经网络的时候把数据拆解成一小批一小批地进行训练，这就是我们常用的mini-batch SGD训练算法，然而虽然这种算法能够带来很好的训练速度，但是在到达最优点的时候并不能够总是真正到达最优点，而是在最优点附近徘徊。另一个缺点就是这种算法需要我们挑选一个合适的学习率，当我们采用小的学习率的时候，会导致网络在训练的时候收敛太慢；当我们采用大的学习率的时候，会导致在训练过程中优化的幅度跳过函数的范围，也就是可能跳过最优点。我们所希望的仅仅是网络在优化的时候网络的损失函数有一个很好的收敛速度同时又不至于摆动幅度太大。</p>
+<p>所以Momentum优化器刚好可以解决我们所面临的问题，它主要是基于梯度的移动指数加权平均。假设在当前的迭代步骤第 t 步中，那么基于Momentum优化算法可以写成下面的公式： </p>
+<p>$$<br>{v_{dw}} = \beta {v_{dw}} + (1 - \beta )dW \\ {v_{db}} = \beta {v_{db}} + (1 - \beta )db \\ W = W - \alpha {v_{dw}} \\ b = b - \alpha {v_{db}}<br>$$</p>
+<p>其中，在上面的公式中${v_{dw}}$和${v_{db}}$分别是损失函数在前$t−1$轮迭代过程中累积的梯度梯度动量，$\beta$ 是梯度累积的一个指数，这里我们一般设置值为0.9。所以Momentum优化器的主要思想就是利用了类似与移动指数加权平均的方法来对网络的参数进行平滑处理的，让梯度的摆动幅度变得更小。 </p>
+<p>dW和db分别是损失函数反向传播时候所求得的梯度，下面两个公式是网络权重向量和偏置向量的更新公式，α是网络的学习率。当我们使用Momentum优化算法的时候，可以解决mini-batch SGD优化算法更新幅度摆动大的问题，同时可以使得网络的收敛速度更快。</p>
+<h3 id="Momentum-详细版"><a href="#Momentum-详细版" class="headerlink" title="Momentum 详细版"></a>Momentum 详细版</h3><p>在我们优化 Cost function 的时候，以下图所示的函数图为例：</p>
+<p>首先介绍一下一般的梯度算法收敛情况是这样的</p>
+<p><img src="/images/deeplearning/C2W2-8_1.png" width="750"></p>
+<blockquote>
+<p>可以看到，在前进的道路上十分曲折，走了不少弯路，在纵向我们希望走得慢一点，横向则希望走得快一点，所以才有了动量梯度下降算法.</p>
+</blockquote>
+<p><strong>Momentum算法的第t次迭代：</strong></p>
+<blockquote>
+<ul>
+<li>计算出 dw,db</li>
+<li>这个计算式子与上一届提到的指数加权平均有点类似，即<br>$ V_{dw}=βV_{dw}+(1-β)dw \\ V_{db}=βV_{db}+(1-β)db $</li>
+<li>$W=W-αV_{dw},b=b-αV_{db}$</li>
+</ul>
+</blockquote>
+<p><img src="/images/deeplearning/C2W2-10_1.png" width="600"></p>
+<p>最终得到收敛的效果如下图的红色曲线所示.</p>
+<p><img src="/images/deeplearning/C2W2-9_1.png" width="750"></p>
 <p>在利用梯度下降法来最小化该函数的时候，每一次迭代所更新的代价函数值如图中蓝色线所示在上下波动，而这种幅度比较大波动，减缓了梯度下降的速度，而且我们只能使用一个较小的学习率来进行迭代.</p>
 <p>如果用较大的学习率，结果可能会如紫色线一样偏离函数的范围，所以为了避免这种情况，只能用较小的学习率.</p>
-<h2 id="4-RMSprop"><a href="#4-RMSprop" class="headerlink" title="4. RMSprop"></a>4. RMSprop</h2><h2 id="5-Adam-Adaptive-Moment-Estimation"><a href="#5-Adam-Adaptive-Moment-Estimation" class="headerlink" title="5. Adam (Adaptive Moment Estimation)"></a>5. Adam (Adaptive Moment Estimation)</h2><blockquote>
-<p>Notes: Adam 优化算法 我会毫不犹豫的推荐给你， 它是 Momentum 和 RMSprop 的结合. 事实证明，它其实解决了很多问题.</p>
+<blockquote>
+<p>该算法中涉及到的超参数有两个，分别是 α，β，其中一般β=0.9是比较常取的值</p>
+<ul>
+<li>一般将参数设为0.5,0.9，或者0.99，分别表示最大速度2倍，10倍，100倍于SGD的算法;</li>
+<li>通过速度v，来积累了之间梯度指数级衰减的平均，并且继续延该方向移动;</li>
+</ul>
+</blockquote>
+<p>再看看算法： </p>
+<p><img src="/images/deeplearning/C2W2-11.png" width="700"></p>
+<h2 id="4-RMSprop-Root-Mean-Square-Prop"><a href="#4-RMSprop-Root-Mean-Square-Prop" class="headerlink" title="4. RMSprop (Root Mean Square Prop)"></a>4. RMSprop (Root Mean Square Prop)</h2><p>RMSProp算法的全称叫 Root Mean Square Prop，是Geoffrey E. Hinton在Coursera课程中提出的一种优化算法，在上面的Momentum优化算法中，虽然初步解决了优化中摆动幅度大的问题。所谓的摆动幅度就是在优化中经过更新之后参数的变化范围，如下图所示，蓝色的为Momentum优化算法所走的路线，绿色的为RMSProp优化算法所走的路线。</p>
+<p><img src="/images/deeplearning/C2W2-12_1.png" width="700"></p>
+<p>为了进一步优化损失函数在更新中存在摆动幅度过大的问题，并且进一步加快函数的收敛速度，RMSProp算法对权重 W 和偏置 b 的梯度使用了微分平方加权平均数。 </p>
+<p>其中，假设在第 t 轮迭代过程中，各个公式如下所示：</p>
+<p>$$<br>{s_{dw}} = \beta {s_{dw}} + (1 - \beta )d{W^2} \\<br>{s_{db}} = \beta {s_{db}} + (1 - \beta )d{b^2}<br>$$</p>
+<p>$$<br>W = W - \alpha \frac {dW} { \sqrt {s_{dw}} + \varepsilon } \\<br>b = b - \alpha \frac {db} { \sqrt{s_{db}}  + \varepsilon }<br>$$</p>
+<blockquote>
+<p>这样做，能给保留微分平方的加权平均数</p>
+</blockquote>
+<p>算法的主要思想就用上面的公式表达完毕了。在上面的公式中 ${s_{dw}}$ 和 ${s_{db}}$ 分别是损失函数在前t−1轮迭代过程中累积的梯度梯度动量，β 是梯度累积的一个指数。所不同的是，RMSProp算法对梯度计算了<strong>微分平方加权平均数</strong>。这种做法有利于消除了摆动幅度大的方向，用来修正摆动幅度，使得各个维度的摆动幅度都较小。另一方面也使得网络函数收敛更快。（比如当 dW 或者 db 中有一个值比较大的时候，那么我们在更新权重或者偏置的时候除以它之前累积的梯度的平方根，这样就可以使得更新幅度变小）。为了防止分母为零，使用了一个很小的数值 $\epsilon$ 来进行平滑，一般取值为$10^{-8}$。</p>
+<h2 id="5-Adam-Adaptive-Moment-Estimation"><a href="#5-Adam-Adaptive-Moment-Estimation" class="headerlink" title="5. Adam (Adaptive Moment Estimation)"></a>5. Adam (Adaptive Moment Estimation)</h2><p>有了上面两种优化算法，一种可以使用类似于物理中的动量来累积梯度，另一种可以使得收敛速度更快同时使得波动的幅度更小。那么讲两种算法结合起来所取得的表现一定会更好。Adam（Adaptive Moment Estimation）算法是将Momentum算法和RMSProp算法结合起来使用的一种算法，我们所使用的参数基本和上面讲的一致，在训练的最开始我们需要初始化梯度的累积量和平方累积量。 </p>
+<p>$$<br>{v_{dw}} = 0,{v_{db}} = 0;{s_{dw}} = 0,{s_{db}} = 0<br>$$</p>
+<p>假设在训练的第 $t$ 轮训练中，我们首先可以计算得到 Momentum 和 RMSProp 的参数更新： </p>
+<p>$$<br>{v_{dw}} = {\beta _1}{v_{dw}} + (1 - {\beta _1})dW \\<br>{v_{db}} = {\beta _1}{v_{db}} + (1 - {\beta _1})db \\<br>{s_{dw}} = {\beta _2}{s_{dw}} + (1 - {\beta _2})d{W^2} \\<br>{s_{db}} = {\beta _2}{s_{db}} + (1 - {\beta _2})d{b^2} \\<br>$$</p>
+<p>由于移动指数平均在迭代开始的初期会导致和开始的值有较大的差异，所以我们需要对上面求得的几个值做偏差修正</p>
+<p>$$<br>v_{dw}^c = \frac {v_{dw}} {1 - \beta _1^t} \\<br>v_{db}^c = \frac {v_{db}} {1 - \beta _1^t} \\<br>s_{dw}^c = \frac {s_{dw}} {1 - \beta _2^t} \\<br>s_{db}^c = \frac {s_{db}} {1 - \beta _2^t}<br>$$</p>
+<p>通过上面的公式，我们就可以求得在第 $t$ 轮迭代过程中，参数梯度累积量的修正值，从而接下来就可以根据Momentum和RMSProp算法的结合来对权重和偏置进行更新。 </p>
+<p>$$<br>W = W - \alpha \frac {v_{dw}^c} {\sqrt {s_{dw}^c}  + \varepsilon }} \\<br>b = b - \alpha \frac {v_{db}^c} {\sqrt {s_{db}^c}  + \varepsilon }}<br>$$</p>
+<p>上面的所有步骤就是Momentum算法和RMSProp算法结合起来从而形成Adam算法。在Adam算法中，参数 ${\beta_1}$ 所对应的就是Momentum算法中的 ${\beta}$ 值，一般取0.9，参数 ${\beta_2}$ 所对应的就是RMSProp算法中的 ${\beta}$ 值，一般我们取0.999，而 $\epsilon$ 是一个平滑项，我们一般取值为 ${10^{ - 8}}$，而学习率 $\alpha$ 则需要我们在训练的时候进行微调。</p>
+<blockquote>
+<p>通过上面的三个算法基本讲述了神经网络中的优化器，理解了这三个算法其他的算法也就引刃而解了.</p>
+<p>Adam 优化算法 我会毫不犹豫的推荐给你， 它是 Momentum 和 RMSprop 的结合. 事实证明，它其实解决了很多问题.</p>
 </blockquote>
 <h2 id="6-Learning-rate-decay"><a href="#6-Learning-rate-decay" class="headerlink" title="6. Learning rate decay"></a>6. Learning rate decay</h2><h2 id="7-本周内容回顾"><a href="#7-本周内容回顾" class="headerlink" title="7. 本周内容回顾"></a>7. 本周内容回顾</h2><ul>
 <li>改善深层神经网络：超参数调试、正则化</li>
@@ -311,6 +366,7 @@ var _hmt = _hmt || [];
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="https://blog.csdn.net/u014595019/article/details/52989301" target="_blank" rel="external">深度学习笔记：优化方法总结(BGD,SGD,Momentum,AdaGrad,RMSProp,Adam)</a></li>
 <li><a href="https://blog.csdn.net/BVL10101111/article/details/72614711" target="_blank" rel="external">Deep Learning 之 最优化方法</a></li>
+<li><a href="https://blog.csdn.net/willduan1/article/details/78070086" target="_blank" rel="external">深度学习优化算法解析(Momentum, RMSProp, Adam)</a></li>
 </ul>
 
       
@@ -354,7 +410,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Mini-batch"><span class="toc-number"></span> <span class="toc-text">1. Mini-batch</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不同size大小的比较"><span class="toc-number"></span> <span class="toc-text">不同size大小的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mini-batch-大小的选择"><span class="toc-number"></span> <span class="toc-text">Mini-batch 大小的选择</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Exponentially-weighted-averages"><span class="toc-number"></span> <span class="toc-text">2. Exponentially weighted averages</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#当-β-0-9、0-98、0-5-的情况"><span class="toc-number"></span> <span class="toc-text">当 β=0.9、0.98、0.5 的情况</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#理解指数加权平均"><span class="toc-number"></span> <span class="toc-text">理解指数加权平均</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指数加权平均的偏差修正-Bias-correction"><span class="toc-number"></span> <span class="toc-text">指数加权平均的偏差修正 Bias correction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Momentum"><span class="toc-number"></span> <span class="toc-text">3. Momentum</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-RMSprop"><span class="toc-number"></span> <span class="toc-text">4. RMSprop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Adam-Adaptive-Moment-Estimation"><span class="toc-number"></span> <span class="toc-text">5. Adam (Adaptive Moment Estimation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Learning-rate-decay"><span class="toc-number"></span> <span class="toc-text">6. Learning rate decay</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Mini-batch"><span class="toc-number"></span> <span class="toc-text">1. Mini-batch</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#不同size大小的比较"><span class="toc-number"></span> <span class="toc-text">不同size大小的比较</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mini-batch-大小的选择"><span class="toc-number"></span> <span class="toc-text">Mini-batch 大小的选择</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Exponentially-weighted-averages"><span class="toc-number"></span> <span class="toc-text">2. Exponentially weighted averages</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#当-β-0-9、0-98、0-5-的情况"><span class="toc-number"></span> <span class="toc-text">当 β=0.9、0.98、0.5 的情况</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#理解指数加权平均"><span class="toc-number"></span> <span class="toc-text">理解指数加权平均</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指数加权平均的偏差修正-Bias-correction"><span class="toc-number"></span> <span class="toc-text">指数加权平均的偏差修正 Bias correction</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Momentum"><span class="toc-number"></span> <span class="toc-text">3. Momentum</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Momentum-解释版"><span class="toc-number"></span> <span class="toc-text">Momentum 解释版</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Momentum-详细版"><span class="toc-number"></span> <span class="toc-text">Momentum 详细版</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-RMSprop-Root-Mean-Square-Prop"><span class="toc-number"></span> <span class="toc-text">4. RMSprop (Root Mean Square Prop)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Adam-Adaptive-Moment-Estimation"><span class="toc-number"></span> <span class="toc-text">5. Adam (Adaptive Moment Estimation)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Learning-rate-decay"><span class="toc-number"></span> <span class="toc-text">6. Learning rate decay</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
       </div>
     
     
