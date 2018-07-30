@@ -23,7 +23,11 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta property="og:updated_time" content="2018-07-21T12:10:44.540Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-1_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-2_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-3_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-4_1.png">
+<meta property="og:updated_time" content="2018-07-30T12:15:21.153Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Improving Deep Neural Networks (week3) - 超参数调试、Batch 正则化 和 程序框架">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -33,6 +37,7 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
+<meta name="twitter:image" content="http://iequa.com/images/deeplearning/C2W3-1_1.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -144,7 +149,91 @@ var _hmt = _hmt || [];
 
 <p>这次我们要学习专项课程中第二门课 <code>Improving Deep Neural Networks</code></p>
 <a id="more"></a>
-<h2 id="1-调试处理"><a href="#1-调试处理" class="headerlink" title="1. 调试处理"></a>1. 调试处理</h2><h2 id="2-为超参数选择合适的范围"><a href="#2-为超参数选择合适的范围" class="headerlink" title="2. 为超参数选择合适的范围"></a>2. 为超参数选择合适的范围</h2><h2 id="3-超参数训练的实践"><a href="#3-超参数训练的实践" class="headerlink" title="3. 超参数训练的实践"></a>3. 超参数训练的实践</h2><h2 id="4-正则化网络的激活函数"><a href="#4-正则化网络的激活函数" class="headerlink" title="4. 正则化网络的激活函数"></a>4. 正则化网络的激活函数</h2><blockquote>
+<h2 id="1-Hyperparameter-Tuning-process"><a href="#1-Hyperparameter-Tuning-process" class="headerlink" title="1. Hyperparameter Tuning process"></a>1. Hyperparameter Tuning process</h2><p>正常情况有如下超参数:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Hyperparameter</th>
+<th style="text-align:center">Desc</th>
+<th style="text-align:center">Importance level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><font color="red">α</font></td>
+<td style="text-align:center">最重要</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="orange">hidden units</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="orange">mini-batch size</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="orange">β</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="purple">layers</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="purple">learning rate decay</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center">$β_1,β_2,ε$</td>
+<td style="text-align:center">最不重要</td>
+<td style="text-align:center">4</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>颜色表示重要性，以及调试过程中可能会需要修改的程度.</p>
+</blockquote>
+<h3 id="那么如何选择超参数的值呢？"><a href="#那么如何选择超参数的值呢？" class="headerlink" title="那么如何选择超参数的值呢？:"></a>那么如何选择超参数的值呢？:</h3><ul>
+<li>首先是粗略地随机地寻找最优参数</li>
+</ul>
+<p><img src="/images/deeplearning/C2W3-1_1.png" width="700"></p>
+<p><strong>建议使用图右的方式，原因如下：</strong></p>
+<blockquote>
+<p>对于图左的超参数分布而言，可能会使得参考性降低，我们假设超参1是学习率α，超参2是ε，根据week2中Adam算法的介绍，我们知道ε的作用几乎可以忽略，所以对于图左25中参数分布来说，其本质只有5种参数分布。而右边则是25种随机分布，更能帮助我们选择合适的超参数.</p>
+</blockquote>
+<p><strong>其次在上面找到的最优参数分布周围再随机地寻找最有参数</strong></p>
+<p><img src="/images/deeplearning/C2W3-2_1.png" width="700"></p>
+<h2 id="2-Using-an-appropriate-scale-to-pick-hyperparameters"><a href="#2-Using-an-appropriate-scale-to-pick-hyperparameters" class="headerlink" title="2. Using an appropriate scale to pick hyperparameters"></a>2. Using an appropriate scale to pick hyperparameters</h2><p>上一节提到的的随机采样虽然能帮助我们寻找最优参数分布，但是这有点像大海捞针，如果能够指出参数取值的范围，然后再去寻找最优的参数分布岂不是更加的美滋滋？那如何为超参数选择合适的范围呢？</p>
+<blockquote>
+<p>$n^{[l]}=50,……,100$</p>
+<p>$layers=2~4$</p>
+<p>$α=0.0001，……,1$</p>
+</blockquote>
+<p>此时注意: 如按照线性划分的话(如下图)，那么随机采样的值90%的数据来自[0.1,1]这个区间, 这显然与不太符合随机性.</p>
+<p><img src="/images/deeplearning/C2W3-3_1.png" width="700"></p>
+<blockquote>
+<p>所以为了改进这一问题，我们需要将区间对数化来采样.</p>
+<p><strong>举个🌰：</strong> 我们将 [0.0001,1] 转化成四个区间 [0.0001,0.001], [0.001,0.01], [0.01,0.1], [0.1,1], 再转化成对数就是 [-4,-3], [-3,-2], [-2,-1], [-1,0].</p>
+<p>($10^{−4}=0.0001$，其他同理取指数).</p>
+</blockquote>
+<p>然后我们可以用Python中提供的方法来实现随机采样：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">r = <span class="number">-4</span>*np.random.rand() <span class="comment"># rand()表示在[0,1]上均匀采样, 最后的采样区间是[-4, 0]</span></span><br><span class="line">a = pow(<span class="number">10</span>, r)</span><br></pre></td></tr></table></figure>
+<p><img src="/images/deeplearning/C2W3-4_1.png" width="700"></p>
+<p><strong>$β=0.9,……,0.999$</strong></p>
+<p>同理这里也不能使用线性轴来采样数据，我们可以通过对 <strong>1-β=0.1,……,0.001</strong> 来间接采样。转化成 [0.1, 0.01],[0.01,0.001], 转化成对数指数[-1,-2],[-2,-3]。</p>
+<p>即: $r∈[-3,-1], 1-β=10^r, β=1-10^r$</p>
+<blockquote>
+<p>当 β 接近 1 时, β 就会对细微的变化变得很敏感.</p>
+<p>for example : 0.999, 0.9995 =&gt; 1000 -&gt; 2000</p>
+<p>所以你需要更加密集的取值，在 β 接近 1 的时候.</p>
+</blockquote>
+<h2 id="3-超参数训练的实践"><a href="#3-超参数训练的实践" class="headerlink" title="3. 超参数训练的实践"></a>3. 超参数训练的实践</h2><h2 id="4-正则化网络的激活函数"><a href="#4-正则化网络的激活函数" class="headerlink" title="4. 正则化网络的激活函数"></a>4. 正则化网络的激活函数</h2><blockquote>
 <p>In practice， normlizing $Z^{[2]}$ is done much more often.</p>
 </blockquote>
 <h2 id="5-将-Batch-Norm-拟合进神经网络"><a href="#5-将-Batch-Norm-拟合进神经网络" class="headerlink" title="5. 将 Batch Norm 拟合进神经网络"></a>5. 将 Batch Norm 拟合进神经网络</h2><h2 id="6-Batch-Norm-为什么奏效"><a href="#6-Batch-Norm-为什么奏效" class="headerlink" title="6. Batch Norm 为什么奏效 ?"></a>6. Batch Norm 为什么奏效 ?</h2><blockquote>
@@ -202,7 +291,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-调试处理"><span class="toc-number"></span> <span class="toc-text">1. 调试处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-为超参数选择合适的范围"><span class="toc-number"></span> <span class="toc-text">2. 为超参数选择合适的范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-超参数训练的实践"><span class="toc-number"></span> <span class="toc-text">3. 超参数训练的实践</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-正则化网络的激活函数"><span class="toc-number"></span> <span class="toc-text">4. 正则化网络的激活函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-将-Batch-Norm-拟合进神经网络"><span class="toc-number"></span> <span class="toc-text">5. 将 Batch Norm 拟合进神经网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Batch-Norm-为什么奏效"><span class="toc-number"></span> <span class="toc-text">6. Batch Norm 为什么奏效 ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Softmax-回归"><span class="toc-number"></span> <span class="toc-text">7. Softmax 回归</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-深度学习框架-amp-TensorFlow"><span class="toc-number"></span> <span class="toc-text">8. 深度学习框架 & TensorFlow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Hyperparameter-Tuning-process"><span class="toc-number"></span> <span class="toc-text">1. Hyperparameter Tuning process</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#那么如何选择超参数的值呢？"><span class="toc-number"></span> <span class="toc-text">那么如何选择超参数的值呢？:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-an-appropriate-scale-to-pick-hyperparameters"><span class="toc-number"></span> <span class="toc-text">2. Using an appropriate scale to pick hyperparameters</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-超参数训练的实践"><span class="toc-number"></span> <span class="toc-text">3. 超参数训练的实践</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-正则化网络的激活函数"><span class="toc-number"></span> <span class="toc-text">4. 正则化网络的激活函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-将-Batch-Norm-拟合进神经网络"><span class="toc-number"></span> <span class="toc-text">5. 将 Batch Norm 拟合进神经网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Batch-Norm-为什么奏效"><span class="toc-number"></span> <span class="toc-text">6. Batch Norm 为什么奏效 ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Softmax-回归"><span class="toc-number"></span> <span class="toc-text">7. Softmax 回归</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-深度学习框架-amp-TensorFlow"><span class="toc-number"></span> <span class="toc-text">8. 深度学习框架 & TensorFlow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
       </div>
     
     
