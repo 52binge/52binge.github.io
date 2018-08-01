@@ -30,7 +30,8 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-5_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-6_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-7_1.png">
-<meta property="og:updated_time" content="2018-07-31T09:23:33.443Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-8_1.png">
+<meta property="og:updated_time" content="2018-08-01T03:50:51.526Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Improving Deep Neural Networks (week3) - 超参数调试、Batch 正则化 和 程序框架">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -252,10 +253,13 @@ var _hmt = _hmt || [];
 <p>Batch 归一化 由 Sergey loffe 和 Christian Szegedy 两位研究者创造.</p>
 </blockquote>
 <p>Batch 归一化，会使你的参数搜索变得容易, 使神经网络对超参数的搜索更加稳定. 这样也会使得你容易训练深层神经网络。</p>
-<p><strong>输入数据 </strong>$X$<strong> 归一化方法：</strong></p>
+<p><strong>输入数据 $X$ 归一化方法:</strong></p>
 <p>$$<br>μ=\frac{1}{m}\sum_{i}{x^{(i)}}<br>$$</p>
 <p>$$<br>σ^2=\frac{1}{m}\sum_{i}x^{(i)^2}<br>$$</p>
 <p>$$<br>x=\frac{x-μ}{σ^2}<br>$$</p>
+<blockquote>
+<p>m 为 mini-batch 中的 m， 而不是整个训练集</p>
+</blockquote>
 <p><strong>隐藏层数据归一化方法:</strong></p>
 <p>$$<br>μ=\frac{1}{m}\sum_{i}{z^{(i)}-μ}<br>$$</p>
 <p>$$<br>σ^2=\frac{1}{m}\sum_{i}(z^{(i)^2}-μ)^2<br>$$</p>
@@ -287,7 +291,7 @@ var _hmt = _hmt || [];
 <h2 id="6-Why-does-Batch-Norm-work"><a href="#6-Why-does-Batch-Norm-work" class="headerlink" title="6. Why does Batch Norm work?"></a>6. Why does Batch Norm work?</h2><p><strong>原因一:</strong></p>
 <p><strong>batch norm</strong> 可以使得权重比你的网络更滞后或更深层，为了更好地理解可以看下面的例子:</p>
 <p><img src="/images/deeplearning/C2W3-7_1.png" width="700"></p>
-<p>如上图所示，假设我们现在要计算第三层隐藏层的值，很显然该层的计算结果依赖第二层的数据，但是第二层的数据如果未归一化之前是不可知的，分布是随机的。而如果进行归一化后，即 $\tilde{z}^{<a href="https://daniellaah.github.io/2017/deeplearning-ai-Improving-Deep-Neural-Networks-week1.html" target="_blank" rel="external">2</a>}=γ^{<a href="https://daniellaah.github.io/2017/deeplearning-ai-Improving-Deep-Neural-Networks-week1.html" target="_blank" rel="external">2</a>}z_{norm}^{<a href="https://daniellaah.github.io/2017/deeplearning-ai-Improving-Deep-Neural-Networks-week1.html" target="_blank" rel="external">2</a>}+β^{<a href="https://daniellaah.github.io/2017/deeplearning-ai-Improving-Deep-Neural-Networks-week1.html" target="_blank" rel="external">2</a>}$ 可以将第二层数据限制为均值为 $β^{<a href="https://daniellaah.github.io/2017/deeplearning-ai-Improving-Deep-Neural-Networks-week1.html" target="_blank" rel="external">2</a>}$, 方差为 $γ^{<a href="https://daniellaah.github.io/2017/deeplearning-ai-Improving-Deep-Neural-Networks-week1.html" target="_blank" rel="external">2</a>}$ 的分布,注意这两个参数并不需要人为设置，它会自动学习的。所以即使输入数据千变万化，但是经过归一化后分布都是可以满足我们的需求的，更简单地说就是归一化数据可以减弱前层参数的作用与后层参数的作用之间的联系，它使得网络每层都可以自己学习。</p>
+<p>如上图所示，假设我们现在要计算第三层隐藏层的值，很显然该层的计算结果依赖第二层的数据，但是第二层的数据如果未归一化之前是不可知的，分布是随机的。而如果进行归一化后，即 $\tilde{z}^{[2]}=γ^{[2]}z_{norm}^{[2]}+β^{[2]}$ 可以将第二层数据限制为均值为 $β^{[2]}$, 方差为 $γ^{[2]}$ 的分布,注意这两个参数并不需要人为设置，它会自动学习的。所以即使输入数据千变万化，但是经过归一化后分布都是可以满足我们的需求的，更简单地说就是归一化数据可以减弱前层参数的作用与后层参数的作用之间的联系，它使得网络每层都可以自己学习。</p>
 <p><strong>原因二:</strong></p>
 <p>batch norm 奏效的另一个原因则是它具有正则化的效果。其与dropout有异曲同工之妙，我们知道dropout会随机的丢掉一些节点，即数据，这样使得模型训练不会过分依赖某一个节点或某一层数据。batch norm也是如此，通过归一化使得各层之间的依赖性降低，并且会给每层都加入一些噪声，从而达到正则化的目的</p>
 <blockquote>
@@ -297,7 +301,21 @@ var _hmt = _hmt || [];
 <p>batch norm 是一个正则化的规则，而不要把它当做目的. 但是有时候，它会对你的算法有额外的期望和非期望效果.</p>
 <p>batch norm 一次只能处理 一个 mini-batch 的数据. 它在 mini-batch 上计算期望与方差.</p>
 </blockquote>
-<h2 id="7-Softmax-回归"><a href="#7-Softmax-回归" class="headerlink" title="7. Softmax 回归"></a>7. Softmax 回归</h2><h2 id="8-深度学习框架-amp-TensorFlow"><a href="#8-深度学习框架-amp-TensorFlow" class="headerlink" title="8. 深度学习框架 &amp; TensorFlow"></a>8. 深度学习框架 &amp; TensorFlow</h2><h2 id="7-本周内容回顾"><a href="#7-本周内容回顾" class="headerlink" title="7. 本周内容回顾"></a>7. 本周内容回顾</h2><ul>
+<h2 id="7-Batch-Norm-at-test-time"><a href="#7-Batch-Norm-at-test-time" class="headerlink" title="7. Batch Norm at test time"></a>7. Batch Norm at test time</h2><p>前面提到的 batch norm 都是基于训练集的，但是在测试集上，有时候可能我们的测试数据很少，例如只有1个，在这个时候进行归一化则显得没多大意义了。那么该怎么办呢？均值$μ$ 和 方差$σ^2$该如何确定呢？</p>
+<blockquote>
+<p>方法还是有的，而且已经在上面提到过了, 就是第三节所介绍的<strong>指数加权平均</strong>啦，原理是类似的</p>
+</blockquote>
+<p>假设一共有如下 $x^1,x^2,……,x^5000$ 的批量数据，每组mini-batch 都得到了对应的均值$μ$, (方差同理，不详细说明了)，即 $μ^1,μ^2,……,μ^5000$, 如果测试集数据很少，那么就可以使用指数加权平均的方法来得到测试集的均值和方差。</p>
+<p>之后就根据<strong>指数加权平均</strong>计算得到的值来计算归一化后的输入值即可.</p>
+<p><img src="/images/deeplearning/C2W3-8_1.png" width="750"></p>
+<blockquote>
+<p><strong>Andrew Ng 语录:</strong></p>
+<p>如果将你的神经网络用于<strong>测试</strong>，你需要单独估算 $μ$ 和 $σ^2$, 在典型的 Batch 归一化运用中，你需要用一个指数加权平均来估算，整个平均数覆盖了所有的 mini-batch .</p>
+<p>$$<br>z^{(i)}_{norm}=\frac{z^{(i)}-μ}{\sqrt{σ^2+ε}}<br>$$</p>
+<p>上个式子 $z^{(i)}_{norm}$ 中的，$μ$, $σ^2$ 是类似加权平均出来的值.</p>
+<p>注意：测试集的均值和方差生成的方式不一定非得是上面提到的指数加权平均，也可以是简单粗暴的计算所有训练集的均值和方差，视频中Andrew Ng说这也是可行的.</p>
+</blockquote>
+<h2 id="Softmax-回归"><a href="#Softmax-回归" class="headerlink" title="Softmax 回归"></a>Softmax 回归</h2><h2 id="8-深度学习框架-amp-TensorFlow"><a href="#8-深度学习框架-amp-TensorFlow" class="headerlink" title="8. 深度学习框架 &amp; TensorFlow"></a>8. 深度学习框架 &amp; TensorFlow</h2><h2 id="7-本周内容回顾"><a href="#7-本周内容回顾" class="headerlink" title="7. 本周内容回顾"></a>7. 本周内容回顾</h2><ul>
 <li>改善深层神经网络：超参数调试、正则化</li>
 </ul>
 <h2 id="8-Reference"><a href="#8-Reference" class="headerlink" title="8. Reference"></a>8. Reference</h2><ul>
@@ -348,7 +366,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Hyperparameter-Tuning-process"><span class="toc-number"></span> <span class="toc-text">1. Hyperparameter Tuning process</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#那么如何选择超参数的值呢？"><span class="toc-number"></span> <span class="toc-text">那么如何选择超参数的值呢？:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-an-appropriate-scale-to-pick-hyperparameters"><span class="toc-number"></span> <span class="toc-text">2. Using an appropriate scale to pick hyperparameters</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar"><span class="toc-number"></span> <span class="toc-text">3. Hyperparameters tuning in practice: Pandas vs Caviar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Normalizing-Activations-in-a-network"><span class="toc-number"></span> <span class="toc-text">4. Normalizing Activations in a network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Fitting-Batch-Norm-into-a-neural-network"><span class="toc-number"></span> <span class="toc-text">5. Fitting Batch Norm into a neural network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Why-does-Batch-Norm-work"><span class="toc-number"></span> <span class="toc-text">6. Why does Batch Norm work?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Softmax-回归"><span class="toc-number"></span> <span class="toc-text">7. Softmax 回归</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-深度学习框架-amp-TensorFlow"><span class="toc-number"></span> <span class="toc-text">8. 深度学习框架 & TensorFlow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Hyperparameter-Tuning-process"><span class="toc-number"></span> <span class="toc-text">1. Hyperparameter Tuning process</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#那么如何选择超参数的值呢？"><span class="toc-number"></span> <span class="toc-text">那么如何选择超参数的值呢？:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-an-appropriate-scale-to-pick-hyperparameters"><span class="toc-number"></span> <span class="toc-text">2. Using an appropriate scale to pick hyperparameters</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar"><span class="toc-number"></span> <span class="toc-text">3. Hyperparameters tuning in practice: Pandas vs Caviar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Normalizing-Activations-in-a-network"><span class="toc-number"></span> <span class="toc-text">4. Normalizing Activations in a network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Fitting-Batch-Norm-into-a-neural-network"><span class="toc-number"></span> <span class="toc-text">5. Fitting Batch Norm into a neural network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Why-does-Batch-Norm-work"><span class="toc-number"></span> <span class="toc-text">6. Why does Batch Norm work?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Batch-Norm-at-test-time"><span class="toc-number"></span> <span class="toc-text">7. Batch Norm at test time</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Softmax-回归"><span class="toc-number"></span> <span class="toc-text">Softmax 回归</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-深度学习框架-amp-TensorFlow"><span class="toc-number"></span> <span class="toc-text">8. 深度学习框架 & TensorFlow</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-本周内容回顾"><span class="toc-number"></span> <span class="toc-text">7. 本周内容回顾</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Reference"><span class="toc-number"></span> <span class="toc-text">8. Reference</span></a></li></ol>
       </div>
     
     
