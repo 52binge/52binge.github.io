@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>深入浅出 Entropy Based - Home</title>
+  <title>Sequence Models (week2) - Natural Language Processing - Word Embeddings - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
@@ -13,8 +13,8 @@
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
 <meta property="og:type" content="article">
-<meta property="og:title" content="深入浅出 Entropy Based">
-<meta property="og:url" content="http://iequa.com/2016/09/12/ml-entropy-base/index.html">
+<meta property="og:title" content="Sequence Models (week2) - Natural Language Processing - Word Embeddings">
+<meta property="og:url" content="http://iequa.com/2018/08/02/deeplearning-ai-Sequence-Models-week2/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
@@ -23,9 +23,10 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta property="og:updated_time" content="2018-03-06T09:45:44.061Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-1_1.png">
+<meta property="og:updated_time" content="2018-08-02T08:09:19.987Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="深入浅出 Entropy Based">
+<meta name="twitter:title" content="Sequence Models (week2) - Natural Language Processing - Word Embeddings">
 <meta name="twitter:description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
     jax: [&quot;input/TeX&quot;],
@@ -33,6 +34,7 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
+<meta name="twitter:image" content="http://iequa.com/images/deeplearning/C5W1-1_1.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -90,7 +92,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-ml-entropy-base" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-deeplearning-ai-Sequence-Models-week2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -98,8 +100,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      深入浅出 Entropy Based
-      <small class=article-detail-date-index>&nbsp; 2016-09-12</small>
+      Sequence Models (week2) - Natural Language Processing - Word Embeddings
+      <small class=article-detail-date-index>&nbsp; 2018-08-02</small>
     </h1>
   
 
@@ -109,19 +111,19 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2016/09/12/ml-entropy-base/" class="article-date">
-  <time datetime="2016-09-12T08:06:16.000Z" itemprop="datePublished">2016-09-12</time>
+      <!--<a href="/2018/08/02/deeplearning-ai-Sequence-Models-week2/" class="article-date">
+  <time datetime="2018-08-02T08:00:21.000Z" itemprop="datePublished">2018-08-02</time>
 </a>-->
       <!-- 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+    <a class="article-category-link" href="/categories/deeplearning/">deeplearning</a>
   </div>
 
 --><!-- by blair 160724 -->
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/09/12/ml-entropy-base/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2018/08/02/deeplearning-ai-Sequence-Models-week2/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -142,31 +144,22 @@ var _hmt = _hmt || [];
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
 </script>
 
-
-<h2 id="1-Entropy-的含义？"><a href="#1-Entropy-的含义？" class="headerlink" title="1. Entropy 的含义？"></a>1. Entropy 的含义？</h2><blockquote>
-<p>自然界的事物，如果任其自身发展，最终都会达到尽可能的平衡或互补状态</p>
-<p>一盒火柴，（人为或外力）有序地将其摆放在一个小盒子里，如果不小心火柴盒打翻了，火柴会“散乱”地洒在地板上。此时火柴虽然很乱，但这是它自身发展的结果。</p>
-</blockquote>
-<p>熵Entropy是描述事物无序性的参数，熵越大则无序性越强。</p>
-<blockquote>
-<p>在信息论中，我们用熵表示一个随机变量的不确定性，那么如何量化信息的不确定性呢？<br>设一次随机事件（用随机变量$X$表示）它可能会有 $x_1，x_2，⋯，x_m$ 共 m 个不同的结果，每个结果出现的概率分别为 $p_1，p_2，⋯，p_m$，那么 $X$ 的不确定度，即信息Entropy为：</p>
-</blockquote>
-<p>$$<br>H(X) =\sum_{i=1}^{m} p_i \cdot \log_{2} \frac{1}{p_i} = - \sum_{i=1}^{m} p_i \cdot \log_{2} p_i<br>$$</p>
-<h2 id="2-Entropy"><a href="#2-Entropy" class="headerlink" title="2. Entropy"></a>2. Entropy</h2><p>Information Entropy [‘entrəpɪ]</p>
-<p>Entropy 表示的是不确定度的度量，如果某个数据集的类别的不确定程度越高，则其 entropy 就越大。</p>
-<p><strong><em>example</em></strong> : </p>
-<p>将一个立方体A抛向空中，记落地时着地的面为 $c$, $c$ 的取值为{1,2,3,4,5,6} </p>
-<blockquote>
-<p>$$<br>info(c) = - (1/6 \cdot log_{2}(1/6)+…+1/6 \cdot log_{2}(1/6)) = -1 \cdot log(1/6) = 2.58；<br>$$</p>
-</blockquote>
-<p>四面体抛入空中 :</p>
-<blockquote>
-<p>$$<br>info(c) = - (1/4 \cdot log_{2}(1/4)+…+1/4 \cdot log_{2}(1/4)) = -1 \cdot log(1/4) = 2；<br>$$</p>
-</blockquote>
-<p>球体抛入空中 :</p>
-<blockquote>
-<p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
-</blockquote>
+<ul>
+<li>能够将序列模型应用到自然语言问题中，包括文字合成。</li>
+<li>能够将序列模型应用到音频应用，包括语音识别和音乐合成。</li>
+</ul>
+<a id="more"></a>
+<h2 id="1-Word-Representation"><a href="#1-Word-Representation" class="headerlink" title="1. Word Representation"></a>1. Word Representation</h2><p>词汇表征</p>
+<p><img src="/images/deeplearning/C5W1-1_1.png" width="700"></p>
+<h2 id="2-Using-Word-Embeddings"><a href="#2-Using-Word-Embeddings" class="headerlink" title="2. Using Word Embeddings"></a>2. Using Word Embeddings</h2><h2 id="3-Properties-of-Word-Embeddings"><a href="#3-Properties-of-Word-Embeddings" class="headerlink" title="3. Properties of Word Embeddings"></a>3. Properties of Word Embeddings</h2><p>词嵌入的特性</p>
+<h2 id="4-Embedding-Matrix"><a href="#4-Embedding-Matrix" class="headerlink" title="4. Embedding Matrix"></a>4. Embedding Matrix</h2><h2 id="5-Learning-Word-Embeddings"><a href="#5-Learning-Word-Embeddings" class="headerlink" title="5. Learning Word Embeddings"></a>5. Learning Word Embeddings</h2><h2 id="6-Word2Vec"><a href="#6-Word2Vec" class="headerlink" title="6. Word2Vec"></a>6. Word2Vec</h2><h2 id="7-Negative-Sampling-负采样"><a href="#7-Negative-Sampling-负采样" class="headerlink" title="7. Negative Sampling 负采样"></a>7. Negative Sampling 负采样</h2><h2 id="8-GloVe-Word-Vectors"><a href="#8-GloVe-Word-Vectors" class="headerlink" title="8. GloVe Word Vectors"></a>8. GloVe Word Vectors</h2><p>GloVe 词向量</p>
+<h2 id="9-Sentiment-Classification"><a href="#9-Sentiment-Classification" class="headerlink" title="9. Sentiment Classification"></a>9. Sentiment Classification</h2><p>情绪分类</p>
+<h2 id="10-Debiasing-Word-Embeddings"><a href="#10-Debiasing-Word-Embeddings" class="headerlink" title="10. Debiasing Word Embeddings"></a>10. Debiasing Word Embeddings</h2><p>词嵌入除偏</p>
+<h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
+<li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
+<li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
+<li><a href="http://www.cnblogs.com/marsggbo/p/7681619.html" target="_blank" rel="external">DeepLearning.ai学习笔记（三）结构化机器学习项目–week1 机器学习策略</a></li>
+</ul>
 
       
      <!-- by blair add this if sentence at 20160725 -->
@@ -209,7 +202,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Entropy-的含义？"><span class="toc-number"></span> <span class="toc-text">1. Entropy 的含义？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Entropy"><span class="toc-number"></span> <span class="toc-text">2. Entropy</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Word-Representation"><span class="toc-number"></span> <span class="toc-text">1. Word Representation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">2. Using Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Properties-of-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">3. Properties of Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Embedding-Matrix"><span class="toc-number"></span> <span class="toc-text">4. Embedding Matrix</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Learning-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">5. Learning Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Word2Vec"><span class="toc-number"></span> <span class="toc-text">6. Word2Vec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Negative-Sampling-负采样"><span class="toc-number"></span> <span class="toc-text">7. Negative Sampling 负采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-GloVe-Word-Vectors"><span class="toc-number"></span> <span class="toc-text">8. GloVe Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Sentiment-Classification"><span class="toc-number"></span> <span class="toc-text">9. Sentiment Classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Debiasing-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">10. Debiasing Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-Reference"><span class="toc-number"></span> <span class="toc-text">13. Reference</span></a></li></ol>
       </div>
     
     
@@ -217,7 +210,7 @@ var _hmt = _hmt || [];
         <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
         
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+    <a class="article-category-link" href="/categories/deeplearning/">deeplearning</a>
   </div>
 
  <!-- by blair add 160724-->
@@ -226,7 +219,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/entropy/">entropy</a>
+    <a class="article-tag-link" href="/tags/deeplearning-ai/">deeplearning.ai</a>
   </div>
 
 
@@ -237,17 +230,9 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/" id="article-nav-newer" class="article-nav-link-wrap">
-      <div class="article-nav-title"><span>&lt;</span>&nbsp;
-        
-          数学之美 19 数学模型的重要性 &amp; 20 最大熵模型
-        
-      </div>
-    </a>
   
-  
-    <a href="/2016/09/11/english-yangyangjiaonifameiyin/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">秧秧教你发美音 （not finish）&nbsp;<span>&gt;</span></div>
+    <a href="/2018/07/26/deeplearning-ai-Sequence-Models-week1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Sequence Models (week1) - Recurrent Neural Networks&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -276,7 +261,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2016/09/12/ml-entropy-base/';
+  var disqus_url = 'http://iequa.com/2018/08/02/deeplearning-ai-Sequence-Models-week2/';
   
   (function(){
     var dsq = document.createElement('script');

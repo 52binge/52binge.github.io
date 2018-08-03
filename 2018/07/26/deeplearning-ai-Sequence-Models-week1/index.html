@@ -26,7 +26,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-1_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-2_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-3_1.png">
-<meta property="og:updated_time" content="2018-07-28T01:59:31.855Z">
+<meta property="og:updated_time" content="2018-08-02T07:32:54.136Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week1) - Recurrent Neural Networks">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -175,7 +175,13 @@ var _hmt = _hmt || [];
 <p>输入值中每个单词使用<strong>One-shot</strong>来表示。即首先会构建一个字典(Dictionary),假设该例中的字典维度是10000*1(如图示)。第一个单词”Harry”的数学表示形式即为[0,0,0,……,1 (在第4075位) ,0,……,0]，其他单词同理。</p>
 <p>但是如果某一个单词并没有被包含在字典中怎么办呢？此时我们可以添加一个新的标记，也就是一个叫做 Unknown Word 的伪造单词，用 &lt;<strong>UNK</strong>&gt; 表示。具体的细节会在后面介绍。</p>
 <p><img src="/images/deeplearning/C5W1-3_1.png" width="750"></p>
-<h2 id="3-Recurrent-Neural-Network-Model"><a href="#3-Recurrent-Neural-Network-Model" class="headerlink" title="3. Recurrent Neural Network Model"></a>3. Recurrent Neural Network Model</h2><h2 id="4-Backpropagation-through-time"><a href="#4-Backpropagation-through-time" class="headerlink" title="4. Backpropagation through time"></a>4. Backpropagation through time</h2><h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
+<h2 id="3-Recurrent-Neural-Network-Model"><a href="#3-Recurrent-Neural-Network-Model" class="headerlink" title="3. Recurrent Neural Network Model"></a>3. Recurrent Neural Network Model</h2><p>循环神经网络模型</p>
+<h2 id="4-Backpropagation-through-time"><a href="#4-Backpropagation-through-time" class="headerlink" title="4. Backpropagation through time"></a>4. Backpropagation through time</h2><p>通过时间的反向传播</p>
+<h2 id="5-Different-types-of-RNNs"><a href="#5-Different-types-of-RNNs" class="headerlink" title="5. Different types of RNNs"></a>5. Different types of RNNs</h2><p>不同类型的循环神经网络</p>
+<h2 id="6-Language-model-and-sequence-generation"><a href="#6-Language-model-and-sequence-generation" class="headerlink" title="6. Language model and sequence generation"></a>6. Language model and sequence generation</h2><p>语言模型和序列生成</p>
+<h2 id="7-Sampling-novel-sequences"><a href="#7-Sampling-novel-sequences" class="headerlink" title="7. Sampling novel sequences"></a>7. Sampling novel sequences</h2><p>对新序列采样</p>
+<h2 id="8-Vanishing-gradients-with-RNNs"><a href="#8-Vanishing-gradients-with-RNNs" class="headerlink" title="8. Vanishing gradients with RNNs"></a>8. Vanishing gradients with RNNs</h2><p>循环神经网络的梯度消失</p>
+<h2 id="9-GRU-Gated-Recurrent-Unit"><a href="#9-GRU-Gated-Recurrent-Unit" class="headerlink" title="9. GRU - Gated Recurrent Unit"></a>9. GRU - Gated Recurrent Unit</h2><h2 id="10-LSTM（long-short-term-memory）unit"><a href="#10-LSTM（long-short-term-memory）unit" class="headerlink" title="10. LSTM（long short term memory）unit"></a>10. LSTM（long short term memory）unit</h2><h2 id="11-Bidirectional-RNN"><a href="#11-Bidirectional-RNN" class="headerlink" title="11. Bidirectional RNN"></a>11. Bidirectional RNN</h2><h2 id="12-Deep-RNNs"><a href="#12-Deep-RNNs" class="headerlink" title="12. Deep RNNs"></a>12. Deep RNNs</h2><h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7681619.html" target="_blank" rel="external">DeepLearning.ai学习笔记（三）结构化机器学习项目–week1 机器学习策略</a></li>
@@ -222,7 +228,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Why-sequence-models"><span class="toc-number"></span> <span class="toc-text">1. Why sequence models?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Notation"><span class="toc-number"></span> <span class="toc-text">2. Notation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Recurrent-Neural-Network-Model"><span class="toc-number"></span> <span class="toc-text">3. Recurrent Neural Network Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Backpropagation-through-time"><span class="toc-number"></span> <span class="toc-text">4. Backpropagation through time</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-Reference"><span class="toc-number"></span> <span class="toc-text">13. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Why-sequence-models"><span class="toc-number"></span> <span class="toc-text">1. Why sequence models?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Notation"><span class="toc-number"></span> <span class="toc-text">2. Notation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Recurrent-Neural-Network-Model"><span class="toc-number"></span> <span class="toc-text">3. Recurrent Neural Network Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Backpropagation-through-time"><span class="toc-number"></span> <span class="toc-text">4. Backpropagation through time</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Different-types-of-RNNs"><span class="toc-number"></span> <span class="toc-text">5. Different types of RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Language-model-and-sequence-generation"><span class="toc-number"></span> <span class="toc-text">6. Language model and sequence generation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Sampling-novel-sequences"><span class="toc-number"></span> <span class="toc-text">7. Sampling novel sequences</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Vanishing-gradients-with-RNNs"><span class="toc-number"></span> <span class="toc-text">8. Vanishing gradients with RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-GRU-Gated-Recurrent-Unit"><span class="toc-number"></span> <span class="toc-text">9. GRU - Gated Recurrent Unit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-LSTM（long-short-term-memory）unit"><span class="toc-number"></span> <span class="toc-text">10. LSTM（long short term memory）unit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-Bidirectional-RNN"><span class="toc-number"></span> <span class="toc-text">11. Bidirectional RNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-Deep-RNNs"><span class="toc-number"></span> <span class="toc-text">12. Deep RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-Reference"><span class="toc-number"></span> <span class="toc-text">13. Reference</span></a></li></ol>
       </div>
     
     
@@ -249,6 +255,14 @@ var _hmt = _hmt || [];
   
     
 <nav id="article-nav">
+  
+    <a href="/2018/08/02/deeplearning-ai-Sequence-Models-week2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Sequence Models (week2) - Natural Language Processing - Word Embeddings
+        
+      </div>
+    </a>
   
   
     <a href="/2018/07/25/deeplearning-ai-Structured-Machine-Learning-Projects-week2/" id="article-nav-older" class="article-nav-link-wrap">
