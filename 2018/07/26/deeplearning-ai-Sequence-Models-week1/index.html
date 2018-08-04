@@ -58,7 +58,10 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-31_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-32_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-33_1.png">
-<meta property="og:updated_time" content="2018-08-04T08:05:02.277Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-34_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-35_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-36_1.png">
+<meta property="og:updated_time" content="2018-08-04T08:50:42.759Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week1) - Recurrent Neural Networks">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -368,9 +371,41 @@ var _hmt = _hmt || [];
 <p>另外输入值满足： $x^{&lt;{t}&gt;}=y^{&lt;{t-1}&gt;}$</p>
 <p><img src="/images/deeplearning/C5W1-33_1.png" width="700"></p>
 <p><strong>3.计算出损失值:</strong></p>
-<h2 id="7-Sampling-novel-sequences"><a href="#7-Sampling-novel-sequences" class="headerlink" title="7. Sampling novel sequences"></a>7. Sampling novel sequences</h2><p>对新序列采样</p>
-<h2 id="8-Vanishing-gradients-with-RNNs"><a href="#8-Vanishing-gradients-with-RNNs" class="headerlink" title="8. Vanishing gradients with RNNs"></a>8. Vanishing gradients with RNNs</h2><p>循环神经网络的梯度消失</p>
-<h2 id="9-GRU-Gated-Recurrent-Unit"><a href="#9-GRU-Gated-Recurrent-Unit" class="headerlink" title="9. GRU - Gated Recurrent Unit"></a>9. GRU - Gated Recurrent Unit</h2><h2 id="10-LSTM（long-short-term-memory）unit"><a href="#10-LSTM（long-short-term-memory）unit" class="headerlink" title="10. LSTM（long short term memory）unit"></a>10. LSTM（long short term memory）unit</h2><h2 id="11-Bidirectional-RNN"><a href="#11-Bidirectional-RNN" class="headerlink" title="11. Bidirectional RNN"></a>11. Bidirectional RNN</h2><h2 id="12-Deep-RNNs"><a href="#12-Deep-RNNs" class="headerlink" title="12. Deep RNNs"></a>12. Deep RNNs</h2><h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
+<p>下图给出了构建模型的过程以及损失值计算公式:</p>
+<p><img src="/images/deeplearning/C5W1-34_1.png" width="700"></p>
+<blockquote>
+<p>随着训练的次数的增多，或者常用词出现的频率的增多，语言模型便慢慢的会开始掌握简单的词语比如“平均”，“每天”，“小时”。一个完善的语言模型看到类似“10个小”的时候，应该就能准确的判定下一个字是“时”。（当然也许实际情况是“10个小朋友”，所以通常会有更多的判断因素，这里只是一个例子）</p>
+</blockquote>
+<h2 id="7-Sampling-novel-sequences"><a href="#7-Sampling-novel-sequences" class="headerlink" title="7. Sampling novel sequences"></a>7. Sampling novel sequences</h2><p>当训练得到了一个模型之后，如想知道这个<strong>模型学到了些什么</strong>，一个非正式的方法就是对新序列进行采样。具体方法如下：</p>
+<p>在每一步输出 $\hat{y}$ 时，通常使用 softmax 作为激活函数，然后根据输出的分布，随机选择一个值，也就是对应的一个字或者英文单词. 然后将这个值作为下一个单元的x输入进去(即$x^{&lt;{t}&gt;}=\hat{y}^{&lt;{t-1}&gt;}$, 直到我们输出了终结符，或者输出长度超过了提前的预设值n才停止采样.</p>
+<p>上述步骤具体如图示：</p>
+<p><img src="/images/deeplearning/C5W1-35_1.png" width="750"></p>
+<p>下图给出了采样之后得到的效果：</p>
+<blockquote>
+<ul>
+<li>左边是对训练得到新闻信息模型进行采样得到的内容；</li>
+<li>右边是莎士比亚模型采样得到的内容.</li>
+</ul>
+</blockquote>
+<p><img src="/images/deeplearning/C5W1-36_1.png" width="750"></p>
+<h2 id="8-Vanishing-gradients-with-RNNs"><a href="#8-Vanishing-gradients-with-RNNs" class="headerlink" title="8. Vanishing gradients with RNNs"></a>8. Vanishing gradients with RNNs</h2><p><strong>RNN 的梯度消失、爆炸问题:</strong></p>
+<p>梯度值在RNN中也可能因为反向传播的层次太多导致过小或者过大</p>
+<blockquote>
+<ul>
+<li>当梯度值过小的时候，神经网络将无法有效地调整自己的权重矩阵导致训练效果不佳，称之为<strong>“梯度消失问题”(gradient vanishing problem)</strong>；</li>
+<li>过大时可能直接影响到程序的运作因为程序已经无法存储那么大的值，直接返回 NaN ，称之为<strong>“梯度爆炸问题”(gradient exploding problem)</strong></li>
+</ul>
+</blockquote>
+<p>当梯度值过大的时候有一个比较简便的解决方法，每次将返回的梯度值进行检查，如果超出了预定的范围，则手动设置为范围的边界值.</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">if (gradient &gt; max) &#123;</span><br><span class="line">    gradient = max</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但梯度值过小的解决方案要稍微复杂一点，比如下面两句话：</p>
+<blockquote>
+<p>“The <strong>cat</strong>，which already ate apple，yogurt，banana，…, <strong>was</strong> full.”<br>“The <strong>cats</strong>，which already ate apple，yogurt，banana，…, <strong>were</strong> full.”</p>
+</blockquote>
+<p>重点标出的 <strong>cat(s)</strong>和be动词（<strong>was,were</strong>） 是有很重要的关联的，但是中间隔了一个which引导的定语从句，对于前面所介绍的基础的RNN网络很难学习到这个信息，尤其是当出现梯度消失时，而且这种情况很容易发生.</p>
+<p>我们知道一旦神经网络层次很多时，反向传播很难影响前面层次的参数。所以为了<strong>解决梯度消失</strong>问题，提出了<strong>GRU</strong>单元，下面一节具体介绍.</p>
+<h2 id="9-GRU-Gated-Recurrent-Unit"><a href="#9-GRU-Gated-Recurrent-Unit" class="headerlink" title="9. GRU - Gated Recurrent Unit"></a>9. GRU - Gated Recurrent Unit</h2><p>GRU（Gated Recurrent Unit）是一种用来解决梯度值过小的方法，首先来看下在一个时刻下的RNN单元，激活函数为 tanh</p>
+<h2 id="10-LSTM（long-short-term-memory）unit"><a href="#10-LSTM（long-short-term-memory）unit" class="headerlink" title="10. LSTM（long short term memory）unit"></a>10. LSTM（long short term memory）unit</h2><h2 id="11-Bidirectional-RNN"><a href="#11-Bidirectional-RNN" class="headerlink" title="11. Bidirectional RNN"></a>11. Bidirectional RNN</h2><h2 id="12-Deep-RNNs"><a href="#12-Deep-RNNs" class="headerlink" title="12. Deep RNNs"></a>12. Deep RNNs</h2><h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/tag/DeepLearning/" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 <li><a href="https://github.com/theBigDataDigest/Andrew-Ng-deeplearning-part-5-Course-notes-in-Chinese/blob/master/Andrew-Ng-deeplearning.ai-part-5-Course%20notes.pdf" target="_blank" rel="external">大数据文摘 DeepLearning.ai学习笔记</a></li>
