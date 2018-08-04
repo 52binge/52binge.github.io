@@ -34,6 +34,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-8_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-9_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-10_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-19_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-11_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-12_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-13_1.png">
@@ -41,8 +42,16 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-15_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-16_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-17_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-20_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-20_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-18_1.png">
-<meta property="og:updated_time" content="2018-08-03T12:34:12.624Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-21_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-22_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-23_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-24_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-25_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-26_1.png">
+<meta property="og:updated_time" content="2018-08-04T03:27:37.533Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week1) - Recurrent Neural Networks">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -172,7 +181,7 @@ var _hmt = _hmt || [];
 </blockquote>
 <p><strong>第一周:  Recurrent Neural Networks</strong> 已被证明在时间数据上表现好，它有几个变体，包括 LSTM、GRU 和双向神经网络.</p>
 <a id="more"></a>
-<h2 id="1-Why-sequence-models"><a href="#1-Why-sequence-models" class="headerlink" title="1. Why sequence models?"></a>1. Why sequence models?</h2><p>为什么要学习序列模型呢? 序列模型, 普遍称为RNN(递归神经网络 - Recurrent Neural Network), 做为深度学习中 非常重要的一环，有着比普通神经网络更广的宽度与更多的可能性，其应用领域包括但不限于“语音识别”， “自然 语言处理”， “DNA序列分析”，“机器翻译”， “视频动作分析”，等等等等… 有这样一种说法，也许并不严谨，但是有 助于我们理解RNN，大意是这样的:</p>
+<h2 id="1-Why-sequence-models"><a href="#1-Why-sequence-models" class="headerlink" title="1. Why sequence models?"></a>1. Why sequence models?</h2><p>为什么要学习序列模型呢? 序列模型, 普遍称为RNN(递归神经网络 - Recurrent Neural Network), 做为深度学习中 非常重要的一环，有着比普通神经网络更广的宽度与更多的可能性，其应用领域包括但不限于“语音识别”， “NLP”， “DNA序列分析”，“Machine Translation”， “视频动作分析”，等等… 有这样一种说法，也许并不严谨，但有助于我们理解RNN，大意是这样的:</p>
 <blockquote>
 <p>普通神经网络处理的是一维的数据，CNN处理的是二维的数据，RNN处理的是三维的数据</p>
 <p>最直观的理解是在CNN对图片的分析基础上，RNN可以对视频进行分析，这里也就引入了第三维“时间”的概念</p>
@@ -191,7 +200,8 @@ var _hmt = _hmt || [];
 <blockquote>
 <ul>
 <li>红色框中的为输入、输出值。可以看到人名输出用1表示，反之用0表示；</li>
-<li>绿色框中的 $x^{&lt; t >}$,$y^{&lt; t >}$ 表示对应红色框中的输入输出值的数学表示，注意从1开始.</li>
+<li><p>绿色框中的 $x^{&lt; t >}$,$y^{&lt; t >}$ 表示对应红色框中的输入输出值的数学表示，注意从1开始.</p>
+</li>
 <li><p>灰色框中的 $T_x,T_y$ 分别表示输入输出序列的长度，在该例中，$T_x=9,T_y=9$</p>
 </li>
 <li><p>黄色框中 $X^{(i)&lt; t >}$ 上的表示<strong>第$i$个输入样本的第$t$个输入值</strong>，$T_x^{ (i) }$ 则表示第i个输入样本的长度。输出y也同理.</p>
@@ -242,16 +252,44 @@ var _hmt = _hmt || [];
 <p>$y^{<1>}=g_2(W_{ya}a^{<1>}+b_y)$</1></1></p>
 <p>$a^{&lt;{t}&gt;}=g_1(W_{aa}a^{&lt;{t-1}&gt;}+W_{ax}x^{&lt;{t}&gt;}+b_a)$</p>
 <p>$y^{&lt;{t}&gt;}=g_2(W_{ya}a^{&lt;{t}&gt;}+b_y)$</p>
-<p>激活函数：<strong>$g_1$</strong> 一般为 <strong><code>tanh</code>函数</strong> 或者是 <strong><code>Relu</code>函数</strong>，<strong>$g_2$</strong> 一般是 <strong><code>Sigmod</code>函数</strong>.</p>
+<p>激活函数：<strong>$g_1$</strong> 一般为 <strong><code>tanh</code>函数</strong> (或者是 <strong><code>Relu</code>函数</strong>)，<strong>$g_2$</strong> 一般是 <strong><code>Sigmod</code>函数</strong>.</p>
 <p>注意: 参数的下标是有顺序含义的，如 $W_{ax}$ 下标的第一个参数表示要计算的量的类型，即要计算 $a$ 矢量，第二个参数表示要进行乘法运算的数据类型，即需要与 $x$ 矢量做运算。如 $W_{ax} x^{t}\rightarrow{a}$</p>
 </blockquote>
+<p><img src="/images/deeplearning/C5W1-19_1.png" width="750"></p>
+<p><strong>Tx</strong> ， <strong>Ty</strong> 是时间单位, 这里统称为“时刻”，在这例子中对应不同时刻是输入的第几个单词， <strong>x</strong> 是“输入值”，例子中是当前时刻的单词（以独热编码的形式）， <strong>y</strong> 是“输出值”<strong>0</strong>或者<strong>1</strong>， <strong>a</strong> 称为激活值用于将前一个单元的输出结果传递到下一个单元， <strong>Wax</strong> <strong>Way</strong> <strong>Waa</strong> 是不同的“权重矩阵”也就是我们神经网络update的值。每一个单元有两个输入，$a^{&lt;{T_x-1}&gt;}$ 和 <strong>x</strong> ，有两个输出 $a^{&lt;{T_x}&gt;}$ 和 <strong>y</strong> . 图中没有出现的g是“激活函数”。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">符号</th>
+<th style="text-align:center">名字</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">$x$</td>
+<td style="text-align:center">输入值</td>
+</tr>
+<tr>
+<td style="text-align:center">$a$</td>
+<td style="text-align:center">激活值</td>
+</tr>
+<tr>
+<td style="text-align:center">$T_x$, $T_y$</td>
+<td style="text-align:center">$x$,$y$ 时刻</td>
+</tr>
+<tr>
+<td style="text-align:center">Wax, Way, Waa</td>
+<td style="text-align:center">权重矩阵</td>
+</tr>
+</tbody>
+</table>
 <h3 id="3-3-Simplified-RNN-notation"><a href="#3-3-Simplified-RNN-notation" class="headerlink" title="3.3 Simplified RNN notation"></a>3.3 Simplified RNN notation</h3><p>下面将对如下公式进行化简：</p>
 <p><img src="/images/deeplearning/C5W1-11_1.png" width="400"></p>
 <p><strong>1. 简化 $a^{&lt;{t}&gt;}$</strong></p>
 <p>$$<br>\begin{align}<br>a^{&lt;{t}&gt;}&amp;= g(W_{aa}a^{&lt;{t-1}&gt;}+W_{ax}x^{&lt;{t}&gt;}+b_a) \notag \\<br>&amp;= g(W_a [a^{&lt;{t-1}&gt;},x^{&lt;{t}&gt;}]^{T}+b_a) \notag<br>\end{align}<br>$$</p>
 <p><img src="/images/deeplearning/C5W1-12_1.png" width="750"></p>
 <blockquote>
-<p>注意，公式中使用了两个矩阵进行化简，分别是 $W_a$ 和 $[a^{<t-1>},x^{<t>}]^T$ (使用转置符号更易理解),下面分别进行说明：</t></t-1></p>
+<p>注意，公式中使用了两个矩阵进行化简，分别是 $W_a$ 和 $[a^{&lt;{t-1}&gt;},x^{&lt;{t}&gt;}]^T$ (使用转置符号更易理解),下面分别进行说明：</p>
 </blockquote>
 <p>$W_a = [ W_{aa}, W_{ax} ]$, 假设 $W_{aa}$ 是 (100,100) 的矩阵，$W_{ax}$ 是 (100,10000) 的矩阵,那么 $W$ 则是 (100,10100) 的矩阵.</p>
 <p><img src="/images/deeplearning/C5W1-13_1.png" width="550"></p>
@@ -263,19 +301,35 @@ var _hmt = _hmt || [];
 <p><img src="/images/deeplearning/C5W1-16_1.png" width="550"></p>
 <p>该节PPT内容：</p>
 <p><img src="/images/deeplearning/C5W1-17_1.png" width="750"></p>
-<h2 id="4-Backpropagation-through-time"><a href="#4-Backpropagation-through-time" class="headerlink" title="4. Backpropagation through time"></a>4. Backpropagation through time</h2><p>下面将会对<strong>反向传播</strong>进行详细的介绍，跟着下面一张一张的图片走起来 😄😄:</p>
+<p>再回顾下干净的前向传播概览图:</p>
+<p><img src="/images/deeplearning/C5W1-20_1.png" width="750"></p>
+<h2 id="4-Backpropagation-through-time"><a href="#4-Backpropagation-through-time" class="headerlink" title="4. Backpropagation through time"></a>4. Backpropagation through time</h2><p>RNN 的反向传播通常都由类似 Tensorflow、Torch 之类的库或者框架帮你完成，不过感官上和普通神经网络类似，算梯度值然后更新权重矩阵.</p>
+<p>但是下面这里依然会对<strong>反向传播</strong>进行详细的介绍，跟着下面一张一张的图片走起来 😄😄:</p>
 <h3 id="4-1-整体感受"><a href="#4-1-整体感受" class="headerlink" title="4.1 整体感受"></a>4.1 整体感受</h3><p>首先再回顾一下 RNN 的整体结构:</p>
-<p><img src="/images/deeplearning/C5W1-18_1.png" width="750"></p>
-<blockquote>
+<p><img src="/images/deeplearning/C5W1-20_1.png" width="750"></p>
 <p>要进行反向传播，首先需要前向传播，传播方向如蓝色箭头所示，其次再按照红色箭头进行反向传播</p>
-</blockquote>
-<h3 id="4-2-前向传播"><a href="#4-2-前向传播" class="headerlink" title="4.2 前向传播"></a>4.2 前向传播</h3><h3 id="4-3-损失函数定义"><a href="#4-3-损失函数定义" class="headerlink" title="4.3 损失函数定义"></a>4.3 损失函数定义</h3><h3 id="4-4-反向传播"><a href="#4-4-反向传播" class="headerlink" title="4.4 反向传播"></a>4.4 反向传播</h3><h3 id="4-5-整个流程图"><a href="#4-5-整个流程图" class="headerlink" title="4.5 整个流程图"></a>4.5 整个流程图</h3><h2 id="5-Different-types-of-RNNs"><a href="#5-Different-types-of-RNNs" class="headerlink" title="5. Different types of RNNs"></a>5. Different types of RNNs</h2><p>本节主要介绍了其他更多类型的RNN结构，下图参考大数据文摘</p>
+<p><img src="/images/deeplearning/C5W1-18_1.png" width="750"></p>
+<h3 id="4-2-前向传播"><a href="#4-2-前向传播" class="headerlink" title="4.2 前向传播"></a>4.2 前向传播</h3><p>首先给出所有输入数据，即从 $x^{<1>}$ 到 $x^{&lt;{T_x}&gt;}$, $T_x$ 表示输入数据的数量.</1></p>
+<p><img src="/images/deeplearning/C5W1-21_1.png" width="650"></p>
+<p>初始化参数 $W_a$, $b_a$，将输入数据输入网络得到对应的 $a^{&lt;{t}&gt;}$</p>
+<p><img src="/images/deeplearning/C5W1-22_1.png" width="650"></p>
+<p>再通过与初始化参数 $W_y$, $b_y$ 得到 $y^{&lt;{t}&gt;}$</p>
+<p><img src="/images/deeplearning/C5W1-23_1.png" width="650"></p>
+<h3 id="4-3-损失函数定义"><a href="#4-3-损失函数定义" class="headerlink" title="4.3 损失函数定义"></a>4.3 损失函数定义</h3><p>要进行反向传播，必须得有损失函数嘛，所以我们将损失函数定义如下：</p>
+<p><strong>每个节点的损失函数:</strong></p>
+<p>$$<br>L^{&lt;{t}&gt;}(\hat{y}^{&lt;{t}&gt;},y^{&lt;{t}&gt;})=y^{&lt;{t}&gt;}log(y^{&lt;{t}&gt;})-(1-y^{&lt;{t}&gt;})log(1-\hat{y}^{&lt;{t}&gt;})<br>$$</p>
+<p><strong>整个网络的损失函数:</strong></p>
+<p>$$<br>L(\hat{y}^{&lt;{t}&gt;},y^{&lt;{t}&gt;)}) = \sum_{t=1}^{T_y}L^{&lt;{t}&gt;}(\hat{y}^{&lt;{t}&gt;},y^{&lt;{t}&gt;})<br>$$</p>
+<p><img src="/images/deeplearning/C5W1-24_1.png" width="750"></p>
+<h3 id="4-4-反向传播"><a href="#4-4-反向传播" class="headerlink" title="4.4 反向传播"></a>4.4 反向传播</h3><p><img src="/images/deeplearning/C5W1-25_1.png" width="750"></p>
+<h3 id="4-5-整个流程图"><a href="#4-5-整个流程图" class="headerlink" title="4.5 整个流程图"></a>4.5 整个流程图</h3><p><img src="/images/deeplearning/C5W1-26_1.png" width="750"></p>
+<h2 id="5-Different-types-of-RNNs"><a href="#5-Different-types-of-RNNs" class="headerlink" title="5. Different types of RNNs"></a>5. Different types of RNNs</h2><p>本节主要介绍了其他更多类型的RNN结构，下图参考大数据文摘</p>
 <h2 id="6-Language-model-and-sequence-generation"><a href="#6-Language-model-and-sequence-generation" class="headerlink" title="6. Language model and sequence generation"></a>6. Language model and sequence generation</h2><p>语言模型和序列生成</p>
 <h2 id="7-Sampling-novel-sequences"><a href="#7-Sampling-novel-sequences" class="headerlink" title="7. Sampling novel sequences"></a>7. Sampling novel sequences</h2><p>对新序列采样</p>
 <h2 id="8-Vanishing-gradients-with-RNNs"><a href="#8-Vanishing-gradients-with-RNNs" class="headerlink" title="8. Vanishing gradients with RNNs"></a>8. Vanishing gradients with RNNs</h2><p>循环神经网络的梯度消失</p>
 <h2 id="9-GRU-Gated-Recurrent-Unit"><a href="#9-GRU-Gated-Recurrent-Unit" class="headerlink" title="9. GRU - Gated Recurrent Unit"></a>9. GRU - Gated Recurrent Unit</h2><h2 id="10-LSTM（long-short-term-memory）unit"><a href="#10-LSTM（long-short-term-memory）unit" class="headerlink" title="10. LSTM（long short term memory）unit"></a>10. LSTM（long short term memory）unit</h2><h2 id="11-Bidirectional-RNN"><a href="#11-Bidirectional-RNN" class="headerlink" title="11. Bidirectional RNN"></a>11. Bidirectional RNN</h2><h2 id="12-Deep-RNNs"><a href="#12-Deep-RNNs" class="headerlink" title="12. Deep RNNs"></a>12. Deep RNNs</h2><h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
-<li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
+<li><a href="http://www.cnblogs.com/marsggbo/tag/DeepLearning/" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 <li><a href="https://github.com/theBigDataDigest/Andrew-Ng-deeplearning-part-5-Course-notes-in-Chinese/blob/master/Andrew-Ng-deeplearning.ai-part-5-Course%20notes.pdf" target="_blank" rel="external">大数据文摘 DeepLearning.ai学习笔记</a></li>
 <li><a href="https://kulbear.github.io/pdf/sequence-models.pdf" target="_blank" rel="external">Sequence Models 英文版笔记</a></li>
 </ul>
