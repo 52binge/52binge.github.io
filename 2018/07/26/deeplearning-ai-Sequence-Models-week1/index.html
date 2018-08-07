@@ -28,11 +28,14 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-2_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-3_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-4_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-50_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-5_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-6_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-7_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-8_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-9_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-1_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C1W3-4_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-10_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-19_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-11_1.png">
@@ -73,7 +76,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-46_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-47_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-48_1.png">
-<meta property="og:updated_time" content="2018-08-07T03:25:17.297Z">
+<meta property="og:updated_time" content="2018-08-07T07:42:02.723Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week1) - Recurrent Neural Networks">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -215,7 +218,7 @@ var _hmt = _hmt || [];
 </blockquote>
 <p><img src="/images/deeplearning/C5W1-2_2.png" width="750"></p>
 <blockquote>
-<p>接下来我们要解决的一个问题是如何才能代表一个单词，比如我们例子中的“Harry”，这里我们介绍一种新的编码方式， 就是用另一种方式来代表每一个单词 - 独热编码（<strong>One-Hot Encoding</strong>）。 具体流程是这样，假设我们有 10000 个常用词，为其构建一个10000*1 的矩阵(column matrix)，假如第一个词是苹果(apple), 那么对应的第一个位置为1，其他都为0，所以称之为独热。这样每个单词都有对应的矩阵进行表示，如果这个词没有出现在我们的字典中，那么我们可以给一个特殊的符号代替，常用的是 <unk> (unknown)</unk></p>
+<p>接下来我们要解决的一个问题是<code>如何才能代表一个单词?</code>，比如我们例子中的“Harry”，这里我们介绍一种新的编码方式， 就是用另一种方式来代表每一个单词 - 独热编码（<strong>One-Hot Encoding</strong>）。 具体流程是这样，假设我们有 10000 个常用词，为其构建一个10000*1 的矩阵(column matrix)，假如第一个词是苹果(apple), 那么对应的第一个位置为1，其他都为0，所以称之为独热。这样每个单词都有对应的矩阵进行表示，如果这个词没有出现在我们的字典中，那么我们可以给一个特殊的符号代替，常用的是 <unk> (unknown)</unk></p>
 </blockquote>
 <h2 id="2-Notation"><a href="#2-Notation" class="headerlink" title="2. Notation"></a>2. Notation</h2><p>为了后面方便说明，先将会用到的数学符号进行介绍. 以下图为例，假如我们需要定位一句话中人名出现的位置.</p>
 <p><img src="/images/deeplearning/C5W1-2_1.png" width="750"></p>
@@ -245,7 +248,8 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>输入层，比如每个 $x^{<1>}$ 都是一个 1000 维的向量，这样输入层很庞大, 那么第一层的权重矩阵就有着巨大的参数.</1></p>
 </blockquote>
-<h3 id="3-1-RNN-结构"><a href="#3-1-RNN-结构" class="headerlink" title="3.1 RNN 结构"></a>3.1 RNN 结构</h3><p>还是以识别人名为例,第一个单词 $x^{<1>}$ 输入神经网络得到输出 $y^{<1>}$</1></1></p>
+<h3 id="3-1-RNN-结构"><a href="#3-1-RNN-结构" class="headerlink" title="3.1 RNN 结构"></a>3.1 RNN 结构</h3><p><img src="/images/deeplearning/C5W1-50_1.png" width="550"></p>
+<p>还是以识别人名为例,第一个单词 $x^{<1>}$ 输入神经网络得到输出 $y^{<1>}$</1></1></p>
 <p><img src="/images/deeplearning/C5W1-5_1.png" width="90"></p>
 <p>同理, 由 $x^{<2>}$ 将得到 $y^{<2>}$,以此类推。但是这就是传统网络存在的问题，即单词之间没有联系</2></2></p>
 <p><img src="/images/deeplearning/C5W1-6_1.png" width="90"></p>
@@ -266,7 +270,10 @@ var _hmt = _hmt || [];
 <p>举个🌰: He said, “Teddy Roosevelt was a great President.”</p>
 <p>对于这句话，只知道 <strong>He said</strong> 前面两个词，来判断 Teddy 是否是人名是不够的，还需后面的信息.（BRNN 可处理这问题）</p>
 </blockquote>
-<h3 id="3-2-RNN-Forward-Propagation"><a href="#3-2-RNN-Forward-Propagation" class="headerlink" title="3.2 RNN Forward Propagation"></a>3.2 RNN Forward Propagation</h3><p>RNN 在正向传播的过程中可以看到 <code>a</code> 的值随着时间的推移被传播了出去，也就一定程度上保存了单词之间的特性:</p>
+<h3 id="3-2-RNN-Forward-Propagation"><a href="#3-2-RNN-Forward-Propagation" class="headerlink" title="3.2 RNN Forward Propagation"></a>3.2 RNN Forward Propagation</h3><p>看 RNN Forward Propagation 之前，先看下基本的标准网络</p>
+<p><img src="/images/deeplearning/C1W3-1_1.png" width="750"></p>
+<p><img src="/images/deeplearning/C1W3-4_1.png" width="750"></p>
+<p>RNN 在正向传播的过程中可以看到 <code>a</code> 的值随着时间的推移被传播了出去，也就一定程度上保存了单词之间的特性:</p>
 <p><img src="/images/deeplearning/C5W1-10_1.png" width="750"></p>
 <blockquote>
 <p>$a^{<0>}=\vec{0}$</0></p>
@@ -346,7 +353,7 @@ var _hmt = _hmt || [];
 <h3 id="4-4-反向传播"><a href="#4-4-反向传播" class="headerlink" title="4.4 反向传播"></a>4.4 反向传播</h3><p><img src="/images/deeplearning/C5W1-25_1.png" width="750"></p>
 <h3 id="4-5-整个流程图"><a href="#4-5-整个流程图" class="headerlink" title="4.5 整个流程图"></a>4.5 整个流程图</h3><p><img src="/images/deeplearning/C5W1-26_1.png" width="750"></p>
 <h2 id="5-Different-types-of-RNNs"><a href="#5-Different-types-of-RNNs" class="headerlink" title="5. Different types of RNNs"></a>5. Different types of RNNs</h2><p><strong>RNN的不同应用领域:</strong></p>
-<p>序列模型对输入与输出的长度没有要求，在常见的例子中，机器翻译就是多个输入与多个输出，简称“多对多”， 语音识别可视为“单对多”， 它的反例是音乐生成-“单对多”。课程中介绍了多种可能的RNN模式，我们用下面一张图概括：</p>
+<p>序列模型对输入与输出的长度没有要求，在常见的例子中，机器翻译就是多个输入与多个输出，简称“多对多”， 语音识别可视为“单对多”， 它的反例是音乐生成-“多对单”。课程中介绍了多种可能的RNN模式，我们用下面一张图概括：</p>
 <p><img src="/images/deeplearning/C5W1-27_1.png" width="800"></p>
 <p>RNN 不同的结构给了我们更多的可能性.</p>
 <h2 id="6-Language-model-and-sequence-generation"><a href="#6-Language-model-and-sequence-generation" class="headerlink" title="6. Language model and sequence generation"></a>6. Language model and sequence generation</h2><p>语言模型和序列生成</p>
