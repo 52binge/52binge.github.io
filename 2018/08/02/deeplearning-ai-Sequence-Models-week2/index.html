@@ -27,7 +27,11 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-3_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-4_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-5_1.png">
-<meta property="og:updated_time" content="2018-08-09T03:22:00.359Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-6_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-7_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-8_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-9_1.png">
+<meta property="og:updated_time" content="2018-08-09T08:53:51.255Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week2) - NLP - Word Embeddings">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -286,13 +290,82 @@ var _hmt = _hmt || [];
 <p>“I want a glass of orange <code>juice</code>”</p>
 </blockquote>
 <p><img src="/images/deeplearning/C5W2-5_1.png" width="750"></p>
-<h2 id="6-Word2Vec"><a href="#6-Word2Vec" class="headerlink" title="6. Word2Vec"></a>6. Word2Vec</h2><h2 id="7-Negative-Sampling-负采样"><a href="#7-Negative-Sampling-负采样" class="headerlink" title="7. Negative Sampling 负采样"></a>7. Negative Sampling 负采样</h2><h2 id="8-GloVe-Word-Vectors"><a href="#8-GloVe-Word-Vectors" class="headerlink" title="8. GloVe Word Vectors"></a>8. GloVe Word Vectors</h2><p>GloVe 词向量</p>
-<h2 id="9-Sentiment-Classification"><a href="#9-Sentiment-Classification" class="headerlink" title="9. Sentiment Classification"></a>9. Sentiment Classification</h2><p>情绪分类</p>
-<h2 id="10-Debiasing-Word-Embeddings"><a href="#10-Debiasing-Word-Embeddings" class="headerlink" title="10. Debiasing Word Embeddings"></a>10. Debiasing Word Embeddings</h2><p>词嵌入除偏</p>
+<p>在这个训练模式中，是通过全部的单词去预测最后一个单词然后反向传播更新词嵌表 $E$</p>
+<blockquote>
+<p>假设要预测的单词为 $W$，词嵌表仍然为 $E$，需要注意的是训练词嵌表和预测 $W$ 是两个不同的任务。</p>
+<p>如果任务是预测 $W$，最佳方案是使用 $W$ 前面 $n$ 个单词构建语境。</p>
+<p>如果任务是训练 $E$，除了使用 $W$ 前全部单词还可以通过：前后各4个单词、前面单独的一个词、前面语境中随机的一个词（这个方式也叫做 Skip Gram 算法），这些方法都能提供很好的结果。</p>
+</blockquote>
+<h2 id="6-Word2Vec"><a href="#6-Word2Vec" class="headerlink" title="6. Word2Vec"></a>6. Word2Vec</h2><p>视频中一直没有给 Word2Vec 下一个明确的定义，我们再次下一个非正式定义便于理解:</p>
+<p>“<strong>word2vec</strong>” 是指将词语 word 变成向量vector 的过程，这一过程通常通过浅层的神经网络完成，例如 CBOW 或者skip gram，这一过程同样可以视为构建词嵌表 $E$ 的过程”。</p>
+<h3 id="6-1-Skip-grams"><a href="#6-1-Skip-grams" class="headerlink" title="6.1 Skip-grams"></a>6.1 Skip-grams</h3><p>这里着重介绍了<strong>skip gram model</strong>，这是一个用一个随机词预测其他词的方法。比如下面这句话中</p>
+<blockquote>
+<p>“I want a glass of orange juice.”</p>
+</blockquote>
+<p>我们可以选 <strong>orange</strong>作为随机词 c(<strong>Context</strong>)，通过设置窗口值例如前后 5 个单词以监督学习的方式去预测其中的词t(<strong>Target</strong>) 例如 “juice, glass, a, of” 但需要注意的是，这个过程仍然是为了搭建（更新）词嵌表 $E$ 而不是为了真正<br>的去预测，所以如果预测效果不好并不用担心，表达式：</p>
+<p>$$<br>O_{c}\rightarrow E \rightarrow e_{c} \rightarrow \underset{Softmax}{Output} \rightarrow \hat{y}<br>$$</p>
+<p><strong>Softmax</strong>公式为(假设输出节点数为10000)：</p>
+<p>$$<br>p(t|c)=\frac{e^{θ_t^Te_c}}{\sum_{j=1}^{10000}e^{θ_j^Te_c}}<br>$$</p>
+<blockquote>
+<p>$θ_t$ 表示与$t$有关的参数</p>
+</blockquote>
+<p>损失函数：</p>
+<p>$$<br>l(\hat{y},y)=\sum_{i=1}^{10000}y_ilog\hat{y_i}<br>$$</p>
+<p><img src="/images/deeplearning/C5W2-6_1.png" width="750"></p>
+<p>在skip gram中有一个不足是 <strong>softmax</strong> 作为激活函数需要的运算量太大，在上限为10000个单词的词库中就已经比较慢了。一种补救的办法是用一个它的变种 “<strong>Hierachical Softmax</strong> (分层的Softmax)”，通过类似二叉树的方法提高训练的效率</p>
+<p>例如一些常见的单词，如<strong>the</strong>、<strong>of</strong>等就可以在很浅的层次得到，而像<strong>durian</strong>这种少用的单词则在较深的层次得到</p>
+<p><img src="/images/deeplearning/C5W2-7_1.png" width="750"></p>
+<h2 id="7-Negative-Sampling-负采样"><a href="#7-Negative-Sampling-负采样" class="headerlink" title="7. Negative Sampling 负采样"></a>7. Negative Sampling 负采样</h2><p>对于skip gram model而言，还要解决的一个问题是如何取样（选择）有效的随机词 $c$ 和目标词 $t$ 呢？如果真的按照自然随机分布的方式去选择，可能会大量重复的选择到出现次数频率很高的单词比如说 “the, of, a, it, I, …” 重复的训练这样的单词没有特别大的意义.</p>
+<p>如何有效的去训练选定的词如 orange 呢？在设置训练集时可以通过“负取样”的方法, 下表中第一行是通过和上面一样的窗口法得到的“正”（1）结果，其他三行是从字典中随机得到的词语，结果为“负”（0）。通过这样的负取样法可以更有效地去训练 skip gram model.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">context</th>
+<th style="text-align:center">word</th>
+<th style="text-align:center">target?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">orange</td>
+<td style="text-align:center">juice</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center">orange</td>
+<td style="text-align:center">king</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">orange</td>
+<td style="text-align:center">book</td>
+<td style="text-align:center">0</td>
+</tr>
+<tr>
+<td style="text-align:center">orange</td>
+<td style="text-align:center">the</td>
+<td style="text-align:center">0</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/images/deeplearning/C5W2-8_1.png" width="700"></p>
+<p>负取样的个数 <strong>k</strong> 由数据量的大小而定，上述例子中为3. 实际中数据量大则 k = 2 ~ 5，数据量小则可以相对大一些 k = 5 ~ 20</p>
+<blockquote>
+<p>通过负取样，我们的神经网络训练从 <strong>softmax</strong> 预测每个词出现的频率变成了经典 binary logistic regression 问题，概率公式用 <strong>sigmoid</strong> 代替 <strong>softmax</strong> 从而大大提高了速度.</p>
+</blockquote>
+<p>$$<br>x_1=(orange, juice) \rightarrow y_1=1 \\<br>x_2=(orange, king) \rightarrow y_2=0 \\<br>… \\<br>P(y=1|c,t)=\sigma(\theta_t^Te_c)<br>$$</p>
+<p>最后我们通过一个并没有被理论验证但是实际效果很好的方式来确定每个被负选样选中的概率为：</p>
+<p>$$<br>P(w_i)=\frac{f(w_i^{\frac{3}{4}})} {\sum_{j=1}^{10000}f(w_j^{\frac{3}{4}})}<br>$$</p>
+<p><img src="/images/deeplearning/C5W2-9_1.png" width="750"></p>
+<h2 id="8-GloVe-Word-Vectors"><a href="#8-GloVe-Word-Vectors" class="headerlink" title="8. GloVe Word Vectors"></a>8. GloVe Word Vectors</h2><p>GloVe 词向量</p>
+<h2 id="9-Sentiment-Classification"><a href="#9-Sentiment-Classification" class="headerlink" title="9. Sentiment Classification"></a>9. Sentiment Classification</h2><h2 id="10-Debiasing-Word-Embeddings"><a href="#10-Debiasing-Word-Embeddings" class="headerlink" title="10. Debiasing Word Embeddings"></a>10. Debiasing Word Embeddings</h2><blockquote>
+<p>So word embeddings can reflect the gender, ethnicity, age, sexual, orientation, and other biases of the text used to train the model. One that I’m especially passionate about is bias relating to socioeconomic status. I think that every person, whether you come from a wealthy family, or a low income family, or anywhere in between, I think everyone should have a great opportunities.</p>
+</blockquote>
 <h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
-<li><a href="http://www.cnblogs.com/marsggbo/p/7681619.html" target="_blank" rel="external">DeepLearning.ai学习笔记（三）结构化机器学习项目–week1 机器学习策略</a></li>
+<li><a href="https://www.ctolib.com/Yukong-Deeplearning-ai-Solutions.html" target="_blank" rel="external">deeplearning.ai深度学习课程字幕翻译项目</a></li>
+<li><a href="https://blog.csdn.net/Jerr__y/article/details/53749693" target="_blank" rel="external">seq2seq学习笔记</a></li>
 </ul>
 
       
@@ -336,7 +409,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Word-Representation"><span class="toc-number"></span> <span class="toc-text">1. Word Representation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#词汇的特性"><span class="toc-number"></span> <span class="toc-text">词汇的特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">2. Using Word Embeddings</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-使用词嵌三步"><span class="toc-number"></span> <span class="toc-text">2.1 使用词嵌三步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-词嵌实用场景"><span class="toc-number"></span> <span class="toc-text">2.2 词嵌实用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Properties-of-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">3. Properties of Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Embedding-Matrix"><span class="toc-number"></span> <span class="toc-text">4. Embedding Matrix</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Learning-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">5. Learning Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Word2Vec"><span class="toc-number"></span> <span class="toc-text">6. Word2Vec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Negative-Sampling-负采样"><span class="toc-number"></span> <span class="toc-text">7. Negative Sampling 负采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-GloVe-Word-Vectors"><span class="toc-number"></span> <span class="toc-text">8. GloVe Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Sentiment-Classification"><span class="toc-number"></span> <span class="toc-text">9. Sentiment Classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Debiasing-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">10. Debiasing Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-Reference"><span class="toc-number"></span> <span class="toc-text">13. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Word-Representation"><span class="toc-number"></span> <span class="toc-text">1. Word Representation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#词汇的特性"><span class="toc-number"></span> <span class="toc-text">词汇的特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">2. Using Word Embeddings</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-使用词嵌三步"><span class="toc-number"></span> <span class="toc-text">2.1 使用词嵌三步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-词嵌实用场景"><span class="toc-number"></span> <span class="toc-text">2.2 词嵌实用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Properties-of-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">3. Properties of Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Embedding-Matrix"><span class="toc-number"></span> <span class="toc-text">4. Embedding Matrix</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Learning-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">5. Learning Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Word2Vec"><span class="toc-number"></span> <span class="toc-text">6. Word2Vec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-Skip-grams"><span class="toc-number"></span> <span class="toc-text">6.1 Skip-grams</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Negative-Sampling-负采样"><span class="toc-number"></span> <span class="toc-text">7. Negative Sampling 负采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-GloVe-Word-Vectors"><span class="toc-number"></span> <span class="toc-text">8. GloVe Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Sentiment-Classification"><span class="toc-number"></span> <span class="toc-text">9. Sentiment Classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Debiasing-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">10. Debiasing Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-Reference"><span class="toc-number"></span> <span class="toc-text">13. Reference</span></a></li></ol>
       </div>
     
     
