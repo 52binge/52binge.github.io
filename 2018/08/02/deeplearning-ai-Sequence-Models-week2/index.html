@@ -37,7 +37,12 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-13_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-14_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-15_1.png">
-<meta property="og:updated_time" content="2018-08-14T09:19:00.826Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-16_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-17_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-18_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-19_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W2-20_1.png">
+<meta property="og:updated_time" content="2018-08-15T02:49:32.119Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week2) - NLP - Word Embeddings">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -159,7 +164,6 @@ var _hmt = _hmt || [];
 
 <ul>
 <li>能够将序列模型应用到自然语言问题中，包括文字合成。</li>
-<li>能够将序列模型应用到音频应用，包括语音识别和音乐合成。</li>
 </ul>
 <a id="more"></a>
 <h2 id="1-Word-Representation"><a href="#1-Word-Representation" class="headerlink" title="1. Word Representation"></a>1. Word Representation</h2><p>上周的学习中，学习了如何用独热编码来代表一个词，这一节我们来探究一下词和词之间的联系。比如有下面这句话：</p>
@@ -379,18 +383,38 @@ var _hmt = _hmt || [];
 <p>“Completely absent of good taste, good service, and good ambience.”</p>
 <p>该评语只是将<strong>lacking in</strong>替换成了<strong>absent of</strong>，而且我们即使假设<strong>absent</strong>并没有出现在训练集中，但是因为词嵌表很庞大，所以词嵌表中包含<strong>absent</strong>，所以算法依旧可以知道<strong>absent</strong>和<strong>lacking</strong>有相似之处，最后输出的结果也依然可以保持正确。</p>
 <p><img src="/images/deeplearning/C5W2-14_1.png" width="750"></p>
-<h2 id="10-Debiasing-Word-Embeddings"><a href="#10-Debiasing-Word-Embeddings" class="headerlink" title="10. Debiasing Word Embeddings"></a>10. Debiasing Word Embeddings</h2><p>现如今机器学习已经被用到了很多领域，例如银行贷款决策，简历筛选。但是因为机器是向人们学习，所以好的坏的都会学到，例如他也会学到一些偏见或者歧视</p>
+<h2 id="10-Debiasing-Word-Embeddings"><a href="#10-Debiasing-Word-Embeddings" class="headerlink" title="10. Debiasing Word Embeddings"></a>10. Debiasing Word Embeddings</h2><p>现如今机器学习已经被用到了很多领域，例如银行贷款决策，简历筛选。但是因为机器是向人们学习，所以好的坏的都会学到. 因为 <strong>RNN</strong> 通常是通过大量的网络数据文本集进行训练得到的，所以很多时候文本集中的偏见会反映在词嵌以及最终 的结果中，例如</p>
 <blockquote>
 <p>当说到Man：程序员的时候，算法得出Woman：家庭主妇，这显然存在偏见。</p>
 <p>又如Man：Doctor，算法认为Woman：Nurse。这显然也存在其实和偏见。</p>
 </blockquote>
-<p>上面提到的例子都是性别上的歧视，词嵌入也会反映出年龄歧视、性取向歧视以及种族歧视等等。</p>
-<p>人类在这方面已经做的不对了，所以机器应当做出相应的调整来减少歧视.</p>
+<p>这种带有偏见的结果是应该尽力避免的，这类偏见大量存在于网络数据文本中，包括 性别偏见，种族偏见，年龄偏见，等等… 人类在这方面已经做的不对了，所以机器应当做出相应的调整来减少歧视.  </p>
+<p><strong>给词嵌去偏见主要分三步</strong>(在词嵌的高维空间中完成):</p>
+<ol>
+<li>找到偏见的方向(确定偏见的x，y轴)</li>
+<li>将非定义化的词平移到x=0(父亲，母亲这类词就是定义化的词，本身就带有了性别的暗示) </li>
+<li>使定义化的词据离移动的词距离相等</li>
+</ol>
 <blockquote>
 <p>So word embeddings can reflect the gender, ethnicity, age, sexual, orientation, and other biases of the text used to train the model. One that I’m especially passionate about is bias relating to socioeconomic status. I think that every person, whether you come from a wealthy family, or a low income family, or anywhere in between, I think everyone should have a great opportunities.</p>
 </blockquote>
 <p><img src="/images/deeplearning/C5W2-15_1.png" width="750"></p>
-<h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
+<p>下面将主要从性别歧视上来举例说明如何让机器学习消除偏见。</p>
+<p>下图展示了一些单词，你可以在心里先想想你看到这些单词的第一时间认为他们所对应的性别是什么吧~~~</p>
+<p><img src="/images/deeplearning/C5W2-16_1.png" width="450"></p>
+<h3 id="1-识别偏见方向"><a href="#1-识别偏见方向" class="headerlink" title="1. 识别偏见方向"></a>1. 识别偏见方向</h3><p>因为该例子是以消除性别歧视为目的，所以我们需要计算出图中这些单词之间的距离的平均值，进而作为偏见方向(bias direction)</p>
+<p>$$<br>e_{he}-e_{she} \\<br>e_{boy}-e_{girl} \\<br>e_{grandmother}-e_{grandfather}<br>$$</p>
+<p>将上面所求做平均运算，得到的向量方向即为偏见方向</p>
+<p>为方便理解，已在图中画出偏见方向，其余299D(除gender以外的其他单词特征)向量与偏见方向正交，也在下图中画出.</p>
+<p><img src="/images/deeplearning/C5W2-17_1.png" width="700"></p>
+<h3 id="2-词性中和"><a href="#2-词性中和" class="headerlink" title="2. 词性中和"></a>2. 词性中和</h3><p>像“ <strong>boy, girl</strong> ”这类词在性别词性上是很明确的，而且不存在歧视，所以无需中和(Neutralize).</p>
+<p>而图中的 <strong>babysister、doctor</strong> 则需要中和，具体方法就是将该词像非偏见方向投影得到一个新的坐标.</p>
+<p><img src="/images/deeplearning/C5W2-18_1.png" width="700"></p>
+<h3 id="3-单词对等距离化"><a href="#3-单词对等距离化" class="headerlink" title="3. 单词对等距离化"></a>3. 单词对等距离化</h3><p>如下图示，虽然 <strong>babysister</strong> 中和化，但是它还是离 <strong>grandmother</strong> 更近，所以依旧带有偏见</p>
+<p><img src="/images/deeplearning/C5W2-19_1.png" width="700"></p>
+<p>所以我们还需要将grandmother、grandfather这类与性别有关的对应词等距分布在非偏见方向的两侧(红色剪头表示移动方向，红色点表示移动后的新坐标)，如下图示。</p>
+<p><img src="/images/deeplearning/C5W2-20_1.png" width="700"></p>
+<h2 id="11-Reference"><a href="#11-Reference" class="headerlink" title="11. Reference"></a>11. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 <li><a href="https://www.ctolib.com/Yukong-Deeplearning-ai-Solutions.html" target="_blank" rel="external">deeplearning.ai深度学习课程字幕翻译项目</a></li>
@@ -438,7 +462,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Word-Representation"><span class="toc-number"></span> <span class="toc-text">1. Word Representation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-词汇的特性"><span class="toc-number"></span> <span class="toc-text">1.1 词汇的特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">2. Using Word Embeddings</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-使用词嵌三步"><span class="toc-number"></span> <span class="toc-text">2.1 使用词嵌三步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-词嵌实用场景"><span class="toc-number"></span> <span class="toc-text">2.2 词嵌实用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Properties-of-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">3. Properties of Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Embedding-Matrix"><span class="toc-number"></span> <span class="toc-text">4. Embedding Matrix</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Learning-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">5. Learning Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Word2Vec"><span class="toc-number"></span> <span class="toc-text">6. Word2Vec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-Skip-grams"><span class="toc-number"></span> <span class="toc-text">6.1 Skip-grams</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Negative-Sampling-负采样"><span class="toc-number"></span> <span class="toc-text">7. Negative Sampling 负采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-GloVe-Word-Vectors"><span class="toc-number"></span> <span class="toc-text">8. GloVe Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Sentiment-Classification"><span class="toc-number"></span> <span class="toc-text">9. Sentiment Classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Debiasing-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">10. Debiasing Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-Reference"><span class="toc-number"></span> <span class="toc-text">13. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Word-Representation"><span class="toc-number"></span> <span class="toc-text">1. Word Representation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-词汇的特性"><span class="toc-number"></span> <span class="toc-text">1.1 词汇的特性</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">2. Using Word Embeddings</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-使用词嵌三步"><span class="toc-number"></span> <span class="toc-text">2.1 使用词嵌三步</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-词嵌实用场景"><span class="toc-number"></span> <span class="toc-text">2.2 词嵌实用场景</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Properties-of-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">3. Properties of Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Embedding-Matrix"><span class="toc-number"></span> <span class="toc-text">4. Embedding Matrix</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Learning-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">5. Learning Word Embeddings</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Word2Vec"><span class="toc-number"></span> <span class="toc-text">6. Word2Vec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-Skip-grams"><span class="toc-number"></span> <span class="toc-text">6.1 Skip-grams</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Negative-Sampling-负采样"><span class="toc-number"></span> <span class="toc-text">7. Negative Sampling 负采样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-GloVe-Word-Vectors"><span class="toc-number"></span> <span class="toc-text">8. GloVe Word Vectors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Sentiment-Classification"><span class="toc-number"></span> <span class="toc-text">9. Sentiment Classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Debiasing-Word-Embeddings"><span class="toc-number"></span> <span class="toc-text">10. Debiasing Word Embeddings</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-识别偏见方向"><span class="toc-number"></span> <span class="toc-text">1. 识别偏见方向</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-词性中和"><span class="toc-number"></span> <span class="toc-text">2. 词性中和</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-单词对等距离化"><span class="toc-number"></span> <span class="toc-text">3. 单词对等距离化</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-Reference"><span class="toc-number"></span> <span class="toc-text">11. Reference</span></a></li></ol>
       </div>
     
     
@@ -469,7 +493,7 @@ var _hmt = _hmt || [];
     <a href="/2018/08/14/deeplearning-ai-Sequence-Models-week3/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          Sequence Models (week2) - NLP - Word Embeddings
+          Sequence Models (week3) - Attention mechanism
         
       </div>
     </a>

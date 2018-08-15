@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Sequence Models (week2) - NLP - Word Embeddings - Home</title>
+  <title>Sequence Models (week3) - Attention mechanism - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
@@ -13,7 +13,7 @@
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Sequence Models (week2) - NLP - Word Embeddings">
+<meta property="og:title" content="Sequence Models (week3) - Attention mechanism">
 <meta property="og:url" content="http://iequa.com/2018/08/14/deeplearning-ai-Sequence-Models-week3/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="MathJax.Hub.Config({
@@ -23,9 +23,14 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta property="og:updated_time" content="2018-08-14T13:11:28.472Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-1.jpg">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-2.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-3.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-4.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-5.png">
+<meta property="og:updated_time" content="2018-08-15T07:18:06.152Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Sequence Models (week2) - NLP - Word Embeddings">
+<meta name="twitter:title" content="Sequence Models (week3) - Attention mechanism">
 <meta name="twitter:description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
     jax: [&quot;input/TeX&quot;],
@@ -33,6 +38,7 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
+<meta name="twitter:image" content="http://iequa.com/images/deeplearning/C5W3-1.jpg">
   
   
     <link rel="icon" href="/favicon.png">
@@ -98,7 +104,7 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      Sequence Models (week2) - NLP - Word Embeddings
+      Sequence Models (week3) - Attention mechanism
       <small class=article-detail-date-index>&nbsp; 2018-08-14</small>
     </h1>
   
@@ -143,13 +149,52 @@ var _hmt = _hmt || [];
 </script>
 
 <ul>
-<li>能够将序列模型应用到自然语言问题中，包括文字合成。</li>
-<li>能够将序列模型应用到音频应用，包括语音识别和音乐合成。</li>
+<li>能够将序列模型应用到自然语言问题、音频应用 等，包括文字合成、语音识别和音乐合成。</li>
 </ul>
 <a id="more"></a>
-<h2 id="1-Word-Representation"><a href="#1-Word-Representation" class="headerlink" title="1. Word Representation"></a>1. Word Representation</h2><p>上周的学习中，学习了如何用独热编码来代表一个词，这一节我们来探究一下词和词之间的联系。比如有下面这句话：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">“I want a glass of orange ________”</span><br></pre></td></tr></table></figure>
-<h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
+<h2 id="1-Basic-models"><a href="#1-Basic-models" class="headerlink" title="1. Basic models"></a>1. Basic models</h2><p>假设需要翻译下面这句话</p>
+<blockquote>
+<p>“简将要在9月访问中国”</p>
+</blockquote>
+<p>我们希望得到的结果是</p>
+<blockquote>
+<p>“<strong>Jane is visiting China in September</strong>”</p>
+</blockquote>
+<p>在这个例子中输入的数量是10个中文汉字，输出为6个单词， $T_x$ 与 $T_y$ 数量不一致，就需要用到 Sequence to sequence model <strong>RNN</strong></p>
+<p><img src="/images/deeplearning/C5W3-1.jpg" width="750"></p>
+<p>类似的例子还有用机器为下面这张图片生成描述</p>
+<p><img src="/images/deeplearning/C5W3-2.png" width="600"></p>
+<p>只需要将encoder部分用一个CNN模型替换就可以了，比如AlexNet，就可以得到“一只（可爱的）猫躺在楼梯上”</p>
+<h2 id="2-Picking-the-most-likely-sentence"><a href="#2-Picking-the-most-likely-sentence" class="headerlink" title="2. Picking the most likely sentence"></a>2. Picking the most likely sentence</h2><p>下面将之前学习的语言模型和机器翻译模型做一个对比, P为概率</p>
+<p>语言模型:</p>
+<p><img src="/images/deeplearning/C5W3-3.png" width="700"></p>
+<p>机器翻译模型:</p>
+<p><img src="/images/deeplearning/C5W3-4.png" width="750"></p>
+<p>可以看到，机器翻译模型的后半部分其实就是语言模型，Andrew将其称之为“条件语言模型”，在语言模型之前有一 个条件也就是被翻译的句子:</p>
+<p>$$<br>P(y^{<1>},…,y^{&lt;{T_y}&gt;}|x^{<1>},…,x^{&lt;{T_x}&gt;})<br>$$</1></1></p>
+<blockquote>
+<p>但是我们知道翻译是有很多种方式的，同一句话可以翻译成很多不同的句子，那么我们如何判断哪一个句子是最好的呢？</p>
+<p>还是翻译上面那句话，有如下几种翻译结果：</p>
+<ul>
+<li>“Jane is visiting China in September.”</li>
+<li>“Jane is going to visit China in September.”</li>
+<li>“In September, Jane will visit China”</li>
+<li>“Jane’s Chinese friend welcomed her in September.”</li>
+<li>….</li>
+</ul>
+<p>与语言模型不同的是，机器模型在输出部分不再使用softmax随机分布的形式进行取样，因为很容易得到一个不准确的翻译，取而代之的是使用 <code>Beam Search</code> 做最优化的选择。这个方法会在后下一小节介绍，在此之前先介绍一下<strong>贪婪搜索(Greedy Search)</strong>及其弊端，这样才能更好地了解Beam Search的优点。</p>
+</blockquote>
+<h3 id="Greedy-Search"><a href="#Greedy-Search" class="headerlink" title="Greedy Search"></a>Greedy Search</h3><p>得到最好的翻译结果，转换成数学公式就是:</p>
+<p>$$<br>argmax P(y^{<1>},…,y^{&lt;{T_y}&gt;}|x^{<1>},…,x^{&lt;{T_x}&gt;})<br>$$</1></1></p>
+<p>那么贪婪搜索是什么呢？</p>
+<p>通俗解释就是每次输出的那个都必须是最好的。还是以翻译那句话为例。</p>
+<p>现在假设通过贪婪搜索已经确定最好的翻译的前两个单词是：”Jane is “</p>
+<p>然后因为”going”这个单词出现频率较高和其它原因，所以根据贪婪算法得出此时第三个单词的最好结果是”going”。</p>
+<p>所以据贪婪算法最后的翻译结果可能是下图中的第二个句子，但第一句可能会更好(不服气的话，我们就假设第一句更好).</p>
+<p><img src="/images/deeplearning/C5W3-5.png" width="700"></p>
+<p>所以贪婪搜索的缺点是局部最优并不代表全局最优，就好像五黑，一队都是很牛逼的，但是各个都太优秀，就显得没那么优秀了，而另一队虽然说不是每个都是最优秀，但是凑在一起就是能carry全场。</p>
+<p>更形象的理解可能就是贪婪搜索更加短视，看的不长远，而且也更加耗时。假设字典中共有10000个单词，如果使用贪婪搜索，那么可能的组合有1000010种，所以还是挺恐怖的2333~~</p>
+<h2 id="3-Beam-Search"><a href="#3-Beam-Search" class="headerlink" title="3. Beam Search"></a>3. Beam Search</h2><h2 id="12-Reference"><a href="#12-Reference" class="headerlink" title="12. Reference"></a>12. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 <li><a href="https://www.ctolib.com/Yukong-Deeplearning-ai-Solutions.html" target="_blank" rel="external">deeplearning.ai深度学习课程字幕翻译项目</a></li>
@@ -197,7 +242,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Word-Representation"><span class="toc-number"></span> <span class="toc-text">1. Word Representation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#13-Reference"><span class="toc-number"></span> <span class="toc-text">13. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Basic-models"><span class="toc-number"></span> <span class="toc-text">1. Basic models</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Picking-the-most-likely-sentence"><span class="toc-number"></span> <span class="toc-text">2. Picking the most likely sentence</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Greedy-Search"><span class="toc-number"></span> <span class="toc-text">Greedy Search</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Beam-Search"><span class="toc-number"></span> <span class="toc-text">3. Beam Search</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-Reference"><span class="toc-number"></span> <span class="toc-text">12. Reference</span></a></li></ol>
       </div>
     
     
