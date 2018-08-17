@@ -119,7 +119,7 @@
 </ul>
 <p>与语言模型不同的是，机器模型在输出部分不再使用softmax随机分布的形式进行取样，因为很容易得到一个不准确的翻译，取而代之的是使用 <code>Beam Search</code> 做最优化的选择。这个方法会在后下一小节介绍，在此之前先介绍一下<strong>贪婪搜索(Greedy Search)</strong>及其弊端，这样才能更好地了解Beam Search的优点。</p>
 </blockquote>
-<h3 id="Greedy-Search"><a href="#Greedy-Search" class="headerlink" title="Greedy Search"></a>Greedy Search</h3><p>得到最好的翻译结果，转换成数学公式就是:</p>
+<h3 id="2-1-Greedy-Search"><a href="#2-1-Greedy-Search" class="headerlink" title="2.1 Greedy Search"></a>2.1 Greedy Search</h3><p>得到最好的翻译结果，转换成数学公式就是:</p>
 <p>$$<br>argmax P(y^{<1>},…,y^{&lt;{T_y}&gt;}|x^{<1>},…,x^{&lt;{T_x}&gt;})<br>$$</1></1></p>
 <p>那么贪婪搜索是什么呢？</p>
 <p>通俗解释就是每次输出的那个都必须是最好的。还是以翻译那句话为例。</p>
@@ -129,8 +129,82 @@
 <p><img src="/images/deeplearning/C5W3-5.png" width="700"></p>
 <p>所以贪婪搜索的缺点是局部最优并不代表全局最优，就好像五黑，一队都是很牛逼的，但是各个都太优秀，就显得没那么优秀了，而另一队虽然说不是每个都是最优秀，但是凑在一起就是能carry全场。</p>
 <p>更形象的理解可能就是贪婪搜索更加短视，看的不长远，而且也更加耗时。假设字典中共有10000个单词，如果使用贪婪搜索，那么可能的组合有1000010种，所以还是挺恐怖的2333~~</p>
-<h2 id="3-Beam-Search"><a href="#3-Beam-Search" class="headerlink" title="3. Beam Search"></a>3. Beam Search</h2><p>Beam Search是greedy search的加强版本，首先要预设一个值 beam width，这里等于3(如果等于1就是greedy<br>search)。然后在每一步保存最佳的3个结果进行下一步的选择，以此直到遇到句子的终结符</p>
-<h2 id="12-Reference"><a href="#12-Reference" class="headerlink" title="12. Reference"></a>12. Reference</h2><ul>
+<h2 id="3-Beam-Search"><a href="#3-Beam-Search" class="headerlink" title="3. Beam Search"></a>3. Beam Search</h2><p><strong>Beam Search</strong> 是greedy search的加强版本，首先要预设一个值 beam width，这里等于 <code>3</code> (如果等于<strong>1</strong>就是<strong>greedy search</strong>)。然后在每一步保存最佳的3个结果进行下一步的选择，以此直到遇到句子的终结符.</p>
+<h3 id="3-1-步骤一"><a href="#3-1-步骤一" class="headerlink" title="3.1 步骤一"></a>3.1 步骤一</h3><p>如下图示，因为beam width=3，所以根据输入的需要翻译的句子选出 3 个 $y^{<1>}$最可能的输出值，即选出$P(y^{<1>}|x)$最大的前3个值。假设分别是”in”,”jane”,”september”</1></1></p>
+<p><img src="/images/deeplearning/C5W3-6.png" width="700"></p>
+<h3 id="3-2-步骤二"><a href="#3-2-步骤二" class="headerlink" title="3.2 步骤二"></a>3.2 步骤二</h3><p>以”<strong>in</strong>“为例进行说明，其他同理.</p>
+<p>如下图示，在给定被翻译句子 $x$ 和确定 $y^{<1>}$ = “<strong>in</strong>“ 的条件下，下一个输出值的条件概率是 $P(y^{<2>}|x,”in”)$。此时需要从 10000 种可能中找出条件概率最高的前 3 个.</2></1></p>
+<p>又由公式 $P(y^{<1>},y^{<2>}|x)=P(y^{<1>}|x) P(y^{<2>}|x, y^{<1>})$, 我们此时已经得到了给定输入数据，前两个输出值的输出概率比较大的组合了.</1></2></1></2></1></p>
+<p><img src="/images/deeplearning/C5W3-7.png" width="700"></p>
+<p>另外 2 个单词也做同样的计算</p>
+<p><img src="/images/deeplearning/C5W3-8.png" width="700"></p>
+<p>此时我们得到了 9 组 $P(y^{<1>},y^{<2>}|x)$, 此时我们再从这 9组 中选出概率值最高的前 3 个。如下图示，假设是这3个：</2></1></p>
+<ul>
+<li>“in september”</li>
+<li>“jane is”</li>
+<li>“jane visits”</li>
+</ul>
+<p><img src="/images/deeplearning/C5W3-9.png" width="600"></p>
+<h3 id="3-3-步骤三"><a href="#3-3-步骤三" class="headerlink" title="3.3 步骤三"></a>3.3 步骤三</h3><p>继续步骤2的过程，根据 $P(y^{<3>}|x,y^{<1>},y^{<2>})$ 选出 $P(y^{<1>},y^{<2>},y^{<3>}|x)$ 最大的前3个组合.</3></2></1></2></1></3></p>
+<p>后面重复上述步骤得出结果.</p>
+<h3 id="3-4-总结"><a href="#3-4-总结" class="headerlink" title="3.4 总结"></a>3.4 总结</h3><p>总结一下上面的步骤就是：</p>
+<blockquote>
+<ul>
+<li><p>(1). 经过 encoder 以后，decoder 给出最有可能的三个开头词依次为 “in”, “jane”, “september”<br>$$P(y^{<1>}|x)$$</1></p>
+</li>
+<li><p>(2). 经过将第一步得到的值输入到第二步中，最有可能的三个翻译为 “in september”, “jane is”, “jane visits” </p>
+</li>
+</ul>
+<p>$$P(y^{<2>}|x,y^{<1>})$$</1></2></p>
+<p>(这里，september开头的句子由于概率没有其他的可能性大，已经失去了作为开头词资格)</p>
+<ul>
+<li>(3). 继续这个过程… </li>
+</ul>
+<p>$$P(y^{<3>}|x,y^{<1>},y^{<2>})$$</2></1></3></p>
+</blockquote>
+<p><img src="/images/deeplearning/C5W3-10.png" width="700"></p>
+<h2 id="4-Refinements-to-beam-search"><a href="#4-Refinements-to-beam-search" class="headerlink" title="4. Refinements to beam search"></a>4. Refinements to beam search</h2><p>$$<br>P(y^{<1>},….,P(y^{T_y})|x)=P(y^{<1>}|x)P(y^{<2>}|x,y^{<1>})…P(y^{&lt;{T_y}&gt;}|x,y^{<1>},…y^{&lt;{T_y-1}&gt;})<br>$$</1></1></2></1></1></p>
+<p>所以要满足 $argmax P(y^{<1>},….,P(y^{T_y})|x)$, 也就等同于要满足</1></p>
+<p>$$<br>argmax \prod_{t=1}^{T_y}P(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
+<p>但是上面的公式存在一个问题，因为概率都是小于1的，累乘之后会越来越小，可能小到计算机无法精确存储，所以可以将其转变成 log 形式（因为 log 是单调递增的，所以对最终结果不会有影响），其公式如下：</p>
+<p>$$<br>argmax \sum_{t=1}^{T_y}logP(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
+<blockquote>
+<p>But！！！上述公式仍然存在bug，观察可以知道，概率值都是小于1的，那么log之后都是负数，所以为了使得最后的值最大，那么只要保证翻译的句子越短，那么值就越大，所以如果使用这个公式，那么最后翻译的句子通常都是比较短的句子，这显然不行。</p>
+</blockquote>
+<p>所以我们可以通过归一化的方式来纠正，即保证平均到每个单词都能得到最大值。其公式如下：</p>
+<p>$$<br>argmax \frac{1}{T_y}\sum_{t=1}^{T_y}logP(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
+<p>通过归一化的确能很好的解决上述问题，但是在实际运用中，会额外添加一个参数 $α$, 其大小介于 0 和 1 之间，公式如下:</p>
+<p>$$<br>argmax \frac{1}{T_y^α}\sum_{t=1}^{T_y}logP(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
+<p><img src="/images/deeplearning/C5W3-11_1.png" width="700"></p>
+<h2 id="5-Error-analysis-on-beam-search"><a href="#5-Error-analysis-on-beam-search" class="headerlink" title="5. Error analysis on beam search"></a>5. Error analysis on beam search</h2><p>仔细想想 <strong>beam search</strong>，我们会发现其实它是近似搜索，也就是说可能使用这种方法最终得到的结果并不是最好的。当然也有可能是因为使用的 <strong>RNN</strong> 模型有缺陷导致结果不是最好的。</p>
+<p><strong>所以我们如何判断误差是出在哪个地方呢？</strong></p>
+<blockquote>
+<p>还是以翻译这句话为例：“<strong>简在9月访问中国</strong>”。</p>
+<ul>
+<li>假设按照人类的习惯翻译成英文是“Jane visits China in September.”,该结果用 $y^*$ 表示。</li>
+<li>假设通过算法得出的翻译结果是：“Jane visited China in September.”,该结果用 $\hat{y}$ 表示。</li>
+</ul>
+<p>要判断误差出在哪，只需要比较 $P(y^*|x)$ 和 $P(\hat{y}|x)$ 的大小即可.</p>
+</blockquote>
+<p>下面分两种情况讨论：</p>
+<p><img src="/images/deeplearning/C5W3-12_1.png" width="750"></p>
+<p>两种情况：</p>
+<p>(1). $<br>P(y^*|x)&gt;P(\hat{y}|x)<br>$</p>
+<p>上面的不等式的含义是 beam search 最后选出的结果不如人类，也就是 beam search 并没有选出最好的结果，所以问题出在 beam search</p>
+<p>(2). $<br>P(y^*|x)≤P(\hat{y}|x)<br>$</p>
+<p>上面不等式表示 beam search 最后选出的结果要比人类的更好，也就是说 beam search 已经选出了最好的结果，但是模型对各个组合的预测概率值并不符合人类的预期，所以 RNN模型 at fault.</p>
+<blockquote>
+<p>上面已经介绍了误差分析的方式，但时仅凭一次误差分析就判定谁该背锅肯定也不行，所以还需要进行多次误差分析多次。</p>
+<p>如下图示已经进行了多次的误差分析，每次分析之后都判定了锅该谁背，最后计算出beam search和模型背锅的比例，根据比例作出相应的调整。</p>
+<p>例如:</p>
+<ul>
+<li>如果 beam search 更高，可以相应调整 beam width.</li>
+<li>如果模型背锅比例更高，那么可以考虑增加正则化，增加数据等操作.</li>
+</ul>
+</blockquote>
+<p><img src="/images/deeplearning/C5W3-13_1.png" width="750"></p>
+<h2 id="6-Bleu-score-optional"><a href="#6-Bleu-score-optional" class="headerlink" title="6. Bleu score (optional)"></a>6. Bleu score (optional)</h2><p>主要介绍了如何给机器翻译结果打分，因为是选修内容</p>
+<h2 id="7-Attention-model-intuition"><a href="#7-Attention-model-intuition" class="headerlink" title="7. Attention model intuition"></a>7. Attention model intuition</h2><h2 id="8-Attention-model"><a href="#8-Attention-model" class="headerlink" title="8. Attention model"></a>8. Attention model</h2><h2 id="9-Speech-recognition"><a href="#9-Speech-recognition" class="headerlink" title="9. Speech recognition"></a>9. Speech recognition</h2><h2 id="10-Trigger-word-detection"><a href="#10-Trigger-word-detection" class="headerlink" title="10. Trigger word detection"></a>10. Trigger word detection</h2><h2 id="11-Summary-and-thank-you"><a href="#11-Summary-and-thank-you" class="headerlink" title="11. Summary and thank you"></a>11. Summary and thank you</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 <li><a href="https://www.ctolib.com/Yukong-Deeplearning-ai-Solutions.html" target="_blank" rel="external">deeplearning.ai深度学习课程字幕翻译项目</a></li>
@@ -13300,7 +13374,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -13467,7 +13541,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -18891,6 +18965,18 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://iequa.com/2016/10/27/acm-mst/</url>
+      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
+<a id="more"></a>
+<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Six Kinds of Sort algorithms]]></title>
       <url>http://iequa.com/2016/10/27/acm-sort/</url>
       <content type="html"><![CDATA[<blockquote>
@@ -18904,18 +18990,6 @@ img {
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://iequa.com/2016/10/27/acm-mst/</url>
-      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
-<a id="more"></a>
-<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
@@ -20542,6 +20616,43 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -20583,43 +20694,6 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -24254,6 +24328,78 @@ public final class Boolean
     </entry>
     
     <entry>
+      <title><![CDATA[Java SE Introduce]]></title>
+      <url>http://iequa.com/2013/02/02/java-se-1-introduce/</url>
+      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
+<a id="more"></a>
+<ul>
+<li>Java data type</li>
+<li>OO</li>
+<li>Exception</li>
+<li>Java Array  </li>
+<li>Java 常用类 </li>
+<li>Java 容器类</li>
+<li>Collection / Generic</li>
+<li>Java I/O Stream</li>
+<li>Java Thread</li>
+<li>Java TCP/UDP, socket</li>
+</ul>
+<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
+<li>Java 运行机制</li>
+<li>JDK &amp; JRE</li>
+<li>Java env install</li>
+<li>Java Basic Content</li>
+</ul>
+<blockquote>
+<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
+</blockquote>
+<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
+<li>一种 OO 语言  </li>
+<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
+<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
+</ul>
+<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
+<ul>
+<li>Java Virtual Machine</li>
+<li>Garbage collection</li>
+</ul>
+<blockquote>
+<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
+<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
+<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
+</blockquote>
+<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
+<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
+<li>Java Runtime Environment  用户只需 JRE  </li>
+</ul>
+<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
+</blockquote>
+<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
+<li>类名首字母大写  </li>
+<li>变量名和方法名的首字母小写  </li>
+<li>运用驼峰标识   </li>
+</ol>
+<p>HelloWorld.java</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
+</blockquote>
+<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
+</blockquote>
+<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
       <url>http://iequa.com/2013/02/02/java-se-2.4-notes-exception/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
@@ -24659,78 +24805,6 @@ JDK 1.5 之后 {
     * Externalizable 接口  extends  Serializable   
 }  
 </code></pre><p>}  </p>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Java SE Introduce]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-1-introduce/</url>
-      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
-<a id="more"></a>
-<ul>
-<li>Java data type</li>
-<li>OO</li>
-<li>Exception</li>
-<li>Java Array  </li>
-<li>Java 常用类 </li>
-<li>Java 容器类</li>
-<li>Collection / Generic</li>
-<li>Java I/O Stream</li>
-<li>Java Thread</li>
-<li>Java TCP/UDP, socket</li>
-</ul>
-<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
-<li>Java 运行机制</li>
-<li>JDK &amp; JRE</li>
-<li>Java env install</li>
-<li>Java Basic Content</li>
-</ul>
-<blockquote>
-<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
-</blockquote>
-<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
-<li>一种 OO 语言  </li>
-<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
-<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
-</ul>
-<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
-<ul>
-<li>Java Virtual Machine</li>
-<li>Garbage collection</li>
-</ul>
-<blockquote>
-<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
-<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
-<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
-</blockquote>
-<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
-<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
-<li>Java Runtime Environment  用户只需 JRE  </li>
-</ul>
-<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
-</blockquote>
-<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
-<li>类名首字母大写  </li>
-<li>变量名和方法名的首字母小写  </li>
-<li>运用驼峰标识   </li>
-</ol>
-<p>HelloWorld.java</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
-</blockquote>
-<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
-<hr>
-<blockquote>
-<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
-</blockquote>
-<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
 ]]></content>
     </entry>
     
