@@ -36,7 +36,12 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-11_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-12_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-13_1.png">
-<meta property="og:updated_time" content="2018-08-18T01:29:33.485Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-14_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-15_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-16_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-17_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-18_1.png">
+<meta property="og:updated_time" content="2018-08-18T06:50:14.846Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week3) - Attention mechanism">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -249,6 +254,11 @@ var _hmt = _hmt || [];
 <p>通过归一化的确能很好的解决上述问题，但是在实际运用中，会额外添加一个参数 $α$, 其大小介于 0 和 1 之间，公式如下:</p>
 <p>$$<br>argmax \frac{1}{T_y^α}\sum_{t=1}^{T_y}logP(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
 <p><img src="/images/deeplearning/C5W3-11_1.png" width="700"></p>
+<blockquote>
+<p>$T_y$ 为输出句子中单词的个数，$α$ 是一个超参数 (可以设置为 0.7)</p>
+<p>$α$ == 1. 则代表 完全用句子长度归一化<br>$α$ == 0. 则代表 没有归一化<br>$α$ == 0~1. 则代表 在 句子长度归一化 与 没有归一化 之间的折中程度.</p>
+<p>beam width = B = 3~<strong>10</strong>~100 是会有一个明显的增长，但是 B 从 1000 ~ 3000 是并没有一个明显增长的.</p>
+</blockquote>
 <h2 id="5-Error-analysis-on-beam-search"><a href="#5-Error-analysis-on-beam-search" class="headerlink" title="5. Error analysis on beam search"></a>5. Error analysis on beam search</h2><p>仔细想想 <strong>beam search</strong>，我们会发现其实它是近似搜索，也就是说可能使用这种方法最终得到的结果并不是最好的。当然也有可能是因为使用的 <strong>RNN</strong> 模型有缺陷导致结果不是最好的。</p>
 <p><strong>所以我们如何判断误差是出在哪个地方呢？</strong></p>
 <blockquote>
@@ -261,6 +271,9 @@ var _hmt = _hmt || [];
 </blockquote>
 <p>下面分两种情况讨论：</p>
 <p><img src="/images/deeplearning/C5W3-12_1.png" width="750"></p>
+<blockquote>
+<p>RNN 实际上是 encode 和 decode 的过程.</p>
+</blockquote>
 <p>两种情况：</p>
 <p>(1). $<br>P(y^*|x)&gt;P(\hat{y}|x)<br>$</p>
 <p>上面的不等式的含义是 beam search 最后选出的结果不如人类，也就是 beam search 并没有选出最好的结果，所以问题出在 beam search</p>
@@ -276,8 +289,28 @@ var _hmt = _hmt || [];
 </ul>
 </blockquote>
 <p><img src="/images/deeplearning/C5W3-13_1.png" width="750"></p>
-<h2 id="6-Bleu-score-optional"><a href="#6-Bleu-score-optional" class="headerlink" title="6. Bleu score (optional)"></a>6. Bleu score (optional)</h2><p>主要介绍了如何给机器翻译结果打分，因为是选修内容</p>
-<h2 id="7-Attention-model-intuition"><a href="#7-Attention-model-intuition" class="headerlink" title="7. Attention model intuition"></a>7. Attention model intuition</h2><h2 id="8-Attention-model"><a href="#8-Attention-model" class="headerlink" title="8. Attention model"></a>8. Attention model</h2><h2 id="9-Speech-recognition"><a href="#9-Speech-recognition" class="headerlink" title="9. Speech recognition"></a>9. Speech recognition</h2><h2 id="10-Trigger-word-detection"><a href="#10-Trigger-word-detection" class="headerlink" title="10. Trigger word detection"></a>10. Trigger word detection</h2><h2 id="11-Summary-and-thank-you"><a href="#11-Summary-and-thank-you" class="headerlink" title="11. Summary and thank you"></a>11. Summary and thank you</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="6-Bleu-score-optional"><a href="#6-Bleu-score-optional" class="headerlink" title="6. Bleu score (optional)"></a>6. Bleu score (optional)</h2><p>主要介绍了如何给机器翻译结果打分，因为是选修内容, 所以 balabala…</p>
+<h2 id="7-Attention-model-intuition"><a href="#7-Attention-model-intuition" class="headerlink" title="7. Attention model intuition"></a>7. Attention model intuition</h2><p>之前介绍的RNN翻译模型存在一个很明显的问题就是:</p>
+<blockquote>
+<p>机器翻译的翻译过程是首先将所有需要翻译的句子输入到 <strong>Encoder</strong> 中，之后再通过 <strong>Decoder</strong> 输出翻译语句.</p>
+</blockquote>
+<h3 id="7-1-Why-Attention-model"><a href="#7-1-Why-Attention-model" class="headerlink" title="7.1 Why Attention model"></a>7.1 Why Attention model</h3><p>如下图示机器算法将法语翻译成英语的模型.</p>
+<p><img src="/images/deeplearning/C5W3-14_1.png" width="750"></p>
+<p>机器翻译与人类的翻译过程不太相同。因为人类翻译一般是逐句翻译，或者是讲一段很长的句子分解开来进行翻译。</p>
+<p>所以上述模型的翻译结果的Bleu评分与被翻译句子的长短有很大关系，句子较短时，模型可能无法捕捉到关键信息，所以翻译结果不是很高；但是当句子过长时，模型又抓不到重点等原因使得结果也不是很高。</p>
+<p><img src="/images/deeplearning/C5W3-15_1.png" width="750"></p>
+<blockquote>
+<p>​见上图，如果机器能像人一样逐句或者每次将注意力只集中在一小部分进行翻译，那么翻译结果将不受句子长度的影响。下图中的绿色线即为使用了注意力模型后的翻译句子得分。</p>
+</blockquote>
+<h3 id="7-2-Attention-model-intro"><a href="#7-2-Attention-model-intro" class="headerlink" title="7.2 Attention model intro"></a>7.2 Attention model intro</h3><p>下图展示了普通的翻译模型双向 RNN 结构，该结构可根据输入 $x^{&lt;{t}&gt;}$ 直接得到输出 $y^{&lt;{t}&gt;}$.</p>
+<p><img src="/images/deeplearning/C5W3-16_1.png" width="750"></p>
+<p>注意力模型在此基础上做进一步处理。</p>
+<p>为避免误解，使用另一个符号s来表示节点。</p>
+<p>如下图示，根据下面一层的双向RNN计算结果可得到节点s<1>与其他节点权重α<1,1>,α<1,2>,…,通过这些权重可以知道该节点与其他节点的相关联程度，从而可以达到将注意力集中到部分区域的效果。</1,2></1,1></1></p>
+<p><img src="/images/deeplearning/C5W3-17_1.png" width="750"></p>
+<p>​其他节点同理。整个注意力模型结构如下图示</p>
+<p><img src="/images/deeplearning/C5W3-18_1.png" width="750"></p>
+<h2 id="8-Attention-model"><a href="#8-Attention-model" class="headerlink" title="8. Attention model"></a>8. Attention model</h2><h2 id="9-Speech-recognition"><a href="#9-Speech-recognition" class="headerlink" title="9. Speech recognition"></a>9. Speech recognition</h2><h2 id="10-Trigger-word-detection"><a href="#10-Trigger-word-detection" class="headerlink" title="10. Trigger word detection"></a>10. Trigger word detection</h2><h2 id="11-Summary-and-thank-you"><a href="#11-Summary-and-thank-you" class="headerlink" title="11. Summary and thank you"></a>11. Summary and thank you</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 <li><a href="https://www.ctolib.com/Yukong-Deeplearning-ai-Solutions.html" target="_blank" rel="external">deeplearning.ai深度学习课程字幕翻译项目</a></li>
@@ -325,7 +358,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Basic-models"><span class="toc-number"></span> <span class="toc-text">1. Basic models</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Picking-the-most-likely-sentence"><span class="toc-number"></span> <span class="toc-text">2. Picking the most likely sentence</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Greedy-Search"><span class="toc-number"></span> <span class="toc-text">2.1 Greedy Search</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Beam-Search"><span class="toc-number"></span> <span class="toc-text">3. Beam Search</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-步骤一"><span class="toc-number"></span> <span class="toc-text">3.1 步骤一</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-步骤二"><span class="toc-number"></span> <span class="toc-text">3.2 步骤二</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-步骤三"><span class="toc-number"></span> <span class="toc-text">3.3 步骤三</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-总结"><span class="toc-number"></span> <span class="toc-text">3.4 总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Refinements-to-beam-search"><span class="toc-number"></span> <span class="toc-text">4. Refinements to beam search</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Error-analysis-on-beam-search"><span class="toc-number"></span> <span class="toc-text">5. Error analysis on beam search</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Bleu-score-optional"><span class="toc-number"></span> <span class="toc-text">6. Bleu score (optional)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Attention-model-intuition"><span class="toc-number"></span> <span class="toc-text">7. Attention model intuition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Attention-model"><span class="toc-number"></span> <span class="toc-text">8. Attention model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Speech-recognition"><span class="toc-number"></span> <span class="toc-text">9. Speech recognition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Trigger-word-detection"><span class="toc-number"></span> <span class="toc-text">10. Trigger word detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-Summary-and-thank-you"><span class="toc-number"></span> <span class="toc-text">11. Summary and thank you</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Basic-models"><span class="toc-number"></span> <span class="toc-text">1. Basic models</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Picking-the-most-likely-sentence"><span class="toc-number"></span> <span class="toc-text">2. Picking the most likely sentence</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-Greedy-Search"><span class="toc-number"></span> <span class="toc-text">2.1 Greedy Search</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Beam-Search"><span class="toc-number"></span> <span class="toc-text">3. Beam Search</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-步骤一"><span class="toc-number"></span> <span class="toc-text">3.1 步骤一</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-步骤二"><span class="toc-number"></span> <span class="toc-text">3.2 步骤二</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-步骤三"><span class="toc-number"></span> <span class="toc-text">3.3 步骤三</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-总结"><span class="toc-number"></span> <span class="toc-text">3.4 总结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Refinements-to-beam-search"><span class="toc-number"></span> <span class="toc-text">4. Refinements to beam search</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Error-analysis-on-beam-search"><span class="toc-number"></span> <span class="toc-text">5. Error analysis on beam search</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Bleu-score-optional"><span class="toc-number"></span> <span class="toc-text">6. Bleu score (optional)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Attention-model-intuition"><span class="toc-number"></span> <span class="toc-text">7. Attention model intuition</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#7-1-Why-Attention-model"><span class="toc-number"></span> <span class="toc-text">7.1 Why Attention model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-2-Attention-model-intro"><span class="toc-number"></span> <span class="toc-text">7.2 Attention model intro</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Attention-model"><span class="toc-number"></span> <span class="toc-text">8. Attention model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Speech-recognition"><span class="toc-number"></span> <span class="toc-text">9. Speech recognition</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Trigger-word-detection"><span class="toc-number"></span> <span class="toc-text">10. Trigger word detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-Summary-and-thank-you"><span class="toc-number"></span> <span class="toc-text">11. Summary and thank you</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
