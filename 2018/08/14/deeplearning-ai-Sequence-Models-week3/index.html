@@ -28,15 +28,15 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-3.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-4.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-5.png">
-<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-6.png">
-<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-7.png">
-<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-8.png">
-<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-9.png">
-<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-10.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-6_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-7_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-8_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-9_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-10_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-11_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-12_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W3-13_1.png">
-<meta property="og:updated_time" content="2018-08-17T08:56:48.957Z">
+<meta property="og:updated_time" content="2018-08-18T01:29:33.485Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week3) - Attention mechanism">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -204,20 +204,20 @@ var _hmt = _hmt || [];
 <p>更形象的理解可能就是贪婪搜索更加短视，看的不长远，而且也更加耗时。假设字典中共有10000个单词，如果使用贪婪搜索，那么可能的组合有1000010种，所以还是挺恐怖的2333~~</p>
 <h2 id="3-Beam-Search"><a href="#3-Beam-Search" class="headerlink" title="3. Beam Search"></a>3. Beam Search</h2><p><strong>Beam Search</strong> 是greedy search的加强版本，首先要预设一个值 beam width，这里等于 <code>3</code> (如果等于<strong>1</strong>就是<strong>greedy search</strong>)。然后在每一步保存最佳的3个结果进行下一步的选择，以此直到遇到句子的终结符.</p>
 <h3 id="3-1-步骤一"><a href="#3-1-步骤一" class="headerlink" title="3.1 步骤一"></a>3.1 步骤一</h3><p>如下图示，因为beam width=3，所以根据输入的需要翻译的句子选出 3 个 $y^{<1>}$最可能的输出值，即选出$P(y^{<1>}|x)$最大的前3个值。假设分别是”in”,”jane”,”september”</1></1></p>
-<p><img src="/images/deeplearning/C5W3-6.png" width="700"></p>
+<p><img src="/images/deeplearning/C5W3-6_1.png" width="700"></p>
 <h3 id="3-2-步骤二"><a href="#3-2-步骤二" class="headerlink" title="3.2 步骤二"></a>3.2 步骤二</h3><p>以”<strong>in</strong>“为例进行说明，其他同理.</p>
 <p>如下图示，在给定被翻译句子 $x$ 和确定 $y^{<1>}$ = “<strong>in</strong>“ 的条件下，下一个输出值的条件概率是 $P(y^{<2>}|x,”in”)$。此时需要从 10000 种可能中找出条件概率最高的前 3 个.</2></1></p>
 <p>又由公式 $P(y^{<1>},y^{<2>}|x)=P(y^{<1>}|x) P(y^{<2>}|x, y^{<1>})$, 我们此时已经得到了给定输入数据，前两个输出值的输出概率比较大的组合了.</1></2></1></2></1></p>
-<p><img src="/images/deeplearning/C5W3-7.png" width="700"></p>
+<p><img src="/images/deeplearning/C5W3-7_1.png" width="700"></p>
 <p>另外 2 个单词也做同样的计算</p>
-<p><img src="/images/deeplearning/C5W3-8.png" width="700"></p>
+<p><img src="/images/deeplearning/C5W3-8_1.png" width="700"></p>
 <p>此时我们得到了 9 组 $P(y^{<1>},y^{<2>}|x)$, 此时我们再从这 9组 中选出概率值最高的前 3 个。如下图示，假设是这3个：</2></1></p>
 <ul>
 <li>“in september”</li>
 <li>“jane is”</li>
 <li>“jane visits”</li>
 </ul>
-<p><img src="/images/deeplearning/C5W3-9.png" width="600"></p>
+<p><img src="/images/deeplearning/C5W3-9_1.png" width="550"></p>
 <h3 id="3-3-步骤三"><a href="#3-3-步骤三" class="headerlink" title="3.3 步骤三"></a>3.3 步骤三</h3><p>继续步骤2的过程，根据 $P(y^{<3>}|x,y^{<1>},y^{<2>})$ 选出 $P(y^{<1>},y^{<2>},y^{<3>}|x)$ 最大的前3个组合.</3></2></1></2></1></3></p>
 <p>后面重复上述步骤得出结果.</p>
 <h3 id="3-4-总结"><a href="#3-4-总结" class="headerlink" title="3.4 总结"></a>3.4 总结</h3><p>总结一下上面的步骤就是：</p>
@@ -235,7 +235,7 @@ var _hmt = _hmt || [];
 </ul>
 <p>$$P(y^{<3>}|x,y^{<1>},y^{<2>})$$</2></1></3></p>
 </blockquote>
-<p><img src="/images/deeplearning/C5W3-10.png" width="700"></p>
+<p><img src="/images/deeplearning/C5W3-10_1.png" width="750"></p>
 <h2 id="4-Refinements-to-beam-search"><a href="#4-Refinements-to-beam-search" class="headerlink" title="4. Refinements to beam search"></a>4. Refinements to beam search</h2><p>$$<br>P(y^{<1>},….,P(y^{T_y})|x)=P(y^{<1>}|x)P(y^{<2>}|x,y^{<1>})…P(y^{&lt;{T_y}&gt;}|x,y^{<1>},…y^{&lt;{T_y-1}&gt;})<br>$$</1></1></2></1></1></p>
 <p>所以要满足 $argmax P(y^{<1>},….,P(y^{T_y})|x)$, 也就等同于要满足</1></p>
 <p>$$<br>argmax \prod_{t=1}^{T_y}P(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
