@@ -4,8 +4,8 @@
   
     
     <entry>
-      <title><![CDATA[New Zealand]]></title>
-      <url>http://iequa.com/2018/08/16/PR_New_Zealand/</url>
+      <title><![CDATA[Convolutional Neural Networks (week1) - CNN]]></title>
+      <url>http://iequa.com/2018/08/21/deeplearning-ai-Convolutional-Neural-Networks-week1/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -20,17 +20,107 @@
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
 </script>
 
-<p>奥克兰（Auckland），位于新西兰，是北岛的最大城市，同时也是新西兰工业和商业中心，被誉为“帆之都”（City of Sails）。奥克兰大学位于该市。</p>
+<ul>
+<li>理解如何搭建一个神经网络，包括最新的变体，例如残余网络。</li>
+<li>知道如何将卷积网络应用到视觉检测和识别任务。</li>
+<li>知道如何使用神经风格迁移生成艺术。</li>
+<li>能够在图像、视频以及其他2D或3D数据上应用这些算法。</li>
+</ul>
 <a id="more"></a>
-<p>奥克兰大学（The University of Auckland）是一所大型公立综合性全国大学，成立于1883年，位于新西兰市区奥克兰；学校提供学士、硕士、博士3种学位类型。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="http://www.qianmu.org/奥克兰大学" target="_blank" rel="external">迁木网 - 奥克兰大学</a></li>
+<h2 id="1-Computer-vision"><a href="#1-Computer-vision" class="headerlink" title="1. Computer vision"></a>1. Computer vision</h2><p><img src="/images/deeplearning/C4W1-1_1.png" width="700"></p>
+<p><img src="/images/deeplearning/C4W1-2_1.png" width="700"></p>
+<blockquote>
+<p>如图示，之前课程中介绍的都是 64 * 64 * 3的图像，而一旦图像质量增加，例如变成 1000 * 1000 * 3 的时候那么此时的神经网络的计算量会巨大，显然这不现实。所以需要引入其他的方法来解决这个问题.</p>
+</blockquote>
+<h2 id="2-Edge-detection-example"><a href="#2-Edge-detection-example" class="headerlink" title="2. Edge detection example"></a>2. Edge detection example</h2><p><img src="/images/deeplearning/C4W1-3_1.png" width="700"></p>
+<blockquote>
+<p>边缘检测可以是垂直边缘检测，也可以是水平边缘检测，如上图所示.</p>
+</blockquote>
+<p>至于算法如何实现，下面举一个比较直观的例子：</p>
+<p><img src="/images/deeplearning/C4W1-4_1.png" width="700"></p>
+<blockquote>
+<p>可以很明显的看出原来 6 * 6 的矩阵有明显的垂直边缘，通过 3 * 3 的过滤器(也叫做 “核”)卷积之后，仍然保留了原来的垂直边缘特征，虽然这个边缘貌似有点大，这是因为数据不够大的原因，如果输入数据很大的话这个不是很明显了.</p>
+</blockquote>
+<h2 id="3-More-edge-detection"><a href="#3-More-edge-detection" class="headerlink" title="3. More edge detection"></a>3. More edge detection</h2><p><img src="/images/deeplearning/C4W1-5_1.png" width="700"></p>
+<p>除了上面的垂直，水平边缘检测，其实也可以检测初颜色过度变化，例如是亮变暗，还是暗变亮？</p>
+<p>下面是一些常见的过滤器，第二个是<code>Sobel filter</code>，具有较强的鲁棒性，第三个是<code>Schoss filter</code>.</p>
+<p><img src="/images/deeplearning/C4W1-6_1.png" width="700"></p>
+<blockquote>
+<p>其实过滤器的9个参数也可以通过学习的方式获得，虽然比较费劲，但是可能会学到很多其他除了垂直，水平的边缘特征，例如  45°，70° 等各种特征.</p>
+</blockquote>
+<h2 id="4-Padding"><a href="#4-Padding" class="headerlink" title="4. Padding"></a>4. Padding</h2><h3 id="4-1-运用-Padding-的原因"><a href="#4-1-运用-Padding-的原因" class="headerlink" title="4.1 运用 Padding 的原因"></a>4.1 运用 Padding 的原因</h3><blockquote>
+<ol>
+<li><p>由前面的例子可以看到，每经过一次卷积计算，原数据都会减小，但有的时候我们并不希望这样。举个比较极端的例子：假设原数据是 30 * 30 的一只猫的图像，经过10次卷积(过滤器是3 * 3)后，最后图像只剩下了 10 * 10 了，此时不就剩下马赛克了. 😳😳😳</p>
+</li>
+<li><p>由卷积的计算方法可知，图像边缘特征计算次数显然少于图像中间位置的像素点，如下图示 (绿色的位置明显是冷宫)</p>
+</li>
+</ol>
+</blockquote>
+<p><img src="/images/deeplearning/C4W1-7_1.png" width="500"></p>
+<p>原来的 6 * 6 填充后变成了 8 * 8，此时在经过一次卷积得到的仍旧是 6 * 6 的矩阵。</p>
+<p>下面总结一下卷积之后得到矩阵大小的计算方法，假设：</p>
+<blockquote>
+<ul>
+<li>原数据是 n * n</li>
+<li>过滤器是 f * f</li>
+<li>padding p * p’</li>
+</ul>
+<p>得到的矩阵大小是 (n+2p-f+1)*(n+2p-f+1)</p>
+<p>padding后，虽然边缘像素点仍旧计算的比较少，但是这个缺点至少一定程度上被削弱了.</p>
+</blockquote>
+<h3 id="4-2-如何-padding-的大小"><a href="#4-2-如何-padding-的大小" class="headerlink" title="4.2 如何 padding 的大小"></a>4.2 如何 padding 的大小</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">Type</th>
+<th style="text-align:center">Desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Valid 卷积</td>
+<td style="text-align:center">不添加 padding</td>
+</tr>
+<tr>
+<td style="text-align:center">Same 卷积</td>
+<td style="text-align:center">保持原图像矩阵的大小。满足 (n+2p-f+1) = n ,即 $p=\frac{f-1}{2}$, 为了满足上式，f一般奇数</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-Strided-convolutions"><a href="#5-Strided-convolutions" class="headerlink" title="5. Strided convolutions"></a>5. Strided convolutions</h2><p>过滤器纵向，横向都需要按 步长 $S$ 来移动，如图示</p>
+<p><img src="/images/deeplearning/C4W1-8_1.png" width="700"></p>
+<p>结合之前的内容，输出矩阵大小计算公式方法为，假设：</p>
+<blockquote>
+<ul>
+<li>原数据是 : n * n</li>
+<li>过滤器是 : f * f</li>
+<li>padding : p * p</li>
+<li>步长Stride: s * s</li>
+</ul>
+</blockquote>
+<p>得到的矩阵大小是  ⌊$\frac{n+2p-f}{s}$⌋ * ⌊$\frac{n+2p-f}{s}$⌋</p>
+<blockquote>
+<p>⌊⌋: 向下取整符号 ⌊59/60⌋ = 0</p>
+<p>⌈⌉: 向上取整符号 ⌈59/60⌉ = 1</p>
+</blockquote>
+<h2 id="6-Convolutions-over-volumes"><a href="#6-Convolutions-over-volumes" class="headerlink" title="6. Convolutions over volumes"></a>6. Convolutions over volumes</h2><p>这一节用立体卷积来解释</p>
+<p><img src="/images/deeplearning/C4W1-9_1.png" width="700"></p>
+<blockquote>
+<p><strong>如图</strong>:</p>
+<ul>
+<li>输入矩阵是 6 * 6 * 3(height * width * channels), 过滤器是 3 * 3 * 3，计算方法是一一对应相乘相加</li>
+<li>最后得到 4 * 4 的二维矩阵.</li>
+</ul>
+<p>有时可能需要检测横向边缘和纵向边缘，或者其他特征，所以我们可以使用多个过滤器。<br>上图则使用了两个过滤器，得到的特征矩阵大小为 4 * 4 * 2.</p>
+</blockquote>
+<h2 id="11-Summary"><a href="#11-Summary" class="headerlink" title="11. Summary"></a>11. Summary</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
+<li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 </ul>
 ]]></content>
     </entry>
     
     <entry>
-      <title><![CDATA[机器学习构建聊天机器人 3]]></title>
+      <title><![CDATA[Chatbot 聊天机器人]]></title>
       <url>http://iequa.com/2018/08/16/chatbot-july-3/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
@@ -57,6 +147,18 @@
 <p>ChatterBot是一个基于机器学习的聊天机器人引擎，构建在python上，主要特 点是可以自可以从已有的对话中进行学(jiyi)习(pipei)。</p>
 <p>场景分类最简单的是 朴素贝叶斯</p>
 <p>trainer=’chatterbot.trainers.ListTrainer’ 给我的训练是一个列表</p>
+<h2 id="Chatbot的深度学习-4"><a href="#Chatbot的深度学习-4" class="headerlink" title="Chatbot的深度学习 4"></a>Chatbot的深度学习 4</h2><p>预测一句话</p>
+<p>我爱北京天安门</p>
+<p>到了每个位置，都是预测下一个词, softmax 4W个词的 哪一个，概率向量.</p>
+<p>$X_t$ 是时间t处的输入 (截止当前位置，捕获的所有捕获的信息)</p>
+<p>$O_t$ 是概率向量</p>
+<p>双向RNN，就是 从前往后 和 从后往前 都能捕捉到信息.</p>
+<p>深层双向RNN，</p>
+<p>沿着时间轴做一个损失值，和标准答案之间的差距</p>
+<p>BPTT 沿着时间轴的反向传播。</p>
+<p>图片信息只在第一次灌入就好了</p>
+<h3 id="LSTM"><a href="#LSTM" class="headerlink" title="LSTM"></a>LSTM</h3><p>Understanding LSTM Networks, colah, 2015</p>
+<p>传送带</p>
 <h2 id="12-Reference"><a href="#12-Reference" class="headerlink" title="12. Reference"></a>12. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
@@ -105,7 +207,7 @@
 <p><img src="/images/deeplearning/C5W3-3.png" width="700"></p>
 <p>机器翻译模型:</p>
 <p><img src="/images/deeplearning/C5W3-4.png" width="750"></p>
-<p>可以看到，机器翻译模型的后半部分其实就是语言模型，Andrew将其称之为“条件语言模型”，在语言模型之前有一 个条件也就是被翻译的句子:</p>
+<p>可以看到，机器翻译模型的后半部分其实就是语言模型，Andrew 将其称之为“条件语言模型”，在语言模型之前有一 个条件也就是被翻译的句子:</p>
 <p>$$<br>P(y^{<1>},…,y^{&lt;{T_y}&gt;}|x^{<1>},…,x^{&lt;{T_x}&gt;})<br>$$</1></1></p>
 <blockquote>
 <p>但是我们知道翻译是有很多种方式的，同一句话可以翻译成很多不同的句子，那么我们如何判断哪一个句子是最好的呢？</p>
@@ -250,7 +352,7 @@
 </blockquote>
 <p><img src="/images/deeplearning/C5W3-22_1.png" width="600"></p>
 <h3 id="8-3-大数据文摘"><a href="#8-3-大数据文摘" class="headerlink" title="8.3 大数据文摘"></a>8.3 大数据文摘</h3><p>下面的笔记是《大数据文摘》的笔记，感觉他写的清楚一些:</p>
-<p>通过之前的学习可以看到机器翻译是将所有要翻译的内容统一输入然后再开始生成结果，但这样有一个弊端就是在 句子特别长的时候后面的内容有的时候无法翻译的特别的准确。通过搭建attention model可以解决这个问题:</p>
+<p>通过之前的学习可以看到机器翻译是将所有要翻译的内容统一输入然后再开始生成结果，但这样有一个弊端就是在句子特别长的时候后面的内容有的时候无法翻译的特别的准确。通过搭建attention model可以解决这个问题:</p>
 <p><img src="/images/deeplearning/C5W3-23_1.png" width="800"></p>
 <p>如图所示，这是一个双向的RNN，并且在普通RNN 的基础上增加 attention层，将阶段性的输入部分转化为输出，这样的方式也更符合人类的翻译过程。</p>
 <p>让我们拿出细节部分仔细的理解一下，首先是<strong>attention</strong>层，也就是下图中$context^{&lt;{t}&gt;}$ ，每一个attention单元接受 三个单词的输入所以也称作语境单元（context）， α是每单个输入词在语境单元中占得权重。对每一个语境单元t 来说，因为α是通过softmax决定的，所以 $\sum_{i=1}^{T_x}α^{t,i}=1$. 这里决定终每一个单词占得语境权重仍然是通过一 个小型的神经网络来进行计算并且后得到的。 </p>
@@ -20687,6 +20789,43 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[深入浅出 Entropy Based]]></title>
       <url>http://iequa.com/2016/09/12/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -20728,43 +20867,6 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -24399,6 +24501,78 @@ public final class Boolean
     </entry>
     
     <entry>
+      <title><![CDATA[Java SE Introduce]]></title>
+      <url>http://iequa.com/2013/02/02/java-se-1-introduce/</url>
+      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
+<a id="more"></a>
+<ul>
+<li>Java data type</li>
+<li>OO</li>
+<li>Exception</li>
+<li>Java Array  </li>
+<li>Java 常用类 </li>
+<li>Java 容器类</li>
+<li>Collection / Generic</li>
+<li>Java I/O Stream</li>
+<li>Java Thread</li>
+<li>Java TCP/UDP, socket</li>
+</ul>
+<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
+<li>Java 运行机制</li>
+<li>JDK &amp; JRE</li>
+<li>Java env install</li>
+<li>Java Basic Content</li>
+</ul>
+<blockquote>
+<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
+</blockquote>
+<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
+<li>一种 OO 语言  </li>
+<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
+<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
+</ul>
+<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
+<ul>
+<li>Java Virtual Machine</li>
+<li>Garbage collection</li>
+</ul>
+<blockquote>
+<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
+<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
+<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
+</blockquote>
+<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
+<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
+<li>Java Runtime Environment  用户只需 JRE  </li>
+</ul>
+<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
+</blockquote>
+<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
+<li>类名首字母大写  </li>
+<li>变量名和方法名的首字母小写  </li>
+<li>运用驼峰标识   </li>
+</ol>
+<p>HelloWorld.java</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
+</blockquote>
+<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
+</blockquote>
+<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
       <url>http://iequa.com/2013/02/02/java-se-2.4-notes-exception/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
@@ -24804,78 +24978,6 @@ JDK 1.5 之后 {
     * Externalizable 接口  extends  Serializable   
 }  
 </code></pre><p>}  </p>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Java SE Introduce]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-1-introduce/</url>
-      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
-<a id="more"></a>
-<ul>
-<li>Java data type</li>
-<li>OO</li>
-<li>Exception</li>
-<li>Java Array  </li>
-<li>Java 常用类 </li>
-<li>Java 容器类</li>
-<li>Collection / Generic</li>
-<li>Java I/O Stream</li>
-<li>Java Thread</li>
-<li>Java TCP/UDP, socket</li>
-</ul>
-<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
-<li>Java 运行机制</li>
-<li>JDK &amp; JRE</li>
-<li>Java env install</li>
-<li>Java Basic Content</li>
-</ul>
-<blockquote>
-<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
-</blockquote>
-<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
-<li>一种 OO 语言  </li>
-<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
-<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
-</ul>
-<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
-<ul>
-<li>Java Virtual Machine</li>
-<li>Garbage collection</li>
-</ul>
-<blockquote>
-<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
-<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
-<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
-</blockquote>
-<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
-<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
-<li>Java Runtime Environment  用户只需 JRE  </li>
-</ul>
-<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
-</blockquote>
-<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
-<li>类名首字母大写  </li>
-<li>变量名和方法名的首字母小写  </li>
-<li>运用驼峰标识   </li>
-</ol>
-<p>HelloWorld.java</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
-</blockquote>
-<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
-<hr>
-<blockquote>
-<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
-</blockquote>
-<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
 ]]></content>
     </entry>
     
