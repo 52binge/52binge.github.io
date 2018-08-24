@@ -32,7 +32,9 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-7_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-8_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-9_1.png">
-<meta property="og:updated_time" content="2018-08-23T08:50:53.108Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-10_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-11_1.png">
+<meta property="og:updated_time" content="2018-08-24T11:59:35.684Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolutional Neural Networks (week1) - CNN">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -244,7 +246,76 @@ var _hmt = _hmt || [];
 </ul>
 <p>有时可能需要检测横向边缘和纵向边缘，或者其他特征，所以我们可以使用多个过滤器。<br>上图则使用了两个过滤器，得到的特征矩阵大小为 4 * 4 * 2.</p>
 </blockquote>
-<h2 id="7-One-layer-of-a-convolutional-network"><a href="#7-One-layer-of-a-convolutional-network" class="headerlink" title="7. One layer of a convolutional network"></a>7. One layer of a convolutional network</h2><h2 id="8-A-simple-convolution-network-example"><a href="#8-A-simple-convolution-network-example" class="headerlink" title="8. A simple convolution network example"></a>8. A simple convolution network example</h2><h2 id="9-Pooling-layers"><a href="#9-Pooling-layers" class="headerlink" title="9. Pooling layers"></a>9. Pooling layers</h2><h2 id="10-Convolutional-neural-network-example"><a href="#10-Convolutional-neural-network-example" class="headerlink" title="10. Convolutional neural network example"></a>10. Convolutional neural network example</h2><h2 id="11-Why-Convolutions"><a href="#11-Why-Convolutions" class="headerlink" title="11. Why Convolutions ?"></a>11. Why Convolutions ?</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="7-One-layer-of-a-convolutional-network"><a href="#7-One-layer-of-a-convolutional-network" class="headerlink" title="7. One layer of a convolutional network"></a>7. One layer of a convolutional network</h2><p><img src="/images/deeplearning/C4W1-10_1.png" width="700"></p>
+<p>如图示得到 4 * 4 的矩阵后还需要加上一个变差 $b_n$，之后还要进行非线性转换，即用 ReLU 函数.</p>
+<p>因此假如在某一卷积层中使用了 10 个 3 * 3 的过滤器，那么一共有 $(3*3+1)*10=280$ 个参数.</p>
+<p><img src="/images/deeplearning/C4W1-11_1.png" width="700"></p>
+<p>下面总结了各项参数的大小和表示方法：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Title</th>
+<th style="text-align:center">Formula</th>
+<th style="text-align:center">desc </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">过滤器大小</td>
+<td style="text-align:center">$f^{[l]}$</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">填充 padding</td>
+<td style="text-align:center">$p^{[l]}$</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">步长 stride</td>
+<td style="text-align:center">$s^l$</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">激活函数</td>
+<td style="text-align:center">$a^{l}$ = $n_H^{l} * n_W^{l} * n_c^{l}$</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">权重 weight</td>
+<td style="text-align:center">$f^{l} * f^{l} * n_c^{[l-1]} * n_c^{[l]}$</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">偏差 bias</td>
+<td style="text-align:center">$1 * 1 * 1 * n_c^{[l]}$</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">输入矩阵</td>
+<td style="text-align:center">$n_H^{l-1} * n_W^{l-1} * n_c^{l-1}$</td>
+<td style="text-align:center">height * width * channels</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">每一卷积层的过滤器的通道的大小 = 输入层的通道大小</td>
+</tr>
+<tr>
+<td style="text-align:center">输出矩阵</td>
+<td style="text-align:center">$n_H^{l} * n_W^{l} * n_c^{l}$</td>
+<td style="text-align:center">height * width * channels</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">输出层的通道的大小 = 过滤器的个数</td>
+</tr>
+</tbody>
+</table>
+<p>输出层与输入层计算公式：</p>
+<p>$$<br>n_{H/W}^{[l]}=[\frac{n_{H/W}^{[l-1]}+2p^{[l]}-f^{[l]}}{s^{[l]}}+1]<br>$$</p>
+<h2 id="8-A-simple-convolution-network-example"><a href="#8-A-simple-convolution-network-example" class="headerlink" title="8. A simple convolution network example"></a>8. A simple convolution network example</h2><h2 id="9-Pooling-layers"><a href="#9-Pooling-layers" class="headerlink" title="9. Pooling layers"></a>9. Pooling layers</h2><p>最大池化很少用 padding</p>
+<h2 id="10-Convolutional-neural-network-example"><a href="#10-Convolutional-neural-network-example" class="headerlink" title="10. Convolutional neural network example"></a>10. Convolutional neural network example</h2><h2 id="11-Why-Convolutions"><a href="#11-Why-Convolutions" class="headerlink" title="11. Why Convolutions ?"></a>11. Why Convolutions ?</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 </ul>
