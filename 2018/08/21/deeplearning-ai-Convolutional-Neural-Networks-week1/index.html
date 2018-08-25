@@ -34,8 +34,9 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-8_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-9_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-10_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-10_2.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-11_1.png">
-<meta property="og:updated_time" content="2018-08-25T11:51:40.670Z">
+<meta property="og:updated_time" content="2018-08-25T12:30:57.473Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolutional Neural Networks (week1) - CNN">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -345,6 +346,7 @@ var _hmt = _hmt || [];
 </blockquote>
 <h2 id="7-One-layer-of-a-convolutional-network"><a href="#7-One-layer-of-a-convolutional-network" class="headerlink" title="7. One layer of a convolutional network"></a>7. One layer of a convolutional network</h2><p><img src="/images/deeplearning/C4W1-10_1.png" width="700"></p>
 <p>如图示得到 <strong>$4 * 4$</strong> 的矩阵后还需要加上一个偏差 <strong>$b_n$</strong> (Python 广播机制)，之后还要进行非线性转换，即用 ReLU 函数.</p>
+<p><img src="/images/deeplearning/C4W1-10_2.png" width="700"></p>
 <p>因此假如在某一卷积层中使用了 10 个 <strong>$3 * 3$</strong> 的 <strong>Filter</strong> 过滤器，那么一共有 $(3*3+1)*10=280$ 个参数.</p>
 <p><img src="/images/deeplearning/C4W1-11_1.png" width="700"></p>
 <p>下面总结了各项参数的大小和表示方法：</p>
@@ -358,29 +360,39 @@ var _hmt = _hmt || [];
 </thead>
 <tbody>
 <tr>
+<td style="text-align:center"><strong>输入矩阵</strong></td>
+<td style="text-align:center">$n_H^{l-1} * n_W^{l-1} * n_c^{l-1}$</td>
+<td style="text-align:center">$height * width * channels = 6 * 6 * 3$</td>
+</tr>
+<tr>
 <td style="text-align:center">过滤器大小</td>
 <td style="text-align:center">$f^{[l]}$</td>
 <td style="text-align:center"></td>
 </tr>
 <tr>
-<td style="text-align:center">填充 padding</td>
+<td style="text-align:center">Padding</td>
 <td style="text-align:center">$p^{[l]}$</td>
 <td style="text-align:center"></td>
 </tr>
 <tr>
-<td style="text-align:center">步长 stride</td>
+<td style="text-align:center">Stride</td>
 <td style="text-align:center">$s^l$</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">步长</td>
 </tr>
 <tr>
-<td style="text-align:center">激活函数</td>
+<td style="text-align:center">Each Filter is</td>
+<td style="text-align:center">$f^{l} * f^{l} * n_c^{[l-1]}$</td>
+<td style="text-align:center">$3 * 3 * 3$  ,  $n_c^{[l-1]} = 3$ <br><br> 每一卷积层的过滤器的通道的大小 = 输入层的通道大小 $n_c^{[l-1]}$</td>
+</tr>
+<tr>
+<td style="text-align:center">Activations 激活函数</td>
 <td style="text-align:center">$a^{l}$ = $n_H^{l} * n_W^{l} * n_c^{l}$</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">$A^{l}$ = $m * n_H^{l} * n_W^{l} * n_c^{l}$，($m$个例子)</td>
 </tr>
 <tr>
 <td style="text-align:center">权重 weight</td>
 <td style="text-align:center">$f^{l} * f^{l} * n_c^{[l-1]} * n_c^{[l]}$</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">$Filter * 过滤器个数$ <br><br> 过滤器的个数 = 输出层的通道的大小 $n_c^{l}$</td>
 </tr>
 <tr>
 <td style="text-align:center">偏差 bias</td>
@@ -388,24 +400,14 @@ var _hmt = _hmt || [];
 <td style="text-align:center"></td>
 </tr>
 <tr>
-<td style="text-align:center">输入矩阵</td>
-<td style="text-align:center">$n_H^{l-1} * n_W^{l-1} * n_c^{l-1}$</td>
-<td style="text-align:center">height * width * channels</td>
-</tr>
-<tr>
 <td style="text-align:center"></td>
 <td style="text-align:center"></td>
-<td style="text-align:center">每一卷积层的过滤器的通道的大小 = 输入层的通道大小</td>
+<td style="text-align:center"></td>
 </tr>
 <tr>
-<td style="text-align:center">输出矩阵</td>
+<td style="text-align:center"><strong>输出矩阵</strong></td>
 <td style="text-align:center">$n_H^{l} * n_W^{l} * n_c^{l}$</td>
-<td style="text-align:center">height * width * channels</td>
-</tr>
-<tr>
-<td style="text-align:center"></td>
-<td style="text-align:center"></td>
-<td style="text-align:center">输出层的通道的大小 $n_c^{l}$ = 过滤器的个数</td>
+<td style="text-align:center">$height * width * channels$</td>
 </tr>
 <tr>
 <td style="text-align:center">Output</td>
