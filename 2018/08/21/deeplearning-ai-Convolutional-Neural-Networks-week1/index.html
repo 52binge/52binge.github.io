@@ -36,7 +36,9 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-10_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-10_2.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-11_1.png">
-<meta property="og:updated_time" content="2018-08-25T12:30:57.473Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-12_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-13_1.png">
+<meta property="og:updated_time" content="2018-08-26T02:26:03.325Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolutional Neural Networks (week1) - CNN">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -333,7 +335,7 @@ var _hmt = _hmt || [];
 <p>⌊⌋: 向下取整符号 ⌊59/60⌋ = 0</p>
 <p>⌈⌉: 向上取整符号 ⌈59/60⌉ = 1</p>
 </blockquote>
-<h2 id="6-Convolutions-over-volumes"><a href="#6-Convolutions-over-volumes" class="headerlink" title="6. Convolutions over volumes"></a>6. Convolutions over volumes</h2><p>这一节用立体卷积来解释</p>
+<h2 id="6-Convolutions-Over-Volumes"><a href="#6-Convolutions-Over-Volumes" class="headerlink" title="6. Convolutions Over Volumes"></a>6. Convolutions Over Volumes</h2><p>这一节用立体卷积来解释</p>
 <p><img src="/images/deeplearning/C4W1-9_1.png" width="700"></p>
 <blockquote>
 <p><strong>如图</strong>:</p>
@@ -344,7 +346,7 @@ var _hmt = _hmt || [];
 <p>有时可能需要检测 水平边缘 或 垂直边缘，或 其他特征，所以我们可以使用多个过滤器。上图则使用了两个过滤器 (黄色和橘黄色)，得到的特征矩阵大小为 $4 * 4 * 2$.</p>
 <p><strong>Filter</strong> 数字组合参数的选择不同，你可以得到不同的特征检测器.</p>
 </blockquote>
-<h2 id="7-One-layer-of-a-convolutional-network"><a href="#7-One-layer-of-a-convolutional-network" class="headerlink" title="7. One layer of a convolutional network"></a>7. One layer of a convolutional network</h2><p><img src="/images/deeplearning/C4W1-10_1.png" width="700"></p>
+<h2 id="7-One-Layer-A-Convolutional-Network"><a href="#7-One-Layer-A-Convolutional-Network" class="headerlink" title="7. One Layer A Convolutional Network"></a>7. One Layer A Convolutional Network</h2><p><img src="/images/deeplearning/C4W1-10_1.png" width="700"></p>
 <p>如图示得到 <strong>$4 * 4$</strong> 的矩阵后还需要加上一个偏差 <strong>$b_n$</strong> (Python 广播机制)，之后还要进行非线性转换，即用 ReLU 函数.</p>
 <p><img src="/images/deeplearning/C4W1-10_2.png" width="700"></p>
 <p>因此假如在某一卷积层中使用了 10 个 <strong>$3 * 3$</strong> 的 <strong>Filter</strong> 过滤器，那么一共有 $(3*3+1)*10=280$ 个参数.</p>
@@ -416,10 +418,30 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
-<h2 id="8-A-simple-convolution-network-example"><a href="#8-A-simple-convolution-network-example" class="headerlink" title="8. A simple convolution network example"></a>8. A simple convolution network example</h2><h2 id="9-Pooling-layers"><a href="#9-Pooling-layers" class="headerlink" title="9. Pooling layers"></a>9. Pooling layers</h2><p>最大池化很少用 padding</p>
-<h2 id="10-Convolutional-neural-network-example"><a href="#10-Convolutional-neural-network-example" class="headerlink" title="10. Convolutional neural network example"></a>10. Convolutional neural network example</h2><h2 id="11-Why-Convolutions"><a href="#11-Why-Convolutions" class="headerlink" title="11. Why Convolutions ?"></a>11. Why Convolutions ?</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="8-A-Simple-Convolution-Network"><a href="#8-A-Simple-Convolution-Network" class="headerlink" title="8. A Simple Convolution Network"></a>8. A Simple Convolution Network</h2><p><img src="/images/deeplearning/C4W1-12_1.png" width="750"></p>
+<p>上图简单介绍了卷积网络的计算过程，需要再介绍的一点是最后一层的全连接层，即将 $7 * 7 * 40$ 的输出矩阵展开，得到 $1960$ 个节点，然后再采用 <strong>Softmax</strong> 来进行预测.</p>
+<blockquote>
+<p>一般的 <strong>CNN</strong> 中，每一层矩阵的 <strong>height</strong> 和 <strong>width</strong> 是逐渐减小的，而 <strong>channel</strong> 则是增加的 ($n_c$ 在增加，$n_H$ 和 $n_W$ 在减少).</p>
+</blockquote>
+<p><strong>CNN 中常见的 3 种类型的 layer：</strong></p>
+<ol>
+<li>Convolution (Conv 卷积层)</li>
+<li>Pooling (Pool 池化层)</li>
+<li>Fully connected (FC 全连接层)</li>
+</ol>
+<h2 id="9-Pooling-Layers"><a href="#9-Pooling-Layers" class="headerlink" title="9. Pooling Layers"></a>9. Pooling Layers</h2><p>使用池化层来缩减模型的大小，提高计算速度，同时提高提取特征的鲁棒性.</p>
+<p><img src="/images/deeplearning/C4W1-13_1.png" width="700"></p>
+<p><strong><font color="wathet">最大池化的直观理解</font>:</strong></p>
+<p>你可以把上面 $4 * 4$ 输入看做是某些特征的集合 (也许不是)，也就是神经网络中某一层的反激活值，数字大意味着可能提取了某些特定特征. 左上象限具有这个特征，可能是一个垂直边缘. or maybe an eye， 显然左上象限具有这个特征.</p>
+<p>最大化操作的功能就是只要在任何一个象限内提取到某个特征，它就会保留在最大池化的输出里. 最大化操作的实际作用就是：如果在 <strong>Filter</strong> 中提取到某个特征 那么保留其最大值. 如果没有提取到这个特征，比如说 右上象限 中，那么其最大值也还是很小. </p>
+<blockquote>
+<p><code>Max Pooling</code> 的超级参数 $f=2 / 3$，$s=2$ 是最常用的，效果相当于高度和宽度缩减一半. <code>Max Pooling</code> 很少用 padding， by far, is $p = 0$，Average Pooling 这个用的不多，这个也会加入更多的计算量.</p>
+</blockquote>
+<h2 id="10-Convolutional-neural-network-example"><a href="#10-Convolutional-neural-network-example" class="headerlink" title="10. Convolutional neural network example"></a>10. Convolutional neural network example</h2><p>池化层没有权重和参数，所以不做层数的统计.</p>
+<h2 id="11-Why-Convolutions"><a href="#11-Why-Convolutions" class="headerlink" title="11. Why Convolutions ?"></a>11. Why Convolutions ?</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/31657315" target="_blank" rel="external">CNN入门讲解：卷积层是如何提取特征的？</a></li>
 </ul>
 
       
@@ -463,7 +485,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Computer-vision"><span class="toc-number"></span> <span class="toc-text">1. Computer vision</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Edge-detection-example"><span class="toc-number"></span> <span class="toc-text">2. Edge detection example</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-More-edge-detection"><span class="toc-number"></span> <span class="toc-text">3. More edge detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Padding"><span class="toc-number"></span> <span class="toc-text">4. Padding</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-运用-Padding-的原因"><span class="toc-number"></span> <span class="toc-text">4.1 运用 Padding 的原因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-如何-padding-的大小"><span class="toc-number"></span> <span class="toc-text">4.2 如何 padding 的大小</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Strided-convolutions"><span class="toc-number"></span> <span class="toc-text">5. Strided convolutions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Convolutions-over-volumes"><span class="toc-number"></span> <span class="toc-text">6. Convolutions over volumes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-One-layer-of-a-convolutional-network"><span class="toc-number"></span> <span class="toc-text">7. One layer of a convolutional network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-A-simple-convolution-network-example"><span class="toc-number"></span> <span class="toc-text">8. A simple convolution network example</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Pooling-layers"><span class="toc-number"></span> <span class="toc-text">9. Pooling layers</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Convolutional-neural-network-example"><span class="toc-number"></span> <span class="toc-text">10. Convolutional neural network example</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-Why-Convolutions"><span class="toc-number"></span> <span class="toc-text">11. Why Convolutions ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Computer-vision"><span class="toc-number"></span> <span class="toc-text">1. Computer vision</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Edge-detection-example"><span class="toc-number"></span> <span class="toc-text">2. Edge detection example</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-More-edge-detection"><span class="toc-number"></span> <span class="toc-text">3. More edge detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Padding"><span class="toc-number"></span> <span class="toc-text">4. Padding</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-运用-Padding-的原因"><span class="toc-number"></span> <span class="toc-text">4.1 运用 Padding 的原因</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-如何-padding-的大小"><span class="toc-number"></span> <span class="toc-text">4.2 如何 padding 的大小</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Strided-convolutions"><span class="toc-number"></span> <span class="toc-text">5. Strided convolutions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Convolutions-Over-Volumes"><span class="toc-number"></span> <span class="toc-text">6. Convolutions Over Volumes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-One-Layer-A-Convolutional-Network"><span class="toc-number"></span> <span class="toc-text">7. One Layer A Convolutional Network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-A-Simple-Convolution-Network"><span class="toc-number"></span> <span class="toc-text">8. A Simple Convolution Network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Pooling-Layers"><span class="toc-number"></span> <span class="toc-text">9. Pooling Layers</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Convolutional-neural-network-example"><span class="toc-number"></span> <span class="toc-text">10. Convolutional neural network example</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-Why-Convolutions"><span class="toc-number"></span> <span class="toc-text">11. Why Convolutions ?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
