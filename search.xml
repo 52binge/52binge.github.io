@@ -59,7 +59,8 @@
 <p><strong>Andrew Ng</strong> : 我最喜欢它的一点是，随着网络的加深，图像的 Height 和 Width 都在以一定的规律不断缩小，每次池化之后刚好缩小一半，而信道数量在不断增加. 而刚好也是在每组卷积操作后增加一倍. 也就是说 ： 图像缩小的比例和信道增加的比例是有规律的.</p>
 <p>上面三个是比较经典的网络，可阅读其论文，Ng<strong>吴大师</strong> 建议的阅读顺序是 AlexNet-&gt;VGG-&gt;LeNet。</p>
 </blockquote>
-<h2 id="3-Residual-Network-ResNets"><a href="#3-Residual-Network-ResNets" class="headerlink" title="3. Residual Network (ResNets)"></a>3. Residual Network (ResNets)</h2><p>吴大师表示 “非常深的网络是很难训练的，因为存在梯度消失和梯度爆炸的问题”，为了解决这个问题，引入了 <strong>Skip Connection</strong> (跳远链接)，残差网络正是使用了这个方法。</p>
+<h2 id="3-Residual-Network-ResNets"><a href="#3-Residual-Network-ResNets" class="headerlink" title="3. Residual Network (ResNets)"></a>3. Residual Network (ResNets)</h2><p>ResNets 发明者是 何恺明、张翔宇、任少卿、孙剑</p>
+<p>吴大师表示 “非常深的网络是很难训练的，因为存在梯度消失和梯度爆炸的问题”，为了解决这个问题，引入了 <strong>Skip Connection</strong> (跳远链接)，残差网络正是使用了这个方法。</p>
 <h3 id="3-1-残差块-Residual-Block"><a href="#3-1-残差块-Residual-Block" class="headerlink" title="3.1 残差块 (Residual Block)"></a>3.1 残差块 (Residual Block)</h3><p>首先介绍组成残差网络的单元：残差块(<strong>Residual Block</strong>)，如下图示：</p>
 <p><img src="/images/deeplearning/C4W1-22.png" width="550"></p>
 <p>残差块是由两层网络节点组成的, $a^{[l]}$ 经过线性变化，再通过Relu激活函数后得到 $a^{[l+1]}$， $a^{[l+2]}$ 也同理，具体过程如下图示：</p>
@@ -67,8 +68,10 @@
 <p>特别注意上图中的<strong>紫色线</strong>连接，$a^{[{l}]}$ 通过这条线直接将数据传递给 $a^{[l+2]}$， 所以 $a^{[l+2]}=g(z^{[l+1]}+a^{[l]})$ ，这条紫色线也叫作<strong>short cut</strong>(或skip connection)</p>
 <h3 id="3-2-残差网络"><a href="#3-2-残差网络" class="headerlink" title="3.2 残差网络"></a>3.2 残差网络</h3><p><img src="/images/deeplearning/C4W1-24_1.png" width="750"></p>
 <p>如图示，残差网络每两层网络节点组成一个残差块，这也就是其与普通网络(Plain Network)的差别。</p>
+<p>随着网络深度的加深，优化算法会越来越难训练，训练错误会越来越多，但是有了 ResNets 就不一样了. 也可以在一定程度上缓解梯度消失和梯度爆炸问题. 另一角度，网络越深会比较臃肿，但是 ResNet 确实在训练深度网络方面非常有效.</p>
 <p>结合之前的课程我们知道如果使用普通网络训练模型，训练误差会随着网络层次加深先减小，而后会开始增加，而残差网络则不会有这种情况，反而它会随着层次增加，误差也会越来越小，这与理论相符。</p>
-<h2 id="4-Why-ResNets-work"><a href="#4-Why-ResNets-work" class="headerlink" title="4. Why ResNets work"></a>4. Why ResNets work</h2><p>为了直观解释残差网络为什么有用，假设我们已经通过一个很大的神经网络得到了 $a^{[l]}$。 而现在我们又需要添加两层网络进去，我们看看如果添加的是残差块会有什么效果。如下图示：</p>
+<h2 id="4-Why-ResNets-work"><a href="#4-Why-ResNets-work" class="headerlink" title="4. Why ResNets work"></a>4. Why ResNets work</h2><p>吴大表示: 网络在训练集上表现好，才能 Hold-out 交叉验证集 或 dev集、测试集上表现好，所以训练集上表现好是第一步.</p>
+<p>为了直观解释残差网络为什么有用，假设我们已经通过一个很大的神经网络得到了 $a^{[l]}$。 而现在我们又需要添加两层网络进去，我们看看如果添加的是残差块会有什么效果。如下图示：</p>
 <p><img src="/images/deeplearning/C4W1-25.jpg" width="650"></p>
 <p>由 <strong>残差块Residual Block</strong> 的特点我们知道 $a^{[l+2]}=g(z^{[l+1]}+a^{[l]})=g(W^{[l+1]}a^{[l]}+b^{[l+1]}+a^{[l]})$</p>
 <p>我们先考虑一个极端情况，即 $W^{[l+1]}=0,b^{[l+1]}=0$， 那么 $a^{[l+2]}=g(a^{[l]})=a^{[l]}$ <strong>(因为激活函数是Relu)</strong>，所以在添加了额外的两层网络后，即使最坏情况也是保持和之前结果一样。而如果只是加上普通的两层网络，可能结果会更好，但是也很有可能结果会越来越糟糕，这也就是为什么残差网络能够保证深度网络依旧有用的原因了。</p>
@@ -13901,7 +13904,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
@@ -14068,7 +14071,7 @@ img {
     
     <entry>
       <title><![CDATA[Coursera 6 - Advice for Applying Machine Learning *]]></title>
-      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/</url>
+      <url>http://iequa.com/2017/05/24/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning%20copy/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
   MathJax.Hub.Config({
     extensions: ["tex2jax.js"],
