@@ -23,7 +23,14 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta property="og:updated_time" content="2018-08-27T09:56:56.088Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-19_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-20_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-21_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-22.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-23_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-24_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-25.jpg">
+<meta property="og:updated_time" content="2018-08-28T07:19:59.672Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolutional Neural Networks (week2) - deep CNN">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -33,6 +40,7 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
+<meta name="twitter:image" content="http://iequa.com/images/deeplearning/C4W1-19_1.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -142,7 +150,55 @@ var _hmt = _hmt || [];
 
 <p>理解如何搭建一个神经网络，包括最新的变体，例如残余网络。</p>
 <a id="more"></a>
-<h2 id="1-为什么要进行实例探究"><a href="#1-为什么要进行实例探究" class="headerlink" title="1. 为什么要进行实例探究"></a>1. 为什么要进行实例探究</h2><h2 id="2-经典网络"><a href="#2-经典网络" class="headerlink" title="2. 经典网络"></a>2. 经典网络</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="1-Why-look-at-case-studies"><a href="#1-Why-look-at-case-studies" class="headerlink" title="1. Why look at case studies?"></a>1. Why look at case studies?</h2><p>通过他人的实例可以更好的理解如何构建卷积神经网络，本周课程主要会介绍如下网络</p>
+<ul>
+<li>LeNet-5</li>
+<li>AlexNet</li>
+<li>VGG</li>
+<li>ResNet (有152层)</li>
+<li>Inception</li>
+</ul>
+<h2 id="2-Classic-networks"><a href="#2-Classic-networks" class="headerlink" title="2. Classic networks"></a>2. Classic networks</h2><h3 id="2-1-LeNet-5"><a href="#2-1-LeNet-5" class="headerlink" title="2.1 LeNet-5"></a>2.1 LeNet-5</h3><p>该网络 1980s 提出，主要针对灰度图像训练的，用于识别手写数字。</p>
+<p><img src="/images/deeplearning/C4W1-19_1.png" width="750"></p>
+<blockquote>
+<ol>
+<li>当时很少用到 Padding，所以看到随着网络层次增加，图像的高度和宽度都是逐渐减小的，深度则不断增加.</li>
+<li>当时人们会更倾向于使用 Average Pooling，但是现在则更推荐使用 Max Pooling.</li>
+<li>最后的预测没有使用 softmax，而是使用了一般的方法.</li>
+</ol>
+<p>论文中你会发现，过去人们使用 Sigmoid函数 和 Tanh函数，而不是 ReLu， 这种网路结构的特别之处还在于各网络层之间是有关联的.</p>
+</blockquote>
+<h3 id="2-2-AlexNet"><a href="#2-2-AlexNet" class="headerlink" title="2.2 AlexNet"></a>2.2 AlexNet</h3><p>AlexNet 其实和 LetNet-5 有很多相似的地方，如大致的网络结构。不同的地方主要有如下：</p>
+<p><img src="/images/deeplearning/C4W1-20_1.png" width="750"></p>
+<ul>
+<li>激活函数使用的是 <strong>Relu</strong>，最后一层使用的是 <strong>Softmax</strong></li>
+<li>参数更多，有6000万个参数，而 LeNet-5 只有6万个左右</li>
+<li>使用 Max Pooling</li>
+</ul>
+<h3 id="2-3-VGG-16"><a href="#2-3-VGG-16" class="headerlink" title="2.3 VGG-16"></a>2.3 VGG-16</h3><p><img src="/images/deeplearning/C4W1-21_1.png" width="750"></p>
+<p>这个网络太牛了，因为它有将近 1.38亿个参数，即使放到现在也是一个很大的网络，但是这个网络的结构并不复杂。下面主要介绍一下上图网络。</p>
+<blockquote>
+<p>首先该网络使用的是 Same卷积，即保证高度和宽度不变，另外因为总共有16层卷积操作，所以就不把每一层都用图像的方式表现出来了，例如 [CONV 64 X2] 表示的是用 64个 过滤器进行 Same卷积 操作2次，即右上角所画的示意图，(224,224,3) -&gt; (224,224,64) -&gt; (224,224,64)</p>
+</blockquote>
+<p>上面三个是比较经典的网络，可阅读其论文，Ng<strong>吴大师</strong> 建议的阅读顺序是 AlexNet-&gt;VGG-&gt;LeNet。</p>
+<h2 id="3-Residual-Network-ResNets"><a href="#3-Residual-Network-ResNets" class="headerlink" title="3. Residual Network (ResNets)"></a>3. Residual Network (ResNets)</h2><p>吴大师表示 “非常深的网络是很难训练的，因为存在梯度消失和梯度爆炸的问题”，为了解决这个问题，引入了(跳远链接)<strong>Skip Connection</strong>(跳远链接)，残差网络正是使用了这个方法。</p>
+<h3 id="3-1-残差块-Residual-Block"><a href="#3-1-残差块-Residual-Block" class="headerlink" title="3.1 残差块 (Residual Block)"></a>3.1 残差块 (Residual Block)</h3><p>首先介绍组成残差网络的单元：残差块(<strong>Residual Block</strong>)，如下图示：</p>
+<p><img src="/images/deeplearning/C4W1-22.png" width="550"></p>
+<p>残差块是由两层网络节点组成的, $a^{[l]}$ 经过线性变化，再通过Relu激活函数后得到 $a^{[l+1]}$， $a^{[l+2]}$ 也同理，具体过程如下图示：</p>
+<p><img src="/images/deeplearning/C4W1-23_1.png" width="750"></p>
+<p>特别注意上图中的<strong>紫色线</strong>连接，$a^{[{l}]}$ 通过这条线直接将数据传递给 $a^{[l+2]}$， 所以 $a^{[l+2]}=g(z^{[l+1]}+a^{[l]})$ ，这条紫色线也叫作<strong>short cut</strong>(或skip connection)</p>
+<h3 id="3-2-残差网络"><a href="#3-2-残差网络" class="headerlink" title="3.2 残差网络"></a>3.2 残差网络</h3><p><img src="/images/deeplearning/C4W1-24_1.png" width="750"></p>
+<p>如图示，残差网络每两层网络节点组成一个残差块，这也就是其与普通网络(Plain Network)的差别。</p>
+<p>结合之前的课程我们知道如果使用普通网络训练模型，训练误差会随着网络层次加深先减小，而后会开始增加，而残差网络则不会有这种情况，反而它会随着层次增加，误差也会越来越小，这与理论相符。</p>
+<h2 id="4-Why-ResNets-work"><a href="#4-Why-ResNets-work" class="headerlink" title="4. Why ResNets work"></a>4. Why ResNets work</h2><p>为了直观解释残差网络为什么有用，假设我们已经通过一个很大的神经网络得到了 $a^{[l]}$。 而现在我们又需要添加两层网络进去，我们看看如果添加的是残差块会有什么效果。如下图示：</p>
+<p><img src="/images/deeplearning/C4W1-25.jpg" width="650"></p>
+<p>由 <strong>残差块Residual Block</strong> 的特点我们知道 $a^{[l+2]}=g(z^{[l+1]}+a^{[l]})=g(W^{[l+1]}a^{[l]}+b^{[l+1]}+a^{[l]})$</p>
+<p>我们先考虑一个极端情况，即 $W^{[l+1]}=0,b^{[l+1]}=0$， 那么 $a^{[l+2]}=g(a^{[l]})=a^{[l]}$ <strong>(因为激活函数是Relu)</strong>，所以在添加了额外的两层网络后，即使最坏情况也是保持和之前结果一样。而如果只是加上普通的两层网络，可能结果会更好，但是也很有可能结果会越来越糟糕，这也就是为什么残差网络能够保证深度网络依旧有用的原因了。</p>
+<blockquote>
+<p><strong>注意</strong> ： 各层网络的<strong>维度</strong>，因为 $a^{[l+2]}=g(z^{[l+1]}+a^{[l]})$, 那么就要求 $z^{[l+1]}$ 要和 $a^{[l]}$ 保持相同的维度所以残差网络使用的是<strong>Same卷积</strong>。</p>
+<p>但是如果唯独不一样也没关系，可以给 $a^{[l]}$ 乘上一个 $W_s$ 来保持相同维度。 $W_s$ 的值可以通过学习获得</p>
+</blockquote>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 </ul>
@@ -188,7 +244,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-为什么要进行实例探究"><span class="toc-number"></span> <span class="toc-text">1. 为什么要进行实例探究</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-经典网络"><span class="toc-number"></span> <span class="toc-text">2. 经典网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Why-look-at-case-studies"><span class="toc-number"></span> <span class="toc-text">1. Why look at case studies?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Classic-networks"><span class="toc-number"></span> <span class="toc-text">2. Classic networks</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-LeNet-5"><span class="toc-number"></span> <span class="toc-text">2.1 LeNet-5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-AlexNet"><span class="toc-number"></span> <span class="toc-text">2.2 AlexNet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-VGG-16"><span class="toc-number"></span> <span class="toc-text">2.3 VGG-16</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Residual-Network-ResNets"><span class="toc-number"></span> <span class="toc-text">3. Residual Network (ResNets)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-残差块-Residual-Block"><span class="toc-number"></span> <span class="toc-text">3.1 残差块 (Residual Block)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-残差网络"><span class="toc-number"></span> <span class="toc-text">3.2 残差网络</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Why-ResNets-work"><span class="toc-number"></span> <span class="toc-text">4. Why ResNets work</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
