@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-23_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-24_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W1-25.jpg">
-<meta property="og:updated_time" content="2018-08-28T08:43:52.075Z">
+<meta property="og:updated_time" content="2018-08-28T08:57:44.506Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolutional Neural Networks (week2) - deep CNN">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -206,8 +206,9 @@ var _hmt = _hmt || [];
 <blockquote>
 <p><strong>注意</strong> ： 各层网络的<strong>维度</strong>，因为 $a^{[l+2]}=g(z^{[l+1]}+a^{[l]})$, 那么就要求 $z^{[l+1]}$ 要和 $a^{[l]}$ 保持相同的维度所以残差网络使用的是<strong>Same卷积</strong>。</p>
 <p>但是如果唯独不一样也没关系，可以给 $a^{[l]}$ 乘上一个 $W_s$ 来保持相同维度。 $W_s$ 的值可以通过学习获得</p>
+<p>普通网络 和 ResNets 常用的结构是 Conv -&gt; Conv -&gt; Conv -&gt; Pool -&gt; Conv -&gt; Conv -&gt; Conv -&gt; Pool 依次重复之.. 直到有一个通过 Softmax 进行预测的全连接层.</p>
 </blockquote>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="5-in-Network-and-1×1-convolutions"><a href="#5-in-Network-and-1×1-convolutions" class="headerlink" title="5. in Network and 1×1 convolutions"></a>5. in Network and 1×1 convolutions</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
 </ul>
@@ -253,7 +254,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Why-look-at-case-studies"><span class="toc-number"></span> <span class="toc-text">1. Why look at case studies?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Classic-networks"><span class="toc-number"></span> <span class="toc-text">2. Classic networks</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-LeNet-5"><span class="toc-number"></span> <span class="toc-text">2.1 LeNet-5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-AlexNet"><span class="toc-number"></span> <span class="toc-text">2.2 AlexNet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-VGG-16"><span class="toc-number"></span> <span class="toc-text">2.3 VGG-16</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Residual-Network-ResNets"><span class="toc-number"></span> <span class="toc-text">3. Residual Network (ResNets)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-残差块-Residual-Block"><span class="toc-number"></span> <span class="toc-text">3.1 残差块 (Residual Block)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-残差网络"><span class="toc-number"></span> <span class="toc-text">3.2 残差网络</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Why-ResNets-work"><span class="toc-number"></span> <span class="toc-text">4. Why ResNets work</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Why-look-at-case-studies"><span class="toc-number"></span> <span class="toc-text">1. Why look at case studies?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Classic-networks"><span class="toc-number"></span> <span class="toc-text">2. Classic networks</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-LeNet-5"><span class="toc-number"></span> <span class="toc-text">2.1 LeNet-5</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-AlexNet"><span class="toc-number"></span> <span class="toc-text">2.2 AlexNet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-VGG-16"><span class="toc-number"></span> <span class="toc-text">2.3 VGG-16</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Residual-Network-ResNets"><span class="toc-number"></span> <span class="toc-text">3. Residual Network (ResNets)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-残差块-Residual-Block"><span class="toc-number"></span> <span class="toc-text">3.1 残差块 (Residual Block)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-残差网络"><span class="toc-number"></span> <span class="toc-text">3.2 残差网络</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Why-ResNets-work"><span class="toc-number"></span> <span class="toc-text">4. Why ResNets work</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-in-Network-and-1×1-convolutions"><span class="toc-number"></span> <span class="toc-text">5. in Network and 1×1 convolutions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
