@@ -23,7 +23,22 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta property="og:updated_time" content="2018-09-01T07:51:50.309Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-1_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-2_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-3.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-4_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-5_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-6.jpg">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-7_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-8_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-9_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-10_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-11_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-12_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-13_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-14_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-16_1.png">
+<meta property="og:updated_time" content="2018-09-04T11:55:19.844Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolutional Neural Networks (week3) - Object detection">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -33,6 +48,7 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
+<meta name="twitter:image" content="http://iequa.com/images/deeplearning/C4W3-1_1.png">
   
   
     <link rel="icon" href="/favicon.png">
@@ -140,7 +156,75 @@ var _hmt = _hmt || [];
 
 <p>知道如何将卷积网络应用到视觉检测和识别任务。 知道如何使用神经风格迁移生成艺术。</p>
 <a id="more"></a>
-<h2 id="1-Object-Localization"><a href="#1-Object-Localization" class="headerlink" title="1. Object Localization"></a>1. Object Localization</h2><h2 id="2-Landmark-Detection"><a href="#2-Landmark-Detection" class="headerlink" title="2. Landmark Detection"></a>2. Landmark Detection</h2><h2 id="3-Object-Detection"><a href="#3-Object-Detection" class="headerlink" title="3. Object Detection"></a>3. Object Detection</h2><h2 id="4-Convolutional-Implementation-of-Sliding-Windows"><a href="#4-Convolutional-Implementation-of-Sliding-Windows" class="headerlink" title="4. Convolutional Implementation of Sliding Windows"></a>4. Convolutional Implementation of Sliding Windows</h2><h2 id="5-Bounding-Box-Predictions"><a href="#5-Bounding-Box-Predictions" class="headerlink" title="5. Bounding Box Predictions"></a>5. Bounding Box Predictions</h2><h2 id="6-Intersection-Over-Union"><a href="#6-Intersection-Over-Union" class="headerlink" title="6. Intersection Over Union"></a>6. Intersection Over Union</h2><h2 id="7-Non-max-Suppression"><a href="#7-Non-max-Suppression" class="headerlink" title="7. Non-max Suppression"></a>7. Non-max Suppression</h2><h2 id="8-Anchor-Boxes"><a href="#8-Anchor-Boxes" class="headerlink" title="8. Anchor Boxes"></a>8. Anchor Boxes</h2><h2 id="9-YOLO-Algorithm"><a href="#9-YOLO-Algorithm" class="headerlink" title="9. YOLO Algorithm"></a>9. YOLO Algorithm</h2><h2 id="10-Optional-Region-Proposals"><a href="#10-Optional-Region-Proposals" class="headerlink" title="10. (Optional) Region Proposals"></a>10. (Optional) Region Proposals</h2><p>​</p>
+<h2 id="1-Object-Localization"><a href="#1-Object-Localization" class="headerlink" title="1. Object Localization"></a>1. Object Localization</h2><p>这一小节视频主要介绍了我们在实现目标定位时标签该如何定义</p>
+<p><img src="/images/deeplearning/C4W3-1_1.png" width="750"></p>
+<p>输出 softmax 的同时，在输出4个值 $b_x,b_y,b_w,b_h$, 边界框的具体位置 （图片左上角坐标为 (0, 0)， 右下角为 (1, 1) )</p>
+<blockquote>
+<p>在上面的例子中，$b_x$ 的值大约为 0.5，$b_y$ 的值大约为 0.7，最佳位置.</p>
+</blockquote>
+<p><strong>how we define the target label $y$ for this as a supervised learning task.</strong></p>
+<p><img src="/images/deeplearning/C4W3-2_1.png" width="750"></p>
+<blockquote>
+<p>上图左下角给出了损失函数的计算公式 (这里使用的是平方差)</p>
+<p>注意: 我们假设图像中存在这三者 (<strong>pedestrian</strong>，<strong>car</strong>，<strong>motorcycles</strong>) 中的一种 或者 都不存在，所以共有四种可能.</p>
+</blockquote>
+<p>$P_c=1$ <strong>表示有三者中的一种</strong></p>
+<ul>
+<li><p>$C_1=1$ 表示有 pedestrian，反之没有</p>
+</li>
+<li><p>$C_2=1$ 表示有 car</p>
+</li>
+<li><p>$C_3=1$ 表示有 motorcycles</p>
+</li>
+</ul>
+<p>$b_*$ <strong>用于标识所识别食物的位置</strong></p>
+<ul>
+<li><p>$b_x,b_y$: 表示识别物体的中心坐标</p>
+</li>
+<li><p>$b_w,b_h$: 表示识别物体的宽和高</p>
+</li>
+</ul>
+<p><img src="/images/deeplearning/C4W3-3.png" width="450"></p>
+<blockquote>
+<p>注意: $P_c=0$ 表示三者都没有，所以此时 $C_*,b_*$ 的值我们并不在乎了.</p>
+<p>为了让大家便于了解对象定位的细节，这里我用平方误差简化了描述过程. (实际应用中 $P_c$ 更多是应用逻辑回归函数)</p>
+</blockquote>
+<h2 id="2-Landmark-Detection"><a href="#2-Landmark-Detection" class="headerlink" title="2. Landmark Detection"></a>2. Landmark Detection</h2><p>特征点检测，这一节的内容和上一节感觉很类似.</p>
+<p><img src="/images/deeplearning/C4W3-4_1.png" width="750"></p>
+<p>要输出眼角的位置，你可以让神经网络输出的最后一层，多输出 2 个数字 $l_x, l_y$.</p>
+<h2 id="3-Object-Detection"><a href="#3-Object-Detection" class="headerlink" title="3. Object Detection"></a>3. Object Detection</h2><p><img src="/images/deeplearning/C4W3-5_1.png" width="750"></p>
+<p>目标检测常使用的是滑动窗口技术检测，即使用一定大小的窗口按照指定的步长对图像进行遍历</p>
+<p><img src="/images/deeplearning/C4W3-6.jpg" width="750"></p>
+<p>因为图像中车辆的大小我们是不知道的，所以可以更改窗口大小，从而识别并定位出车辆的位置。</p>
+<p><img src="/images/deeplearning/C4W3-7_1.png" width="750"></p>
+<p><img src="/images/deeplearning/C4W3-8_1.png" width="750"></p>
+<h2 id="4-Convolutional-Implementation-of-Sliding-Windows"><a href="#4-Convolutional-Implementation-of-Sliding-Windows" class="headerlink" title="4. Convolutional Implementation of Sliding Windows"></a>4. Convolutional Implementation of Sliding Windows</h2><blockquote>
+<p>注意：该节视频的例子和上一节一样，都是识别图像中是否有 pedestrian，car，motorcycles，background，所以最后输出y是 4个节点</p>
+</blockquote>
+<h3 id="4-1-全连接层→卷积层"><a href="#4-1-全连接层→卷积层" class="headerlink" title="4.1 全连接层→卷积层"></a>4.1 全连接层→卷积层</h3><p>在介绍卷积滑动窗口之前我们首先要知道如何把神经网络的<strong>全连接层</strong>转化成<strong>卷积层</strong>，下面是使用了全连接层的网络结构</p>
+<p><img src="/images/deeplearning/C4W3-9_1.png" width="750"></p>
+<p>那么如何将<strong>全连接层转化成卷积层</strong>呢？如下图示</p>
+<p><img src="/images/deeplearning/C4W3-10_1.png" width="750"></p>
+<p>我们可以看到经过 Max Pooling 之后的数据大小是 (5, 5, 16), 第一个FC层是400个节点。我们可以使用400 个 5*5 的过滤器进行卷积运算，随后我们就得到了 (1, 1, 400)的矩阵。</p>
+<p>第二个FC层也是400个节点，由之前的 1*1 过滤器的特点，我们可以使用400个 1*1 的过滤器，也可以得到(1,1,400)的矩阵。至此，我们已经成功将全连接层转化成了卷积层。</p>
+<h3 id="4-2-卷积滑动窗口实现"><a href="#4-2-卷积滑动窗口实现" class="headerlink" title="4.2 卷积滑动窗口实现"></a>4.2 卷积滑动窗口实现</h3><p>目标检测一节中介绍了滑动窗口。要实现窗口遍历，那么就需要很大的计算量，看起来似乎可操作性不强。But！这怎么可能难倒哪些newB的大神们呢，他们自然有办法。</p>
+<p>首先我们先看下图，这个就是上面提到的将全连接层转化成卷积层的示意图，只不过画的看起来更正规一些了2333，但是有个需要提醒的是吴大大为了方便只花了平面图，就没有画出3D的效果了。</p>
+<p><img src="/images/deeplearning/C4W3-11_1.png" width="750"></p>
+<p>下面，假设我们的测试图大小是16<em>16，并令滑动窗口大小是14</em>14的(为了方便理解，下图用蓝色清楚地表明了14*14窗口的大小),步长是2，所以这个测试图可以被窗口划分成4个部分。随后和上面执行一样的操作，最后可以得到(2,2,4)的矩阵，此时我们不难看出测试图被滑动窗口选取的左上角部分对应的结果也是输出矩阵的左上角部分，其他3个部分同理。</p>
+<p>所以这说明了什么？</p>
+<p>说明我们没有必要用滑动窗口截取一部分，然后带入卷积网络运算。相反我们可以整体进行运算，这样速度就快很多了。</p>
+<p><img src="/images/deeplearning/C4W3-12_1.png" width="750"></p>
+<p>下图很清楚的展示了卷积滑动窗口的实现。我们可以看到图片被划分成了64块</p>
+<p><img src="/images/deeplearning/C4W3-13_1.png" width="750"></p>
+<p><img src="/images/deeplearning/C4W3-14_1.png" width="750"></p>
+<h2 id="5-Bounding-Box-Predictions"><a href="#5-Bounding-Box-Predictions" class="headerlink" title="5. Bounding Box Predictions"></a>5. Bounding Box Predictions</h2><p>上面介绍的滑动窗口方法存在一个问题就是很多情况下滑动窗口并不能很好的切割出车体，如下图示：</p>
+<p><img src="/images/deeplearning/C4W3-16_1.png" width="750"></p>
+<p>为了解决这个问题，就有了<strong>YOLO(you only look once)</strong>算法，即只需要计算一次便可确定需要识别物体的位置的大小。</p>
+<p>原理如下：</p>
+<p>首先将图像划分成 3*3 (即9份)，每一份最后由一个向量表示，这个向量在本文最前面介绍过，即</p>
+<p>$$<br>y=[P_c,b_x,b_y,b_h,b_w,c_1,c_2,c_3]<br>$$</p>
+<p>因为有9份，所以最后输出矩阵大小是(3,3,8),如下图示：</p>
+<h2 id="6-Intersection-Over-Union"><a href="#6-Intersection-Over-Union" class="headerlink" title="6. Intersection Over Union"></a>6. Intersection Over Union</h2><h2 id="7-Non-max-Suppression"><a href="#7-Non-max-Suppression" class="headerlink" title="7. Non-max Suppression"></a>7. Non-max Suppression</h2><h2 id="8-Anchor-Boxes"><a href="#8-Anchor-Boxes" class="headerlink" title="8. Anchor Boxes"></a>8. Anchor Boxes</h2><h2 id="9-YOLO-Algorithm"><a href="#9-YOLO-Algorithm" class="headerlink" title="9. YOLO Algorithm"></a>9. YOLO Algorithm</h2><h2 id="10-Optional-Region-Proposals"><a href="#10-Optional-Region-Proposals" class="headerlink" title="10. (Optional) Region Proposals"></a>10. (Optional) Region Proposals</h2><p>​</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
 <li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
@@ -187,7 +271,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Object-Localization"><span class="toc-number"></span> <span class="toc-text">1. Object Localization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Landmark-Detection"><span class="toc-number"></span> <span class="toc-text">2. Landmark Detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Object-Detection"><span class="toc-number"></span> <span class="toc-text">3. Object Detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Convolutional-Implementation-of-Sliding-Windows"><span class="toc-number"></span> <span class="toc-text">4. Convolutional Implementation of Sliding Windows</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Bounding-Box-Predictions"><span class="toc-number"></span> <span class="toc-text">5. Bounding Box Predictions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Intersection-Over-Union"><span class="toc-number"></span> <span class="toc-text">6. Intersection Over Union</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Non-max-Suppression"><span class="toc-number"></span> <span class="toc-text">7. Non-max Suppression</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Anchor-Boxes"><span class="toc-number"></span> <span class="toc-text">8. Anchor Boxes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-YOLO-Algorithm"><span class="toc-number"></span> <span class="toc-text">9. YOLO Algorithm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Optional-Region-Proposals"><span class="toc-number"></span> <span class="toc-text">10. (Optional) Region Proposals</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Object-Localization"><span class="toc-number"></span> <span class="toc-text">1. Object Localization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Landmark-Detection"><span class="toc-number"></span> <span class="toc-text">2. Landmark Detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Object-Detection"><span class="toc-number"></span> <span class="toc-text">3. Object Detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Convolutional-Implementation-of-Sliding-Windows"><span class="toc-number"></span> <span class="toc-text">4. Convolutional Implementation of Sliding Windows</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-全连接层→卷积层"><span class="toc-number"></span> <span class="toc-text">4.1 全连接层→卷积层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-卷积滑动窗口实现"><span class="toc-number"></span> <span class="toc-text">4.2 卷积滑动窗口实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Bounding-Box-Predictions"><span class="toc-number"></span> <span class="toc-text">5. Bounding Box Predictions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Intersection-Over-Union"><span class="toc-number"></span> <span class="toc-text">6. Intersection Over Union</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Non-max-Suppression"><span class="toc-number"></span> <span class="toc-text">7. Non-max Suppression</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Anchor-Boxes"><span class="toc-number"></span> <span class="toc-text">8. Anchor Boxes</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-YOLO-Algorithm"><span class="toc-number"></span> <span class="toc-text">9. YOLO Algorithm</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Optional-Region-Proposals"><span class="toc-number"></span> <span class="toc-text">10. (Optional) Region Proposals</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
