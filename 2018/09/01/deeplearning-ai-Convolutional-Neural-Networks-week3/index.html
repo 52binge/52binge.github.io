@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-13_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-14_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-16_1.png">
-<meta property="og:updated_time" content="2018-09-04T11:55:19.844Z">
+<meta property="og:updated_time" content="2018-09-04T12:32:46.255Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolutional Neural Networks (week3) - Object detection">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -191,13 +191,37 @@ var _hmt = _hmt || [];
 </blockquote>
 <h2 id="2-Landmark-Detection"><a href="#2-Landmark-Detection" class="headerlink" title="2. Landmark Detection"></a>2. Landmark Detection</h2><p>特征点检测，这一节的内容和上一节感觉很类似.</p>
 <p><img src="/images/deeplearning/C4W3-4_1.png" width="750"></p>
+<blockquote>
 <p>要输出眼角的位置，你可以让神经网络输出的最后一层，多输出 2 个数字 $l_x, l_y$.</p>
-<h2 id="3-Object-Detection"><a href="#3-Object-Detection" class="headerlink" title="3. Object Detection"></a>3. Object Detection</h2><p><img src="/images/deeplearning/C4W3-5_1.png" width="750"></p>
+<p>假设 脸部 有 64 个特征点. 具体做法是准备一个 CNN 和 一些关键特征集. 将人脸图片输入 CNN. 输出 1 或者 0. </p>
+<p>1 表示有 人脸。 这里一共有 <strong>128 + 1</strong> 个输出单元，因为有 64 个特征 64 * 2， 来实现对人脸的检测和定位.</p>
+<p>Snapchat 应用，AR (Augmented Reality) 增强现实 Filter 有所了解，Snapchat Filter 实现了在人脸上画皇冠 还有一些其他效果。检测脸部特征也是计算机图形学的关键构造模块.</p>
+<p>最后一个例子是，检测人体姿态.</p>
+</blockquote>
+<h2 id="3-Object-Detection"><a href="#3-Object-Detection" class="headerlink" title="3. Object Detection"></a>3. Object Detection</h2><p>假设你想构造一个汽车检测算法:</p>
+<ol>
+<li>首先，创建一个标签训练集 Training Set， 也就是 $x$ 和 $y$</li>
+<li>选定一个大小确定的窗口，输入 CNN，CNN 开始预测红色方框中是否有汽车.</li>
+<li>然后，滑动窗口继续, 红色方框稍向右滑动之后的区域, 处理下一个，输入 CNN..</li>
+<li>依次重复操作.., 知道这个红色的窗口滑过每一个角落。</li>
+<li>如果上面到最后角落还是没有检测到汽车， 那么选用更大的窗口，然后还是以固定步长..依次重复..滑过..检测</li>
+</ol>
+<p>这个算法叫做 : <strong>滑动窗口目标检测</strong></p>
+<p><img src="/images/deeplearning/C4W3-5_1.png" width="750"></p>
 <p>目标检测常使用的是滑动窗口技术检测，即使用一定大小的窗口按照指定的步长对图像进行遍历</p>
 <p><img src="/images/deeplearning/C4W3-6.jpg" width="750"></p>
 <p>因为图像中车辆的大小我们是不知道的，所以可以更改窗口大小，从而识别并定位出车辆的位置。</p>
 <p><img src="/images/deeplearning/C4W3-7_1.png" width="750"></p>
 <p><img src="/images/deeplearning/C4W3-8_1.png" width="750"></p>
+<blockquote>
+<p><strong>滑动窗口目标检测</strong> 算法的缺点就是计算成本的问题.</p>
+<ol>
+<li>如果你把窗口调大，显然会减少输入CNN的窗口个数，但是粗粒度可能会影响性能.</li>
+<li>如果采用小粒度，那么输入给CNN的窗口个数就会特别多。这意味着超高计算成本.</li>
+</ol>
+<p>人们通常采用更简单的分类器做对象检测. 比如简单的线性分类器. 计算成本就会很低. 滑动窗口算法表现良好. 然而 CNN 运行单个分类任务的成本确高得多。 这样的滑动窗口太慢了。</p>
+<p>庆幸的是，人们已经找到了方法解决计算成本，下一节见.</p>
+</blockquote>
 <h2 id="4-Convolutional-Implementation-of-Sliding-Windows"><a href="#4-Convolutional-Implementation-of-Sliding-Windows" class="headerlink" title="4. Convolutional Implementation of Sliding Windows"></a>4. Convolutional Implementation of Sliding Windows</h2><blockquote>
 <p>注意：该节视频的例子和上一节一样，都是识别图像中是否有 pedestrian，car，motorcycles，background，所以最后输出y是 4个节点</p>
 </blockquote>
