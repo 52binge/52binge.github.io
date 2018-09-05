@@ -37,8 +37,12 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-12_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-13_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-14_1.png">
-<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-16_1.png">
-<meta property="og:updated_time" content="2018-09-05T07:25:43.471Z">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-15.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-16.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-17_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-18_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C4W3-19_1.png">
+<meta property="og:updated_time" content="2018-09-05T08:25:51.865Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Convolutional Neural Networks (week3) - Object detection">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -244,19 +248,33 @@ var _hmt = _hmt || [];
 <p>所以这说明了什么？</p>
 <p>说明我们没有必要用滑动窗口截取一部分，然后带入卷积网络运算。相反我们可以整体进行运算，这样速度就快很多了。</p>
 </blockquote>
-<p>下图很清楚的展示了卷积滑动窗口的实现。我们可以看到图片被划分成了64块</p>
+<p>下图很清楚的展示了卷积滑动窗口的实现。我们可以看到图片被划分成了 64 块</p>
 <p><img src="/images/deeplearning/C4W3-13_1.png" width="750"></p>
 <p><img src="/images/deeplearning/C4W3-14_1.png" width="750"></p>
 <blockquote>
 <p>目前这个算法还有一个缺点，就是边界框的位置可能不够准确，下一节，我们将学习解决这个缺点。</p>
 </blockquote>
 <h2 id="5-Bounding-Box-Predictions"><a href="#5-Bounding-Box-Predictions" class="headerlink" title="5. Bounding Box Predictions"></a>5. Bounding Box Predictions</h2><p>上面介绍的滑动窗口方法存在一个问题就是很多情况下滑动窗口并不能很好的切割出车体，如下图示：</p>
-<p><img src="/images/deeplearning/C4W3-16_1.png" width="750"></p>
+<p><img src="/images/deeplearning/C4W3-15.png" width="400"></p>
 <p>为了解决这个问题，就有了<strong>YOLO(you only look once)</strong>算法，即只需要计算一次便可确定需要识别物体的位置的大小。</p>
-<p>原理如下：</p>
+<p><strong>原理如下：</strong></p>
 <p>首先将图像划分成 3*3 (即9份)，每一份最后由一个向量表示，这个向量在本文最前面介绍过，即</p>
 <p>$$<br>y=[P_c,b_x,b_y,b_h,b_w,c_1,c_2,c_3]<br>$$</p>
-<p>因为有9份，所以最后输出矩阵大小是(3,3,8),如下图示：</p>
+<p><img src="/images/deeplearning/C4W3-16.png" width="450"></p>
+<p>因为有 9 份，所以最后输出矩阵大小是 (3,3,8) , 如下图示：</p>
+<p><img src="/images/deeplearning/C4W3-17_1.png" width="750"></p>
+<p>那么如何构建卷积网络呢？</p>
+<p>输入矩阵是 (100,100,3),然后是 Conv，Maxpool层，……，最后只要确保输出矩阵大小是 (3,3,8) 即可。</p>
+<p><img src="/images/deeplearning/C4W3-18_1.png" width="750"></p>
+<p><strong>下图是以右边的车辆作为示</strong>例介绍该车辆所在框的输出矩阵</p>
+<blockquote>
+<ul>
+<li>很显然 $P_c=1$</li>
+<li>然后 $b_x,b_y$ 的值是右边车辆的中心点相对于该框的位置,所以它们的值是一定小于 1 的，我们可以很容易的得到近似值 $b_x=0.4, b_y=0.3$</li>
+<li>$b_h,b_w$ 的值同理也是车辆的宽高相对于其所在框的比例，但是要注意的是这两个值是可以大于 1 的，因为有可能部分车身在框外。但是也可以使用 sigmoid函数 将值控制在 1 以内。</li>
+</ul>
+</blockquote>
+<p><img src="/images/deeplearning/C4W3-19_1.png" width="750"></p>
 <h2 id="6-Intersection-Over-Union"><a href="#6-Intersection-Over-Union" class="headerlink" title="6. Intersection Over Union"></a>6. Intersection Over Union</h2><h2 id="7-Non-max-Suppression"><a href="#7-Non-max-Suppression" class="headerlink" title="7. Non-max Suppression"></a>7. Non-max Suppression</h2><h2 id="8-Anchor-Boxes"><a href="#8-Anchor-Boxes" class="headerlink" title="8. Anchor Boxes"></a>8. Anchor Boxes</h2><h2 id="9-YOLO-Algorithm"><a href="#9-YOLO-Algorithm" class="headerlink" title="9. YOLO Algorithm"></a>9. YOLO Algorithm</h2><h2 id="10-Optional-Region-Proposals"><a href="#10-Optional-Region-Proposals" class="headerlink" title="10. (Optional) Region Proposals"></a>10. (Optional) Region Proposals</h2><p>​</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
