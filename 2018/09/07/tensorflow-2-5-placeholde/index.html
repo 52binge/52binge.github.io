@@ -5,16 +5,16 @@
   
   <title>Placeholder 传入值 - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="在 Tensorflow 中使用 Variable。 在 Tensorflow 中，定义了某字符串是变量，它才是变量，这一点是与 Python 所不同的。">
+  <meta name="description" content="placeholder 是 Tensorflow 中的占位符，暂时储存变量.">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Placeholder 传入值">
 <meta property="og:url" content="http://iequa.com/2018/09/07/tensorflow-2-5-placeholde/index.html">
 <meta property="og:site_name" content="Home">
-<meta property="og:description" content="在 Tensorflow 中使用 Variable。 在 Tensorflow 中，定义了某字符串是变量，它才是变量，这一点是与 Python 所不同的。">
-<meta property="og:updated_time" content="2018-09-07T03:45:13.222Z">
+<meta property="og:description" content="placeholder 是 Tensorflow 中的占位符，暂时储存变量.">
+<meta property="og:updated_time" content="2018-09-07T06:05:58.915Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Placeholder 传入值">
-<meta name="twitter:description" content="在 Tensorflow 中使用 Variable。 在 Tensorflow 中，定义了某字符串是变量，它才是变量，这一点是与 Python 所不同的。">
+<meta name="twitter:description" content="placeholder 是 Tensorflow 中的占位符，暂时储存变量.">
   
   
     <link rel="icon" href="/favicon.png">
@@ -106,21 +106,16 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在 Tensorflow 中使用 Variable。 在 Tensorflow 中，定义了某字符串是变量，它才是变量，这一点是与 Python 所不同的。</p>
+        <p>placeholder 是 Tensorflow 中的占位符，暂时储存变量.</p>
 <a id="more"></a>
-<p>定义语法： <code>state = tf.Variable()</code></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line">state = tf.Variable(<span class="number">0</span>, name=<span class="string">'counter'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义常量 one</span></span><br><span class="line">one = tf.constant(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义加法步骤 (注: 此步并没有直接计算)</span></span><br><span class="line">new_value = tf.add(state, one)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将 State 更新成 new_value</span></span><br><span class="line">update = tf.assign(state, new_value)</span><br></pre></td></tr></table></figure>
-<p>如果你在 Tensorflow 中设定了变量，那么初始化变量是最重要的！！所以定义了变量以后, 一定要定义 <code>init = tf.initialize_all_variables()</code>.</p>
-<p>到这里变量还是没有被激活，需要再在 <code>sess</code> 里, <code>sess.run(init)</code> , 激活 <code>init</code> 这一步.</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 如果定义 Variable, 就一定要 initialize</span></span><br><span class="line"><span class="comment"># init = tf.initialize_all_variables() # tf 马上就要废弃这种写法</span></span><br><span class="line">init = tf.global_variables_initializer()  <span class="comment"># 替换成这样就好</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># 使用 Session</span></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    sess.run(init)</span><br><span class="line">    print(sess.run(new_value))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">3</span>):</span><br><span class="line">        sess.run(update) <span class="comment"># 相当于运行了一遍 tf.assign(state, new_value+100)， 因为这是 update</span></span><br><span class="line">        print(sess.run(state))</span><br><span class="line">    print(<span class="string">"Sess Hello !"</span>)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>注意：直接 print(state) 不起作用！！</p>
-<p>一定要把 <code>sess</code> 的指针指向 <code>state</code> 再进行 <code>print</code> 才能得到想要的结果！</p>
-</blockquote>
+<p>Tensorflow 如果想要从外部传入data, 那就需要用到 <code>tf.placeholder()</code>, 然后以这种形式传输数据 <code>sess.run(**, feed_dict={input: **})</code>.</p>
+<p>举个🌰:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment">#在 Tensorflow 中需要定义 placeholder 的 type ，一般为 float32 形式</span></span><br><span class="line">input1 = tf.placeholder(tf.float32)</span><br><span class="line">input2 = tf.placeholder(tf.float32)</span><br><span class="line"></span><br><span class="line"><span class="comment"># mul = multiply 是将input1和input2 做乘法运算，并输出为 output </span></span><br><span class="line">ouput = tf.multiply(input1, input2)</span><br></pre></td></tr></table></figure>
+<p>接下来, 传值的工作交给了 <code>sess.run()</code> , 需要传入的值放在了 <code>feed_dict={}</code> 并一一对应每一个 <code>input</code>. <code>placeholder</code> 与 <code>feed_dict={}</code> 是绑定在一起出现的。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    print(sess.run(ouput, feed_dict=&#123;input1: [<span class="number">7.</span>], input2: [<span class="number">2.</span>]&#125;))</span><br><span class="line"><span class="comment"># [ 14.]</span></span><br></pre></td></tr></table></figure>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://www.tensorflow.org/" target="_blank" rel="external">tensorflow.org</a></li>
 <li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/" target="_blank" rel="external">莫烦Python</a></li>
-<li><a href="https://github.com/MorvanZhou/Tensorflow-Tutorial" target="_blank" rel="external">新版可视化教学代码</a></li>
 </ul>
 
       
@@ -192,10 +187,10 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2018/09/08/deeplearning-ai-Convolutional-Neural-Networks-week4/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2018/09/07/tensorflow-2-6-A-activation-function/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          Convolutional Neural Networks (week4) - Face recognition &amp; Neural style transfer
+          What&#39;s Activation Function
         
       </div>
     </a>
