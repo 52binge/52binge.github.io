@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>数学之美 03 statistical language model - Home</title>
+  <title>例子3 添加层 def add_layer() - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="《数学之美》 03 统计语言模型 Reading Notes">
+  <meta name="description" content="在 Tensorflow 里定义一个 添加层的函数 可以很容易的 添加神经层,为之后的添加省下不少时间.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="数学之美 03 statistical language model">
-<meta property="og:url" content="http://iequa.com/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/index.html">
+<meta property="og:title" content="例子3 添加层 def add_layer()">
+<meta property="og:url" content="http://iequa.com/2018/09/09/tensorflow-3-1-add-layer/index.html">
 <meta property="og:site_name" content="Home">
-<meta property="og:description" content="《数学之美》 03 统计语言模型 Reading Notes">
-<meta property="og:updated_time" content="2017-04-13T23:45:41.000Z">
+<meta property="og:description" content="在 Tensorflow 里定义一个 添加层的函数 可以很容易的 添加神经层,为之后的添加省下不少时间.">
+<meta property="og:updated_time" content="2018-09-10T01:23:41.844Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="数学之美 03 statistical language model">
-<meta name="twitter:description" content="《数学之美》 03 统计语言模型 Reading Notes">
+<meta name="twitter:title" content="例子3 添加层 def add_layer()">
+<meta name="twitter:description" content="在 Tensorflow 里定义一个 添加层的函数 可以很容易的 添加神经层,为之后的添加省下不少时间.">
   
   
     <link rel="icon" href="/favicon.png">
@@ -68,7 +68,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-ml-beauty-of-mathematics-03-statistical-language-model" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-tensorflow-3-1-add-layer" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -76,8 +76,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      数学之美 03 statistical language model
-      <small class=article-detail-date-index>&nbsp; 2016-09-13</small>
+      例子3 添加层 def add_layer()
+      <small class=article-detail-date-index>&nbsp; 2018-09-09</small>
     </h1>
   
 
@@ -87,55 +87,48 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/" class="article-date">
-  <time datetime="2016-09-13T08:06:16.000Z" itemprop="datePublished">2016-09-13</time>
+      <!--<a href="/2018/09/09/tensorflow-3-1-add-layer/" class="article-date">
+  <time datetime="2018-09-09T01:37:21.000Z" itemprop="datePublished">2018-09-09</time>
 </a>-->
       <!-- 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+    <a class="article-category-link" href="/categories/python/">python</a>
   </div>
 
 --><!-- by blair 160724 -->
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2018/09/09/tensorflow-3-1-add-layer/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<h2 id="1-用数学的方法描述语言规律"><a href="#1-用数学的方法描述语言规律" class="headerlink" title="1. 用数学的方法描述语言规律"></a>1. 用数学的方法描述语言规律</h2><blockquote>
-<p>数学的美妙在于<code>简单的模型可以干大事</code></p>
-</blockquote>
-<h3 id="1-1-S-在文本中出现的可能性"><a href="#1-1-S-在文本中出现的可能性" class="headerlink" title="1.1 S 在文本中出现的可能性"></a>1.1 S 在文本中出现的可能性</h3><p>S 这个序列出现的概率等于每个词出现的概率相乘</p>
-<p>$$<br>P(w_1, w_2, …, w_n) = P(w_1) \cdot P(w_2|w_1) \cdot P(w_3|w_1, w_2)…P(w_n|w_1, w_2, …, w_{n-1}) \qquad (fml.1.1)<br>$$</p>
-<blockquote>
-<p>$ P(w_3|w_1, w_2)  $ 的概率已经非常难算，每个变量的可能性都是一种语言字典的大小了。$P(w_n|w_1, w_2, …, w_{n-1})$ 更是可能性太多，无法估算。怎么办 ?</p>
-</blockquote>
-<h3 id="1-2-马尔科夫假设"><a href="#1-2-马尔科夫假设" class="headerlink" title="1.2 马尔科夫假设"></a>1.2 马尔科夫假设</h3><p>20世纪初，Andrey Markov 提出偷懒但有效的方法,任意一个词 $w_i$ 出现的概率只同它前面的 $w_{i-1}$ 有关 ， 数学上称为 <code>马尔科夫假设</code></p>
-<p>$$<br>P(w_1, w_2, …, w_n) = P(w_1) \cdot P(w_2|w_1) \cdot P(w_3|w_2)…P(w_n| w_{n-1}) \qquad (fml.1.2)<br>$$</p>
-<p>公式 $ (fml.1.2) $ 对应的  Statistical language model 是 二元模型 Bigram Model</p>
-<p>因为</p>
-<p>$$<br>p(w_{i-1}, w_i) \approx \frac {\kappa (w_{i-1}, w_i)} {\kappa}<br>$$</p>
-<p>$$<br>p(w_{i-1}) \approx \frac {\kappa (w_{i-1})} {\kappa}<br>$$</p>
-<p>所以</p>
-<p>$$<br>P(w_i|w_{i-1}) = \frac { p(w_{i-1}, w_i)} {p(w_{i-1})}<br>$$</p>
+        <p>在 Tensorflow 里定义一个 <strong>添加层的函数</strong> 可以很容易的 <strong>添加神经层</strong>,为之后的添加省下不少时间.</p>
+<a id="more"></a>
+<h2 id="定义-add-layer"><a href="#定义-add-layer" class="headerlink" title="定义 add_layer()"></a>定义 add_layer()</h2><p>神经层里常见的参数通常有 <code>weights</code>、<code>biases</code> 和激励函数。</p>
+<p>首先，我们需要导入 <code>tensorflow</code> 模块。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br></pre></td></tr></table></figure>
+<p>然后定义添加神经层的函数 <code>def add_layer()</code>, 它有四个参数：输入值、输入的大小、输出的大小和激励函数，我们设定默认的激励函数是 <code>None</code>。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_layer</span><span class="params">(inputs, in_size, out_size, activation_function=None)</span>:</span></span><br></pre></td></tr></table></figure>
+<p>接下来，我们开始定义 <code>weights</code> 和 <code>biases</code>。</p>
+<p>因为在生成初始参数时，随机变量(<strong>normal distribution</strong>)会比全部为0要好很多，所以我们这里的 <code>weights</code> 为一个 <code>in_size</code> 行, <code>out_size</code> 列的随机变量矩阵。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">Weights = tf.Variable(tf.random_normal([in_size, out_size]))</span><br></pre></td></tr></table></figure>
+<p>在机器学习中，<code>biases</code> 的推荐值不为0，所以我们这里是在0向量的基础上又加了0.1。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">biases = tf.Variable(tf.zeros([<span class="number">1</span>, out_size]) + <span class="number">0.1</span>)</span><br></pre></td></tr></table></figure>
+<p>下面，我们定义Wx_plus_b, 即神经网络未激活的值。其中，tf.matmul()是矩阵的乘法。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">Wx_plus_b = tf.matmul(inputs, Weights) + biases</span><br></pre></td></tr></table></figure>
+<p>当 <code>activation_function</code> ——激励函数为 <code>None</code> 时，输出就是当前的预测值——<code>Wx_plus_b</code>，不为 <code>None</code> 时，就把 <code>Wx_plus_b</code> 传到 <code>activation_function()</code> 函数中得到输出。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> activation_function <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">        outputs = Wx_plus_b</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        outputs = activation_function(Wx_plus_b)</span><br></pre></td></tr></table></figure>
+<p>最后，返回输出，添加一个神经层的函数——<code>def add_layer()</code>就定义好了。</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> outputs</span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://www.tensorflow.org/" target="_blank" rel="external">tensorflow.org</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/" target="_blank" rel="external">莫烦Python</a></li>
+<li><a href="https://www.tensorflow.org/api_guides/python/nn" target="_blank" rel="external">Tensorflow 提供的一些 激励函数</a></li>
+</ul>
 
       
      <!-- by blair add this if sentence at 20160725 -->
@@ -178,7 +171,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-用数学的方法描述语言规律"><span class="toc-number"></span> <span class="toc-text">1. 用数学的方法描述语言规律</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-S-在文本中出现的可能性"><span class="toc-number"></span> <span class="toc-text">1.1 S 在文本中出现的可能性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-马尔科夫假设"><span class="toc-number"></span> <span class="toc-text">1.2 马尔科夫假设</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#定义-add-layer"><span class="toc-number"></span> <span class="toc-text">定义 add_layer()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -186,7 +179,7 @@ var _hmt = _hmt || [];
         <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
         
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+    <a class="article-category-link" href="/categories/python/">python</a>
   </div>
 
  <!-- by blair add 160724-->
@@ -195,7 +188,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/beauty-of-mathematics/">beauty-of-mathematics</a><span></span><a class="article-tag-link" href="/tags/markov/">markov</a>
+    <a class="article-tag-link" href="/tags/tensorflow/">tensorflow</a>
   </div>
 
 
@@ -206,17 +199,9 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2016/09/13/java-special-arms-p2-computer-principle/" id="article-nav-newer" class="article-nav-link-wrap">
-      <div class="article-nav-title"><span>&lt;</span>&nbsp;
-        
-          Java程序员需要知道的计算机原理 (not finish)
-        
-      </div>
-    </a>
   
-  
-    <a href="/2016/09/12/ml-entropy-base/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">深入浅出 Entropy Based&nbsp;<span>&gt;</span></div>
+    <a href="/2018/09/08/deeplearning-ai-Convolutional-Neural-Networks-week4/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">CNN (week4) - Face recognition &amp; Neural style transfer&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -245,7 +230,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/';
+  var disqus_url = 'http://iequa.com/2018/09/09/tensorflow-3-1-add-layer/';
   
   (function(){
     var dsq = document.createElement('script');
