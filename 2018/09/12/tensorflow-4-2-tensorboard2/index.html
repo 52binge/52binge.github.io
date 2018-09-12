@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>数学之美 03 statistical language model - Home</title>
+  <title>Tensorboard 可视化好帮手 2 - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="《数学之美》 03 统计语言模型 Reading Notes">
+  <meta name="description" content="上一篇讲到了 如何可视化TesorBorad整个神经网络结构的过程。 其实tensorboard还可以可视化训练过程( biase变化过程) , 这节重点讲一下可视化训练过程的图标是如何做的 。请看下图, 这是如何做到的呢？">
 <meta property="og:type" content="article">
-<meta property="og:title" content="数学之美 03 statistical language model">
-<meta property="og:url" content="http://iequa.com/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/index.html">
+<meta property="og:title" content="Tensorboard 可视化好帮手 2">
+<meta property="og:url" content="http://iequa.com/2018/09/12/tensorflow-4-2-tensorboard2/index.html">
 <meta property="og:site_name" content="Home">
-<meta property="og:description" content="《数学之美》 03 统计语言模型 Reading Notes">
-<meta property="og:updated_time" content="2017-04-13T23:45:41.000Z">
+<meta property="og:description" content="上一篇讲到了 如何可视化TesorBorad整个神经网络结构的过程。 其实tensorboard还可以可视化训练过程( biase变化过程) , 这节重点讲一下可视化训练过程的图标是如何做的 。请看下图, 这是如何做到的呢？">
+<meta property="og:updated_time" content="2018-09-12T07:05:38.013Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="数学之美 03 statistical language model">
-<meta name="twitter:description" content="《数学之美》 03 统计语言模型 Reading Notes">
+<meta name="twitter:title" content="Tensorboard 可视化好帮手 2">
+<meta name="twitter:description" content="上一篇讲到了 如何可视化TesorBorad整个神经网络结构的过程。 其实tensorboard还可以可视化训练过程( biase变化过程) , 这节重点讲一下可视化训练过程的图标是如何做的 。请看下图, 这是如何做到的呢？">
   
   
     <link rel="icon" href="/favicon.png">
@@ -68,7 +68,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-ml-beauty-of-mathematics-03-statistical-language-model" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-tensorflow-4-2-tensorboard2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -76,8 +76,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      数学之美 03 statistical language model
-      <small class=article-detail-date-index>&nbsp; 2016-09-13</small>
+      Tensorboard 可视化好帮手 2
+      <small class=article-detail-date-index>&nbsp; 2018-09-12</small>
     </h1>
   
 
@@ -87,55 +87,32 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/" class="article-date">
-  <time datetime="2016-09-13T08:06:16.000Z" itemprop="datePublished">2016-09-13</time>
+      <!--<a href="/2018/09/12/tensorflow-4-2-tensorboard2/" class="article-date">
+  <time datetime="2018-09-12T08:10:21.000Z" itemprop="datePublished">2018-09-12</time>
 </a>-->
       <!-- 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+    <a class="article-category-link" href="/categories/python/">python</a>
   </div>
 
 --><!-- by blair 160724 -->
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2018/09/12/tensorflow-4-2-tensorboard2/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<h2 id="1-用数学的方法描述语言规律"><a href="#1-用数学的方法描述语言规律" class="headerlink" title="1. 用数学的方法描述语言规律"></a>1. 用数学的方法描述语言规律</h2><blockquote>
-<p>数学的美妙在于<code>简单的模型可以干大事</code></p>
-</blockquote>
-<h3 id="1-1-S-在文本中出现的可能性"><a href="#1-1-S-在文本中出现的可能性" class="headerlink" title="1.1 S 在文本中出现的可能性"></a>1.1 S 在文本中出现的可能性</h3><p>S 这个序列出现的概率等于每个词出现的概率相乘</p>
-<p>$$<br>P(w_1, w_2, …, w_n) = P(w_1) \cdot P(w_2|w_1) \cdot P(w_3|w_1, w_2)…P(w_n|w_1, w_2, …, w_{n-1}) \qquad (fml.1.1)<br>$$</p>
-<blockquote>
-<p>$ P(w_3|w_1, w_2)  $ 的概率已经非常难算，每个变量的可能性都是一种语言字典的大小了。$P(w_n|w_1, w_2, …, w_{n-1})$ 更是可能性太多，无法估算。怎么办 ?</p>
-</blockquote>
-<h3 id="1-2-马尔科夫假设"><a href="#1-2-马尔科夫假设" class="headerlink" title="1.2 马尔科夫假设"></a>1.2 马尔科夫假设</h3><p>20世纪初，Andrey Markov 提出偷懒但有效的方法,任意一个词 $w_i$ 出现的概率只同它前面的 $w_{i-1}$ 有关 ， 数学上称为 <code>马尔科夫假设</code></p>
-<p>$$<br>P(w_1, w_2, …, w_n) = P(w_1) \cdot P(w_2|w_1) \cdot P(w_3|w_2)…P(w_n| w_{n-1}) \qquad (fml.1.2)<br>$$</p>
-<p>公式 $ (fml.1.2) $ 对应的  Statistical language model 是 二元模型 Bigram Model</p>
-<p>因为</p>
-<p>$$<br>p(w_{i-1}, w_i) \approx \frac {\kappa (w_{i-1}, w_i)} {\kappa}<br>$$</p>
-<p>$$<br>p(w_{i-1}) \approx \frac {\kappa (w_{i-1})} {\kappa}<br>$$</p>
-<p>所以</p>
-<p>$$<br>P(w_i|w_{i-1}) = \frac { p(w_{i-1}, w_i)} {p(w_{i-1})}<br>$$</p>
+        <p>上一篇讲到了 如何可视化TesorBorad整个神经网络结构的过程。 其实tensorboard还可以可视化训练过程( biase变化过程) , 这节重点讲一下可视化训练过程的图标是如何做的 。请看下图, 这是如何做到的呢？</p>
+<a id="more"></a>
+<p>在histograms里面我们还可以看到更多的layers的变化:</p>
+<h2 id="制作输入源"><a href="#制作输入源" class="headerlink" title="制作输入源"></a>制作输入源</h2><h2 id="在-layer-中为-Weights-biases-设置变化图表"><a href="#在-layer-中为-Weights-biases-设置变化图表" class="headerlink" title="在 layer 中为 Weights, biases 设置变化图表"></a>在 layer 中为 Weights, biases 设置变化图表</h2><h2 id="设置loss的变化图"><a href="#设置loss的变化图" class="headerlink" title="设置loss的变化图"></a>设置loss的变化图</h2><h2 id="给所有训练图合并"><a href="#给所有训练图合并" class="headerlink" title="给所有训练图合并"></a>给所有训练图合并</h2><h2 id="训练数据"><a href="#训练数据" class="headerlink" title="训练数据"></a>训练数据</h2><h2 id="在-tensorboard-中查看效果"><a href="#在-tensorboard-中查看效果" class="headerlink" title="在 tensorboard 中查看效果"></a>在 tensorboard 中查看效果</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://www.tensorflow.org/" target="_blank" rel="external">tensorflow.org</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/" target="_blank" rel="external">莫烦Python</a></li>
+</ul>
 
       
      <!-- by blair add this if sentence at 20160725 -->
@@ -178,7 +155,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-用数学的方法描述语言规律"><span class="toc-number"></span> <span class="toc-text">1. 用数学的方法描述语言规律</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-S-在文本中出现的可能性"><span class="toc-number"></span> <span class="toc-text">1.1 S 在文本中出现的可能性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-马尔科夫假设"><span class="toc-number"></span> <span class="toc-text">1.2 马尔科夫假设</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#制作输入源"><span class="toc-number"></span> <span class="toc-text">制作输入源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在-layer-中为-Weights-biases-设置变化图表"><span class="toc-number"></span> <span class="toc-text">在 layer 中为 Weights, biases 设置变化图表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#设置loss的变化图"><span class="toc-number"></span> <span class="toc-text">设置loss的变化图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#给所有训练图合并"><span class="toc-number"></span> <span class="toc-text">给所有训练图合并</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#训练数据"><span class="toc-number"></span> <span class="toc-text">训练数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#在-tensorboard-中查看效果"><span class="toc-number"></span> <span class="toc-text">在 tensorboard 中查看效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -186,7 +163,7 @@ var _hmt = _hmt || [];
         <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
         
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine-learning</a>
+    <a class="article-category-link" href="/categories/python/">python</a>
   </div>
 
  <!-- by blair add 160724-->
@@ -195,7 +172,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/beauty-of-mathematics/">beauty-of-mathematics</a><span></span><a class="article-tag-link" href="/tags/markov/">markov</a>
+    <a class="article-tag-link" href="/tags/tensorflow/">tensorflow</a>
   </div>
 
 
@@ -206,17 +183,9 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2016/09/13/java-special-arms-p2-computer-principle/" id="article-nav-newer" class="article-nav-link-wrap">
-      <div class="article-nav-title"><span>&lt;</span>&nbsp;
-        
-          Java程序员需要知道的计算机原理 (not finish)
-        
-      </div>
-    </a>
   
-  
-    <a href="/2016/09/12/ml-entropy-base/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">深入浅出 Entropy Based&nbsp;<span>&gt;</span></div>
+    <a href="/2018/09/12/tensorflow-4-1-tensorboard1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Tensorboard 可视化好帮手 1&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -245,7 +214,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2016/09/13/ml-beauty-of-mathematics-03-statistical-language-model/';
+  var disqus_url = 'http://iequa.com/2018/09/12/tensorflow-4-2-tensorboard2/';
   
   (function(){
     var dsq = document.createElement('script');
