@@ -76,7 +76,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-46_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-47_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C5W1-48_1.png">
-<meta property="og:updated_time" content="2018-08-27T10:00:52.557Z">
+<meta property="og:updated_time" content="2018-09-20T08:16:47.174Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Sequence Models (week1) - Recurrent Neural Networks">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -195,19 +195,19 @@ var _hmt = _hmt || [];
 <p>这次我们要学习专项课程中第五门课 <strong>Sequence Models</strong>.</p>
 <p><strong>第一周:  Recurrent Neural Networks</strong> 已被证明在时间数据上表现好，它有几个变体，包括 LSTM、GRU 和双向神经网络.</p>
 <a id="more"></a>
-<h2 id="1-Why-sequence-models"><a href="#1-Why-sequence-models" class="headerlink" title="1. Why sequence models?"></a>1. Why sequence models?</h2><p>为什么要学习序列模型呢? 序列模型, 普遍称为RNN(递归神经网络 - Recurrent Neural Network), 做为深度学习中 非常重要的一环，有着比普通神经网络更广的宽度与更多的可能性，其应用领域包括但不限于“语音识别”， “NLP”， “DNA序列分析”，“Machine Translation”， “视频动作分析”，等等… 有这样一种说法，也许并不严谨，但有助于我们理解RNN，大意是这样的:</p>
+<h2 id="1-Why-sequence-models"><a href="#1-Why-sequence-models" class="headerlink" title="1. Why sequence models?"></a>1. Why sequence models?</h2><p>为什么要学习序列模型呢? 序列模型, 普遍称为 RNN (递归神经网络 - Recurrent Neural Network), 做为深度学习中 非常重要的一环，有着比普通神经网络更广的宽度与更多的可能性，其应用领域包括但不限于“语音识别”， “NLP”， “DNA序列分析”，“Machine Translation”， “视频动作分析”，等等… 有这样一种说法，也许并不严谨，但有助于我们理解RNN，大意是这样的:</p>
 <blockquote>
-<p>普通神经网络处理的是一维的数据，CNN处理的是二维的数据，RNN处理的是三维的数据</p>
-<p>最直观的理解是在CNN对图片的分析基础上，RNN可以对视频进行分析，这里也就引入了第三维“时间”的概念</p>
+<p>普通神经网络处理的是一维的数据，CNN 处理的是二维的数据，RNN 处理的是三维的数据</p>
+<p>最直观的理解是在 CNN 对图片的分析基础上，RNN 可以对视频进行分析，这里也就引入了第三维“时间”的概念</p>
 </blockquote>
 <p><img src="/images/deeplearning/C5W1-1_1.png" width="700"></p>
 <p>这一小节通过一个小例子为我们打开序列模型的大门，例子如下:</p>
 <blockquote>
-<p>给出这样一个句子 “Harry Potter and Herminone Granger invented a new spell.”(哈利波特与赫敏格兰杰发明了 一个新的咒语。)， 我们的任务是在这个句子中准确的定位到人名 Harry Potter 和 Herminone Granger. 用深度学习的语言来描述如下图 - 每一个单词对应一个输出0或者1，1代表着是人名，0代表不是。</p>
+<p>给出这样一个句子 “Harry Potter and Herminone Granger invented a new spell.”(哈利波特与赫敏格兰杰发明了 一个新的咒语。)， 我们的任务是在这个句子中准确的定位到人名 Harry Potter 和 Herminone Granger. 用深度学习的语言来描述如下图 - 每一个单词对应一个输出 0 或者 1，1 代表着是人名，0 代表不是。</p>
 </blockquote>
 <p><img src="/images/deeplearning/C5W1-2_2.png" width="750"></p>
 <blockquote>
-<p>接下来我们要解决的一个问题是<code>如何才能代表一个单词?</code>，比如我们例子中的“Harry”，这里我们介绍一种新的编码方式， 就是用另一种方式来代表每一个单词 - 独热编码（<strong>One-Hot Encoding</strong>）。 具体流程是这样，假设我们有 10000 个常用词，为其构建一个10000*1 的矩阵(column matrix)，假如第一个词是苹果(apple), 那么对应的第一个位置为1，其他都为0，所以称之为独热。这样每个单词都有对应的矩阵进行表示，如果这个词没有出现在我们的字典中，那么我们可以给一个特殊的符号代替，常用的是 <unk> (unknown)</unk></p>
+<p>接下来我们要解决的一个问题是<code>如何才能代表一个单词?</code>，比如我们例子中的 “Harry”，这里我们介绍一种新的编码方式， 就是用另一种方式来代表每一个单词 - 独热编码（<strong>One-Hot Encoding</strong>）。 具体流程是这样，假设我们有 10000 个常用词，为其构建一个10000*1 的矩阵(column matrix)，假如第一个词是苹果(apple), 那么对应的第一个位置为 1，其他都为 0，所以称之为独热。这样每个单词都有对应的矩阵进行表示，如果这个词没有出现在我们的字典中，那么我们可以给一个特殊的符号代替，常用的是 <unk> (unknown)</unk></p>
 </blockquote>
 <h2 id="2-Notation"><a href="#2-Notation" class="headerlink" title="2. Notation"></a>2. Notation</h2><p>为了后面方便说明，先将会用到的数学符号进行介绍. 以下图为例，假如我们需要定位一句话中人名出现的位置.</p>
 <p><img src="/images/deeplearning/C5W1-2_1.png" width="750"></p>

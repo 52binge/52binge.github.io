@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-8_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-9_1.png">
 <meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-9_1.png">
-<meta property="og:updated_time" content="2018-09-19T06:07:50.199Z">
+<meta property="og:updated_time" content="2018-09-19T11:37:50.015Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Improving DNN (week3) - Hyperparameter、Batch Regularization">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -219,18 +219,18 @@ var _hmt = _hmt || [];
 <p>$layers=2~4$</p>
 <p>$α=0.0001，……,1$</p>
 </blockquote>
-<p>此时注意: 如按照线性划分的话(如下图)，那么随机采样的值90%的数据来自[0.1,1]这个区间, 这显然与不太符合随机性.</p>
+<p>此时注意: 如按照线性划分的话(如下图)，那么随机采样的值 90% 的数据来自 [0.1,1] 这个区间, 这显然与不太符合随机性.</p>
 <p><img src="/images/deeplearning/C2W3-3_1.png" width="700"></p>
 <blockquote>
 <p>所以为了改进这一问题，我们需要将区间对数化来采样.</p>
 <p><strong>举个🌰：</strong> 我们将 [0.0001,1] 转化成四个区间 [0.0001,0.001], [0.001,0.01], [0.01,0.1], [0.1,1], 再转化成对数就是 [-4,-3], [-3,-2], [-2,-1], [-1,0].</p>
 <p>($10^{−4}=0.0001$，其他同理取指数).</p>
 </blockquote>
-<p>然后我们可以用Python中提供的方法来实现随机采样：</p>
+<p>然后我们可以用 Python 中提供的方法来实现随机采样：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">r = <span class="number">-4</span>*np.random.rand() <span class="comment"># rand()表示在[0,1]上均匀采样, 最后的采样区间是[-4, 0]</span></span><br><span class="line">a = pow(<span class="number">10</span>, r)</span><br></pre></td></tr></table></figure>
 <p><img src="/images/deeplearning/C2W3-4_1.png" width="700"></p>
 <p><strong>$β=0.9,……,0.999$</strong></p>
-<p>同理这里也不能使用线性轴来采样数据，我们可以通过对 <strong>1-β=0.1,……,0.001</strong> 来间接采样。转化成 [0.1, 0.01],[0.01,0.001], 转化成对数指数[-1,-2],[-2,-3]。</p>
+<p>同理这里也不能使用线性轴来采样数据，我们可以通过对 <strong>1-β=0.1,……,0.001</strong> 来间接采样。转化成 [0.1, 0.01], [0.01,0.001], 转化成对数指数 [-1,-2],[-2,-3]。</p>
 <p>即: $r∈[-3,-1], 1-β=10^r, β=1-10^r$</p>
 <blockquote>
 <p>当 β 接近 1 时, β 就会对细微的变化变得很敏感.</p>
@@ -239,7 +239,7 @@ var _hmt = _hmt || [];
 </blockquote>
 <h2 id="3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar"><a href="#3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar" class="headerlink" title="3. Hyperparameters tuning in practice: Pandas vs Caviar"></a>3. Hyperparameters tuning in practice: Pandas vs Caviar</h2><p><img src="/images/deeplearning/C2W3-5_1.png" width="700"></p>
 <p><strong>Babysitting one model:</strong></p>
-<p>这种方法适用于有足够的数据集，但是GPU，CPU资源有限的情况，所以可能只能训练一个模型，然后每天对模型做某一项超参数的修改，查看效果是否变得更好.</p>
+<p>这种方法适用于有足够的数据集，但是 GPU，CPU 资源有限的情况，所以可能只能训练一个模型，然后每天对模型做某一项超参数的修改，查看效果是否变得更好.</p>
 <blockquote>
 <p>例如第一天令所有超参数随机初始化。到了第二天发现效果还不错，此时可以去增加学习率(也可以修改其他参数)。……，到了某一天加入修改了mini-batch size，结果效果明显减弱，这时则需要重新恢复到前一天的状态。</p>
 <p>总的来说这一过程就像熊猫一样，只照顾一个宝宝，多的照顾不过来.</p>
@@ -264,7 +264,7 @@ var _hmt = _hmt || [];
 <p>$$<br>μ=\frac{1}{m}\sum_{i}{z^{(i)}-μ}<br>$$</p>
 <p>$$<br>σ^2=\frac{1}{m}\sum_{i}(z^{(i)^2}-μ)^2<br>$$</p>
 <p>$$<br>z^{(i)}_{norm}=\frac{z^{(i)}-μ}{\sqrt{σ^2+ε}}<br>$$</p>
-<p>上面的归一化后的数据$z$都是服从均值为0，方差为1的，显然这样不能满足咱们的需求，所以还需要做进一步处理，如下：</p>
+<p>上面的归一化后的数据 $z$ 都是服从均值为 0，方差为 1 的，显然这样不能满足咱们的需求，所以还需要做进一步处理，如下：</p>
 <p>$$<br>\tilde{z}^{(i)}=γz^{(i)} + β<br>$$</p>
 <p>上式中的 $γ$ 可以设置方差，$β$ 可以设置均值.</p>
 <blockquote>
