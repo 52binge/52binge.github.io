@@ -2025,41 +2025,41 @@
 <p>这次我们要学习专项课程中第五门课 <strong>Sequence Models</strong>.</p>
 <p><strong>第一周:  Recurrent Neural Networks</strong> 已被证明在时间数据上表现好，它有几个变体，包括 LSTM、GRU 和双向神经网络.</p>
 <a id="more"></a>
-<h2 id="1-Why-sequence-models"><a href="#1-Why-sequence-models" class="headerlink" title="1. Why sequence models?"></a>1. Why sequence models?</h2><p>为什么要学习序列模型呢? 序列模型, 普遍称为RNN(递归神经网络 - Recurrent Neural Network), 做为深度学习中 非常重要的一环，有着比普通神经网络更广的宽度与更多的可能性，其应用领域包括但不限于“语音识别”， “NLP”， “DNA序列分析”，“Machine Translation”， “视频动作分析”，等等… 有这样一种说法，也许并不严谨，但有助于我们理解RNN，大意是这样的:</p>
+<h2 id="1-Why-sequence-models"><a href="#1-Why-sequence-models" class="headerlink" title="1. Why sequence models?"></a>1. Why sequence models?</h2><p>为什么要学习序列模型呢? 序列模型, 普遍称为 RNN (递归神经网络 - Recurrent Neural Network), 做为深度学习中非常重要的一环，有着比普通神经网络更广的宽度与更多的可能性，其应用领域包括但不限于“语音识别”， “NLP”， “DNA序列分析”，“Machine Translation”， “视频动作分析”，等等… 有这样一种说法，也许并不严谨，但有助于我们理解RNN，大意是这样的:</p>
 <blockquote>
-<p>普通神经网络处理的是一维的数据，CNN处理的是二维的数据，RNN处理的是三维的数据</p>
-<p>最直观的理解是在CNN对图片的分析基础上，RNN可以对视频进行分析，这里也就引入了第三维“时间”的概念</p>
+<p>普通神经网络处理的是一维的数据，CNN 处理的是二维的数据，RNN 处理的是三维的数据</p>
+<p>最直观的理解是在 CNN 对图片的分析基础上，RNN 可以对视频进行分析，这里也就引入了第三维“时间”的概念</p>
 </blockquote>
 <p><img src="/images/deeplearning/C5W1-1_1.png" width="700"></p>
 <p>这一小节通过一个小例子为我们打开序列模型的大门，例子如下:</p>
 <blockquote>
-<p>给出这样一个句子 “Harry Potter and Herminone Granger invented a new spell.”(哈利波特与赫敏格兰杰发明了 一个新的咒语。)， 我们的任务是在这个句子中准确的定位到人名 Harry Potter 和 Herminone Granger. 用深度学习的语言来描述如下图 - 每一个单词对应一个输出0或者1，1代表着是人名，0代表不是。</p>
+<p>给出这样一个句子 “Harry Potter and Herminone Granger invented a new spell.”(哈利波特与赫敏格兰杰发明了 一个新的咒语。)， 我们的任务是在这个句子中准确的定位到人名 Harry Potter 和 Herminone Granger. 用深度学习的语言来描述如下图 - 每一个单词对应一个输出 0 或者 1，1 代表着是人名，0 代表不是。</p>
 </blockquote>
 <p><img src="/images/deeplearning/C5W1-2_2.png" width="750"></p>
 <blockquote>
-<p>接下来我们要解决的一个问题是<code>如何才能代表一个单词?</code>，比如我们例子中的“Harry”，这里我们介绍一种新的编码方式， 就是用另一种方式来代表每一个单词 - 独热编码（<strong>One-Hot Encoding</strong>）。 具体流程是这样，假设我们有 10000 个常用词，为其构建一个10000*1 的矩阵(column matrix)，假如第一个词是苹果(apple), 那么对应的第一个位置为1，其他都为0，所以称之为独热。这样每个单词都有对应的矩阵进行表示，如果这个词没有出现在我们的字典中，那么我们可以给一个特殊的符号代替，常用的是 <unk> (unknown)</unk></p>
+<p>接下来我们要解决的一个问题是<code>如何才能代表一个单词?</code>，比如我们例子中的 “Harry”，这里我们介绍一种新的编码方式， 就是用另一种方式来代表每一个单词 - 独热编码（<strong>One-Hot Encoding</strong>）。 具体流程是这样，假设我们有 10000 个常用词，为其构建一个10000*1 的矩阵(column matrix)，假如第一个词是苹果(apple), 那么对应的第一个位置为 1，其他都为 0，所以称之为独热。这样每个单词都有对应的矩阵进行表示，如果这个词没有出现在我们的字典中，那么我们可以给一个特殊的符号代替，常用的是 <unk> (unknown)</unk></p>
 </blockquote>
 <h2 id="2-Notation"><a href="#2-Notation" class="headerlink" title="2. Notation"></a>2. Notation</h2><p>为了后面方便说明，先将会用到的数学符号进行介绍. 以下图为例，假如我们需要定位一句话中人名出现的位置.</p>
 <p><img src="/images/deeplearning/C5W1-2_1.png" width="750"></p>
 <blockquote>
 <ul>
-<li>红色框中的为输入、输出值。可以看到人名输出用1表示，反之用0表示；</li>
-<li><p>绿色框中的 $x^{&lt; t >}$,$y^{&lt; t >}$ 表示对应红色框中的输入输出值的数学表示，注意从1开始.</p>
+<li>红色框中的为输入、输出值。可以看到人名输出用 1 表示，反之用 0 表示；</li>
+<li><p>绿色框中的 $x^{&lt; t >}$,$y^{&lt; t >}$ 表示对应红色框中的输入输出值的数学表示，注意从 1 开始.</p>
 </li>
 <li><p>灰色框中的 $T_x,T_y$ 分别表示输入输出序列的长度，在该例中，$T_x=9,T_y=9$</p>
 </li>
-<li><p>黄色框中 $X^{(i)&lt; t >}$ 上的表示<strong>第$i$个输入样本的第$t$个输入值</strong>，$T_x^{ (i) }$ 则表示第i个输入样本的长度。输出y也同理.</p>
+<li><p>黄色框中 $X^{(i)&lt; t >}$ 上的表示<strong>第 $i$ 个输入样本的第 $t$ 个输入值</strong>，$T_x^{ (i) }$ 则表示第 <strong>$i$</strong> 个输入样本的长度。输出 <strong>$y$</strong> 也同理.</p>
 </li>
 </ul>
 </blockquote>
-<p>输入值中每个单词使用<strong>One-Hot</strong>来表示。即首先会构建一个字典(Dictionary), 假设该例中的字典维度是10000*1(如图示)。第一个单词”Harry”的数学表示形式即为[0,0,0,……,1 (在第4075位) ,0,……,0]，其他单词同理。</p>
+<p>输入值中每个单词使用 <strong>One-Hot</strong> 来表示。即首先会构建一个字典(Dictionary), 假设该例中的字典维度是 10000*1 (如图示)。第一个单词 “Harry” 的数学表示形式即为 [0,0,0,……,1 (在第4075位) ,0,……,0]，其他单词同理。</p>
 <p>但是如果某一个单词并没有被包含在字典中怎么办呢？此时我们可以添加一个新的标记，也就是一个叫做 Unknown Word 的伪造单词，用 &lt;<strong>UNK</strong>&gt; 表示。具体的细节会在后面介绍。</p>
 <p><img src="/images/deeplearning/C5W1-3_1.png" width="750"></p>
-<h2 id="3-Recurrent-Neural-Network-Model"><a href="#3-Recurrent-Neural-Network-Model" class="headerlink" title="3. Recurrent Neural Network Model"></a>3. Recurrent Neural Network Model</h2><p>在介绍RNN之前，首先解释一下为什么之前的标准网络不再适用了。因为它有两个缺点：</p>
+<h2 id="3-Recurrent-Neural-Network-Model"><a href="#3-Recurrent-Neural-Network-Model" class="headerlink" title="3. Recurrent Neural Network Model"></a>3. Recurrent Neural Network Model</h2><p>在介绍 RNN 之前，首先解释一下为什么之前的标准网络不再适用了。因为它有两个缺点：</p>
 <ul>
 <li>输入和输出的长度不尽相同</li>
 <li>无法共享从其他位置学来的特征<blockquote>
-<p>例如上一节中的 <strong>Harry</strong> 这个词是用$x^{<1>}$表示的，网络从该位置学习了它是一个人名。但我们希望无论 <strong>Harry</strong> 在哪个位置出现网络都能识别出这是一个人名的一部分，而标准网络无法做到这一点.</1></p>
+<p>例如上一节中的 <strong>Harry</strong> 这个词是用 $x^{<1>}$ 表示的，网络从该位置学习了它是一个人名。但我们希望无论 <strong>Harry</strong> 在哪个位置出现网络都能识别出这是一个人名的一部分，而标准网络无法做到这一点.</1></p>
 </blockquote>
 </li>
 </ul>
@@ -2077,8 +2077,8 @@
 <p>整体的 RNN 结构有两种表示形式，如下图示, 左边是完整的表达形式，注意第一层的 $a^{<0>}$ 一般设置为 0向量.</0></p>
 <p><img src="/images/deeplearning/C5W1-8_1.png" width="750"></p>
 <blockquote>
-<p>要开始整个流程, 需要编造一个激活值, 这通常是 0向量, 有些研究人员会用其他方法随机初始化 $a^{<0>}=\vec{0}$. 不过使用 0向量，作为0时刻的伪激活值 是最常见的选择. 因此我们把它输入神经网络.</0></p>
-<p>(右边的示意图是RNN的简写示意图)</p>
+<p>要开始整个流程, 需要编造一个激活值, 这通常是 0向量, 有些研究人员会用其他方法随机初始化 $a^{<0>}=\vec{0}$. 不过使用 0向量，作为 0时刻 的伪激活值 是最常见的选择. 因此我们把它输入神经网络.</0></p>
+<p>(右边的示意图是 RNN 的简写示意图)</p>
 </blockquote>
 <hr>
 <p>介绍完结构之后，我们还需要知道网络中参数的表达方式及其含义。如下图示，$x^{&lt;{i}&gt;}$ 到网络的参数用 $W_{ax}$ 表示，$a^{&lt;{i}&gt;}$ 到网络的参数用 $W_{aa}$ 表示，$y^{&lt;{i}&gt;}$ 到网络的参数用 $W_{ya}$ 表示，具体含义将在下面进行说明.</p>
@@ -2104,7 +2104,7 @@
 <p>注意: 参数的下标是有顺序含义的，如 $W_{ax}$ 下标的第一个参数表示要计算的量的类型，即要计算 $a$ 矢量，第二个参数表示要进行乘法运算的数据类型，即需要与 $x$ 矢量做运算。如 $W_{ax} x^{t}\rightarrow{a}$</p>
 </blockquote>
 <p><img src="/images/deeplearning/C5W1-19_1.png" width="750"></p>
-<p><strong>Tx</strong> ， <strong>Ty</strong> 是时间单位, 这里统称为“时刻”，在这例子中对应不同时刻是输入的第几个单词， <strong>x</strong> 是“输入值”，例子中是当前时刻的单词（以独热编码的形式）， <strong>y</strong> 是“输出值”<strong>0</strong>或者<strong>1</strong>， <strong>a</strong> 称为激活值用于将前一个单元的输出结果传递到下一个单元， <strong>Wax</strong> <strong>Way</strong> <strong>Waa</strong> 是不同的“权重矩阵”也就是我们神经网络update的值。每一个单元有两个输入，$a^{&lt;{T_x-1}&gt;}$ 和 <strong>x</strong> ，有两个输出 $a^{&lt;{T_x}&gt;}$ 和 <strong>y</strong> . 图中没有出现的g是“激活函数”。</p>
+<p><strong>Tx</strong> ， <strong>Ty</strong> 是时间单位, 这里统称为“时刻”，在这例子中对应不同时刻是输入的第几个单词， <strong>x</strong> 是“输入值”，例子中是当前时刻的单词（以独热编码的形式）， <strong>y</strong> 是“输出值” <strong>0</strong> 或者 <strong>1</strong>， <strong>a</strong> 称为激活值用于将前一个单元的输出结果传递到下一个单元， <strong>Wax</strong> <strong>Way</strong> <strong>Waa</strong> 是不同的“权重矩阵”也就是我们神经网络 update 的值。每一个单元有两个输入，$a^{&lt;{T_x-1}&gt;}$ 和 <strong>x</strong> ，有两个输出 $a^{&lt;{T_x}&gt;}$ 和 <strong>y</strong> . 图中没有出现的 g 是“激活函数”。</p>
 <table>
 <thead>
 <tr>
@@ -2171,8 +2171,8 @@
 <p><img src="/images/deeplearning/C5W1-24_1.png" width="750"></p>
 <h3 id="4-4-反向传播"><a href="#4-4-反向传播" class="headerlink" title="4.4 反向传播"></a>4.4 反向传播</h3><p><img src="/images/deeplearning/C5W1-25_1.png" width="750"></p>
 <h3 id="4-5-整个流程图"><a href="#4-5-整个流程图" class="headerlink" title="4.5 整个流程图"></a>4.5 整个流程图</h3><p><img src="/images/deeplearning/C5W1-26_1.png" width="750"></p>
-<h2 id="5-Different-types-of-RNNs"><a href="#5-Different-types-of-RNNs" class="headerlink" title="5. Different types of RNNs"></a>5. Different types of RNNs</h2><p><strong>RNN的不同应用领域:</strong></p>
-<p>序列模型对输入与输出的长度没有要求，在常见的例子中，机器翻译就是多个输入与多个输出，简称“多对多”， 语音识别可视为“单对多”， 它的反例是音乐生成-“多对单”。课程中介绍了多种可能的RNN模式，我们用下面一张图概括：</p>
+<h2 id="5-Different-types-of-RNNs"><a href="#5-Different-types-of-RNNs" class="headerlink" title="5. Different types of RNNs"></a>5. Different types of RNNs</h2><p><strong>RNN 的不同应用领域:</strong></p>
+<p>序列模型对输入与输出的长度没有要求，在常见的例子中，机器翻译就是多个输入与多个输出，简称“多对多”， 语音识别可视为“单对多”， 它的反例是音乐生成-“多对单”。课程中介绍了多种可能的 RNN 模式，我们用下面一张图概括：</p>
 <p><img src="/images/deeplearning/C5W1-27_1.png" width="800"></p>
 <p>RNN 不同的结构给了我们更多的可能性.</p>
 <h2 id="6-Language-model-and-sequence-generation"><a href="#6-Language-model-and-sequence-generation" class="headerlink" title="6. Language model and sequence generation"></a>6. Language model and sequence generation</h2><p>语言模型和序列生成</p>
@@ -2181,9 +2181,9 @@
 <p><img src="/images/deeplearning/C5W1-28_1.png" width="600"></p>
 <p>此时就需要通过语言模型来预测每句话的概率：</p>
 <p><img src="/images/deeplearning/C5W1-29_1.png" width="600"></p>
-<h3 id="6-2-如何使用-RNN构建语言模型"><a href="#6-2-如何使用-RNN构建语言模型" class="headerlink" title="6.2 如何使用 RNN构建语言模型"></a>6.2 如何使用 RNN构建语言模型</h3><ol>
-<li>首先我们需要一个很大的语料库(<strong>Corpus</strong>)</li>
-<li>将每个单词字符化(<strong>Tokenize</strong>，<strong>即使用One-shot编码</strong>)得到词典,，假设有10000个单词</li>
+<h3 id="6-2-如何使用-RNN-构建语言模型"><a href="#6-2-如何使用-RNN-构建语言模型" class="headerlink" title="6.2 如何使用 RNN 构建语言模型"></a>6.2 如何使用 RNN 构建语言模型</h3><ol>
+<li>首先我们需要一个很大的语料库 (<strong>Corpus</strong>)</li>
+<li>将每个单词字符化 (<strong>Tokenize</strong>，<strong>即使用One-shot编码</strong>) 得到词典,，假设有 10000 个单词</li>
 <li>还需要添加两个特殊的单词<blockquote>
 <ul>
 <li>end of sentence. 终止符，表示句子结束.<br><img src="/images/deeplearning/C5W1-30_1.png" width="600"></li>
@@ -2193,29 +2193,30 @@
 </li>
 </ol>
 <h3 id="6-3-构建语言模型示例"><a href="#6-3-构建语言模型示例" class="headerlink" title="6.3 构建语言模型示例"></a>6.3 构建语言模型示例</h3><p>假设要对这句话进行建模：<strong>Cats average 15 hours of sleep a day. <eos></eos></strong></p>
-<p><strong>1.初始化</strong></p>
+<p><strong>1. 初始化</strong></p>
 <blockquote>
 <p>这一步比较特殊，即 $x^{<1>}$ 和 $a^{<0>}$ 都需要初始化为 $\vec{0}$ .<br>此时 $\hat{y}^{<1>}$ 将会对第一个字可能出现的每一个可能进行概率的判断,即 $\hat{y}^{<1>}=[p(a),…,p(cats),…]$.</1></1></0></1></p>
-<p>当然在最开始的时候没有任何的依据，可能得到的是完全不相干的字，因为只是根据初始的值和激活函数做出的取样</p>
+<p>当然在最开始的时候没有任何的依据，可能得到的是完全不相干的字，因为只是根据初始的值和激活函数做出的取样。</p>
 <p><img src="/images/deeplearning/C5W1-32_1.png" width="500"></p>
 </blockquote>
-<p><strong>2.将真实值作为输入值:</strong></p>
+<p><strong>2. 将真实值作为输入值:</strong></p>
 <blockquote>
-<p>之所以将真实值作为输入值很好理解,如果我们一直传错误的值，将永远也无法得到字与字之间的关系</p>
+<p>之所以将真实值作为输入值很好理解，如果我们一直传错误的值，将永远也无法得到字与字之间的关系</p>
 </blockquote>
 <p>如下图示，将 $y^{<1>}$ 所表示的真实值 Cats 作为输入，即 $x^{<2>}=y^{<1>}$ 得到 $\hat{y}^{<2>}$</2></1></2></1></p>
 <p>此时的 $\hat{y}^{<2>}=[p(a|cats),…,p(average|cats),…]$</2></p>
 <p>同理有 $\hat{y}^{<3>}=[p(a|cats\, average),…,p(average|cats\,average),…]$</3></p>
 <p>另外输入值满足： $x^{&lt;{t}&gt;}=y^{&lt;{t-1}&gt;}$</p>
 <p><img src="/images/deeplearning/C5W1-33_1.png" width="600"></p>
-<p><strong>3.计算出损失值:</strong></p>
+<p><strong>3. 计算出损失值:</strong></p>
 <p>下图给出了构建模型的过程以及损失值计算公式:</p>
 <p><img src="/images/deeplearning/C5W1-34_1.png" width="700"></p>
 <blockquote>
-<p>随着训练的次数的增多，或者常用词出现的频率的增多，语言模型便慢慢的会开始掌握简单的词语比如“平均”，“每天”，“小时”。一个完善的语言模型看到类似“10个小”的时候，应该就能准确的判定下一个字是“时”。（当然也许实际情况是“10个小朋友”，所以通常会有更多的判断因素，这里只是一个例子）</p>
+<p>随着训练的次数的增多，或者常用词出现的频率的增多，语言模型便慢慢的会开始掌握简单的词语比如“平均”，“每天”，“小时”。一个完善的语言模型看到类似“ 10 个小”的时候，应该就能准确的判定下一个字是“时”。</p>
+<p>（当然也许实际情况是“ 10 个小朋友”，所以通常会有更多的判断因素，这里只是一个例子）</p>
 </blockquote>
 <h2 id="7-Sampling-novel-sequences"><a href="#7-Sampling-novel-sequences" class="headerlink" title="7. Sampling novel sequences"></a>7. Sampling novel sequences</h2><p>当训练得到了一个模型之后，如想知道这个<strong>模型学到了些什么</strong>，一个非正式的方法就是对新序列进行采样。具体方法如下：</p>
-<p>在每一步输出 $\hat{y}$ 时，通常使用 softmax 作为激活函数，然后根据输出的分布，随机选择一个值，也就是对应的一个字或者英文单词. 然后将这个值作为下一个单元的x输入进去(即$x^{&lt;{t}&gt;}=\hat{y}^{&lt;{t-1}&gt;}$, 直到我们输出了终结符，或者输出长度超过了提前的预设值n才停止采样.</p>
+<p>在每一步输出 $\hat{y}$ 时，通常使用 softmax 作为激活函数，然后根据输出的分布，随机选择一个值，也就是对应的一个字 或 英文单词。 然后将这个值作为下一个单元的 $x$ 输入进去 (即 $x^{&lt;{t}&gt;}=\hat{y}^{&lt;{t-1}&gt;}$, 直到我们输出了终结符，或者输出长度超过了提前的预设值 n 才停止采样.</p>
 <p>上述步骤具体如图示：</p>
 <p><img src="/images/deeplearning/C5W1-35_1.png" width="700"></p>
 <p>下图给出了采样之后得到的效果：</p>
@@ -2232,7 +2233,7 @@
 <p>梯度爆炸可以用梯度消减解决、梯度消失就有点麻烦了，需要用 GRU 来解决.</p>
 </blockquote>
 <p><strong>RNN 的梯度消失、爆炸问题:</strong></p>
-<p>梯度值在RNN中也可能因为反向传播的层次太多导致过小或者过大</p>
+<p>梯度值在 RNN 中也可能因为反向传播的层次太多导致过小 或 过大</p>
 <blockquote>
 <ul>
 <li>当梯度值过小的时候，神经网络将无法有效地调整自己的权重矩阵导致训练效果不佳，称之为<strong>“梯度消失问题”(gradient vanishing problem)</strong>；</li>
@@ -2245,60 +2246,61 @@
 <blockquote>
 <p>“The <strong>cat</strong>，which already ate apple，yogurt，banana，…, <strong>was</strong> full.”<br>“The <strong>cats</strong>，which already ate apple，yogurt，banana，…, <strong>were</strong> full.”</p>
 </blockquote>
-<p>重点标出的 <strong>cat(s)</strong>和be动词（<strong>was,were</strong>） 是有很重要的关联的，但是中间隔了一个which引导的定语从句，对于前面所介绍的基础的RNN网络很难学习到这个信息，尤其是当出现梯度消失时，而且这种情况很容易发生.</p>
-<p>我们知道一旦神经网络层次很多时，反向传播很难影响前面层次的参数。所以为了<strong>解决梯度消失</strong>问题，提出了<strong>GRU</strong>单元，下面一节具体介绍.</p>
+<p>重点标出的 <strong>cat(s)</strong> 和 be 动词（<strong>was, were</strong>） 是有很重要的关联的，但是中间隔了一个 which 引导的定语从句，对于前面所介绍的基础的 RNN网络 很难学习到这个信息，尤其是当出现梯度消失时，而且这种情况很容易发生.</p>
+<p>我们知道一旦神经网络层次很多时，反向传播很难影响前面层次的参数。所以为了 <strong>解决梯度消失</strong> 问题，提出了 <strong>GRU</strong>单元，下面一节具体介绍.</p>
 <blockquote>
-<p>将在接下来的两个章节介绍两种方法来解决<strong>梯度过小</strong>问题，目标是当一些重要的单词离得很远的时候，比如例子中的“<strong>cat</strong>”和“<strong>was</strong>”，能让语言模型准确的输出单数人称过去时的“<strong>was</strong>”，而不是“<strong>is</strong>”或者“<strong>were</strong>”. 两个方法都将引入“记<br>忆”的概念，也就是为RNN赋予一个记忆的功能.</p>
+<p>将在接下来的两个章节介绍两种方法来解决 <strong>梯度过小</strong> 问题，目标是当一些重要的单词离得很远的时候，比如例子中的 “<strong>cat</strong>” 和 “<strong>was</strong>”，能让语言模型准确的输出单数人称过去时的 “<strong>was</strong>”，而不是 “<strong>is</strong>” 或者 “<strong>were</strong>”. 两个方法都将引入“记忆”的概念，也就是为 RNN 赋予一个记忆的功能.</p>
 </blockquote>
-<h2 id="9-GRU-Gated-Recurrent-Unit"><a href="#9-GRU-Gated-Recurrent-Unit" class="headerlink" title="9. GRU - Gated Recurrent Unit"></a>9. GRU - Gated Recurrent Unit</h2><p>GRU（Gated Recurrent Unit）是一种用来解决梯度值过小的方法，首先来看下在一个时刻下的RNN单元，激活函数为 tanh</p>
-<h3 id="9-1-回顾普通RNN单元的结构"><a href="#9-1-回顾普通RNN单元的结构" class="headerlink" title="9.1 回顾普通RNN单元的结构"></a>9.1 回顾普通RNN单元的结构</h3><p>如图示，输入数据为 $a^{&lt;{t-1}&gt;}$ 和 $x^{&lt;{t}&gt;}$, 与参数 $W_a$ 进行线性运算后再使用 $tanh$ 函数 转化得到 $a^{&lt;{t}&gt;}$. 当然再使用 softmax 函数处理可以得到预测值.</p>
+<h2 id="9-GRU-Gated-Recurrent-Unit"><a href="#9-GRU-Gated-Recurrent-Unit" class="headerlink" title="9. GRU - Gated Recurrent Unit"></a>9. GRU - Gated Recurrent Unit</h2><p>GRU（Gated Recurrent Unit）是一种用来解决梯度值过小的方法，首先来看下在一个时刻下的 RNN单元，激活函数为 tanh</p>
+<h3 id="9-1-回顾普通-RNN单元-的结构"><a href="#9-1-回顾普通-RNN单元-的结构" class="headerlink" title="9.1 回顾普通 RNN单元 的结构"></a>9.1 回顾普通 RNN单元 的结构</h3><p>如图示，输入数据为 $a^{&lt;{t-1}&gt;}$ 和 $x^{&lt;{t}&gt;}$, 与参数 $W_a$ 进行线性运算后再使用 $tanh$ 函数 转化得到 $a^{&lt;{t}&gt;}$. 当然再使用 softmax 函数处理可以得到预测值.</p>
 <p><img src="/images/deeplearning/C5W1-37_1.png" width="750"></p>
 <h3 id="9-2-GRU结构"><a href="#9-2-GRU结构" class="headerlink" title="9.2 GRU结构"></a>9.2 GRU结构</h3><p><strong>记忆细胞:</strong></p>
-<p>在GRU中会用到 “记忆细胞(Memory cell)” 这个概念, 我们用变量<code>C</code>表示。这个记忆细胞提供了记忆功能，例如它能够帮助记住 cat对应was,cats对应were.</p>
-<p>而在 $t$ 时刻，记忆细胞所包含的值其实就是激活函数值，即 $c^{&lt;{t}&gt;}=a^{&lt;{t}&gt;}$</p>
+<p>在 GRU中 会用到 “记忆细胞(Memory cell)” 这个概念, 我们用变量<code>C</code>表示。这个记忆细胞提供了记忆功能，例如它能够帮助记住 cat 对应 was, cats 对应 were.</p>
+<p>而在 $t$ 时刻，记忆细胞所包含的值其实就是 Activation function 值，即 $c^{&lt;{t}&gt;}=a^{&lt;{t}&gt;}$</p>
 <blockquote>
-<p>注意：在这里两个变量的值虽然一样，但是含义不同。另外在下节将介绍的LSTM中，二者值的大小有可能是不一样的，所以有必要使用这两种变量进行区分</p>
+<p>注意：在这里两个变量的值虽然一样，但是含义不同。</p>
+<p>另外在下节将介绍的 LSTM 中，二者值的大小有可能是不一样的，所以有必要使用这两种变量进行区分</p>
 </blockquote>
 <p>为了更新记忆细胞的值，我们引入 $\tilde{c}$ 来作为候选值从而来更新 $c^{&lt;{t}&gt;}$，其公式为：</p>
 <p>$$<br>\tilde{c}=tanh(W_c [c^{&lt;{t-1}&gt;}, x^{&lt;{t}&gt;}]+b_c)<br>$$</p>
-<p><strong>更新门(update gate):</strong></p>
-<p>更新门是GRU的核心概念，它的作用是用于判断是否需要进行更新.</p>
+<p><strong>更新门 (update gate):</strong></p>
+<p>更新门是 GRU 的核心概念，它的作用是用于判断是否需要进行更新.</p>
 <p>更新门用 $\Gamma_u$ 表示，其公式为：</p>
 <p>$$<br>\Gamma_u=σ(W_u [c^{&lt;{t-1}&gt;}, x^{&lt;{t}&gt;}]+b_u)<br>$$</p>
 <p><img src="/images/deeplearning/C5W1-38_1.png" width="550"></p>
-<p>如上图示，$\Gamma_u$ 值的大小大多分布在0或者1，所以可以将其值的大小粗略的视为0或者1。这就是为什么我们就可以将其理解为一扇门，如果 $\Gamma_u=1$ , 就表示此时需要更新值，反之不用.</p>
-<p><strong>$t$时刻记忆细胞:</strong></p>
-<p>有了更新门公式后，我们则可以给出$t$时刻记忆细胞的值的计算公式了:</p>
-<p>$$<br>c^{&lt;{t}&gt;}=\Gamma_u<em>\tilde{c}+(1-\Gamma_u)</em>c^{&lt;{t-1}&gt;}<br>$$</p>
+<p>如上图示，$\Gamma_u$ 值的大小大多分布在 0 或者 1，所以可以将其值的大小粗略的视为 0 或者 1。这就是为什么我们就可以将其理解为一扇门，如果 $\Gamma_u=1$ , 就表示此时需要更新值，反之不用.</p>
+<p><strong>$t$ 时刻记忆细胞:</strong></p>
+<p>有了更新门公式后，我们则可以给出 $t$ 时刻 <code>Memory cell</code> 的值的计算公式了:</p>
+<p>$$<br>c^{&lt;{t}&gt;} =  \Gamma_u * \tilde{c} + (1-\Gamma_u) * c^{&lt;{t-1}&gt;}<br>$$</p>
 <blockquote>
-<p>注意：上面公式中的 * 表示元素之间进行乘法运算，而其他公式是矩阵运算</p>
+<p>注意：上面公式中的 * 表示元素之间进行乘法运算，而其他公式是 矩阵运算</p>
 </blockquote>
-<p>公式很好理解，如果 $\Gamma_u=1$，那么$t$时刻记忆细胞的值就等于候选值 $\tilde{c}$, 反之等于前一时刻记忆细胞的值.</p>
+<p>公式很好理解，如果 $\Gamma_u=1$，那么 $t$ 时刻 记忆细胞的值就等于候选值 $\tilde{c}$, 反之等于前一时刻记忆细胞的值.</p>
 <p>下图给出了该公式很直观的解释：</p>
-<p>在读到“cat”的时候 ，其他时候一直为0，知道要输出“was”的时刻我们仍然知道“cat”的存在，也就知道它为单数了</p>
+<p>在读到 “cat” 的时候 ，其他时候一直为 0，知道要 输出 “was” 的时刻我们仍然知道 “cat” 的存在，也就知道它为单数了</p>
 <p><img src="/images/deeplearning/C5W1-39_1.png" width="550"></p>
 <p><strong>GRU 结构示意图</strong></p>
 <p><img src="/images/deeplearning/C5W1-40_1.png" width="550"></p>
-<h3 id="9-3-完整版GRU"><a href="#9-3-完整版GRU" class="headerlink" title="9.3 完整版GRU"></a>9.3 完整版GRU</h3><p>上简化了的GRU，在完整版中还存在另一个符号 ，这符号的意义是控制 $\tilde{c}$ 和 $c^{&lt;{t-1}&gt;}$ 之间的联系强弱，完整版公式如下：</p>
+<h3 id="9-3-完整版-GRU"><a href="#9-3-完整版-GRU" class="headerlink" title="9.3 完整版 GRU"></a>9.3 完整版 GRU</h3><p>上简化了的 GRU，在完整版中还存在另一个符号 ，这符号的意义是控制 $\tilde{c}$ 和 $c^{&lt;{t-1}&gt;}$ 之间的联系强弱，完整版公式如下：</p>
 <p><img src="/images/deeplearning/C5W1-41_1.png" width="550"></p>
 <blockquote>
 <p>注意，完整公式中多出了一个 $\Gamma_r$, 这个符号的作用是控制 $\tilde{c}^{&lt;{t}&gt;}$ 和 $c^{&lt;{t}&gt;}$ 之间联系的强弱.</p>
 </blockquote>
-<h2 id="10-LSTM（long-short-term-memory）unit"><a href="#10-LSTM（long-short-term-memory）unit" class="headerlink" title="10. LSTM（long short term memory）unit"></a>10. LSTM（long short term memory）unit</h2><p>介绍完GRU后，再介绍LSTM会更加容易理解。下图是二者公式对比：</p>
-<p>GRU只有两个门，而LSTM有三个门，分别是更新门 $\Gamma_u$ (是否需要更新为 $\tilde{c}^{&lt;{t}&gt;}$，遗忘门 $\Gamma_f$ (是否需要丢弃上一个时刻的值)，输出门 $\Gamma_o$ (是否需要输出本时刻的值)</p>
+<h2 id="10-LSTM（long-short-term-memory）unit"><a href="#10-LSTM（long-short-term-memory）unit" class="headerlink" title="10. LSTM（long short term memory）unit"></a>10. LSTM（long short term memory）unit</h2><p>介绍完 GRU 后，再介绍 LSTM 会更加容易理解。下图是二者公式对比：</p>
+<p>GRU 只有两个门，而 LSTM 有三个门，分别是更新门 $\Gamma_u$ (是否需要更新为 $\tilde{c}^{&lt;{t}&gt;}$，遗忘门 $\Gamma_f$ (是否需要丢弃上一个时刻的值)，输出门 $\Gamma_o$ (是否需要输出本时刻的值)</p>
 <p><img src="/images/deeplearning/C5W1-42_1.png" width="650"></p>
 <p><img src="/images/deeplearning/C5W1-43_1.png" width="650"></p>
-<p>虽然 LSTM 比 GRU 更复杂，但是它比 GRU 更早提出哦。另外一般而言 LSTM 的表现要更好，但是计算量更大，毕竟多了一个门嘛。而 GRU 实际上是对 LSTM 的简化，它的表现也不错，能够更好地扩展到深层网络。所以二者各有优势。</p>
-<p>下图是LSTM的结构示意图：</p>
+<p>虽然 LSTM 比 GRU 更复杂，但是它比 GRU 更早提出哇😄。另外一般而言 LSTM 的表现要更好，但是计算量更大，毕竟多了一个门嘛。而 GRU 实际上是对 LSTM 的简化，它的表现也不错，能够更好地扩展到深层网络。所以二者各有优势。</p>
+<p>下图是 LSTM 的结构示意图：</p>
 <p><img src="/images/deeplearning/C5W1-44_1.png" width="700"></p>
-<h2 id="11-Bidirectional-RNN"><a href="#11-Bidirectional-RNN" class="headerlink" title="11. Bidirectional RNN"></a>11. Bidirectional RNN</h2><p>前面介绍的都是单向的RNN结构，在处理某些问题上得到的效果不尽人意</p>
+<h2 id="11-Bidirectional-RNN"><a href="#11-Bidirectional-RNN" class="headerlink" title="11. Bidirectional RNN"></a>11. Bidirectional RNN</h2><p>前面介绍的都是单向的 RNN 结构，在处理某些问题上得到的效果不尽人意</p>
 <p>如下面两句话，我们要从中标出人名：</p>
 <blockquote>
 <p><code>He</code> said, “Teddy Roosevelt was a great President”.<br><code>He</code> said, “Teddy bears are on sale”.</p>
 </blockquote>
 <ol>
 <li>第一句中的 Teddy Roosevelt 是人名</li>
-<li>第二句中的 Teddy bears 是泰迪熊，同样都是单词 <strong>Teddy</strong> 对应的输出在第一句中应该是1，第二句中应该是0</li>
+<li>第二句中的 Teddy bears 是泰迪熊，同样都是单词 <strong>Teddy</strong> 对应的输出在第一句中应该是 1，第二句中应该是 0</li>
 </ol>
 <p>像这样的例子如果想让我们的序列模型明白就需要借助不同的结构比如 - 双向递归神经网络(Bidirectional RNN).<br>该神经网络首先从正面理解一遍这句话，再从反方向理解一遍.</p>
 <p>双向递归神经网络结构如下：</p>
@@ -2308,17 +2310,17 @@
 <h2 id="12-Deep-RNNs"><a href="#12-Deep-RNNs" class="headerlink" title="12. Deep RNNs"></a>12. Deep RNNs</h2><p>深层，顾名思义就是层次增加。如下图是深层循环神经网络的示意图</p>
 <p>横向表示时间展开，纵向则是层次展开。</p>
 <p><img src="/images/deeplearning/C5W1-47_1.png" width="750"></p>
-<p>注意激活值的表达形式有所改变，以 $a^{<a href="https://study.163.com/my#/smarts" target="_blank" rel="external">1</a><0>}$ 为例进行解释：</0></p>
+<p>注意激活值的表达形式有所改变，以 $a^{[1]<0>}$ 为例进行解释：</0></p>
 <ul>
-<li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">1</a>表示第一层</li>
-<li><0>表示第一个激活值</0></li>
+<li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">1</a> 表示第一层</li>
+<li><0> 表示第一个激活值</0></li>
 </ul>
-<p>另外各个激活值的计算公式也略有不同，以 $a^{<a href="https://daniellaah.github.io/2017/deeplearning-ai-Improving-Deep-Neural-Networks-week1.html" target="_blank" rel="external">2</a><3>}$ 为例，其计算公式如下：</3></p>
+<p>另外各个激活值的计算公式也略有不同，以 $a^{[2]<3>}$ 为例，其计算公式如下：</3></p>
 <p><img src="/images/deeplearning/C5W1-48_1.png" width="550"></p>
 <h2 id="13-Reference"><a href="#13-Reference" class="headerlink" title="13. Reference"></a>13. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
-<li><a href="http://www.cnblogs.com/marsggbo/tag/DeepLearning/" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
-<li><a href="https://github.com/theBigDataDigest/Andrew-Ng-deeplearning-part-5-Course-notes-in-Chinese/blob/master/Andrew-Ng-deeplearning.ai-part-5-Course%20notes.pdf" target="_blank" rel="external">大数据文摘 DeepLearning.ai学习笔记</a></li>
+<li><a href="http://www.cnblogs.com/marsggbo/tag/DeepLearning/" target="_blank" rel="external">DeepLearning.ai 学习笔记汇总</a></li>
+<li><a href="https://github.com/theBigDataDigest/Andrew-Ng-deeplearning-part-5-Course-notes-in-Chinese/blob/master/Andrew-Ng-deeplearning.ai-part-5-Course%20notes.pdf" target="_blank" rel="external">大数据文摘 DeepLearning.ai 学习笔记</a></li>
 <li><a href="https://kulbear.github.io/pdf/sequence-models.pdf" target="_blank" rel="external">Sequence Models 英文版笔记</a></li>
 </ul>
 ]]></content>
@@ -2841,18 +2843,18 @@
 <p>$layers=2~4$</p>
 <p>$α=0.0001，……,1$</p>
 </blockquote>
-<p>此时注意: 如按照线性划分的话(如下图)，那么随机采样的值90%的数据来自[0.1,1]这个区间, 这显然与不太符合随机性.</p>
+<p>此时注意: 如按照线性划分的话(如下图)，那么随机采样的值 90% 的数据来自 [0.1,1] 这个区间, 这显然与不太符合随机性.</p>
 <p><img src="/images/deeplearning/C2W3-3_1.png" width="700"></p>
 <blockquote>
 <p>所以为了改进这一问题，我们需要将区间对数化来采样.</p>
 <p><strong>举个🌰：</strong> 我们将 [0.0001,1] 转化成四个区间 [0.0001,0.001], [0.001,0.01], [0.01,0.1], [0.1,1], 再转化成对数就是 [-4,-3], [-3,-2], [-2,-1], [-1,0].</p>
 <p>($10^{−4}=0.0001$，其他同理取指数).</p>
 </blockquote>
-<p>然后我们可以用Python中提供的方法来实现随机采样：</p>
+<p>然后我们可以用 Python 中提供的方法来实现随机采样：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">r = <span class="number">-4</span>*np.random.rand() <span class="comment"># rand()表示在[0,1]上均匀采样, 最后的采样区间是[-4, 0]</span></span><br><span class="line">a = pow(<span class="number">10</span>, r)</span><br></pre></td></tr></table></figure>
 <p><img src="/images/deeplearning/C2W3-4_1.png" width="700"></p>
 <p><strong>$β=0.9,……,0.999$</strong></p>
-<p>同理这里也不能使用线性轴来采样数据，我们可以通过对 <strong>1-β=0.1,……,0.001</strong> 来间接采样。转化成 [0.1, 0.01],[0.01,0.001], 转化成对数指数[-1,-2],[-2,-3]。</p>
+<p>同理这里也不能使用线性轴来采样数据，我们可以通过对 <strong>1-β=0.1,……,0.001</strong> 来间接采样。转化成 [0.1, 0.01], [0.01,0.001], 转化成对数指数 [-1,-2],[-2,-3]。</p>
 <p>即: $r∈[-3,-1], 1-β=10^r, β=1-10^r$</p>
 <blockquote>
 <p>当 β 接近 1 时, β 就会对细微的变化变得很敏感.</p>
@@ -2861,7 +2863,7 @@
 </blockquote>
 <h2 id="3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar"><a href="#3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar" class="headerlink" title="3. Hyperparameters tuning in practice: Pandas vs Caviar"></a>3. Hyperparameters tuning in practice: Pandas vs Caviar</h2><p><img src="/images/deeplearning/C2W3-5_1.png" width="700"></p>
 <p><strong>Babysitting one model:</strong></p>
-<p>这种方法适用于有足够的数据集，但是GPU，CPU资源有限的情况，所以可能只能训练一个模型，然后每天对模型做某一项超参数的修改，查看效果是否变得更好.</p>
+<p>这种方法适用于有足够的数据集，但是 GPU，CPU 资源有限的情况，所以可能只能训练一个模型，然后每天对模型做某一项超参数的修改，查看效果是否变得更好.</p>
 <blockquote>
 <p>例如第一天令所有超参数随机初始化。到了第二天发现效果还不错，此时可以去增加学习率(也可以修改其他参数)。……，到了某一天加入修改了mini-batch size，结果效果明显减弱，这时则需要重新恢复到前一天的状态。</p>
 <p>总的来说这一过程就像熊猫一样，只照顾一个宝宝，多的照顾不过来.</p>
@@ -2886,7 +2888,7 @@
 <p>$$<br>μ=\frac{1}{m}\sum_{i}{z^{(i)}-μ}<br>$$</p>
 <p>$$<br>σ^2=\frac{1}{m}\sum_{i}(z^{(i)^2}-μ)^2<br>$$</p>
 <p>$$<br>z^{(i)}_{norm}=\frac{z^{(i)}-μ}{\sqrt{σ^2+ε}}<br>$$</p>
-<p>上面的归一化后的数据$z$都是服从均值为0，方差为1的，显然这样不能满足咱们的需求，所以还需要做进一步处理，如下：</p>
+<p>上面的归一化后的数据 $z$ 都是服从均值为 0，方差为 1 的，显然这样不能满足咱们的需求，所以还需要做进一步处理，如下：</p>
 <p>$$<br>\tilde{z}^{(i)}=γz^{(i)} + β<br>$$</p>
 <p>上式中的 $γ$ 可以设置方差，$β$ 可以设置均值.</p>
 <blockquote>
@@ -2938,7 +2940,7 @@
 <p>注意：测试集的均值和方差生成的方式不一定非得是上面提到的指数加权平均，也可以是简单粗暴的计算所有训练集的均值和方差，视频中 Andrew Ng 说这也是可行的.</p>
 </blockquote>
 <h2 id="8-Softmax-regression"><a href="#8-Softmax-regression" class="headerlink" title="8. Softmax regression"></a>8. Softmax regression</h2><p><img src="/images/deeplearning/C2W3-9_1.png" width="750"></p>
-<p>假设第$l$层有 $z^{[l]}=w^{[l]}a^{[l-1]}+b^{[l]}$,激活函数为 $a^{[l]}=\frac{e^{z^{[l]}}}{\sum_{j=1}^{n_l}e^{z^{[l]}_j}}$</p>
+<p>假设第 $l$ 层有 $z^{[l]}=w^{[l]}a^{[l-1]}+b^{[l]}$, 激活函数为 $a^{[l]}=\frac{e^{z^{[l]}}}{\sum_{j=1}^{n_l}e^{z^{[l]}_j}}$</p>
 <p>该节视频中 Andrew Ng 并没有很详细的介绍 softmax 的原理和公式推导，感兴趣的可以戳如下链接进行进一步了解：</p>
 <ul>
 <li><a href="http://ufldl.stanford.edu/wiki/index.php/Softmax回归" target="_blank" rel="external">ufldl: Softmax 回归</a></li>
@@ -2951,7 +2953,7 @@
 <h2 id="10-Deep-learning-frameworks"><a href="#10-Deep-learning-frameworks" class="headerlink" title="10. Deep learning frameworks"></a>10. Deep learning frameworks</h2><p><img src="/images/deeplearning/C2W3-9_1.png" width="750"></p>
 <h2 id="11-TensorFlow-Example"><a href="#11-TensorFlow-Example" class="headerlink" title="11. TensorFlow Example"></a>11. TensorFlow Example</h2><p>Andrew Ng 演示了 TensorFlow 使用方法.</p>
 <blockquote>
-<p>我推荐一个比较好的TensorFlow的练手项目：<a href="https://github.com/aymericdamien/TensorFlow-Examples" target="_blank" rel="external">TensorFlow Example</a></p>
+<p>我推荐一个比较好的 TensorFlow 的练手项目：<a href="https://github.com/aymericdamien/TensorFlow-Examples" target="_blank" rel="external">TensorFlow Example</a></p>
 </blockquote>
 <h2 id="12-Reference"><a href="#12-Reference" class="headerlink" title="12. Reference"></a>12. Reference</h2><ul>
 <li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
@@ -3054,7 +3056,7 @@
 <p><img src="/images/deeplearning/C2W2-4_1.png" width="700"></p>
 <h3 id="Mini-batch-大小的选择"><a href="#Mini-batch-大小的选择" class="headerlink" title="Mini-batch 大小的选择"></a>Mini-batch 大小的选择</h3><blockquote>
 <ul>
-<li>如果训练样本的大小比较小时，如 $m⩽2000$ 时 — 选择batch梯度下降法；</li>
+<li>如果训练样本的大小比较小时，如 $m⩽2000$ 时 — 选择 batch 梯度下降法；</li>
 <li>如果训练样本的大小比较大时，典型的大小为：$2^{6}、2^{7}、\cdots、2^{10}$</li>
 <li>Mini-batch 的大小要符合 CPU/GPU 内存， 运算起来会更快一些.</li>
 </ul>
@@ -3072,41 +3074,41 @@
 <!--下图是一个关于天数和温度的散点图：
 <img src="/images/deeplearning/C2W2-5_1.png" width="600" />
 -->
-<h3 id="当-β-0-9、0-98、0-5-的情况"><a href="#当-β-0-9、0-98、0-5-的情况" class="headerlink" title="当 β=0.9、0.98、0.5 的情况"></a>当 β=0.9、0.98、0.5 的情况</h3><p>当β=0.9时，指数加权平均最后的结果如下图中<strong>红色</strong>线所示；</p>
+<h3 id="当-β-0-9、0-98、0-5-的情况"><a href="#当-β-0-9、0-98、0-5-的情况" class="headerlink" title="当 β=0.9、0.98、0.5 的情况"></a>当 β=0.9、0.98、0.5 的情况</h3><p>当 β=0.9 时，指数加权平均最后的结果如下图中<strong>红色</strong>线所示；</p>
 <p><img src="/images/deeplearning/C2W2-5_2.jpg" width="600"></p>
-<p>当β=0.98时，指数加权平均最后的结果如下图中<strong>绿色</strong>线所示, 绿线相比较红线要平滑一些，是因为对过去温度的权重更大，所以当天天气温度的影响降低，在温度变化时，适应得更缓慢一些；</p>
+<p>当 β=0.98 时，指数加权平均最后的结果如下图中<strong>绿色</strong>线所示, 绿线相比较红线要平滑一些，是因为对过去温度的权重更大，所以当天天气温度的影响降低，在温度变化时，适应得更缓慢一些；</p>
 <p><img src="/images/deeplearning/C2W2-5_3.jpg" width="600"></p>
-<p>当β=0.5时，指数加权平均最后的结果如下图中<strong>黄色</strong>线所示；</p>
+<p>当 β=0.5 时，指数加权平均最后的结果如下图中<strong>黄色</strong>线所示；</p>
 <p><img src="/images/deeplearning/C2W2-5_4.jpg" width="600"></p>
 <!--<img src="/images/deeplearning/C2W2-6_1.png" width="700" />
 -->
 <blockquote>
 <p> Notes: The most common value for $\beta$ is 0.9.</p>
 </blockquote>
-<h3 id="理解指数加权平均"><a href="#理解指数加权平均" class="headerlink" title="理解指数加权平均"></a>理解指数加权平均</h3><p>例子，当β=0.9时： </p>
+<h3 id="理解指数加权平均"><a href="#理解指数加权平均" class="headerlink" title="理解指数加权平均"></a>理解指数加权平均</h3><p>例子，当 β=0.9 时： </p>
 <p>$$<br>v_{100} = 0.9v_{99}+0.1\theta_{100} \\ v_{99} = 0.9v_{98}+0.1\theta_{99} \\ v_{98} = 0.9v_{97}+0.1\theta_{98} \\<br>\ldots<br>$$</p>
 <p>展开：</p>
 <p>$$<br>v_{100}=0.1\theta_{100}+0.9(0.1\theta_{99}+0.9(0.1\theta_{98}+0.9v_{97})) \\ v_{100}=0.1\theta_{100}+0.1\times0.9\theta_{99}+0.1\times(0.9)^{2}\theta_{98}+0.1\times(0.9)^{3}\theta_{97}+\cdots<br>$$</p>
-<p>上式中所有$θ$前面的系数相加起来为1或者接近于1，称之为偏差修正.</p>
+<p>上式中所有 $θ$ 前面的系数相加起来为 1 或者 接近于 1，称之为偏差修正.</p>
 <blockquote>
 <p>总体来说存在，$(1-\varepsilon)^{1/\varepsilon}=\dfrac{1}{e}$, 在我们的例子中，$1-\varepsilon=\beta=0.9$, 即 $0.9^{10}\approx 0.35\approx\dfrac{1}{e}$ . 相当于大约10天后，系数的峰值（这里是0.1）下降到原来的 $\dfrac{1}{e}$，只关注了过去10天的天气.</p>
 </blockquote>
-<h3 id="指数加权平均的偏差修正-Bias-correction"><a href="#指数加权平均的偏差修正-Bias-correction" class="headerlink" title="指数加权平均的偏差修正 Bias correction"></a>指数加权平均的偏差修正 Bias correction</h3><p>在我们执行指数加权平均的公式时，当β=0.98时，得到的并不是图中的<strong>绿色</strong>曲线，而是下图中的<strong>紫色</strong>曲线，其起点比较低。</p>
+<h3 id="指数加权平均的偏差修正-Bias-correction"><a href="#指数加权平均的偏差修正-Bias-correction" class="headerlink" title="指数加权平均的偏差修正 Bias correction"></a>指数加权平均的偏差修正 Bias correction</h3><p>在我们执行指数加权平均的公式时，当 β=0.98 时，得到的并不是图中的<strong>绿色</strong>曲线，而是下图中的<strong>紫色</strong>曲线，其起点比较低。</p>
 <p><img src="/images/deeplearning/C2W2-7.png" width="650"></p>
 <p><strong>原因</strong>： </p>
 <blockquote>
 <p>$$<br>v_{0}=0\\v_{1}=0.98v_{0}+0.02\theta_{1}=0.02\theta_{1}\\v_{2}=0.98v_{1}+0.02\theta_{2}=0.98\times0.02\theta_{1}+0.02\theta_{2}=0.0196\theta_{1}+0.02\theta_{2}<br>$$</p>
-<p>如果第一天的值为如40，则得到的v1=0.02×40=0.8，则得到的值要远小于实际值，后面几天的情况也会由于初值引起的影响，均低于实际均值.</p>
+<p>如果第一天的值为如40，则得到的 v1=0.02×40=0.8，则得到的值要远小于实际值，后面几天的情况也会由于初值引起的影响，均低于实际均值.</p>
 </blockquote>
 <p><strong>偏差修正</strong>： </p>
 <blockquote>
 <p>使用 $\dfrac{v_{t}}{1-\beta^{t}}$</p>
 <ul>
-<li>当t=2时：</li>
+<li>当 t=2 时：</li>
 </ul>
 <p>$$<br>1-\beta^{t}=1-(0.98)^{2}=0.0396<br>$$</p>
 <p>$$<br>\dfrac{v_{2}}{0.0396}=\dfrac{0.0196\theta_{1}+0.02\theta_{2}}{0.0396}<br>$$</p>
-<p>偏差修正得到了绿色的曲线，在开始的时候，能够得到比紫色曲线更好的计算平均的效果。随着t逐渐增大，$\beta^{t}$接近于0，所以后面绿色的曲线和紫色的曲线逐渐重合了.</p>
+<p>偏差修正得到了绿色的曲线，在开始的时候，能够得到比紫色曲线更好的计算平均的效果。随着 t 逐渐增大，$\beta^{t}$ 接近于 0，所以后面绿色的曲线和紫色的曲线逐渐重合了.</p>
 <p>虽然存在这种问题，但是在实际过程中，一般会忽略前期均值偏差的影响</p>
 </blockquote>
 <p><strong>偏差修正 举个🌰, 以便于大家理解:</strong></p>
@@ -3118,6 +3120,7 @@
 <li><p>$V_2=0.98V_1+0.02θ_2=0.0196θ_1+0.02θ_2$</p>
 </li>
 </ul>
+<p>当进行指数加权平均计算时，第一个值 $v_0$ 被初始化为 0，这样将在前期的运算用产生一定的偏差。为了矫正偏差，需要在每一次迭代后进行偏差修正（Bias Correction）</p>
 <p>假设 $θ_1=40℃$,那么 $V_1=0.02*40=0.8℃$，这显然相差太大，同理对于后面的温度的计算也只会是变差越来越大. 所以我们需要进行偏差修正，具体方法如下：</p>
 <p>$$<br>V_t=\frac{βV_{t-1}+(1-β)θ_t}{1-β^t}<br>$$</p>
 <p>注意 ：！！！上面公式中的 $V_{t-1}$ 是未修正的值.</p>
@@ -3126,15 +3129,23 @@
 <li>当 $t=1,θ_1=40℃$ 时，$V_1=\frac{0.02*40}{1-0.98}=40$ ,哇哦, 有没有很巧的感觉，再看</li>
 <li>当 $t=2,θ_2=39℃$ 时，$V_2 = \frac{0.98*V_{t-1} + 0.02*θ_2}{1-0.98^2}$ $=\frac{0.98*(0 + 0.02*θ_1)+0.02*39}{1-0.98^2}=39.49$</li>
 </ul>
-<p>所以，记住你如果直接用修正后的 $V_{t−1}$ 值代入计算就大错特错了.</p>
+<p><code>注意点</code> : 所以，<strong>记住你如果直接用修正后的 $V_{t−1}$ 值代入计算就大错特错了</strong>.</p>
 </blockquote>
 <h2 id="3-Momentum"><a href="#3-Momentum" class="headerlink" title="3. Momentum"></a>3. Momentum</h2><p>动量梯度下降的基本思想就是<code>计算梯度的指数加权平均数</code>，并利用该梯度来更新权重</p>
-<h3 id="Momentum-解释版"><a href="#Momentum-解释版" class="headerlink" title="Momentum 解释版"></a>Momentum 解释版</h3><p>通常情况我们在训练深度神经网络的时候把数据拆解成一小批一小批地进行训练，这就是我们常用的mini-batch SGD训练算法，然而虽然这种算法能够带来很好的训练速度，但是在到达最优点的时候并不能够总是真正到达最优点，而是在最优点附近徘徊。另一个缺点就是这种算法需要我们挑选一个合适的学习率，当我们采用小的学习率的时候，会导致网络在训练的时候收敛太慢；当我们采用大的学习率的时候，会导致在训练过程中优化的幅度跳过函数的范围，也就是可能跳过最优点。我们所希望的仅仅是网络在优化的时候网络的损失函数有一个很好的收敛速度同时又不至于摆动幅度太大。</p>
-<p>所以Momentum优化器刚好可以解决我们所面临的问题，它主要是基于梯度的移动指数加权平均。假设在当前的迭代步骤第 t 步中，那么基于Momentum优化算法可以写成下面的公式： </p>
+<h3 id="Momentum-解释版"><a href="#Momentum-解释版" class="headerlink" title="Momentum 解释版"></a>Momentum 解释版</h3><p>通常情况我们在训练深度神经网络的时候把数据拆解成一小批一小批地进行训练，这就是我们常用的 mini-batch SGD 训练算法，然而虽然这种算法能够带来很好的训练速度，但是在到达最优点的时候并不能够总是真正到达最优点，而是在最优点附近徘徊。另一个缺点就是这种算法需要我们挑选一个合适的学习率，当我们采用小的学习率的时候，会导致网络在训练的时候收敛太慢；当我们采用大的学习率的时候，会导致在训练过程中优化的幅度跳过函数的范围，也就是可能跳过最优点。我们所希望的仅仅是网络在优化的时候网络的损失函数有一个很好的收敛速度同时又不至于摆动幅度太大。</p>
+<p>所以 Momentum 优化器 刚好可以解决我们所面临的问题，它主要是基于梯度的移动指数加权平均。假设在当前的迭代步骤第 t 步中，那么基于 Momentum 优化算法 可以写成下面的公式： </p>
 <p>$$<br>{v_{dw}} = \beta {v_{dw}} + (1 - \beta )dW \\ {v_{db}} = \beta {v_{db}} + (1 - \beta )db \\ W = W - \alpha {v_{dw}} \\ b = b - \alpha {v_{db}}<br>$$</p>
 <blockquote>
-<p>在上面的公式中${v_{dw}}$和${v_{db}}$分别是损失函数在前$t−1$轮迭代过程中累积的梯度梯度动量，$\beta$ 是梯度累积的一个指数，这里我们一般设置值为0.9。所以Momentum优化器的主要思想就是利用了类似与移动指数加权平均的方法来对网络的参数进行平滑处理的，让梯度的摆动幅度变得更小。 </p>
-<p>dW和db分别是损失函数反向传播时候所求得的梯度，下面两个公式是网络权重向量和偏置向量的更新公式，α是网络的学习率。当我们使用Momentum优化算法的时候，可以解决mini-batch SGD优化算法更新幅度摆动大的问题，同时可以使得网络的收敛速度更快。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/30743067" target="_blank" rel="external">引用知乎机器学习小菜鸟的流水账</a> ：</p>
+<p>动量梯度下降与梯度下降相比，就是对梯度使用指数加权平均，其他的都保存一致。</p>
+<p>dw 与 db 表示本次迭代的梯度，Vdw 和 Vdb 表示指数加权平均的梯度。</p>
+<p>如果不用指数加权平均的话，每次迭代更新使用的梯度都只与本次迭代的样本有关，每次迭代的样本有好有坏，会使迭代接近最小值的不断波动，导致下降速度慢。加入指数加权平均后，本次梯度影响减少，波动情况也就会减小，直观上面理解就是左右波动抵消，那么下降速度也就自然更快。动量梯度下降比梯度下降收敛速度要快。</p>
+<p>物理意义理解：在下降的过程中， $(1 - \beta )dW$ 相当于加速度， $\beta {v_{dw}}$ 相当于摩擦，加速度可以是下降加快，而摩擦不会让加速一直进行下去。（不是很理解）</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>在上面的公式中 ${v_{dw}}$ 和 ${v_{db}}$ 分别是损失函数在前 $t−1$ 轮迭代过程中累积的梯度梯度动量，$\beta$ 是梯度累积的一个指数，这里我们一般设置值为 0.9。所以 Momentum 优化器 的主要思想就是利用了类似与移动指数加权平均的方法来对网络的参数进行平滑处理的，让梯度的摆动幅度变得更小。 </p>
+<p>dW 和 db 分别是损失函数反向传播时候所求得的梯度，下面两个公式是网络权重向量和偏置向量的更新公式，α 是网络的学习率。当我们使用 Momentum优化算法的时候，可以解决 mini-batch SGD 优化算法更新幅度摆动大的问题，同时可以使得网络的收敛速度更快。</p>
 </blockquote>
 <h3 id="Momentum-详细版"><a href="#Momentum-详细版" class="headerlink" title="Momentum 详细版"></a>Momentum 详细版</h3><p>在我们优化 Cost function 的时候，以下图所示的函数图为例：</p>
 <p>首先介绍一下一般的梯度算法收敛情况是这样的</p>
@@ -3142,10 +3153,10 @@
 <blockquote>
 <p>可以看到，在前进的道路上十分曲折，走了不少弯路，在纵向我们希望走得慢一点，横向则希望走得快一点，所以才有了动量梯度下降算法.</p>
 </blockquote>
-<p><strong>Momentum算法的第t次迭代：</strong></p>
+<p><strong>Momentum算法的第 t 次迭代：</strong></p>
 <blockquote>
 <ul>
-<li>计算出 dw,db</li>
+<li>计算出 dw, db</li>
 <li>这个计算式子与上一届提到的指数加权平均有点类似，即<br>$ V_{dw}=βV_{dw}+(1-β)dw \\ V_{db}=βV_{db}+(1-β)db $</li>
 <li>$W=W-αV_{dw},b=b-αV_{db}$</li>
 </ul>
@@ -3156,31 +3167,31 @@
 <p>在利用梯度下降法来最小化该函数的时候，每一次迭代所更新的代价函数值如图中蓝色线所示在上下波动，而这种幅度比较大波动，减缓了梯度下降的速度，而且我们只能使用一个较小的学习率来进行迭代.</p>
 <p>如果用较大的学习率，结果可能会如紫色线一样偏离函数的范围，所以为了避免这种情况，只能用较小的学习率.</p>
 <blockquote>
-<p>该算法中涉及到的超参数有两个，分别是 α，β，其中一般β=0.9是比较常取的值</p>
+<p>该算法中涉及到的超参数有两个，分别是 α，β，其中一般 β=0.9 是比较常取的值</p>
 <ul>
-<li>一般将参数设为0.5,0.9，或者0.99，分别表示最大速度2倍，10倍，100倍于SGD的算法;</li>
+<li>一般将参数设为 0.5, 0.9，或者 0.99，分别表示最大速度 2倍，10倍，100倍 于 SGD 的算法;</li>
 <li>通过速度v，来积累了之间梯度指数级衰减的平均，并且继续延该方向移动;</li>
 </ul>
 </blockquote>
 <p>再看看算法： </p>
 <p><img src="/images/deeplearning/C2W2-11.png" width="700"></p>
-<h2 id="4-RMSprop-Root-Mean-Square-Prop"><a href="#4-RMSprop-Root-Mean-Square-Prop" class="headerlink" title="4. RMSprop (Root Mean Square Prop)"></a>4. RMSprop (Root Mean Square Prop)</h2><p>RMSProp算法的全称叫 Root Mean Square Prop，是Geoffrey E. Hinton在Coursera课程中提出的一种优化算法，在上面的Momentum优化算法中，虽然初步解决了优化中摆动幅度大的问题。所谓的摆动幅度就是在优化中经过更新之后参数的变化范围，如下图所示，蓝色的为Momentum优化算法所走的路线，绿色的为RMSProp优化算法所走的路线。</p>
+<h2 id="4-RMSprop-Root-Mean-Square-Prop"><a href="#4-RMSprop-Root-Mean-Square-Prop" class="headerlink" title="4. RMSprop (Root Mean Square Prop)"></a>4. RMSprop (Root Mean Square Prop)</h2><p>RMSProp 算法的全称叫 Root Mean Square Prop，是 Geoffrey E. Hinton 在 Coursera 课程中提出的一种优化算法，在上面的 Momentum 优化算法中，虽然初步解决了优化中摆动幅度大的问题。所谓的摆动幅度就是在优化中经过更新之后参数的变化范围，如下图所示，<strong>蓝色的为 Momentum 优化算法所走的路线</strong>，<strong>绿色的为 RMSProp 优化算法所走的路线</strong>。</p>
 <p><img src="/images/deeplearning/C2W2-12_1.png" width="700"></p>
-<p>为了进一步优化损失函数在更新中存在摆动幅度过大的问题，并且进一步加快函数的收敛速度，RMSProp算法对权重 W 和偏置 b 的梯度使用了微分平方加权平均数。 </p>
+<p>为了进一步优化损失函数在更新中存在摆动幅度过大的问题，并且进一步加快函数的收敛速度，RMSProp 算法对权重 W 和偏置 b 的梯度使用了微分平方加权平均数。 </p>
 <p>其中，假设在第 t 轮迭代过程中，各个公式如下所示：</p>
 <p>$$<br>{s_{dw}} = \beta {s_{dw}} + (1 - \beta )d{W^2} \\<br>{s_{db}} = \beta {s_{db}} + (1 - \beta )d{b^2}<br>$$</p>
 <p>$$<br>W = W - \alpha \frac {dW} { \sqrt {s_{dw}} + \varepsilon } \\<br>b = b - \alpha \frac {db} { \sqrt{s_{db}}  + \varepsilon }<br>$$</p>
 <blockquote>
 <p>这样做，能给保留微分平方的加权平均数</p>
-<p>算法的主要思想就用上面的公式表达完毕了。在上面的公式中 ${s_{dw}}$ 和 ${s_{db}}$ 分别是损失函数在前t−1轮迭代过程中累积的梯度梯度动量，β 是梯度累积的一个指数。所不同的是，RMSProp算法对梯度计算了<strong>微分平方加权平均数</strong>。这种做法有利于消除了摆动幅度大的方向，用来修正摆动幅度，使得各个维度的摆动幅度都较小。另一方面也使得网络函数收敛更快。（比如当 dW 或者 db 中有一个值比较大的时候，那么我们在更新权重或者偏置的时候除以它之前累积的梯度的平方根，这样就可以使得更新幅度变小）。为了防止分母为零，使用了一个很小的数值 $\epsilon$ 来进行平滑，一般取值为$10^{-8}$。</p>
+<p>算法的主要思想就用上面的公式表达完毕了。在上面的公式中 ${s_{dw}}$ 和 ${s_{db}}$ 分别是损失函数在前 t−1 轮迭代过程中累积的梯度梯度动量，β 是梯度累积的一个指数。所不同的是，RMSProp 算法对梯度计算了<strong>微分平方加权平均数</strong>。这种做法有利于消除了摆动幅度大的方向，用来修正摆动幅度，使得各个维度的摆动幅度都较小。另一方面也使得网络函数收敛更快。（比如当 dW 或者 db 中有一个值比较大的时候，那么我们在更新权重或者偏置的时候除以它之前累积的梯度的平方根，这样就可以使得更新幅度变小）。为了防止分母为零，使用了一个很小的数值 $\epsilon$ 来进行平滑，一般取值为 $10^{-8}$。</p>
 </blockquote>
-<h2 id="5-Adam-Adaptive-Moment-Estimation"><a href="#5-Adam-Adaptive-Moment-Estimation" class="headerlink" title="5. Adam (Adaptive Moment Estimation)"></a>5. Adam (Adaptive Moment Estimation)</h2><p>有了上面两种优化算法，一种可以使用类似于物理中的动量来累积梯度，另一种可以使得收敛速度更快同时使得波动的幅度更小。那么讲两种算法结合起来所取得的表现一定会更好。Adam（Adaptive Moment Estimation）算法是将Momentum算法和RMSProp算法结合起来使用的一种算法，我们所使用的参数基本和上面讲的一致，在训练的最开始我们需要初始化梯度的累积量和平方累积量。 </p>
+<h2 id="5-Adam-Adaptive-Moment-Estimation"><a href="#5-Adam-Adaptive-Moment-Estimation" class="headerlink" title="5. Adam (Adaptive Moment Estimation)"></a>5. Adam (Adaptive Moment Estimation)</h2><p>有了上面两种优化算法，一种可以使用类似于物理中的动量来累积梯度，另一种可以使得收敛速度更快同时使得波动的幅度更小。那么讲两种算法结合起来所取得的表现一定会更好。Adam（Adaptive Moment Estimation）算法是将 Momentum算法 和 RMSProp算法 结合起来使用的一种算法，我们所使用的参数基本和上面讲的一致，在训练的最开始我们需要初始化梯度的累积量和平方累积量。 </p>
 <p>$$<br>{v_{dw}} = 0,{v_{db}} = 0;{s_{dw}} = 0,{s_{db}} = 0<br>$$</p>
 <p>假设在训练的第 $t$ 轮训练中，我们首先可以计算得到 Momentum 和 RMSProp 的参数更新： </p>
 <p>$$<br>{v_{dw}} = {\beta _1}{v_{dw}} + (1 - {\beta _1})dW \\<br>{v_{db}} = {\beta _1}{v_{db}} + (1 - {\beta _1})db \\<br>{s_{dw}} = {\beta _2}{s_{dw}} + (1 - {\beta _2})d{W^2} \\<br>{s_{db}} = {\beta _2}{s_{db}} + (1 - {\beta _2})d{b^2} \\<br>$$</p>
 <p>由于移动指数平均在迭代开始的初期会导致和开始的值有较大的差异，所以我们需要对上面求得的几个值做偏差修正</p>
 <p>$$<br>v_{dw}^c = \frac {v_{dw}} {1 - \beta _1^t} \\<br>v_{db}^c = \frac {v_{db}} {1 - \beta _1^t} \\<br>s_{dw}^c = \frac {s_{dw}} {1 - \beta _2^t} \\<br>s_{db}^c = \frac {s_{db}} {1 - \beta _2^t}<br>$$</p>
-<p>通过上面的公式，我们就可以求得在第 $t$ 轮迭代过程中，参数梯度累积量的修正值，从而接下来就可以根据Momentum和RMSProp算法的结合来对权重和偏置进行更新.</p>
+<p>通过上面的公式，我们就可以求得在第 $t$ 轮迭代过程中，参数梯度累积量的修正值，从而接下来就可以根据 Momentum 和 RMSProp 算法的结合来对权重和偏置进行更新.</p>
 <p>$$<br>W = W - \alpha \frac {v_{dw}^c} {\sqrt {s_{dw}^c}  + \varepsilon } \\<br>b = b - \alpha \frac {v_{db}^c} {\sqrt {s_{db}^c}  + \varepsilon }<br>$$</p>
 <p>上面的所有步骤就是Momentum算法和RMSProp算法结合起来从而形成Adam算法。在Adam算法中，参数 ${\beta_1}$ 所对应的就是Momentum算法中的 ${\beta}$ 值，一般取0.9，参数 ${\beta_2}$ 所对应的就是RMSProp算法中的 ${\beta}$ 值，一般我们取0.999，而 $\epsilon$ 是一个平滑项，我们一般取值为 ${10^{ - 8}}$，而学习率 $\alpha$ 则需要我们在训练的时候进行微调。</p>
 <blockquote>
@@ -25618,80 +25629,8 @@ public final class Boolean
     </entry>
     
     <entry>
-      <title><![CDATA[Java SE Introduce]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-1-introduce/</url>
-      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
-<a id="more"></a>
-<ul>
-<li>Java data type</li>
-<li>OO</li>
-<li>Exception</li>
-<li>Java Array  </li>
-<li>Java 常用类 </li>
-<li>Java 容器类</li>
-<li>Collection / Generic</li>
-<li>Java I/O Stream</li>
-<li>Java Thread</li>
-<li>Java TCP/UDP, socket</li>
-</ul>
-<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
-<li>Java 运行机制</li>
-<li>JDK &amp; JRE</li>
-<li>Java env install</li>
-<li>Java Basic Content</li>
-</ul>
-<blockquote>
-<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
-</blockquote>
-<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
-<li>一种 OO 语言  </li>
-<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
-<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
-</ul>
-<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
-<ul>
-<li>Java Virtual Machine</li>
-<li>Garbage collection</li>
-</ul>
-<blockquote>
-<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
-<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
-<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
-</blockquote>
-<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
-<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
-<li>Java Runtime Environment  用户只需 JRE  </li>
-</ul>
-<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
-</blockquote>
-<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
-<li>类名首字母大写  </li>
-<li>变量名和方法名的首字母小写  </li>
-<li>运用驼峰标识   </li>
-</ol>
-<p>HelloWorld.java</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
-</blockquote>
-<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
-<hr>
-<blockquote>
-<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
-</blockquote>
-<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-2.4-notes-exception/</url>
+      <url>http://iequa.com/2013/02/02/java-se-2.5-notes-array/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
 <a id="more"></a>
 <h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1. 环境配置"></a>1. 环境配置</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
@@ -26099,8 +26038,80 @@ JDK 1.5 之后 {
     </entry>
     
     <entry>
+      <title><![CDATA[Java SE Introduce]]></title>
+      <url>http://iequa.com/2013/02/02/java-se-1-introduce/</url>
+      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
+<a id="more"></a>
+<ul>
+<li>Java data type</li>
+<li>OO</li>
+<li>Exception</li>
+<li>Java Array  </li>
+<li>Java 常用类 </li>
+<li>Java 容器类</li>
+<li>Collection / Generic</li>
+<li>Java I/O Stream</li>
+<li>Java Thread</li>
+<li>Java TCP/UDP, socket</li>
+</ul>
+<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
+<li>Java 运行机制</li>
+<li>JDK &amp; JRE</li>
+<li>Java env install</li>
+<li>Java Basic Content</li>
+</ul>
+<blockquote>
+<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
+</blockquote>
+<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
+<li>一种 OO 语言  </li>
+<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
+<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
+</ul>
+<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
+<ul>
+<li>Java Virtual Machine</li>
+<li>Garbage collection</li>
+</ul>
+<blockquote>
+<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
+<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
+<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
+</blockquote>
+<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
+<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
+<li>Java Runtime Environment  用户只需 JRE  </li>
+</ul>
+<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
+</blockquote>
+<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
+<li>类名首字母大写  </li>
+<li>变量名和方法名的首字母小写  </li>
+<li>运用驼峰标识   </li>
+</ol>
+<p>HelloWorld.java</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
+</blockquote>
+<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
+</blockquote>
+<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
-      <url>http://iequa.com/2013/02/02/java-se-2.5-notes-array/</url>
+      <url>http://iequa.com/2013/02/02/java-se-2.4-notes-exception/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
 <a id="more"></a>
 <h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1. 环境配置"></a>1. 环境配置</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
