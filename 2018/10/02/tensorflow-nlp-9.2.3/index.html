@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>RNN 的语言模型 TensorFlow 实现 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RNN 的语言模型 TensorFlow 实现">
+<meta property="og:url" content="http://iequa.com/2018/10/02/tensorflow-nlp-9.2.3/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta property="og:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.3_1.jpg">
+<meta property="og:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.3_2.jpg">
+<meta property="og:updated_time" content="2018-10-02T14:46:05.622Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RNN 的语言模型 TensorFlow 实现">
+<meta name="twitter:description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta name="twitter:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.3_1.jpg">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/tensorflow">TF</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-tensorflow-nlp-9.2.3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      RNN 的语言模型 TensorFlow 实现
+      <small class=article-detail-date-index>&nbsp; 2018-10-02</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/10/02/tensorflow-nlp-9.2.3/" class="article-date">
+  <time datetime="2018-10-02T13:00:21.000Z" itemprop="datePublished">2018-10-02</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/10/02/tensorflow-nlp-9.2.3/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>上篇 <code>PTB</code> 数据集 batching 中我们介绍了如何对 <code>PTB</code> 数据集进行 连接、切割 成多个 batch，作为 NNLM 的输入。</p>
+<p>本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。 </p>
+<a id="more"></a>
+<p><img src="/images/tensorflow/tf-nlp-9.2.3_1.jpg" width="700"></p>
+<h2 id="1-Embedding-层"><a href="#1-Embedding-层" class="headerlink" title="1. Embedding 层"></a>1. Embedding 层</h2><p>将 word 编号 转化为 word embedding 两大作用 :</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th style="text-align:center">function</th>
+<th style="text-align:center">desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1.</td>
+<td style="text-align:center">降低输入的维度</td>
+<td style="text-align:center">词向量的维度通常在 200 ~ 1000 之间, 大大减少 RNN 网络的参数数量 与 计算量</td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td style="text-align:center">增加语义信息</td>
+<td style="text-align:center">简单的单词编号是不包含任何语义信息的.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>词向量维度: EMB_SIZE，词汇表大小: VOCAB_SIZE</p>
+<p>所有单词的词向量可以放入一个大小为 <strong>(EMB_SIZE, VOCAB_SIZE)</strong> 的矩阵内</p>
+<p>在读取词向量时，可以调用 <strong>tf.nn.embedding_lookup</strong> 方法。</p>
+<p>用 tf.Variable 来表示词向量，这样就可以采用任意初始化的词向量，学习过程中也会优化词向量。</p>
+</blockquote>
+<p><img src="/images/tensorflow/tf-nlp-9.2.3_2.jpg" width="700"></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义单词的词向量矩阵</span></span><br><span class="line">embedding = tf.get_variable(<span class="string">"embedding"</span>, [VOCAB_SIZE, EMB_SIZE])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将数据转化为词向量表示</span></span><br><span class="line">inputs = tf.nn.embedding_lookup(embedding, input_data)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>其中输入数据 input_data 的维度是 (batch_size * num_steps)</p>
+<p>而输出的 input_embedding 的维度成为 (batch_size * num_steps * EMB_SIZE). </p>
+<p>在本文中，我们输入数据维度是 ($20 \times 35$) ，EMB_SIZE = 300, 输入词向量维度时 ($20 \times 35 \times 300$) .</p>
+</blockquote>
+<h2 id="2-Softmax-层"><a href="#2-Softmax-层" class="headerlink" title="2. Softmax 层"></a>2. Softmax 层</h2><p>Softmax层 的作用是将 RNN 的输出 转化为一个单词表中每个单词的输出概率，为此需要两个步骤：</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://www.tensorflow.org/" target="_blank" rel="external">tensorflow.org</a></li>
+<li><a href="https://www.zhihu.com/question/48107602/answer/159801895" target="_blank" rel="external">求通俗讲解下tensorflow的embedding_lookup接口的意思？</a></li>
+<li><a href="https://www.zhihu.com/question/52250059/answer/146260654" target="_blank" rel="external">tf.nn.embedding_lookup函数原理？</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/37886740" target="_blank" rel="external">基于循环神经网络的语言模型的介绍与TensorFlow实现(4)：TensorFlow实现RNN-based语言模型</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Embedding-层"><span class="toc-number"></span> <span class="toc-text">1. Embedding 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Softmax-层"><span class="toc-number"></span> <span class="toc-text">2. Softmax 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/tensorflow/">tensorflow</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2018/09/25/tensorflow-nlp-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">TensorFlow 实现 RNN-based 语言模型&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/10/02/tensorflow-nlp-9.2.3/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
