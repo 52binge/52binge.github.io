@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   
-  <title>RNN 的语言模型 TensorFlow 实现 - Home</title>
+  <title>PTB 数据的 batching 方法 - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
@@ -13,8 +13,8 @@
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
 <meta property="og:type" content="article">
-<meta property="og:title" content="RNN 的语言模型 TensorFlow 实现">
-<meta property="og:url" content="http://iequa.com/2018/10/02/tensorflow-nlp-9.2.3/index.html">
+<meta property="og:title" content="PTB 数据的 batching 方法">
+<meta property="og:url" content="http://iequa.com/2018/10/01/tensorflow-nlp-9.2.2/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
@@ -23,11 +23,11 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta property="og:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.3_1.jpg">
-<meta property="og:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.3_2.jpg">
-<meta property="og:updated_time" content="2018-10-03T02:23:57.204Z">
+<meta property="og:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.2_2.jpg">
+<meta property="og:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.2_1.jpg">
+<meta property="og:updated_time" content="2018-10-03T14:38:47.685Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="RNN 的语言模型 TensorFlow 实现">
+<meta name="twitter:title" content="PTB 数据的 batching 方法">
 <meta name="twitter:description" content="MathJax.Hub.Config({
     extensions: [&quot;tex2jax.js&quot;],
     jax: [&quot;input/TeX&quot;],
@@ -35,7 +35,7 @@
       inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
       displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
       processEscapes:">
-<meta name="twitter:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.3_1.jpg">
+<meta name="twitter:image" content="http://iequa.com/images/tensorflow/tf-nlp-9.2.2_2.jpg">
   
   
     <link rel="icon" href="/favicon.png">
@@ -89,7 +89,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-tensorflow-nlp-9.2.3" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-tensorflow-nlp-9.2.2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -97,8 +97,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      RNN 的语言模型 TensorFlow 实现
-      <small class=article-detail-date-index>&nbsp; 2018-10-02</small>
+      PTB 数据的 batching 方法
+      <small class=article-detail-date-index>&nbsp; 2018-10-01</small>
     </h1>
   
 
@@ -108,8 +108,8 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2018/10/02/tensorflow-nlp-9.2.3/" class="article-date">
-  <time datetime="2018-10-02T13:00:21.000Z" itemprop="datePublished">2018-10-02</time>
+      <!--<a href="/2018/10/01/tensorflow-nlp-9.2.2/" class="article-date">
+  <time datetime="2018-10-01T03:00:21.000Z" itemprop="datePublished">2018-10-01</time>
 </a>-->
       <!-- 
   <div class="article-category">
@@ -120,7 +120,7 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2018/10/02/tensorflow-nlp-9.2.3/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2018/10/01/tensorflow-nlp-9.2.2/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -141,59 +141,32 @@ var _hmt = _hmt || [];
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
 </script>
 
-<p>上篇 <code>PTB</code> 数据集 batching 中我们介绍了如何对 <code>PTB</code> 数据集进行 连接、切割 成多个 batch，作为 NNLM 的输入。</p>
-<p>本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。 </p>
+<p><code>PTB</code> 数据集 batching 介绍, 如何对 <code>PTB</code> 数据集进行 连接、切割 成多个 batch。</p>
+<p>重点了解 <strong>batch_size</strong>、<strong>num_batch</strong>、<strong>num_step</strong> 这三个概念。</p>
 <a id="more"></a>
-<p><img src="/images/tensorflow/tf-nlp-9.2.3_1.jpg" width="700"></p>
-<h2 id="1-Embedding-层"><a href="#1-Embedding-层" class="headerlink" title="1. Embedding 层"></a>1. Embedding 层</h2><p>将 word 编号 转化为 word embedding 两大作用 :</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">No.</th>
-<th style="text-align:center">function</th>
-<th style="text-align:center">desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">1.</td>
-<td style="text-align:center">降低输入的维度</td>
-<td style="text-align:center">词向量的维度通常在 200 ~ 1000 之间, 大大减少 RNN 网络的参数数量 与 计算量</td>
-</tr>
-<tr>
-<td style="text-align:center">2.</td>
-<td style="text-align:center">增加语义信息</td>
-<td style="text-align:center">简单的单词编号是不包含任何语义信息的.</td>
-</tr>
-</tbody>
-</table>
+<h2 id="batching"><a href="#batching" class="headerlink" title="batching"></a>batching</h2><p>先看下面这段，摘取自 <a href="https://www.zhihu.com/question/278485204/answer/402066718" target="_blank" rel="external">知乎 作者：dalida</a></p>
+<p>画图很弱，直接就徒手画了。以朱自清的《背影》中的节选段落为例。字有点难看，请忽略～(￣▽￣～)~</p>
+<p>这是单个字符级别的 RNN，换成词语也一样。</p>
+<p>num_batch 其实就是 batch 的数量，这里只画了三个，可以一直接下去….这样一次完成 6个字符 (num_step=6) 的处理，而且能保证 batch 之间的连续性。但是行与行之间的连续性确实是丢失了。</p>
+<p><img src="/images/tensorflow/tf-nlp-9.2.2_2.jpg" width="700"></p>
+<p><strong>结论 :</strong></p>
+<ul>
+<li>batch_size = 3 </li>
+<li>num_batch = 3</li>
+<li>num_step = 6</li>
+</ul>
 <blockquote>
-<p>词向量维度: EMB_SIZE，词汇表大小: VOCAB_SIZE</p>
-<p>所有单词的词向量可以放入一个大小为 <strong>(EMB_SIZE, VOCAB_SIZE)</strong> 的矩阵内</p>
-<p>在读取词向量时，可以调用 <strong>tf.nn.embedding_lookup</strong> 方法。</p>
-<p>用 tf.Variable 来表示词向量，这样就可以采用任意初始化的词向量，学习过程中也会优化词向量。</p>
+<p>batch_size 也是一次输入的句子数</p>
 </blockquote>
-<p><img src="/images/tensorflow/tf-nlp-9.2.3_2.jpg" width="700"></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义单词的词向量矩阵</span></span><br><span class="line">embedding = tf.get_variable(<span class="string">"embedding"</span>, [VOCAB_SIZE, EMB_SIZE])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将数据转化为词向量表示</span></span><br><span class="line">inputs = tf.nn.embedding_lookup(embedding, input_data)</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>其中输入数据 input_data 的维度是 (batch_size * num_steps)</p>
-<p>而输出的 input_embedding 的维度成为 (batch_size * num_steps * EMB_SIZE). </p>
-<p>在本文中，我们输入数据维度是 ($20 \times 35$) ，EMB_SIZE = 300, 输入词向量维度时 ($20 \times 35 \times 300$) .</p>
-</blockquote>
-<h2 id="2-Softmax-层"><a href="#2-Softmax-层" class="headerlink" title="2. Softmax 层"></a>2. Softmax 层</h2><p>Softmax层 的作用是将 RNN 的输出 转化为一个单词表中每个单词的输出概率，为此需要两个步骤：</p>
-<h3 id="2-1-第一步"><a href="#2-1-第一步" class="headerlink" title="2.1 第一步"></a>2.1 第一步</h3><p>使用一个线性映射将 RNN 的输出映射为一个维度与词汇表大小相同的向量，这一步的输出叫做 <strong>logits</strong>. 代码如下所示：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 首先定义映射用到的参数</span></span><br><span class="line"><span class="comment"># HIDDEN_SIZE 是 RNN 的隐藏状态维度，VOCAB_SIZE 是词汇表大小</span></span><br><span class="line">weight = tf.get_variable(<span class="string">"weight"</span>, [HIDDEN_ZIZE, VOCAB_SIZE])</span><br><span class="line">bias = tf.get_variable(<span class="string">"bias"</span>, [VOCAB_SIZE])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算线性映射</span></span><br><span class="line">logits = tf.matmul(output, weight) + bias</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>其中 output 是 RNN 的输出，维度是 [batch_size * num_steps, <strong>HIDDEN_SIZE</strong>]</p>
-<p>经过线性映射后，输出结果是 [batch_size * num_steps, <strong>VOCAB_SIZE</strong>].</p>
-</blockquote>
+<h2 id="朱自清《背影》"><a href="#朱自清《背影》" class="headerlink" title="朱自清《背影》"></a>朱自清《背影》</h2><p>我们过了江，进了车站。我买票，他忙着照看行李。行李太多了，得向脚夫行些小费，才可过去。他便又忙着和他们讲价钱。我那时真是聪明过分，总觉他说话不大漂亮，非自己插嘴不可。但他终于讲定了价钱；就送我上车。他给我拣定了靠车门的一张椅子；我将他给我做的紫毛大衣铺好坐位。他嘱我路上小心，夜里警醒些，不要受凉。又嘱托茶房好好照应我。我心里暗笑他的迂；他们只认得钱，托他们直是白托！而且我这样大年纪的人，难道还不能料理自己么？唉，我现在想想，那时真是太聪明了！</p>
+<p>我说道，“爸爸，你走吧。”他望车外看了看，说，“我买几个橘子去。你就在此地，不要走动。”我看那边月台的栅栏外有几个卖东西的等着顾客。走到那边月台，须穿过铁道，须跳下去又爬上去。父亲是一个胖子，走过去自然要费事些。我本来要去的，他不肯，只好让他去。我看见他戴着黑布小帽，穿着黑布大马褂，深青布棉袍，蹒跚地走到铁道边，慢慢探身下去，尚不大难。可是他穿过铁道，要爬上那边月台，就不容易了。他用两手攀着上面，两脚再向上缩；他肥胖的身子向左微倾，显出努力的样子。这时我看见他的背影，我的泪很快地流下来了。我赶紧拭干了泪，怕他看见，也怕别人看见。我再向外看时，他已抱了朱红的橘子望回走了。过铁道时，他先将橘子散放在地上，自己慢慢爬下，再抱起橘子走。到这边时，我赶紧去搀他。他和我走到车上，将橘子一股脑儿放在我的皮大衣上。于是扑扑衣上的泥土，心里很轻松似的，过一会说，“我走了；到那边来信！”我望着他走出去。他走了几步，回过头看见我，说，“进去吧，里边没人。”等他的背影混入来来往往的人里，再找不着了，我便进来坐下，我的眼泪又来了。</p>
+<p>近几年来，父亲和我都是东奔西走，家中光景是一日不如一日。他少年出外谋生，独力支持，做了许多大事。那知老境却如此颓唐！他触目伤怀，自然情不能自已。情郁于中，自然要发之于外；家庭琐屑便往往触他之怒。他待我渐渐不同往日。但最近两年的不见，他终于忘却我的不好，只是惦记着我，惦记着我的儿子。我北来后，他写了一信给我，信中说道，“我身体平安，惟膀子疼痛利害，举箸提笔，诸多不便，大约大去之期不远矣。”我读到此处，在晶莹的泪光中，又看见那肥胖的，青布棉袍，黑布马褂的背影。唉！我不知何时再能与他相见！</p>
+<p><strong>再看这个图</strong>：</p>
+<p><img src="/images/tensorflow/tf-nlp-9.2.2_1.jpg" width="700"></p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://www.tensorflow.org/" target="_blank" rel="external">tensorflow.org</a></li>
-<li><a href="https://www.zhihu.com/question/52250059/answer/146260654" target="_blank" rel="external">tf.nn.embedding_lookup函数原理？</a></li>
-<li><a href="https://www.zhihu.com/question/48107602/answer/159801895" target="_blank" rel="external">求通俗讲解下tensorflow的embedding_lookup接口的意思？</a></li>
-<li><a href="http://www.fit.vutbr.cz/~imikolov/rnnlm/" target="_blank" rel="external">Tomas Mikolov PTB 数据</a></li>
-<li><a href="https://www.zhihu.com/question/60751553" target="_blank" rel="external">如何理解深度学习源码里经常出现的logits？</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/37886740" target="_blank" rel="external">基于循环神经网络的语言模型的介绍与TensorFlow实现(4)：TensorFlow实现RNN-based语言模型</a></li>
+<li><a href="https://www.zhihu.com/question/278485204/answer/402066718" target="_blank" rel="external">关于batching多句子切割batch疑问？</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/40809517" target="_blank" rel="external">[L2]使用LSTM实现语言模型-数据batching</a></li>
+<li><a href="https://blog.csdn.net/jerr__y/article/details/61195257" target="_blank" rel="external">TensorFlow入门（五）多层 LSTM 通俗易懂版</a></li>
 </ul>
 
       
@@ -237,7 +210,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Embedding-层"><span class="toc-number"></span> <span class="toc-text">1. Embedding 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Softmax-层"><span class="toc-number"></span> <span class="toc-text">2. Softmax 层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-第一步"><span class="toc-number"></span> <span class="toc-text">2.1 第一步</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#batching"><span class="toc-number"></span> <span class="toc-text">batching</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#朱自清《背影》"><span class="toc-number"></span> <span class="toc-text">朱自清《背影》</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -265,17 +238,17 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2018/10/04/tensorflow-doc/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2018/10/02/tensorflow-nlp-9.2.3/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          Tensorflow 快速学习 &amp; 文档
+          RNN 的语言模型 TensorFlow 实现
         
       </div>
     </a>
   
   
-    <a href="/2018/10/01/tensorflow-nlp-9.2.2/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">PTB 数据的 batching 方法&nbsp;<span>&gt;</span></div>
+    <a href="/2018/09/12/tensorflow-4-1-tensorboard1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Tensorboard 可视化好帮手 1&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -304,7 +277,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2018/10/02/tensorflow-nlp-9.2.3/';
+  var disqus_url = 'http://iequa.com/2018/10/01/tensorflow-nlp-9.2.2/';
   
   (function(){
     var dsq = document.createElement('script');
