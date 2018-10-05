@@ -68,6 +68,89 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
+      <article id="post-spark-read-mysql-four-functions" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/04/20/spark-read-mysql-four-functions/"><strong>Spark Read Mysql 的四种方式 (not finish)</strong></a>
+      <small class=article-date-index>&nbsp; 2017-04-20</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/04/20/spark-read-mysql-four-functions/" class="article-date">
+  <time datetime="2017-04-20T07:28:21.000Z" itemprop="datePublished">2017-04-20</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/spark/">spark</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/04/20/spark-read-mysql-four-functions/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>目前 <code>Spark</code> 支持四种方式从数据库中读取数据，这里以 <code>MySQL</code> 为例进行介绍。</p>
+<h2 id="Startup-spark-shell"><a href="#Startup-spark-shell" class="headerlink" title="Startup spark-shell"></a>Startup spark-shell</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h2 id="1-不指定查询条件"><a href="#1-不指定查询条件" class="headerlink" title="1. 不指定查询条件"></a>1. 不指定查询条件</h2><h3 id="1-1-function-define"><a href="#1-1-function-define" class="headerlink" title="1.1 function define"></a>1.1 function define</h3><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(url: <span class="type">String</span>, table: <span class="type">String</span>, properties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-2-detail-example"><a href="#1-2-detail-example" class="headerlink" title="1.2 detail example"></a>1.2 detail example</h3><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> url = <span class="string">"jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password"</span></span><br><span class="line"><span class="keyword">import</span> java.util.<span class="type">Properties</span></span><br><span class="line"><span class="keyword">val</span> prop = <span class="keyword">new</span> <span class="type">Properties</span>()</span><br><span class="line"><span class="keyword">val</span> df = sqlContext.read.jdbc(url, <span class="string">"mds_user_coupon_bhv"</span>, prop )</span><br><span class="line">println(df.count())</span><br><span class="line">println(df.rdd.partitions.size)</span><br></pre></td></tr></table></figure>
+<p>我们运行上面的程序，可以看到df.rdd.partitions.size输出结果是1，这个结果的含义是iteblog表的所有数据都是由RDD的一个分区处理的，所以说，如果你这个表很大，很可能会出现OOM</p>
+<blockquote>
+<p>Note : 这种方式在数据量大的时候不建议使用。</p>
+</blockquote>
+<h2 id="2-指定数据库字段的范围"><a href="#2-指定数据库字段的范围" class="headerlink" title="2. 指定数据库字段的范围"></a>2. 指定数据库字段的范围</h2><p>这种方式就是通过指定数据库中某个字段的范围，但是<code>这个字段必须是数字</code>，来看看这个函数的函数原型：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(</span><br><span class="line">    url: <span class="type">String</span>,</span><br><span class="line">    table: <span class="type">String</span>,</span><br><span class="line">    columnName: <span class="type">String</span>,</span><br><span class="line">    lowerBound: <span class="type">Long</span>,</span><br><span class="line">    upperBound: <span class="type">Long</span>,</span><br><span class="line">    numPartitions: <span class="type">Int</span>,</span><br><span class="line">    connectionProperties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
+<p>… not finish</p>
+<h2 id="3-根据任意字段进行分区"><a href="#3-根据任意字段进行分区" class="headerlink" title="3. 根据任意字段进行分区"></a>3. 根据任意字段进行分区</h2><p>… not finish</p>
+<h2 id="4-通过-load-获取"><a href="#4-通过-load-获取" class="headerlink" title="4. 通过 load 获取"></a>4. 通过 load 获取</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.load(<span class="string">"jdbc"</span>, <span class="type">Map</span>(<span class="string">"url"</span> -&gt; <span class="string">"jdbc:mysql://..."</span>, </span><br><span class="line">              <span class="string">"dbtable"</span> -&gt; <span class="string">"mds_user_coupon_bhv"</span>)</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
+<p>换一种更正式的写法如下 :</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.read.format(<span class="string">"jdbc"</span>).options(<span class="type">Map</span>(</span><br><span class="line">      <span class="string">"url"</span> -&gt; <span class="string">"jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password"</span>,</span><br><span class="line">      <span class="string">"dbtable"</span> -&gt; <span class="string">"mds_user_coupon_bhv"</span>)</span><br><span class="line">   ).load()</span><br></pre></td></tr></table></figure>
+<p>options函数支持url、driver、dbtable、partitionColumn、lowerBound、upperBound以及numPartitions选项，这个和方法二的参数一致。其内部实现原理部分和方法二大体一致。同时load方法还支持json、orc等数据源的读取。</p>
+<blockquote>
+<p>Reading notes</p>
+</blockquote>
+<h2 id="5-Ref"><a href="#5-Ref" class="headerlink" title="5. Ref"></a>5. Ref</h2><blockquote>
+<p>尊重原创，转载请注明： 转载自过往记忆（<a href="http://www.iteblog.com/）" target="_blank" rel="external">http://www.iteblog.com/）</a> </p>
+</blockquote>
+<p><a href="http://blog.csdn.net/mlljava1111/article/details/50432569" target="_blank" rel="external">Spark Read Mysql-csdn</a></p>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-ops-new-macosx-install-soft" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2156,224 +2239,6 @@ img {
 <tr>
 <td>I’m not currently taking any medication.</td>
 <td>I hope you feel better. </td>
-</tr>
-</tbody>
-</table>
-
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ef-l6u2-Going-to-the-doctor&#39;s-l2" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/"><strong>Going to the doctor&#39;s L2 Talking with the doctor</strong></a>
-      <small class=article-date-index>&nbsp; 2016-12-13</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/" class="article-date">
-  <time datetime="2016-12-12T23:15:16.000Z" itemprop="datePublished">2016-12-13</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/English/">English</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <style>
-img {
-        display: block !important;
-        width: 450px;
-        margin-left: 200px !important;
-}
-</style>
-
-<h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><table>
-<thead>
-<tr>
-<th>blood pressure</th>
-<th>symptoms</th>
-<th>stomach flu </th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>prescription</td>
-<td>medicine</td>
-<td>liquids</td>
-</tr>
-<tr>
-<td>appetite</td>
-<td>nauseous</td>
-<td>fever</td>
-</tr>
-</tbody>
-</table>
-<p><img src="/images/english/ef-l6u2l2-1.png" alt=""></p>
-<table>
-<thead>
-<tr>
-<th>A: DOCTOR - B: PAM</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[DOC] How are you feeling?</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] Not so great.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] Hmm. I’m sorry to hear that. How long have you been feeling bad?</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] Um, since yesterday. But I got really sick in the middle of the night.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] Well, you do have a slight fever, but that’s nothing to worry about. And your blood pressure is good. Did you eat anything unusual yesterday?</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] No, I don’t think so. I had pizza for lunch, and I didn’t eat dinner.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] Well, based on the symptoms you’ve described, I think that you have a stomach flu. It’s been going around.</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] Yeah, that’s what I thought.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] I’m going to write you a prescription for medicine to help your stomach and stop the diarrhea.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] Stay in bed and, uh, drink plenty of liquids. If you don’t feel better after 24 hours, I want you to call the nurse.</td>
-<td></td>
-</tr>
-<tr>
-<td>[DOC] And, uh, when you have an appetite again, take it easy. I’d recommend plain white rice and maybe some yoghurt.</td>
-<td></td>
-</tr>
-<tr>
-<td>[PAM] Okay, doctor, thanks</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="2-Grammar"><a href="#2-Grammar" class="headerlink" title="2. Grammar"></a>2. Grammar</h2><table>
-<thead>
-<tr>
-<th>for、have been +ing</th>
-<th>since</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Frank has been working hard <code>for two days</code>.</td>
-<td>Oscar has been working hard <code>since yesterday</code>.</td>
-</tr>
-<tr>
-<td>I’ve been waiting for the nurse for 20 minutes.</td>
-<td>I’ve been having trouble sleeping since last Friday. </td>
-</tr>
-<tr>
-<td>Since I got home, I’<code>ve been feeling</code> terrible.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>had..for</th>
-<th>Since</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>He’s had the same symptoms for three days.</td>
-<td>I’ve been drinking lots of liquids since I got sick</td>
-</tr>
-<tr>
-<td>She’s had the flu for a week.</td>
-<td>Since I got sick, I’ve been drinking lots of liquids.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th>Doctor</th>
-<th>Pam</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>How long have you been feeling like this?</td>
-<td>I got really sick in the middle of the night.</td>
-</tr>
-<tr>
-<td>What are your symptoms ?</td>
-<td>I have a stomachache and diarrhea.</td>
-</tr>
-<tr>
-<td>I think that you have a stomach flu.</td>
-<td>Do I have a favor ?</td>
-</tr>
-<tr>
-<td>I’ll write you a prescription for some medicine.</td>
-<td>What should I do?</td>
-</tr>
-<tr>
-<td>Get rest and drink water.</td>
-<td></td>
 </tr>
 </tbody>
 </table>
