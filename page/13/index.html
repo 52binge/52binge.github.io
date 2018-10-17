@@ -46,6 +46,8 @@ var _hmt = _hmt || [];
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
           <a class="main-nav-link" href="/tensorflow">TF</a>
         
           <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
@@ -68,6 +70,89 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
+      <article id="post-ops-db-greenplum-manual-dev-steps" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/01/12/ops-db-greenplum-manual-dev-steps/"><strong>Greenplum dev Flow</strong></a>
+      <small class=article-date-index>&nbsp; 2017-01-12</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/01/12/ops-db-greenplum-manual-dev-steps/" class="article-date">
+  <time datetime="2017-01-12T07:28:21.000Z" itemprop="datePublished">2017-01-12</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/devops/">devops</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/01/12/ops-db-greenplum-manual-dev-steps/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/ops/greenplum-flow.png" alt=""></p>
+<h2 id="1-Rds-import-oss"><a href="#1-Rds-import-oss" class="headerlink" title="1. Rds import oss"></a>1. Rds import oss</h2><p>通过 datax 从 mysql 导出数据到 OSS</p>
+<p>组装 : mysql2oss-e_coupon.json</p>
+<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "job": &#123;</span><br><span class="line">        "content": [</span><br><span class="line">        &#123;</span><br><span class="line">            "reader": &#123;</span><br><span class="line">                "name": "mysqlreader",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "username": "xx",</span><br><span class="line">                        "password": "xx",</span><br><span class="line">                        "connection": [</span><br><span class="line">                        &#123;</span><br><span class="line">                            "jdbcUrl": [</span><br><span class="line">                                "jdbc:mysql://192.168.184.xx:port"</span><br><span class="line">                                ],</span><br><span class="line">                            "table": [</span><br><span class="line">                                "rds-lib-name.e_coupon"</span><br><span class="line">                                ]</span><br><span class="line">                        &#125;</span><br><span class="line">                        ],</span><br><span class="line">                        "column":[</span><br><span class="line">                            "id",</span><br><span class="line">                            "x_card_user_id",</span><br><span class="line">                            "coupon_discount_code",</span><br><span class="line">                            ...</span><br><span class="line">                            "order_merchant_id"</span><br><span class="line">                        ],</span><br><span class="line">                        "where": "created_time BETWEEN '2016-01-01 00:00:00' AND '2017-01-05 23:59:59'"</span><br><span class="line">                    &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">                "writer": &#123;</span><br><span class="line">                    "name": "osswriter",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "accessId": "xx",</span><br><span class="line">                        "accessKey": "xx",</span><br><span class="line">                        "bucket": "company-name-data",</span><br><span class="line">                        "encoding": "UTF-8",</span><br><span class="line">                        "endpoint": "http://oss-cn-hangzhou.aliyuncs.com",</span><br><span class="line">                        "fieldDelimiter": "\t",</span><br><span class="line">                        "object": "datax_dev/libin/e_coupon",</span><br><span class="line">                        "writeMode": "truncate"</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ],</span><br><span class="line">        "setting": &#123;</span><br><span class="line">            "speed": &#123;</span><br><span class="line">                "channel": 1</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>触发执行 :</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">python datax.py mysql2oss-e_coupon.json</span><br></pre></td></tr></table></figure>
+<h2 id="2-ext-table"><a href="#2-ext-table" class="headerlink" title="2. ext table"></a>2. ext table</h2><p>创建外部表，ext_dm_e_coupon，并将 location 指向为 oss</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">bigint</span>,</span><br><span class="line">    x_card_user_id <span class="built_in">varchar</span>,</span><br><span class="line">    coupon_discount_code <span class="built_in">varchar</span>,</span><br><span class="line">    ...</span><br><span class="line">    order_merchant_id <span class="built_in">bigint</span></span><br><span class="line">) LOCATION(</span><br><span class="line">    <span class="string">'oss://oss-cn-hangzhou.aliyuncs.com</span><br><span class="line">        dir=datax_dev/libin/</span><br><span class="line">        id=xx</span><br><span class="line">        key=xx</span><br><span class="line">        bucket=xkeshi-data'</span></span><br><span class="line">) <span class="keyword">FORMAT</span> <span class="string">'text'</span> (<span class="literal">NULL</span> <span class="keyword">AS</span> <span class="string">'null'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 45596 id comment 字段有回车 ,So del comment varchar, don't imported.</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-ods-table"><a href="#3-ods-table" class="headerlink" title="3. ods table"></a>3. ods table</h2><p>创建 ods_dm_e_coupon 表，并向其中导入数据</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> ods_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ods_dm_e_coupon <span class="keyword">AS</span> <span class="keyword">SELECT</span></span><br><span class="line">	*</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	ext_dm_e_coupon <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意 : 这样建表 ods table id，不是 primary key</p>
+<p>显示指定 distributed BY (id)，可读性更好</p>
+</blockquote>
+<h2 id="4-mds-table"><a href="#4-mds-table" class="headerlink" title="4. mds table"></a>4. mds table</h2><p>创建 mds_dm_e_coupon_profile 表</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile (</span><br><span class="line">	<span class="keyword">id</span> bigserial,</span><br><span class="line">	coupon_info_code <span class="built_in">VARCHAR</span>,</span><br><span class="line">	shop_id <span class="built_in">BIGINT</span>,</span><br><span class="line">	collected_avg_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_sum_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_rate <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>)</span><br><span class="line">) <span class="keyword">WITH</span> (</span><br><span class="line">	appendonly = <span class="literal">TRUE</span>,</span><br><span class="line">	compresslevel = <span class="number">5</span></span><br><span class="line">) <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>创建表的时候，给一个自增 id. 每一个表都有一个自增 id，是一个比较好的规范</p>
+</blockquote>
+<h2 id="5-insert-mds-table"><a href="#5-insert-mds-table" class="headerlink" title="5. insert mds table"></a>5. insert mds table</h2><p>insert data to mds_dm_e_coupon_profile</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> mds_dm_e_coupon_profile (</span><br><span class="line">	coupon_info_code,</span><br><span class="line">	shop_id,</span><br><span class="line">	collected_avg_actual_price,</span><br><span class="line">	collected_sum_actual_price,</span><br><span class="line">	collected_count,</span><br><span class="line">	verified_count,</span><br><span class="line">	verified_rate</span><br><span class="line">) <span class="keyword">SELECT</span></span><br><span class="line">	tt1.coupon_info_code,</span><br><span class="line">	tt1.shop_id,</span><br><span class="line">	tt1.avg_actual_price <span class="keyword">AS</span> collected_avg_actual_price,</span><br><span class="line">	tt1.sum_actual_price <span class="keyword">AS</span> collected_sum_actual_price,</span><br><span class="line">	tt1.collected_count,</span><br><span class="line">	<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">	<span class="keyword">round</span>(</span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) * <span class="number">1.0</span></span><br><span class="line">		) / (tt1.collected_count * <span class="number">1.0</span>),</span><br><span class="line">		<span class="number">2</span></span><br><span class="line">	) <span class="keyword">AS</span> verified_rate</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	(</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			t1.coupon_info_code,</span><br><span class="line">			t1.shop_id,</span><br><span class="line">			<span class="keyword">COUNT</span> (t1.<span class="keyword">ID</span>) <span class="keyword">AS</span> collected_count,</span><br><span class="line">			<span class="keyword">round</span>(<span class="keyword">AVG</span>(t1.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">			<span class="keyword">SUM</span> (t1.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">		<span class="keyword">FROM</span></span><br><span class="line">			(</span><br><span class="line">				<span class="keyword">SELECT</span></span><br><span class="line">					*</span><br><span class="line">				<span class="keyword">FROM</span></span><br><span class="line">					ods_dm_e_coupon</span><br><span class="line">				<span class="keyword">WHERE</span></span><br><span class="line">					<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			) t1</span><br><span class="line">		<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">			(t1.coupon_info_code, t1.shop_id)</span><br><span class="line">		<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">			t1.shop_id</span><br><span class="line">	) tt1</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> (</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		t2.coupon_info_code,</span><br><span class="line">		t2.shop_id,</span><br><span class="line">		<span class="keyword">COUNT</span> (t2.<span class="keyword">ID</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">		<span class="keyword">round</span>(<span class="keyword">AVG</span>(t2.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">		<span class="keyword">SUM</span> (t2.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">	<span class="keyword">FROM</span></span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">SELECT</span></span><br><span class="line">				*</span><br><span class="line">			<span class="keyword">FROM</span></span><br><span class="line">				ods_dm_e_coupon</span><br><span class="line">			<span class="keyword">WHERE</span></span><br><span class="line">				<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			<span class="keyword">AND</span> <span class="keyword">RESULT</span> = <span class="number">2</span></span><br><span class="line">		) t2</span><br><span class="line">	<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">		(t2.coupon_info_code, t2.shop_id)</span><br><span class="line">	<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">		t2.shop_id</span><br><span class="line">) tt2 <span class="keyword">ON</span> tt1.coupon_info_code = tt2.coupon_info_code</span><br><span class="line"><span class="keyword">AND</span> tt1.shop_id = tt2.shop_id</span><br></pre></td></tr></table></figure>
+<h2 id="6-validation-results"><a href="#6-validation-results" class="headerlink" title="6. validation results"></a>6. validation results</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mds_dm_e_coupon_profile <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">id</span> <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
+<p><img src="/images/ops/greenplum-man-1.png" alt=""></p>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-ops-db-greenplum-short-introduce" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -2740,242 +2825,6 @@ img {
 <h2 id="3-Reading-amp-Writing"><a href="#3-Reading-amp-Writing" class="headerlink" title="3. Reading &amp; Writing"></a>3. Reading &amp; Writing</h2><p><strong>Moneyball</strong></p>
 <p>I don’t like baseball, but ‘Moneyball’ was a very interesting movie. The story is a little dark. You learn some dreadful things about sports, but ‘Moneyball’ has a happy ending. ‘Moneyball’ is about the Oakland A’s general manager, the famous Billy Beane. Beane wasn’t given much money. He had to get creative. Billy Beane was played by Brad Pitt, and ‘Moneyball’ was directed by Bennett Miller. I think that actors always do a good job when they work with Bennett Miller.</p>
 <p>I just saw ‘Rear Window’. What an amazing movie! ‘Rear Window’ was made in 1954 and was directed by the famous Alfred Hitchcock. ‘Rear Window’ is a dark story, like most Hitchcock movies. L.B. is played by James Stewart. L.B. is a photographer, but his leg is broken. He has to stay home, so he watches his neighbors through their windows. I felt sorry for his poor neighbors!</p>
-
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ef-l5u5-Movies-l3" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/11/01/ef-l5u5-Movies-l3/"><strong>Movies L3 Choosing a movie to see</strong></a>
-      <small class=article-date-index>&nbsp; 2016-11-01</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2016/11/01/ef-l5u5-Movies-l3/" class="article-date">
-  <time datetime="2016-10-31T23:15:16.000Z" itemprop="datePublished">2016-11-01</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/English/">English</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/11/01/ef-l5u5-Movies-l3/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1-Vocabulary"><a href="#1-Vocabulary" class="headerlink" title="1. Vocabulary"></a>1. Vocabulary</h2><ul>
-<li>characters</li>
-<li>remake</li>
-</ul>
-<p><img src="/images/ef-l5u5l3.png" width="460" height="400" img=""></p>
-<table>
-<thead>
-<tr>
-<th>Dialog</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>[KEVIN] What’s he doing to her?</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] I think he’s about to shoot her in the head.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] I can’t believe he did that.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] That’s pretty bad acting, actually.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] Well, it’s OK.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] It’s in black and white.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] Why is it in black and white? What year is this movie?</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] It’s like 1932.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] The <code>special effects</code> aren’t brilliant.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] It’s an old movie, but it’s a good story.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] Why the subtitles?</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] We all speak English here, right?</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] Oh! Oooh, I like her.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] Good actress.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] You think so?</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] It’s a really good story.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] It’s not very original.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] I already know what’s going to happen.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] How do you know?</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] Westerns are always the same.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] You saw the remake.</td>
-<td></td>
-</tr>
-<tr>
-<td>[IAN] That’s how you know.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] No, I didn’t see the remake.</td>
-<td></td>
-</tr>
-<tr>
-<td>[KEVIN] No, I just know how it’s going to end.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="2-Grammar"><a href="#2-Grammar" class="headerlink" title="2. Grammar"></a>2. Grammar</h2><table>
-<thead>
-<tr>
-<th>sentence</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Beijing is the capital of China.</td>
-<td></td>
-</tr>
-<tr>
-<td><strong>Woody Allen directed the movie ‘Annie Hall.’</strong></td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>I think that ‘Annie Hall’ is an incredible film.</td>
-<td></td>
-</tr>
-<tr>
-<td>In my opinion, he’s a terrible actor.</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td><strong>Which movie do you want to see?</strong></td>
-<td></td>
-</tr>
-<tr>
-<td>What about this Tom Hanks movie?</td>
-<td></td>
-</tr>
-<tr>
-<td>What’s it called?</td>
-<td></td>
-</tr>
-<tr>
-<td>I’ve never heard of it.</td>
-<td></td>
-</tr>
-<tr>
-<td></td>
-<td></td>
-</tr>
-<tr>
-<td>The movie <strong>is directed</strong> by George Lucas.</td>
-<td></td>
-</tr>
-<tr>
-<td>The costumes <strong>are designed</strong> by Virginia Poole.</td>
-<td></td>
-</tr>
-<tr>
-<td>The main character <strong>is played</strong> by Bruce Willis.</td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<h2 id="3-Reading"><a href="#3-Reading" class="headerlink" title="3. Reading"></a>3. Reading</h2><p>‘The Artist’ is just like one of those old films. This romance was made in gorgeous black and white and takes place in the 1920s. And, just like the old films, there’s no talking. There are only a few subtitles. But it’s certainly not a remake of one of the old films from the 1920s. <strong>Remember how some of those old movies had really bad acting</strong>? Well, the acting in ‘The Artist’ is brilliant, and actor  Berenice Bejo is incredible. This movie also has an original  plot. ‘The Artist’ shows us what happens when a famous person has really bad luck. I won’t tell you how it ends - see ‘The Artist’ for yourself.</p>
 
       
     </div>
