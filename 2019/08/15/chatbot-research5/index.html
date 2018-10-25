@@ -28,7 +28,7 @@
 <meta property="og:image" content="http://iequa.com/images/chatbot/chatbot-5_3.png">
 <meta property="og:image" content="http://iequa.com/images/chatbot/chatbot-5_4.png">
 <meta property="og:image" content="http://iequa.com/images/chatbot/chatbot-5_5.png">
-<meta property="og:updated_time" content="2018-10-25T02:35:59.184Z">
+<meta property="og:updated_time" content="2018-10-25T05:32:45.121Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chatbot Research 5 - 基于深度学习的检索聊天机器人">
 <meta name="twitter:description" content="MathJax.Hub.Config({
@@ -231,14 +231,16 @@ var _hmt = _hmt || [];
 </blockquote>
 <h2 id="4-数据-Ubuntu-对话语料库"><a href="#4-数据-Ubuntu-对话语料库" class="headerlink" title="4. 数据 - Ubuntu 对话语料库"></a>4. 数据 - Ubuntu 对话语料库</h2><p>我们将使用Ubuntu对话数据集（<a href="https://arxiv.org/abs/1506.08909" target="_blank" rel="external">论文来源</a> <a href="https://github.com/rkadlec/ubuntu-ranking-dataset-creator" target="_blank" rel="external">github地址</a>）。这个数据集（Ubuntu Dialog Corpus, UDC）是目前最大的公开对话数据集之一，它是来自 Ubuntu 的 IRC网络 上的对话日志。<a href="https://arxiv.org/abs/1506.08909" target="_blank" rel="external">这篇论文</a>介绍了该数据集生成的具体细节。下面简单介绍一下数据的格式。</p>
 <p>训练数据有 100W 条实例，其中一半是正例（label为1），一半是负例（label为0，负例为随机生成）。每条实例包括一段上下文信息（context），即Query；和一段可能的回复内容，即Response；Label为1表示该Response确实是Query的回复，Label为0则表示不是。下面是数据示例：</p>
+<p>数据集生成脚本已用<a href="http://www.nltk.org/" target="_blank" rel="external">NLTK</a>做了一系列的语料处理包括（<a href="http://www.nltk.org/api/nltk.tokenize.html#module-nltk.tokenize" target="_blank" rel="external">分词</a>，<a href="http://www.nltk.org/api/nltk.stem.html#module-nltk.stem.snowball" target="_blank" rel="external">stemmed</a>，<a href="http://www.nltk.org/api/nltk.stem.html#module-nltk.stem.wordnet" target="_blank" rel="external">lemmatized</a>）等文本预处理步骤；</p>
 <blockquote>
-<p>数据集生成脚本已经使用 <a href="http://www.nltk.org/" target="_blank" rel="external">NLTK</a> 做了一系列的语料处理包括（<a href="http://www.nltk.org/api/nltk.tokenize.html#module-nltk.tokenize" target="_blank" rel="external">分词</a>，<a href="http://www.nltk.org/api/nltk.stem.html#module-nltk.stem.snowball" target="_blank" rel="external">stemmed</a>，<a href="http://www.nltk.org/api/nltk.stem.html#module-nltk.stem.wordnet" target="_blank" rel="external">lemmatized</a>）等文本预处理步骤；</p>
-<p>使用了NER技术，将文本中的实体，如 姓名、地点、组织、URL 等替换成特殊字符。</p>
-<p>这些预处理不是严格必要的，但是能改善一些系统的表现。</p>
-<p>语料的上下文平均有86个词语，答复平均有17个词语长。有人做了语料的统计分析：<a href="https://github.com/dennybritz/chatbot-retrieval/blob/master/notebooks/Data%20Exploration.ipynb" target="_blank" rel="external">data analysis</a></p>
-<p>数据集也包括了 <strong>Test / Validation sets</strong>，但这两部分的数据和训练数据在格式上不太一样。</p>
-<p>在 <strong>Test / Validation sets</strong> 中，对于每一条实例，有一个正例和九个负例数据（也称为干扰数据）。</p>
-<p>模型的目标在于给正例的得分尽可能的高，而给负例的得分尽可能的低。下面是数据示例：</p>
+<ul>
+<li>使用了NER技术，将文本中的实体，如 姓名、地点、组织、URL 等替换成特殊字符。</li>
+<li>这些预处理不是严格必要的，但是能改善一些系统的表现。</li>
+<li>语料的上下文平均有86个词语，答复平均有17个词语长。有人做了语料的统计分析：<a href="https://github.com/dennybritz/chatbot-retrieval/blob/master/notebooks/Data%20Exploration.ipynb" target="_blank" rel="external">data analysis</a></li>
+<li>数据集也包括了 <strong>Test / Validation sets</strong>，但这两部分的数据和训练数据在格式上不太一样。</li>
+<li>在 <strong>Test / Validation sets</strong> 中，对于每一条实例，有一个正例和九个负例数据（也称为干扰数据）。</li>
+<li>模型的目标在于给正例的得分尽可能的高，而给负例的得分尽可能的低。下面是数据示例：</li>
+</ul>
 </blockquote>
 <h3 id="4-1-Train-sets"><a href="#4-1-Train-sets" class="headerlink" title="4.1 Train sets"></a>4.1 Train sets</h3><p><img src="/images/chatbot/chatbot-5_4.png" width="900"></p>
 <h3 id="4-2-Test-Validation-sets"><a href="#4-2-Test-Validation-sets" class="headerlink" title="4.2 Test / Validation sets"></a>4.2 Test / Validation sets</h3><ul>
@@ -247,9 +249,7 @@ var _hmt = _hmt || [];
 <li>语料做过分词、stemmed、lemmatized 等文本预处理。</li>
 </ul>
 <p>NLTK stemmed</p>
-<blockquote>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> nltk.stem.porter <span class="keyword">import</span> PorterStemmer</span><br><span class="line">p = PorterStemmer()</span><br><span class="line">p.stem(<span class="string">'wenting'</span>)</span><br></pre></td></tr></table></figure>
-</blockquote>
 <p>NLTK Lemma</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> nltk.stem <span class="keyword">import</span> WordNetLemmatizer</span><br><span class="line">wordnet_lemmatizer = WordNetLemmatizer()</span><br><span class="line">wordnet_lemmatizer.lemmatize(‘dogs’)</span><br><span class="line">u’dog’</span><br></pre></td></tr></table></figure>
 <ul>
