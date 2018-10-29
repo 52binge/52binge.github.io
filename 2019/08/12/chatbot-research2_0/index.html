@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Java SE Learning Notes for Environment - Home</title>
+  <title>Chatbot Research 2 - 文本预处理小计 - Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Java 环境的搭建 手中无剑, 心中有剑.">
+  <meta name="description" content="拿到原始的一条条文本，直接喂给 Model 肯定不行，需要进行对文本进行预处理。预处理的精细程度很大程度上也会影响模型的性能。这篇 Blog 就记录一些预处理的方法。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Java SE Learning Notes for Environment">
-<meta property="og:url" content="http://iequa.com/2013/02/02/java-se-2.1-notes-env/index.html">
+<meta property="og:title" content="Chatbot Research 2 - 文本预处理小计">
+<meta property="og:url" content="http://iequa.com/2019/08/12/chatbot-research2_0/index.html">
 <meta property="og:site_name" content="Home">
-<meta property="og:description" content="Java 环境的搭建 手中无剑, 心中有剑.">
-<meta property="og:updated_time" content="2018-01-28T07:35:20.066Z">
+<meta property="og:description" content="拿到原始的一条条文本，直接喂给 Model 肯定不行，需要进行对文本进行预处理。预处理的精细程度很大程度上也会影响模型的性能。这篇 Blog 就记录一些预处理的方法。">
+<meta property="og:updated_time" content="2018-10-29T07:53:12.912Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Java SE Learning Notes for Environment">
-<meta name="twitter:description" content="Java 环境的搭建 手中无剑, 心中有剑.">
+<meta name="twitter:title" content="Chatbot Research 2 - 文本预处理小计">
+<meta name="twitter:description" content="拿到原始的一条条文本，直接喂给 Model 肯定不行，需要进行对文本进行预处理。预处理的精细程度很大程度上也会影响模型的性能。这篇 Blog 就记录一些预处理的方法。">
   
   
     <link rel="icon" href="/favicon.png">
@@ -70,7 +70,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-java-se-2.1-notes-env" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-chatbot-research2_0" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -78,8 +78,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      Java SE Learning Notes for Environment
-      <small class=article-detail-date-index>&nbsp; 2013-02-02</small>
+      Chatbot Research 2 - 文本预处理小计
+      <small class=article-detail-date-index>&nbsp; 2019-08-12</small>
     </h1>
   
 
@@ -89,35 +89,35 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2013/02/02/java-se-2.1-notes-env/" class="article-date">
-  <time datetime="2013-02-02T00:54:16.000Z" itemprop="datePublished">2013-02-02</time>
+      <!--<a href="/2019/08/12/chatbot-research2_0/" class="article-date">
+  <time datetime="2019-08-12T02:00:21.000Z" itemprop="datePublished">2019-08-12</time>
 </a>-->
       <!-- 
   <div class="article-category">
-    <a class="article-category-link" href="/categories/java/">java</a>
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
   </div>
 
 --><!-- by blair 160724 -->
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2013/02/02/java-se-2.1-notes-env/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2019/08/12/chatbot-research2_0/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Java 环境的搭建 <code>手中无剑</code>, <code>心中有剑</code>.</p>
+        <p>拿到原始的一条条文本，直接喂给 Model 肯定不行，需要进行对文本进行预处理。预处理的精细程度很大程度上也会影响模型的性能。这篇 Blog 就记录一些预处理的方法。</p>
 <a id="more"></a>
-<h2 id="1-JDK"><a href="#1-JDK" class="headerlink" title="1. JDK"></a>1. JDK</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">MS=/usr/<span class="built_in">local</span>/xsoft/software</span><br><span class="line"></span><br><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
-<h2 id="2-Maven"><a href="#2-Maven" class="headerlink" title="2. Maven"></a>2. Maven</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### Maven ###</span></span><br><span class="line">M2_HOME=/usr/<span class="built_in">local</span>/xsoft/software/apache-maven</span><br><span class="line">MAVEN_HOME=<span class="variable">$M2_HOME</span></span><br><span class="line">M3_HOME=<span class="variable">$M2_HOME</span></span><br><span class="line">PATH=<span class="variable">$M3_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line"><span class="built_in">export</span> MAVEN_HOME M2_HOME PATH</span><br><span class="line"><span class="comment">#MAVEN_OPTS=-Xms128m -Xmx512m</span></span><br></pre></td></tr></table></figure>
-<h2 id="3-Tomcat"><a href="#3-Tomcat" class="headerlink" title="3. Tomcat"></a>3. Tomcat</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### Tomcat ###</span></span><br><span class="line">CATALINA_HOME=/usr/<span class="built_in">local</span>/xsoft/software/apache-tomcat</span><br><span class="line">PATH=<span class="variable">$CATALINA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line"><span class="built_in">export</span> CATALINA_HOME PATH</span><br></pre></td></tr></table></figure>
-<h2 id="4-IDE"><a href="#4-IDE" class="headerlink" title="4. IDE"></a>4. IDE</h2><ul>
-<li><a href="https://www.jetbrains.com/idea/" target="_blank" rel="external">Intellij IDEA</a></li>
-</ul>
+<h2 id="Remove-Stop-Words"><a href="#Remove-Stop-Words" class="headerlink" title="Remove Stop Words"></a>Remove Stop Words</h2><p>Stop Words，也叫停用词，通常意义上，停用词大致分为两类。一类是人类语言中包含的功能词，这些功能词极其普遍，与其他词相比，功能词没有什么实际含义，比如’the’、’is’、’at’、’which’、’on’等。另一类词包括词汇词，比如’want’等，这些词应用十分广泛，但是对这样的词搜索引擎无法保证能够给出真正相关的搜索结果，难以帮助缩小搜索范围，同时还会降低搜索的效率，所以通常会把这些词从问题中移去，从而提高搜索性能。</p>
+<p>一般在预处理阶段我们会将它们从文本中去除，以更好地捕获文本的特征和节省空间（Word Embedding）。Remove Stop Words 的方法有很多，Stanford NLP 组有一个工具就能够办到，Python 中也有 nltk 库来做一些常见的预处理，这里就以 nltk 为例来记录去除停用词的操作：</p>
+<p>首先我们导入 nltk.corpus 中的 stopwords 对象，选取 english 的 stopwords，生成一个 set</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="/2017/10/21/ops-zsh-config/">Blair Zsh Config</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/31767633" target="_blank" rel="external">文本预处理方法小记</a></li>
+<li><a href="https://www.jianshu.com/p/db400a569730" target="_blank" rel="external">用tf的VocabularyProcessor创建词汇表vocab</a></li>
+<li><a href="http://www.wklken.me/posts/2013/08/18/python-extra-functools.html" target="_blank" rel="external">PYTHON-进阶-FUNCTOOLS模块小结</a></li>
+<li><a href="https://blog.csdn.net/woaidapaopao/article/details/73007741" target="_blank" rel="external">tensorflow学习笔记（六）：TF.contrib.learn大杂烩</a></li>
 </ul>
 
       
@@ -161,7 +161,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-JDK"><span class="toc-number"></span> <span class="toc-text">1. JDK</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Maven"><span class="toc-number"></span> <span class="toc-text">2. Maven</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Tomcat"><span class="toc-number"></span> <span class="toc-text">3. Tomcat</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-IDE"><span class="toc-number"></span> <span class="toc-text">4. IDE</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Remove-Stop-Words"><span class="toc-number"></span> <span class="toc-text">Remove Stop Words</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -169,7 +169,7 @@ var _hmt = _hmt || [];
         <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
         
   <div class="article-category">
-    <a class="article-category-link" href="/categories/java/">java</a>
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
   </div>
 
  <!-- by blair add 160724-->
@@ -178,7 +178,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/java/">java</a>
+    <a class="article-tag-link" href="/tags/NLTK/">NLTK</a>
   </div>
 
 
@@ -189,17 +189,17 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2013/02/02/java-se-2.2-notes-app/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/08/12/chatbot-research2/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          Java SE Learning Notes for Hello World
+          Chatbot Research 2 - NLP基础知识回顾
         
       </div>
     </a>
   
   
-    <a href="/2013/02/02/java-se-1-introduce/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Java SE Introduce&nbsp;<span>&gt;</span></div>
+    <a href="/2019/08/11/chatbot-research1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Chatbot Research 1 - 聊天机器人的行业综述&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -228,7 +228,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2013/02/02/java-se-2.1-notes-env/';
+  var disqus_url = 'http://iequa.com/2019/08/12/chatbot-research2_0/';
   
   (function(){
     var dsq = document.createElement('script');
