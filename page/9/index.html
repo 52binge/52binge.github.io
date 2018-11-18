@@ -70,6 +70,82 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
+      <article id="post-ops-macosx-update-python-version" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/08/04/ops-macosx-update-python-version/"><strong>MAC OSX Update Python Version</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-04</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/08/04/ops-macosx-update-python-version/" class="article-date">
+  <time datetime="2016-08-04T08:43:21.000Z" itemprop="datePublished">2016-08-04</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/devops/">devops</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/08/04/ops-macosx-update-python-version/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>by update Python 3.5.2 as example</p>
+</blockquote>
+<h2 id="1-Download"><a href="#1-Download" class="headerlink" title="1. Download"></a>1. Download</h2><ul>
+<li><a href="https://www.python.org/downloads/mac-osx/" target="_blank" rel="external">https://www.python.org/downloads/mac-osx/</a></li>
+<li>Latest Python 3 Release - Python 3.5.2</li>
+</ul>
+<h2 id="2-Install"><a href="#2-Install" class="headerlink" title="2. Install"></a>2. Install</h2><ul>
+<li>python-3.5.2-macosx10.6.pkg</li>
+</ul>
+<h2 id="3-Update"><a href="#3-Update" class="headerlink" title="3. Update"></a>3. Update</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#python版号需要修改两个地方</span></span><br><span class="line"><span class="comment">#1. new_version</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#sudo -i #得到超级权限</span></span><br><span class="line">new_version=<span class="string">"3.5"</span></span><br><span class="line"></span><br><span class="line">PYPATH=/System/Library/Frameworks/Python.framework/Versions/<span class="string">"<span class="variable">$new_version</span>"</span></span><br><span class="line"><span class="comment">#第1步 移动新版python到mac默认目录下</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"move.."</span></span><br><span class="line">mv /Library/Frameworks/Python.framework/Versions/<span class="string">"<span class="variable">$new_version</span>"</span> /System/Library/Frameworks/Python.framework/Versions/</span><br><span class="line"><span class="comment">#第2步 改变用户目录的用户组</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"chown.."</span></span><br><span class="line">chown -R root:wheel <span class="variable">$&#123;PYPATH&#125;</span></span><br><span class="line"><span class="comment">#第3步 删除原来2.7的链接文件</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"del.."</span></span><br><span class="line">rm /System/Library/Frameworks/Python.framework/Versions/Current</span><br><span class="line"><span class="comment">#第4步 重新链接到最新版本的python</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"ln.."</span></span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span> /System/Library/Frameworks/Python.framework/Versions/Current</span><br><span class="line"><span class="comment">#第5步 删除旧的命令符号链接</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"rm.."</span></span><br><span class="line">rm /usr/bin/&#123;pydoc,python,pythonw,python-config&#125;</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"ln bin.."</span></span><br><span class="line"><span class="comment">#第6步 重新建立新的命令符号链接</span></span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span>/bin/pydoc<span class="string">"<span class="variable">$new_version</span>"</span> /usr/bin/pydoc</span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span>/bin/python<span class="string">"<span class="variable">$new_version</span>"</span> /usr/bin/python</span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span>/bin/pythonw<span class="string">"<span class="variable">$new_version</span>"</span> /usr/bin/pythonw</span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span>/bin/python<span class="string">"<span class="variable">$new_version</span>"</span>m-config /usr/bin/python-config</span><br><span class="line"></span><br><span class="line">python_param_list=`<span class="built_in">cd</span> /usr/<span class="built_in">local</span>/bin &amp;&amp; ls -al |grep <span class="string">"Python"</span>|awk <span class="string">'ORS=" " &#123;print $9&#125;'</span>`</span><br><span class="line"><span class="comment">#第7步 修复其他链接</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$python_param_list</span>; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"info: <span class="variable">$i</span>"</span></span><br><span class="line">    rm <span class="_">-f</span> /usr/<span class="built_in">local</span>/bin/<span class="variable">$&#123;i&#125;</span></span><br><span class="line">    ln -sv /System/Library/Frameworks/Python.framework/Versions/<span class="string">"<span class="variable">$new_version</span>"</span>/bin/<span class="variable">$&#123;i&#125;</span> /usr/<span class="built_in">local</span>/bin/<span class="variable">$&#123;i&#125;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#第8步 环境变量要修改为最新的版本号</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">'export PATH=/System/Library/Frameworks/Python.framework/Versions/3.5/bin:$&#123;PATH&#125;'</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'export PATH=/System/Library/Frameworks/Python.framework/Versions/3.5/bin:$&#123;PATH&#125;'</span> &gt;&gt; ~/.zshrc</span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> <span class="comment">#退出超级权限</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-Verifiy"><a href="#4-Verifiy" class="headerlink" title="4. Verifiy"></a>4. Verifiy</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  ~ Python -V</span><br><span class="line">Python 3.5.2</span><br><span class="line">➜  ~</span><br></pre></td></tr></table></figure>
+<h2 id="5-Refence-article"><a href="#5-Refence-article" class="headerlink" title="5. Refence article"></a>5. Refence article</h2><ul>
+<li><a href="http://blog.csdn.net/wirelessqa/article/details/23261723" target="_blank" rel="external">老毕码农</a></li>
+<li><a href="http://www.jianshu.com/p/1a002847265e" target="_blank" rel="external">mac pycharm 切换PYTHON版本</a></li>
+</ul>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-py-language-1-data-analysis-environment" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1530,74 +1606,6 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-java-se-2.5-notes-array" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2013/02/02/java-se-2.5-notes-array/"><strong>Java SE Learning Notes for All</strong></a>
-      <small class=article-date-index>&nbsp; 2013-02-02</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2013/02/02/java-se-2.5-notes-array/" class="article-date">
-  <time datetime="2013-02-01T23:54:16.000Z" itemprop="datePublished">2013-02-02</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/java/">java</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2013/02/02/java-se-2.5-notes-array/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2013/02/02/java-se-2.5-notes-array/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
       <article id="post-java-se-2.4-notes-exception" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1643,6 +1651,74 @@ var _hmt = _hmt || [];
           <!-- @2018-08-27 blair add
           <p class="article-more-link">
             <a href="/2013/02/02/java-se-2.4-notes-exception/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-java-se-2.5-notes-array" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2013/02/02/java-se-2.5-notes-array/"><strong>Java SE Learning Notes for All</strong></a>
+      <small class=article-date-index>&nbsp; 2013-02-02</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2013/02/02/java-se-2.5-notes-array/" class="article-date">
+  <time datetime="2013-02-01T23:54:16.000Z" itemprop="datePublished">2013-02-02</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2013/02/02/java-se-2.5-notes-array/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2013/02/02/java-se-2.5-notes-array/">Read More</a>
           </p> 
           @2018-08-27 blair end
           -->
