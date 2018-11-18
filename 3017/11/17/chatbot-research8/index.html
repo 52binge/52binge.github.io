@@ -18,7 +18,7 @@
 <meta property="og:image" content="http://iequa.com/images/chatbot/seq2seq-3.jpg">
 <meta property="og:image" content="http://iequa.com/images/chatbot/seq2seq-4.jpg">
 <meta property="og:image" content="http://iequa.com/images/chatbot/seq2seq-7.jpeg">
-<meta property="og:updated_time" content="2018-11-18T11:41:22.189Z">
+<meta property="og:updated_time" content="2018-11-18T11:49:34.047Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chatbot Research 8 - 理论 seq2seq+Attention 机制模型详解">
 <meta name="twitter:description" content="从具体的模型细节、公式推导、结构图以及变形等几个方向详细介绍一下 Seq-to-Seq 模型">
@@ -172,7 +172,9 @@ var _hmt = _hmt || [];
 <h3 id="3-1-计算背景变量-c"><a href="#3-1-计算背景变量-c" class="headerlink" title="3.1 计算背景变量 c"></a>3.1 计算背景变量 c</h3><p>$$<br>\boldsymbol{c}_{t’} = \sum_{t=1}^T \alpha_{t’ t} \boldsymbol{h}_t,<br>$$</p>
 <p>其中给定 $t’$ 时，权重 $\alpha_{t’ t}$ 在 $t=1,\ldots,T$ 的值是一个概率分布。为了得到概率分布，可以使用 softmax 运算:</p>
 <p>$$<br>\alpha_{t’ t} = \frac{\exp(e_{t’ t})}{ \sum_{k=1}^T \exp(e_{t’ k}) },\quad t=1,\ldots,T.<br>$$</p>
+<p>现在，我们需要定义如何计算上式中 softmax 运算的输入 $e_{t’ t}$。由于 $e_{t’ t}$ 同时取决于decode的时间步 $t’$ 和encode的时间步 $t$，我们不妨以解码器在时间步 $t’−1$ 的隐藏状态 $\boldsymbol{s}_{t’ - 1}$ 与编码器在时间步 $t$ 的隐藏状态 $h_t$ 为输入，并通过函数 $a$ 计算 $e_{t’ t}$：</p>
 <p>$$<br>e_{t’ t} = a(\boldsymbol{s}_{t’ - 1}, \boldsymbol{h}_t).<br>$$</p>
+<p>这里函数 a 有多种选择，如果两个输入向量长度相同，一个简单的选择是计算它们的内积 $a(\boldsymbol{s}, \boldsymbol{h})=\boldsymbol{s}^\top \boldsymbol{h}$。而最早提出Attention机制的论文则将输入连结后通过含单隐藏层的多层感知机MLP 变换 </p>
 <p>$$<br>a(\boldsymbol{s}, \boldsymbol{h}) = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s} + \boldsymbol{W}_h \boldsymbol{h}),<br>$$</p>
 <p>其中 $v、W_s、W_h$ 都是可以学习的模型参数。</p>
 <h3 id="3-2-更新隐藏状态"><a href="#3-2-更新隐藏状态" class="headerlink" title="3.2 更新隐藏状态"></a>3.2 更新隐藏状态</h3><p>以门控循环单元为例，在解码器中我们可以对门控循环单元的设计稍作修改。解码器在时间步 $t’$ 的隐藏状态为</p>
@@ -183,7 +185,7 @@ var _hmt = _hmt || [];
 <p><img src="/images/chatbot/seq2seq-7.jpeg" width="800"></p>
 <h3 id="3-3-Seq-to-Seq-with-Attention（NMT）小结"><a href="#3-3-Seq-to-Seq-with-Attention（NMT）小结" class="headerlink" title="3.3 Seq-to-Seq with Attention（NMT）小结"></a>3.3 Seq-to-Seq with Attention（NMT）小结</h3><ul>
 <li>可以在decode的每个时间步使用不同的背景变量，并对输入序列中不同时间步编码的信息分配不同的注意力。</li>
-<li>注意力机制可以采用更为高效的矢量化计算。</li>
+<li>Attention机制可以采用更为高效的矢量化计算。</li>
 </ul>
 <h2 id="4-Seq-to-Seq-with-Attention各种变形"><a href="#4-Seq-to-Seq-with-Attention各种变形" class="headerlink" title="4. Seq-to-Seq with Attention各种变形"></a>4. Seq-to-Seq with Attention各种变形</h2><p>第四个Seq-to-Seq模型，来自于论文 <a href="http://link.zhihu.com/?target=http%3A//aclweb.org/anthology/D15-1166" target="_blank" rel="external">Effective Approaches to Attention-based Neural Machine Translation</a> 这篇论文提出了两种 Seq2Seq模型 分别是global Attention 和 local Attention。</p>
 <h2 id="5-Seq-to-Seq-with-Beam-Search"><a href="#5-Seq-to-Seq-with-Beam-Search" class="headerlink" title="5. Seq-to-Seq with Beam-Search"></a>5. Seq-to-Seq with Beam-Search</h2><p>上面讲的几种Seq2Seq模型都是从模型结构上进行的改进，也就说为了从训练的层面上改善模型的效果，但这里要介绍的beam-search是在测试的时候才用到的技术。</p>
