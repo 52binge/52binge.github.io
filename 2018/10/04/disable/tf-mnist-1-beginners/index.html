@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>简单前馈网络实现 mnist 分类 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="我们来实现一个非常简单的两层 FC 全连接网络来完成 MNIST数据 的分类">
+<meta property="og:type" content="article">
+<meta property="og:title" content="简单前馈网络实现 mnist 分类">
+<meta property="og:url" content="http://iequa.com/2018/10/04/disable/tf-mnist-1-beginners/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="我们来实现一个非常简单的两层 FC 全连接网络来完成 MNIST数据 的分类">
+<meta property="og:updated_time" content="2018-11-20T03:13:42.921Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="简单前馈网络实现 mnist 分类">
+<meta name="twitter:description" content="我们来实现一个非常简单的两层 FC 全连接网络来完成 MNIST数据 的分类">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-disable/tf-mnist-1-beginners" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      简单前馈网络实现 mnist 分类
+      <small class=article-detail-date-index>&nbsp; 2018-10-04</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/10/04/disable/tf-mnist-1-beginners/" class="article-date">
+  <time datetime="2018-10-04T13:10:21.000Z" itemprop="datePublished">2018-10-04</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/10/04/disable/tf-mnist-1-beginners/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>我们来实现一个非常简单的两层 FC 全连接网络来完成 MNIST数据 的分类</p>
+<a id="more"></a> 
+<p>输入 [-1,28*28]， FC1 有 1024 个neurons， FC2 有 10 个neurons。</p>
+<blockquote>
+<p>这么简单的一个全连接网络，结果测试准确率达到了 0.98。还是非常棒的！！！</p>
+<p>MNIST 数据集 包含了 60000 张图片来作为训练数据，10000 张图片作为测试数据。每张图片都代表了 0~9 中的一个数字。图片大小都为 28*28，处理后的每张图片是一个长度为 784 的一维数组，这个数组中的元素对应图片像素矩阵提供给神经网络的输入层，像素矩阵中元素的取值范围 [0, 1]， 它代表了颜色的深浅。其中 0 表示白色背景(background)，1 表示黑色前景(foreground)。</p>
+<p>为了方便使用随机梯度下降， input_data.read_data_sets 函数生成的类还提供了 mnist.train.next.batch 函数，它可以从所有训练数据中读取一小部分作为一个训练 batch。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">MNIST 数据下载地址和内容</th>
+<th style="text-align:center">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Extracting MNIST_data/train-images-idx3-ubyte.gz</td>
+<td style="text-align:center">训练数据图片</td>
+</tr>
+<tr>
+<td style="text-align:center">Extracting MNIST_data/train-labels-idx1-ubyte.gz</td>
+<td style="text-align:center">训练数据答案</td>
+</tr>
+<tr>
+<td style="text-align:center">Extracting MNIST_data/t10k-images-idx3-ubyte.gz</td>
+<td style="text-align:center">测试数据图片</td>
+</tr>
+<tr>
+<td style="text-align:center">Extracting MNIST_data/t10k-labels-idx1-ubyte.gz</td>
+<td style="text-align:center">测试数据答案</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置按需使用 GPU</span></span><br><span class="line">config = tf.ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth = <span class="keyword">True</span></span><br><span class="line">sess = tf.InteractiveSession(config=config)</span><br></pre></td></tr></table></figure>
+<h2 id="1-导入数据"><a href="#1-导入数据" class="headerlink" title="1. 导入数据"></a>1. 导入数据</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 用tensorflow 导入数据</span></span><br><span class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"></span><br><span class="line"><span class="comment"># input_data.read_data_sets 自动将 MNIST 数据集划分为 train、validation、test 三个数据集</span></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">'MNIST_data'</span>, one_hot=<span class="keyword">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># train 集合有 55000 张图片</span></span><br><span class="line"><span class="comment"># validation 集合有 5000 张图片</span></span><br><span class="line"><span class="comment"># test 集合有 10000 张图片，图片来自 MNIST 提供的测试数据集</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(<span class="string">'training data shape '</span>, mnist.train.images.shape)</span><br><span class="line">print(<span class="string">'training label shape '</span>, mnist.train.labels.shape)</span><br><span class="line"></span><br><span class="line"><span class="comment"># training data shape  (55000, 784)</span></span><br><span class="line"><span class="comment"># training label shape  (55000, 10)</span></span><br></pre></td></tr></table></figure>
+<h2 id="2-构建网络"><a href="#2-构建网络" class="headerlink" title="2. 构建网络"></a>2. 构建网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 权值初始化</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">weight_variable</span><span class="params">(shape)</span>:</span></span><br><span class="line">    <span class="comment"># 用正态分布来初始化权值</span></span><br><span class="line">    initial = tf.truncated_normal(shape, stddev=<span class="number">0.1</span>)</span><br><span class="line">    <span class="keyword">return</span> tf.Variable(initial)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bias_variable</span><span class="params">(shape)</span>:</span></span><br><span class="line">    <span class="comment"># 本例中用relu激活函数，所以用一个很小的正偏置较好</span></span><br><span class="line">    initial = tf.constant(<span class="number">0.1</span>, shape=shape)</span><br><span class="line">    <span class="keyword">return</span> tf.Variable(initial)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># input_layer</span></span><br><span class="line">X_ = tf.placeholder(tf.float32, [<span class="keyword">None</span>, <span class="number">784</span>])</span><br><span class="line">y_ = tf.placeholder(tf.float32, [<span class="keyword">None</span>, <span class="number">10</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment"># FC1</span></span><br><span class="line">W_fc1 = weight_variable([<span class="number">784</span>, <span class="number">1024</span>])</span><br><span class="line">b_fc1 = bias_variable([<span class="number">1024</span>])</span><br><span class="line">h_fc1 = tf.nn.relu(tf.matmul(X_, W_fc1) + b_fc1)</span><br><span class="line"></span><br><span class="line"><span class="comment"># FC2</span></span><br><span class="line">W_fc2 = weight_variable([<span class="number">1024</span>, <span class="number">10</span>])</span><br><span class="line">b_fc2 = bias_variable([<span class="number">10</span>])</span><br><span class="line">y_pre = tf.nn.softmax(tf.matmul(h_fc1, W_fc2) + b_fc2)</span><br></pre></td></tr></table></figure>
+<h2 id="3-训练和评估"><a href="#3-训练和评估" class="headerlink" title="3. 训练和评估"></a>3. 训练和评估</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1.损失函数：cross_entropy</span></span><br><span class="line">cross_entropy = -tf.reduce_sum(y_ * tf.log(y_pre))</span><br><span class="line"><span class="comment"># 2.优化函数：AdamOptimizer, 优化速度要比 GradientOptimizer 快很多</span></span><br><span class="line">train_step = tf.train.AdamOptimizer(<span class="number">0.001</span>).minimize(cross_entropy)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3.预测结果评估</span></span><br><span class="line"><span class="comment">#　预测值中最大值（１）即分类结果，是否等于原始标签中的（１）的位置。argmax()取最大值所在的下标</span></span><br><span class="line">correct_prediction = tf.equal(tf.argmax(y_pre, <span class="number">1</span>), tf.arg_max(y_, <span class="number">1</span>))  </span><br><span class="line">accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 开始运行</span></span><br><span class="line">sess.run(tf.global_variables_initializer())</span><br><span class="line"><span class="comment"># 这大概迭代了不到 10 个 epoch， 训练准确率已经达到了0.98</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">5000</span>):</span><br><span class="line">    X_batch, y_batch = mnist.train.next_batch(batch_size=<span class="number">100</span>)</span><br><span class="line">    train_step.run(feed_dict=&#123;X_: X_batch, y_: y_batch&#125;)</span><br><span class="line">    <span class="keyword">if</span> (i+<span class="number">1</span>) % <span class="number">200</span> == <span class="number">0</span>:</span><br><span class="line">        train_accuracy = accuracy.eval(feed_dict=&#123;X_: mnist.train.images, y_: mnist.train.labels&#125;)</span><br><span class="line">        print(<span class="string">"step %d, training acc %g"</span> % (i+<span class="number">1</span>, train_accuracy))</span><br><span class="line">    <span class="keyword">if</span> (i+<span class="number">1</span>) % <span class="number">1000</span> == <span class="number">0</span>:</span><br><span class="line">        test_accuracy = accuracy.eval(feed_dict=&#123;X_: mnist.test.images, y_: mnist.test.labels&#125;)</span><br><span class="line">        print(<span class="string">"= "</span> * <span class="number">10</span>, <span class="string">"step %d, testing acc %g"</span> % (i+<span class="number">1</span>, test_accuracy))</span><br></pre></td></tr></table></figure>
+<p><strong>Output:</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">step 200, training acc 0.937364</span><br><span class="line">step 400, training acc 0.965818</span><br><span class="line">step 600, training acc 0.973364</span><br><span class="line">step 800, training acc 0.977709</span><br><span class="line">step 1000, training acc 0.981528</span><br><span class="line">= = = = = = = = = =  step 1000, testing acc 0.9688</span><br><span class="line">step 1200, training acc 0.988437</span><br><span class="line">step 1400, training acc 0.988728</span><br><span class="line">step 1600, training acc 0.987491</span><br><span class="line">step 1800, training acc 0.993873</span><br><span class="line">step 2000, training acc 0.992527</span><br><span class="line">= = = = = = = = = =  step 2000, testing acc 0.9789</span><br><span class="line">step 2200, training acc 0.995309</span><br><span class="line">step 2400, training acc 0.995455</span><br><span class="line">step 2600, training acc 0.9952</span><br><span class="line">step 2800, training acc 0.996073</span><br><span class="line">step 3000, training acc 0.9964</span><br><span class="line">= = = = = = = = = =  step 3000, testing acc 0.9778</span><br><span class="line">step 3200, training acc 0.996709</span><br><span class="line">step 3400, training acc 0.998109</span><br><span class="line">step 3600, training acc 0.997455</span><br><span class="line">step 3800, training acc 0.995055</span><br><span class="line">step 4000, training acc 0.997291</span><br><span class="line">= = = = = = = = = =  step 4000, testing acc 0.9808</span><br><span class="line">step 4200, training acc 0.997746</span><br><span class="line">step 4400, training acc 0.996073</span><br><span class="line">step 4600, training acc 0.998564</span><br><span class="line">step 4800, training acc 0.997946</span><br><span class="line">step 5000, training acc 0.998673</span><br><span class="line">= = = = = = = = = =  step 5000, testing acc 0.98</span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://blog.csdn.net/jerr__y/article/category/6747409" target="_blank" rel="external">大学之道，在明明德 永永夜 Tensorflow学习之路</a></li>
+<li><a href="https://www.w3cschool.cn/tensorflow_python/tensorflow_python-c1ov28so.html" target="_blank" rel="external">W3cschool MNIST数据集 來龍去脈講解的清清楚楚</a></li>
+<li><a href="http://colah.github.io/posts/2015-09-Visual-Information/" target="_blank" rel="external">Visual-Information 交叉熵</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-导入数据"><span class="toc-number"></span> <span class="toc-text">1. 导入数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-构建网络"><span class="toc-number"></span> <span class="toc-text">2. 构建网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-训练和评估"><span class="toc-number"></span> <span class="toc-text">3. 训练和评估</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/tensorflow/">tensorflow</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/10/04/tensorflow/tf-mnist-1-beginners/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          简单前馈网络实现 mnist 分类
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/10/02/disable/tf-nlp-9.2.3/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">RNN 的语言模型 TensorFlow 实现&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/10/04/disable/tf-mnist-1-beginners/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

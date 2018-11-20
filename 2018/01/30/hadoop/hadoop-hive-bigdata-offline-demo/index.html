@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Flexible Task Scheduling Framework - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本篇介绍一种 大数据离线开发模块的解决方案， 其实这是一个手写的适合离线调度的灵活小框架
+blair’s github bigdata_offline_demo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Flexible Task Scheduling Framework">
+<meta property="og:url" content="http://iequa.com/2018/01/30/hadoop/hadoop-hive-bigdata-offline-demo/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="本篇介绍一种 大数据离线开发模块的解决方案， 其实这是一个手写的适合离线调度的灵活小框架
+blair’s github bigdata_offline_demo">
+<meta property="og:updated_time" content="2018-04-29T01:32:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Flexible Task Scheduling Framework">
+<meta name="twitter:description" content="本篇介绍一种 大数据离线开发模块的解决方案， 其实这是一个手写的适合离线调度的灵活小框架
+blair’s github bigdata_offline_demo">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-hadoop/hadoop-hive-bigdata-offline-demo" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Flexible Task Scheduling Framework
+      <small class=article-detail-date-index>&nbsp; 2018-01-30</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/01/30/hadoop/hadoop-hive-bigdata-offline-demo/" class="article-date">
+  <time datetime="2018-01-30T08:37:21.000Z" itemprop="datePublished">2018-01-30</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/hadoop/">hadoop</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/01/30/hadoop/hadoop-hive-bigdata-offline-demo/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>本篇介绍一种 大数据离线开发模块的解决方案， 其实这是一个手写的适合离线调度的灵活小框架</p>
+<p><a href="https://github.com/blair101/bigdata/tree/master/bigdata-offline-demo" target="_blank" rel="external">blair’s github bigdata_offline_demo</a></p>
+<a id="more"></a>
+<h2 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h2><ul>
+<li>提供一些 best practice</li>
+<li>提高各模块结构及代码的一致性</li>
+<li>降低开发新模块的成本</li>
+<li>便于离线大数据分析</li>
+<li>当然它也适用于对任何离线Job进行调度</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">这是一个 hive 配合 shell 等其他语言写成的灵活调度框架.</span><br><span class="line">   该示例模块架 适用于离线分析，特别是每天跑的crontab任务，或者是每周、每月跑的任务</span><br></pre></td></tr></table></figure>
+<h2 id="1-代码规范"><a href="#1-代码规范" class="headerlink" title="1. 代码规范"></a>1. 代码规范</h2><ul>
+<li>对 Hive 表的操作，如基本SQL不能满足需求，则建议优先采用 Java UDF/UDAF 的方式</li>
+<li>非 Hive 操作, 推荐优先采用python版 streaming 方式或者Java语言实现方式</li>
+<li>每个模块建议给出准确的输入、输出格式定义注释说明.</li>
+</ul>
+<h2 id="2-结构规范"><a href="#2-结构规范" class="headerlink" title="2. 结构规范"></a>2. 结构规范</h2><h3 id="2-1-模块目录"><a href="#2-1-模块目录" class="headerlink" title="2.1 模块目录"></a>2.1 模块目录</h3><ul>
+<li>每个模块为一个目录，模块名 一般与其中 主代码目录 名称一致</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ~/ghome/xgitlab/group-data/bigdata-offline-demo [master ✗ (0cdd403)] [14:43:10]</span></span><br><span class="line">➜ ll</span><br><span class="line">total 40</span><br><span class="line">-rw-r--r--   1 blair  staff   106B Dec 15 14:12 LICENSE</span><br><span class="line">-rw-r--r--@  1 blair  staff   4.9K Dec 15 14:43 README.md</span><br><span class="line">drwxr-xr-x  10 blair  staff   320B Dec 15 14:02 bigdata-offline-demo</span><br><span class="line">drwxr-xr-x   4 blair  staff   128B Dec 15 14:11 docs</span><br></pre></td></tr></table></figure>
+<p><strong>目录功能说明</strong></p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>bigdata-offline-demo</td>
+<td>主代码目录 名称</td>
+</tr>
+<tr>
+<td>README.md</td>
+<td>主要说明</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>许可说明</td>
+</tr>
+<tr>
+<td>docs</td>
+<td>详细文档</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-2-主代码目录"><a href="#2-2-主代码目录" class="headerlink" title="2.2 主代码目录"></a>2.2 主代码目录</h3><blockquote>
+<p><strong>bigdata-offline-demo/bigdata-offline-demo/</strong></p>
+</blockquote>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ~/ghome/xgitlab/group-data/bigdata-offline-demo/bigdata-offline-demo [master ✗ (0cdd403)] [14:44:28]</span></span><br><span class="line">drwxr-xr-x   5 blair  staff   160B Dec 15 14:02 alert</span><br><span class="line">drwxr-xr-x   6 blair  staff   192B Dec 15 14:02 conf</span><br><span class="line">drwxr-xr-x   3 blair  staff    96B Dec 15 14:02 create_table</span><br><span class="line">drwxr-xr-x   3 blair  staff    96B Dec 15 14:08 crontab_job</span><br><span class="line">drwxr-xr-x   3 blair  staff    96B Dec 15 14:02 flag</span><br><span class="line">drwxr-xr-x  40 blair  staff   1.3K Dec 15 14:02 <span class="built_in">log</span></span><br><span class="line">drwxr-xr-x   3 blair  staff    96B Dec 15 14:08 script</span><br><span class="line">drwxr-xr-x   8 blair  staff   256B Dec 15 14:04 util</span><br></pre></td></tr></table></figure>
+<p><strong>主代码目录功能说明</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">目录</th>
+<th style="text-align:left">说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">── alert</td>
+<td style="text-align:left">报警封装</td>
+</tr>
+<tr>
+<td style="text-align:left">── conf</td>
+<td style="text-align:left">配置文件</td>
+</tr>
+<tr>
+<td style="text-align:left">──create_table</td>
+<td style="text-align:left">建表脚本</td>
+</tr>
+<tr>
+<td style="text-align:left">── crontab_job</td>
+<td style="text-align:left">crontab 任务脚本。(crontab任务脚本以crontab_job为前缀, 检测任务依赖关系, 调用主逻辑脚本等)</td>
+</tr>
+<tr>
+<td style="text-align:left">── flag</td>
+<td style="text-align:left">标记文件。(标志该模块已经开始运行，或者运行完毕)</td>
+</tr>
+<tr>
+<td style="text-align:left">── log</td>
+<td style="text-align:left">日志文件。 (如脚本失败可根据log追查定位失败原因)</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">── script</td>
+<td style="text-align:left">主脚本文件</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">── util</td>
+<td style="text-align:left">工具脚本。(主要包含写log脚本, hadoop file / local file / hive check 等封装, 初始化环境目录等)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">── jar</td>
+<td style="text-align:left">jar包 (如无则不需要建立)</td>
+</tr>
+<tr>
+<td style="text-align:left">── java</td>
+<td style="text-align:left">java (udf udaf) 源代码。 (如无则不需要建立)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>script目录 主要存放 shell 脚本，有需要也存放 python 脚本。</li>
+<li>java 代码需要放入 java目录 </li>
+<li><p>如果该模块，script目录脚本较多，􏰀可以在 script dir之下建立子目录􏰀如􏰂 :</p>
+<pre><code>├── script
+  ├── sub_module_1 子模块目录 
+  ├── sub_module_2 子模块目录
+</code></pre></li>
+</ul>
+<h3 id="2-2-项目模板"><a href="#2-2-项目模板" class="headerlink" title="2.2 项目模板"></a>2.2 项目模板</h3><ul>
+<li>提供公共的项目模板. 􏰀统一shell脚本代码􏰄结构􏰄 日志􏰄配置规范􏰁 等</li>
+<li><p>项目模板可仿照本模块􏰂 : </p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http://gitlab.***/data/bigdata-offline-demo.git</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>1). 变量命名􏰂</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">自有变量采用小写􏰀. export出的环境变量采用大写􏰁</span><br><span class="line">  hive 表命名 : </span><br><span class="line">   1. 原始数据表，数据挖掘团队建立的 则 采用命名方式为 ods_dm (original data stream, data_mining)开头</span><br><span class="line">   2. 非原始数据表 数据挖掘团队建立的 则 采用命名方式为 mds_dm (modified data stream , data_mining)开头</span><br><span class="line">   3. 临时数据表 数据挖掘团队建立的 则 采用命名方式为 tmp_dm (temp data stream , data_mining)开头</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>2). 配置文件 (conf目录下)</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">default.conf􏰂 配置公共参数􏰂程序路径􏰄hadoop 用户等􏰁</span><br><span class="line">vars.conf    配置任务参数􏰂 hive表名􏰄参数设置, 以及其他变量等􏰁</span><br><span class="line">alert.conf􏰂   配置邮件报警接收人􏰁</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li><p>3). 输入输出</p>
+ <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 如果存在输入源多种数据格式(rcfile+lzo+textfile)的情况􏰀推荐采用生成临时的统一格式的数据表的方式处理􏰁 </span><br><span class="line">2. hive 表 输出原则上均采用rcfile格式􏰁。</span><br><span class="line">      (当然现在存储便宜，所以很多时候为了操作方便，也可采用text格式存储，但仍然推荐ods层面表统一为rcfile格式)</span><br><span class="line">3. 非hive表 输出采用rcfile或者lzo格式均可􏰁</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>4). hive 建表示例.</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">table_name=<span class="string">"<span class="variable">$&#123;table_ods_e_coupon&#125;</span>"</span></span><br><span class="line">hql=<span class="string">"create external table if not exists <span class="variable">$&#123;table_name&#125;</span></span><br><span class="line">(</span><br><span class="line">    id bigint COMMENT '序号',</span><br><span class="line">    mobile_number varchar(16) COMMENT '领取电子券的手机号',</span><br><span class="line">    coupon_order_number varchar(32) COMMENT '购买电子券时的订单编号',</span><br><span class="line">    dt string</span><br><span class="line">) COMMENT '实际电子券'</span><br><span class="line">row format delimited fields terminated by '\001' collection items terminated by ',' map keys terminated by ':' lines terminated by '\n'</span><br><span class="line">stored as rcfile</span><br><span class="line">location '<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;ods_hive_dir&#125;</span>/<span class="variable">$&#123;table_name&#125;</span>';</span><br><span class="line">"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"<span class="variable">$hql</span>"</span></span><br><span class="line"><span class="variable">$&#123;HIVE&#125;</span> <span class="_">-e</span> <span class="string">"<span class="variable">$hql</span>"</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>  说明</p>
+  <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1. 推荐百万级以上记录的 hive 表建立时指定分区，一般string dt=yyyy-mm-dd  </span><br><span class="line">2. 数据量不大，又不是按照天增加很多数据量的表，则不需要指定分区   </span><br><span class="line">3. 分区 string dt 一般建议为 yyyy-MM-dd 格式  (dt 取自 : date, 默认意思为数据产生日期)</span><br><span class="line">4. hive 建表时指定格式，列与列之间分隔符</span><br><span class="line">5. $&#123;hive_dir&#125;, mds 表为 bucket_name/data_mining/dm/mds/ </span><br><span class="line">                  ods 表为 bucket_name/data_mining/dm/ods/</span><br><span class="line">                          bucket名称 + 部门或大项目组名称 + 团队名称 + 层级</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>5). 报警规范</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">check_success 为封装好的，检测上一条语句执行执行成功，后自动发报警的函数。</span><br><span class="line">(发报警邮件标题以 模块名--任务脚本路径名--任务状态及原因-日期 来设置。便于快速定位问题)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="3-开发流程"><a href="#3-开发流程" class="headerlink" title="3. 开发流程"></a>3. 开发流程</h2><h3 id="3-1-拷贝模块-demo"><a href="#3-1-拷贝模块-demo" class="headerlink" title="3.1 拷贝模块 demo"></a>3.1 拷贝模块 demo</h3><ul>
+<li>copy 本模块，并重命名模块名</li>
+</ul>
+<h3 id="3-2-修改配置-conf"><a href="#3-2-修改配置-conf" class="headerlink" title="3.2 修改配置 conf"></a>3.2 修改配置 conf</h3><ul>
+<li>修改 conf/default.conf 中用不到的 rds 相关变量</li>
+<li>修改 conf/vars.conf 中相关变量</li>
+</ul>
+<h3 id="3-3-建表语句"><a href="#3-3-建表语句" class="headerlink" title="3.3 建表语句"></a>3.3 建表语句</h3><p>根据 create_table/create_table_e_coupon.sh 样例建表脚本，编写属于你自己的建表脚本 </p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[data_mining@emr-gw bigdata-offline-demo]$ ll create_table/</span><br><span class="line">total 8</span><br><span class="line">-rwxr-xr-x 1 data_mining hadoop 7946 Dec 13 14:30 create_table_e_coupon.sh</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-主脚本"><a href="#3-4-主脚本" class="headerlink" title="3.4 主脚本"></a>3.4 主脚本</h3><ul>
+<li>编写 script 下你的主脚本</li>
+<li>根据 script/ods_dm_e_coupon.sh 样例脚本，编写属于你自己的主脚本 </li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[data_mining@emr-gw bigdata-offline-demo]$ ll script/</span><br><span class="line">total 144</span><br><span class="line">-rwxr-xr-x 1 data_mining hadoop   2753 Dec 15 16:58 ods_dm_e_coupon.sh</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>不用拉取数据的，则不需要脚本开头的 source ${util_dir}/my_functions 这句代码。</p>
+</blockquote>
+<h3 id="3-5-调度脚本"><a href="#3-5-调度脚本" class="headerlink" title="3.5 调度脚本"></a>3.5 调度脚本</h3><ul>
+<li>编写 crontab_job 下你的调度脚本</li>
+<li>仿照 crontab_job_ods_e_coupon.sh 编写你主脚本对应的 调度脚本</li>
+</ul>
+<h3 id="3-6-定时任务"><a href="#3-6-定时任务" class="headerlink" title="3.6 定时任务"></a>3.6 定时任务</h3><p>在 linux crontab 中，增加需要定时启动的你的调度脚本 crontab_job_your_script.sh</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[data_mining@emr-gw online]$ crontab -l</span><br><span class="line">10 02 * * * source /etc/bashrc; sh /home/data_mining/hero/online/bigdata-offline-demo/bigdata-offline-demo/crontab_job/crontab_job_ods_e_coupon.sh</span><br></pre></td></tr></table></figure>
+<p>注 : 如有其他问题，再商议</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://github.com/blair101/bigdata/tree/master/bigdata-offline-demo" target="_blank" rel="external">blair’s github bigdata_offline_demo</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#目标"><span class="toc-number"></span> <span class="toc-text">目标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-代码规范"><span class="toc-number"></span> <span class="toc-text">1. 代码规范</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-结构规范"><span class="toc-number"></span> <span class="toc-text">2. 结构规范</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-模块目录"><span class="toc-number"></span> <span class="toc-text">2.1 模块目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-主代码目录"><span class="toc-number"></span> <span class="toc-text">2.2 主代码目录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-项目模板"><span class="toc-number"></span> <span class="toc-text">2.2 项目模板</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-开发流程"><span class="toc-number"></span> <span class="toc-text">3. 开发流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-拷贝模块-demo"><span class="toc-number"></span> <span class="toc-text">3.1 拷贝模块 demo</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-修改配置-conf"><span class="toc-number"></span> <span class="toc-text">3.2 修改配置 conf</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-建表语句"><span class="toc-number"></span> <span class="toc-text">3.3 建表语句</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-主脚本"><span class="toc-number"></span> <span class="toc-text">3.4 主脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-调度脚本"><span class="toc-number"></span> <span class="toc-text">3.5 调度脚本</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-定时任务"><span class="toc-number"></span> <span class="toc-text">3.6 定时任务</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/hadoop/">hadoop</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/hadoop/">hadoop</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/02/01/hadoop/hadoop-hive-udf-udaf/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Hive 中 udf、udaf 和 udtf 的使用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/01/30/hadoop/hadoop-mr-for-python/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">MapReduce for Python&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/01/30/hadoop/hadoop-hive-bigdata-offline-demo/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

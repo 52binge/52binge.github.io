@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark Machine Learning p2 - 设计机器学习系统 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="introduce how to design ml system about moiveStream">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark Machine Learning p2 - 设计机器学习系统">
+<meta property="og:url" content="http://iequa.com/2016/09/08/spark/spark-machine-learning-p2-design-ml-sys/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="introduce how to design ml system about moiveStream">
+<meta property="og:image" content="http://iequa.com/images/spark/spark-ml-2.1.jpg">
+<meta property="og:image" content="http://iequa.com/images/spark/spark-ml-2.2.jpg">
+<meta property="og:image" content="http://iequa.com/images/spark/spark-ml-2.3.jpg">
+<meta property="og:updated_time" content="2018-04-29T01:32:16.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark Machine Learning p2 - 设计机器学习系统">
+<meta name="twitter:description" content="introduce how to design ml system about moiveStream">
+<meta name="twitter:image" content="http://iequa.com/images/spark/spark-ml-2.1.jpg">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/spark-machine-learning-p2-design-ml-sys" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark Machine Learning p2 - 设计机器学习系统
+      <small class=article-detail-date-index>&nbsp; 2016-09-08</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/09/08/spark/spark-machine-learning-p2-design-ml-sys/" class="article-date">
+  <time datetime="2016-09-08T02:07:21.000Z" itemprop="datePublished">2016-09-08</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/09/08/spark/spark-machine-learning-p2-design-ml-sys/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>Spark Machine Learing Reading Notes</p>
+</blockquote>
+<style>
+img {
+        display: block !important;
+        height: 400px;
+        width: 500px;
+        margin-left: 180px !important;
+}
+</style>
+
+<h2 id="1-原始-MovieStream-介绍"><a href="#1-原始-MovieStream-介绍" class="headerlink" title="1. 原始 MovieStream 介绍"></a>1. 原始 MovieStream 介绍</h2><p><img src="/images/spark/spark-ml-2.1.jpg" alt="MovieStream"></p>
+<h3 id="1-1-个性化"><a href="#1-1-个性化" class="headerlink" title="1.1 个性化"></a>1.1 个性化</h3><p><code>个性化</code> 是根据各因素来改变用户体验和<code>呈现给用户内容</code>。这些因素可能包括用户的行为数据和外部因素。</p>
+<p><code>推荐</code>（recommendation）, 常指向用户呈现一个他们可能感兴趣的物品列表。</p>
+<p>个性化和推荐十分相似, 根据因素改变搜索的呈现不同用户不同内容，这是隐式个性化</p>
+<h3 id="1-2-客户细分"><a href="#1-2-客户细分" class="headerlink" title="1.2 客户细分"></a>1.2 客户细分</h3><p>目标营销用与推荐类似的方法从用户群中找出要营销的对象。一般来说，推荐和个性化的应用场景都是一对一，根据用户的特征进行分组，并可能参考行为数据。也可能使用了某种机器学习模型，比如 <code>聚类</code>。</p>
+<h3 id="1-3-预测建模"><a href="#1-3-预测建模" class="headerlink" title="1.3 预测建模"></a>1.3 预测建模</h3><p><code>预测性分析</code> 从某种意义上说还覆盖推荐、个性化和目标营销。用预测建模（predictive modeling）来表示其他做预测的模型。借助活动记录、收入数据以及内容属性，MovieStream 可以创建一个回归模型（regression model）来预测新电影的市场表现。</p>
+<p>另外，我们也可使用分类模型（classificaiton model）来对只有部分数据的新电影自动分配标签、关键字或分类。</p>
+<h2 id="2-机器学习模型的种类"><a href="#2-机器学习模型的种类" class="headerlink" title="2. 机器学习模型的种类"></a>2. 机器学习模型的种类</h2><p><code>supervised learning</code>：这种方法使用已标记数据来学习。<code>推荐引擎</code>、<code>回归</code>和<code>分类</code>便是例子。它们所使用的标记数据可以是用户对电影的评级（对推荐来说）、电影标签（对上述分类例子来说）或是收入数字（对回归预测来说）.</p>
+<p><code>unsupervised learning</code>：一些模型的学习过程不需要标记数据，我们称其为无监督学习。这类模型试图学习或是提取数据背后的结构或从中抽取最为重要的特征。<code>聚类</code>、<code>降维</code>和<code>文本处理</code>的某些特征提取都是无监督学习.</p>
+<h2 id="3-数据驱动ML系统的组成"><a href="#3-数据驱动ML系统的组成" class="headerlink" title="3. 数据驱动ML系统的组成"></a>3. 数据驱动ML系统的组成</h2><p><img src="/images/spark/spark-ml-2.2.jpg" alt="机器学习流程"></p>
+<h3 id="3-1-数据获取与存储"><a href="#3-1-数据获取与存储" class="headerlink" title="3.1 数据获取与存储"></a>3.1 数据获取与存储</h3><p>MovieStream 的数据通常来自用户活动.</p>
+<p>要存储的数据包括：原始数据、即时处理后的数据，以及可用于生产系统的最终建模结果。</p>
+<p><strong>数据存储</strong></p>
+<ol>
+<li><strong>文件系统</strong> : 如 HDFS、Amazon S3 等；</li>
+<li><strong>SQL数据库</strong> : 如 MySQL、PostgreSQL；</li>
+<li><strong>NoSQL</strong> : -如 HBase、Cassandra、Mongodb；</li>
+<li><strong>搜索引擎</strong> : 如 Solr 、Elasticsearch；</li>
+<li><strong>流数据</strong> : – 如 Kafka、Flume、Amazon Kinesis</li>
+</ol>
+<h3 id="3-2-数据清理与转换"><a href="#3-2-数据清理与转换" class="headerlink" title="3.2 数据清理与转换"></a>3.2 数据清理与转换</h3><p>大部分机器学习模型所处理的都是 <code>feature</code>。特征 通常是输入变量所对应的可用于模型的数值表示。</p>
+<p>原始数据 预处理 几种 情况</p>
+<ol>
+<li>数据过滤</li>
+<li>合并多个数据源</li>
+<li>数据汇总</li>
+</ol>
+<p>对许多模型类型来说，这种表示就是包含 <strong>数值数据的</strong> <code>向量</code> or <code>矩阵</code>。</p>
+<p>将类别数据（比如地理位置所在的国家或是电影的类别）编码为对应的数值表示。</p>
+<ol>
+<li>文本数据提取有用信息。</li>
+<li>处理图像或是音频数据。</li>
+<li>数值数据常被转换为类别数据以减少某个变量的可能值的数目。例如将年龄分为 601, 602…</li>
+<li>对特征进行正则化、标准化，以保证同一模型的不同输入变量的值域相同。</li>
+</ol>
+<p>这些数据清理、探索、聚合和转换步骤，都能通过Spark核心API、SparkSQL引擎和其他外部Scala、Java或Python包做到。借助 Spark 的 Hadoop功能 还能实现上述多种存储系统上的读写。</p>
+<h3 id="3-3-模型训练与测试回路"><a href="#3-3-模型训练与测试回路" class="headerlink" title="3.3 模型训练与测试回路"></a>3.3 模型训练与测试回路</h3><p>当数据已转换为可用于模型的形式，便可开始模型的训练和测试。</p>
+<p>在训练数据集上运行模型并在测试数据集（即为评估模型而预留的数据，在训练阶段模型没接触过该数据）上测试其效果，这个过程一般相对直接，被称作交叉验证（cross-validation）。</p>
+<p>Spark MLlib 来实现对各种机器学习方法的模型训练、评估以及交叉验证。</p>
+<h3 id="3-4-模型部署与整合"><a href="#3-4-模型部署与整合" class="headerlink" title="3.4 模型部署与整合"></a>3.4 模型部署与整合</h3><p>通过训练测试循环找出最佳模型后，要让它能得出可付诸实践的预测，还需将其部署到生产系统中。</p>
+<p>这个过程一般要将已训练的模型导入特定的数据存储中。</p>
+<h3 id="3-5-模型监控与反馈"><a href="#3-5-模型监控与反馈" class="headerlink" title="3.5 模型监控与反馈"></a>3.5 模型监控与反馈</h3><p>监控机器学习系统在生产环境下的表现十分重要。</p>
+<p>同样值得注意的是，模型准确度和预测效果只是现实中系统表现的一部分。</p>
+<p>我们可以尽可能在生产系统中部署不同的模型，通过调整它们而优化业务指标。实践中，这通常通过在线分割测试（<code>live split test</code>）进行。</p>
+<p>模型反馈（<code>model feedback</code>），指通过用户的行为来对模型的预测进行反馈的过程。在现实系统中，模型的应用将影响用户的决策和潜在行为，从而反过来将从根本上改变模型自己将来的训练数据。</p>
+<h3 id="3-6-批处理-实时方案选择"><a href="#3-6-批处理-实时方案选择" class="headerlink" title="3.6 批处理/实时方案选择"></a>3.6 批处理/实时方案选择</h3><p>常见的批处理方法。模型用所有数据或一部分数据进行周期性的重新训练。由于上述流程会花费一定的时间，这就使得批处理方法难以在新数据到达时立即完成模型的更新。</p>
+<p>存在一类名为在线学习（online learning）的机器学习方法。它们在新数据到达时便能立即更新模型，从而使实时系统成为可能。常见的例子有对线性模型的在线优化算法，如<code>随机梯度下降法</code>。</p>
+<h2 id="4-机器学习系统架构"><a href="#4-机器学习系统架构" class="headerlink" title="4. 机器学习系统架构"></a>4. 机器学习系统架构</h2><p><img src="/images/spark/spark-ml-2.3.jpg" alt="机器学习系统架构"></p>
+<p>机器学习流程示意图的内容：</p>
+<ul>
+<li>收集与用户、用户行为和电影标题有关的数据；</li>
+<li>将这些数据转为特征；</li>
+<li>模型训练，包括训练-测试和模型选择环节；</li>
+<li>将已训练模型部署到在线服务系统，并用于离线处理；</li>
+<li>通过推荐和目标页面将模型结果反馈到MovieStream站点；</li>
+<li>将模型结果返回到MovieStream的个性化营销渠道；</li>
+<li>使用离线模型来为MovieSteam的各个团队提供工具，以帮助其理解用户的行为、内容目录的特点和业务收入的驱动因素。</li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-原始-MovieStream-介绍"><span class="toc-number"></span> <span class="toc-text">1. 原始 MovieStream 介绍</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-个性化"><span class="toc-number"></span> <span class="toc-text">1.1 个性化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-客户细分"><span class="toc-number"></span> <span class="toc-text">1.2 客户细分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-预测建模"><span class="toc-number"></span> <span class="toc-text">1.3 预测建模</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-机器学习模型的种类"><span class="toc-number"></span> <span class="toc-text">2. 机器学习模型的种类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-数据驱动ML系统的组成"><span class="toc-number"></span> <span class="toc-text">3. 数据驱动ML系统的组成</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-数据获取与存储"><span class="toc-number"></span> <span class="toc-text">3.1 数据获取与存储</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-数据清理与转换"><span class="toc-number"></span> <span class="toc-text">3.2 数据清理与转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-模型训练与测试回路"><span class="toc-number"></span> <span class="toc-text">3.3 模型训练与测试回路</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-模型部署与整合"><span class="toc-number"></span> <span class="toc-text">3.4 模型部署与整合</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-模型监控与反馈"><span class="toc-number"></span> <span class="toc-text">3.5 模型监控与反馈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-批处理-实时方案选择"><span class="toc-number"></span> <span class="toc-text">3.6 批处理/实时方案选择</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-机器学习系统架构"><span class="toc-number"></span> <span class="toc-text">4. 机器学习系统架构</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/machine-learning/">machine-learning</a><span></span><a class="article-tag-link" href="/tags/spark/">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2016/09/09/spark/spark-machine-learning-p3/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Spark Machine Learning p3 - 数据的获取、处理与准备
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2016/08/16/java/java-special-arms-p3-jvm/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">JVM 跨平台与字节码原理初步&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2016/09/08/spark/spark-machine-learning-p2-design-ml-sys/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
