@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Sklearn Cross-validation 1 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Sklearn 中的 Cross-validation 对于我们选择正确的 Model 和 Model 的参数是非常有用， 有了它我们能直观的看出不同 Model 或者参数对结构准确度的影响。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Sklearn Cross-validation 1">
+<meta property="og:url" content="http://iequa.com/2018/01/08/python/py-sklearn-6-cross-validation-1/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="Sklearn 中的 Cross-validation 对于我们选择正确的 Model 和 Model 的参数是非常有用， 有了它我们能直观的看出不同 Model 或者参数对结构准确度的影响。">
+<meta property="og:image" content="http://iequa.com/images/python/sklearn-6-cross-validation-1-output_6_0.png">
+<meta property="og:image" content="http://iequa.com/images/python/sklearn-6-cross-validation-1-output_8_1.png">
+<meta property="og:updated_time" content="2018-11-20T13:45:04.400Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Sklearn Cross-validation 1">
+<meta name="twitter:description" content="Sklearn 中的 Cross-validation 对于我们选择正确的 Model 和 Model 的参数是非常有用， 有了它我们能直观的看出不同 Model 或者参数对结构准确度的影响。">
+<meta name="twitter:image" content="http://iequa.com/images/python/sklearn-6-cross-validation-1-output_6_0.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-python/py-sklearn-6-cross-validation-1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Sklearn Cross-validation 1
+      <small class=article-detail-date-index>&nbsp; 2018-01-08</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/01/08/python/py-sklearn-6-cross-validation-1/" class="article-date">
+  <time datetime="2018-01-08T10:17:21.000Z" itemprop="datePublished">2018-01-08</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/01/08/python/py-sklearn-6-cross-validation-1/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Sklearn 中的 <code>Cross-validation</code> 对于我们选择正确的 <code>Model</code> 和 <code>Model 的参数</code>是非常有用， 有了它我们能直观的看出不同 Model 或者参数对结构准确度的影响。</p>
+<a id="more"></a>
+<h2 id="Model-基础验证法"><a href="#Model-基础验证法" class="headerlink" title="Model 基础验证法"></a>Model 基础验证法</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_iris <span class="comment"># iris数据集</span></span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split <span class="comment"># 分割数据模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.neighbors <span class="keyword">import</span> KNeighborsClassifier <span class="comment"># K最近邻(kNN，k-NearestNeighbor)分类算法</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#加载iris数据集</span></span><br><span class="line">iris = load_iris()</span><br><span class="line">X = iris.data</span><br><span class="line">y = iris.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#分割数据并</span></span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#建立模型</span></span><br><span class="line">knn = KNeighborsClassifier()</span><br><span class="line"></span><br><span class="line"><span class="comment">#训练模型</span></span><br><span class="line">knn.fit(X_train, y_train)</span><br><span class="line"></span><br><span class="line"><span class="comment">#将准确率打印出</span></span><br><span class="line">print(knn.score(X_test, y_test))</span><br></pre></td></tr></table></figure>
+<pre><code>0.973684210526
+</code></pre><p>可以看到基础验证的准确率为 <code>0.973684210526</code></p>
+<h2 id="Model-Cross-Validation"><a href="#Model-Cross-Validation" class="headerlink" title="Model Cross Validation"></a>Model Cross Validation</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.cross_validation <span class="keyword">import</span> cross_val_score <span class="comment"># K折交叉验证模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#使用K折交叉验证模块</span></span><br><span class="line">scores = cross_val_score(knn, X, y, cv=<span class="number">5</span>, scoring=<span class="string">'accuracy'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#将5次的预测准确率打印出</span></span><br><span class="line">print(scores)</span><br><span class="line"></span><br><span class="line"><span class="comment">#将5次的预测准确平均率打印出</span></span><br><span class="line">print(scores.mean())</span><br></pre></td></tr></table></figure>
+<pre><code>[ 0.96666667  1.          0.93333333  0.96666667  1.        ]
+0.973333333333
+</code></pre><p>可以看到交叉验证的准确平均率为 <code>0.973333333333</code></p>
+<h2 id="Aaccuracy-准确率判断"><a href="#Aaccuracy-准确率判断" class="headerlink" title="Aaccuracy 准确率判断"></a>Aaccuracy 准确率判断</h2><p>一般来说 <code>准确率(accuracy)</code> 会用于判断分类(Classification)模型的好坏</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span class="comment">#可视化模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#建立测试参数集</span></span><br><span class="line">k_range = range(<span class="number">1</span>, <span class="number">31</span>)</span><br><span class="line"></span><br><span class="line">k_scores = []</span><br><span class="line"></span><br><span class="line"><span class="comment">#藉由迭代的方式来计算不同参数对模型的影响，并返回交叉验证后的平均准确率</span></span><br><span class="line"><span class="keyword">for</span> k <span class="keyword">in</span> k_range:</span><br><span class="line">    knn = KNeighborsClassifier(n_neighbors=k)</span><br><span class="line">    scores = cross_val_score(knn, X, y, cv=<span class="number">10</span>, scoring=<span class="string">'accuracy'</span>)</span><br><span class="line">    k_scores.append(scores.mean())</span><br><span class="line"></span><br><span class="line"><span class="comment">#可视化数据</span></span><br><span class="line">plt.plot(k_range, k_scores)</span><br><span class="line">plt.xlabel(<span class="string">'Value of K for KNN'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Cross-Validated Accuracy'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/sklearn-6-cross-validation-1-output_6_0.png" width="400"><br></div>
+
+<p>从图中得知，选择 <code>12~18</code> 的 <code>k</code> 值最好。高过 <code>18</code> 之后，准确率开始下降则是因为过拟合(<code>Over fitting</code>)的问题。</p>
+<h2 id="Mean-squared-error"><a href="#Mean-squared-error" class="headerlink" title="Mean squared error"></a>Mean squared error</h2><p>一般来说平均方差(<code>Mean squared error</code>)会用于判断回归(<code>Regression</code>)模型的好坏</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">k_range = range(<span class="number">1</span>, <span class="number">31</span>)</span><br><span class="line">k_scores = []</span><br><span class="line"><span class="keyword">for</span> k <span class="keyword">in</span> k_range:</span><br><span class="line">    knn = KNeighborsClassifier(n_neighbors=k)</span><br><span class="line">    loss = -cross_val_score(knn, X, y, cv=<span class="number">10</span>, scoring=<span class="string">'mean_squared_error'</span>)</span><br><span class="line">    k_scores.append(loss.mean())</span><br><span class="line"></span><br><span class="line">plt.plot(k_range, k_scores)</span><br><span class="line">plt.xlabel(<span class="string">'Value of K for KNN'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Cross-Validated MSE'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<div class="limg1"><br><img src="/images/python/sklearn-6-cross-validation-1-output_8_1.png" width="400"><br></div>
+
+<p>由图可以得知，平均方差越低越好，因此选择<code>13~18</code>左右的<code>K</code>值会最好</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="http://scikit-learn.org/" target="_blank" rel="external">scikit-learn.org</a></li>
+<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="external">scikit-learn docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">scikit-learn morvanzhou</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Model-基础验证法"><span class="toc-number"></span> <span class="toc-text">Model 基础验证法</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Model-Cross-Validation"><span class="toc-number"></span> <span class="toc-text">Model Cross Validation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Aaccuracy-准确率判断"><span class="toc-number"></span> <span class="toc-text">Aaccuracy 准确率判断</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Mean-squared-error"><span class="toc-number"></span> <span class="toc-text">Mean squared error</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/Sklearn/">Sklearn</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/01/09/python/py-sklearn-6-cross-validation-2/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Sklearn Cross-validation 2
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/01/07/English/english-ielts-speaking-yangshuai-10.1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">杨帅完美发音班 10.1&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/01/08/python/py-sklearn-6-cross-validation-1/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Word2vec 基础 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="word2vec">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Word2vec 基础">
+<meta property="og:url" content="http://iequa.com/2017/07/12/nlp/nlp-word-vector-basic/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="word2vec">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-2.png">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-3.png">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-4.png">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-5.png">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-6.png">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-7.png">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-8.png">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-9.png">
+<meta property="og:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-10.png">
+<meta property="og:updated_time" content="2018-11-20T13:45:04.366Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Word2vec 基础">
+<meta name="twitter:description" content="word2vec">
+<meta name="twitter:image" content="http://iequa.com/images/ml/nlp/nlp-word2vector-2.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-nlp/nlp-word-vector-basic" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Word2vec 基础
+      <small class=article-detail-date-index>&nbsp; 2017-07-12</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/07/12/nlp/nlp-word-vector-basic/" class="article-date">
+  <time datetime="2017-07-12T13:08:21.000Z" itemprop="datePublished">2017-07-12</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/07/12/nlp/nlp-word-vector-basic/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>Natural Language Processing，计算机科学与语言学中关注于计算机与人类语言间转换的领域</p>
+<a id="more"></a>
+<h2 id="1-NLP-常见任务"><a href="#1-NLP-常见任务" class="headerlink" title="1. NLP 常见任务"></a>1. NLP 常见任务</h2><ol>
+<li>自动摘要</li>
+<li>指代消解   </li>
+<li>机器翻译 </li>
+<li>词性标注   </li>
+<li>分词 (中文、日文等)</li>
+<li>主题识别</li>
+<li>文本分类.<br>……</li>
+</ol>
+<blockquote>
+<p>自动摘要   -&gt;   搜索要索引，关键词等<br>指代消解   -&gt;   小明放学了, 妈妈去接<code>他</code><br>机器翻译   -&gt;   小心地滑、干货 =&gt; Slide carefully<br>词性标注   -&gt;   heat(v.) water(n.) in(p.) a(det.)   pot(n.)<br>分词 (中文、日文等)   -&gt;   大水沟/很/难/过  </p>
+</blockquote>
+<h2 id="2-NLP-处理方法"><a href="#2-NLP-处理方法" class="headerlink" title="2. NLP 处理方法"></a>2. NLP 处理方法</h2><h3 id="2-1-传统-基于规则"><a href="#2-1-传统-基于规则" class="headerlink" title="2.1 传统: 基于规则"></a>2.1 传统: 基于规则</h3><p>Dict…</p>
+<blockquote>
+<p>简单、粗暴、有用</p>
+</blockquote>
+<h3 id="2-2-现代-基于机器学习"><a href="#2-2-现代-基于机器学习" class="headerlink" title="2.2 现代: 基于机器学习"></a>2.2 现代: 基于机器学习</h3><blockquote>
+<p>HMM, CRF, SVM, LDA, CNN…<br>“规则”隐含在模型参数里</p>
+</blockquote>
+<h2 id="3-词编码和词向量初步"><a href="#3-词编码和词向量初步" class="headerlink" title="3. 词编码和词向量初步"></a>3. 词编码和词向量初步</h2><blockquote>
+<p>你需要一些 model，不管你是基于规则统计、机器学习、深度学习 的一些方法，第一步要做的，一定是对你的文本或者数据，进行表达, 词编码。</p>
+</blockquote>
+<p><font color="black">『词编码需要保证词的相似性』<font></font></font></p>
+<p>Glove results</p>
+<p>Nearest words to</p>
+<ol>
+<li>frog</li>
+<li>toad</li>
+<li>rana</li>
+<li>…</li>
+</ol>
+<p><font color="black">『向量空间分布的相似性』<font></font></font></p>
+<p><img src="/images/ml/nlp/nlp-word2vector-2.png" alt=""></p>
+<p><font color="black">『向量空间子结构』<font></font></font></p>
+<blockquote>
+<p>编码要尽量保证，相似的词的空间距离是相近的</p>
+</blockquote>
+<p>$V_{King}$ - $V_{Queen}$ + $V_{Women}$ = $V_{Man}$</p>
+<p>$V_{Paris}$ - $V_{France}$ + $V_{German}$ = $V_{Berlin}$</p>
+<blockquote>
+<p>最终目标: 词向量表示作为机器学习、特别是深度学习的输入和表示空间</p>
+</blockquote>
+<hr>
+<blockquote>
+<p>你的 <code>数据</code> 决定了你的 <code>结果上限</code><br>你的 <code>算法</code> 只是以多大程度去 <code>逼近</code></p>
+</blockquote>
+<hr>
+<p><strong>Linguists</strong></p>
+<p><img src="/images/ml/nlp/nlp-word2vector-3.png" width="520" height="400" align="middle" img=""></p>
+<h3 id="3-1-离散表示-One-hot"><a href="#3-1-离散表示-One-hot" class="headerlink" title="3.1 离散表示 One-hot"></a>3.1 离散表示 One-hot</h3><ul>
+<li><font color="blue">语料库<font></font></font></li>
+</ul>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">John likes to watch movies. Mary likes too.John also likes to watch football games.</span><br></pre></td></tr></table></figure>
+<ul>
+<li><font color="blue">词典<font></font></font></li>
+</ul>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">&#123;<span class="string">"John"</span>: <span class="number">1</span>, <span class="string">"likes"</span>: <span class="number">2</span>, <span class="string">"to"</span>: <span class="number">3</span>, <span class="string">"watch"</span>: <span class="number">4</span>, <span class="string">"movies"</span>: <span class="number">5</span>, </span><br><span class="line"><span class="string">"also"</span>: <span class="number">6</span>, <span class="string">"football"</span>: <span class="number">7</span>, <span class="string">"games"</span>: <span class="number">8</span>, <span class="string">"Mary"</span>: <span class="number">9</span>, <span class="string">"too"</span>: <span class="number">10</span>&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><font color="blue">One-hot表示<font></font></font></li>
+</ul>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">John: [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]likes: [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line">...</span><br><span class="line">too : [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<h3 id="3-2-离散表示-Bag-of-Words"><a href="#3-2-离散表示-Bag-of-Words" class="headerlink" title="3.2 离散表示 Bag of Words"></a>3.2 离散表示 Bag of Words</h3><blockquote>
+<p>文档的向量表示可以直接将各词的词向量表示加和</p>
+</blockquote>
+<p>John likes to watch movies. Mary likes too. =&gt; [1, 2, 1, 1, 1, 0, 0, 0, 1, 1]<br>John also likes to watch football games. =&gt; [1, 1, 1, 1, 0, 1, 1, 1, 0, 0]</p>
+<blockquote>
+<p>词权重  - (<code>词在文档中的顺序没有被考虑</code>)</p>
+<p>tf-idf是一种统计方法，用以评估一字词对于一个文件集或一个语料库中的其中一份文件的重要程度</p>
+</blockquote>
+<ul>
+<li>TF-IDF (Term Frequency - Inverse Document Frequency)</li>
+</ul>
+<p>Term Frequency : F(term) = (该word词出现在当前文档中的次数) / (当前文档所有word的总数).</p>
+<p>信息检索词 t 的 IDF </p>
+<p>$$\log (1 + {\frac{N}{n^t}})$$</p>
+<blockquote>
+<p>N: 文档总数， n: 含有词 t 的文档数</p>
+</blockquote>
+<p>[0.693, 1.386, 0.693, 0.693, 1.099, 0, 0, 0, 0.693, 0.693]</p>
+<p>Binary weighting</p>
+<blockquote>
+<p>不做计数的版本</p>
+<p>短文本相似性, Bernoulli Naive Bayes [1, 1, 1, 1, 1, 0, 0, 0, 1, 1]</p>
+<p>if so, I love you = you love I</p>
+</blockquote>
+<h3 id="3-3-离散表示-􏰜􏰝􏰞􏰟􏰒Bi-gram-􏰪N-gram"><a href="#3-3-离散表示-􏰜􏰝􏰞􏰟􏰒Bi-gram-􏰪N-gram" class="headerlink" title="3.3 离散表示 􏰜􏰝􏰞􏰟􏰒Bi-gram / 􏰪N-gram"></a>3.3 离散表示 􏰜􏰝􏰞􏰟􏰒Bi-gram / 􏰪N-gram</h3><p>John likes to watch movies. Mary likes too.<br>John also likes to watch football games.</p>
+<p><img src="/images/ml/nlp/nlp-word2vector-4.png" width="620" height="400" align="middle" img=""></p>
+<h3 id="3-4-语言模型-词组合出现的概率"><a href="#3-4-语言模型-词组合出现的概率" class="headerlink" title="3.4 语言模型 词组合出现的概率"></a>3.4 语言模型 词组合出现的概率</h3><p>一句话(词组合)出现的概率</p>
+<p><img src="/images/ml/nlp/nlp-word2vector-5.png" width="620" height="400" align="middle" img=""></p>
+<blockquote>
+<p>简化计算 : $P(too | Mark, likes) \approx P(too | likes)$, 可参见 吴军 《数学之美》 解释</p>
+</blockquote>
+<h3 id="3-5-离散表示-的缺点"><a href="#3-5-离散表示-的缺点" class="headerlink" title="3.5 离散表示 的缺点"></a>3.5 离散表示 的缺点</h3><p><img src="/images/ml/nlp/nlp-word2vector-6.png" width="620" height="400" align="middle" img=""></p>
+<h3 id="3-6-分布式表示-提出"><a href="#3-6-分布式表示-提出" class="headerlink" title="3.6 分布式表示 提出"></a>3.6 分布式表示 提出</h3><p><img src="/images/ml/nlp/nlp-word2vector-7.png" width="620" height="400" align="middle" img=""></p>
+<blockquote>
+<p>Distributed representation :  </p>
+<p>用一个词附近的其他词来表示该词  - (不知道你的经济情况，就调查下你的狐朋狗友们)<br>􏰐􏱏􏲎􏰀􏳎􏳏􏰢􏳐􏳑􏰀􏳒􏰞You shall know a word by the company it keeps<br>  — J.R. Firth 1957<br>􏰐􏱏􏲎􏰀􏳎􏳏􏰢􏳐􏳑􏰀􏳒􏰞􏰟􏳓􏰀􏰑􏰐􏱏􏲎􏰀􏳎􏳏􏰢􏳐􏳑􏰀􏳒􏰞􏰟􏳓􏰀􏰑􏰐􏱏􏲎􏰀􏳎􏳏􏰢􏳐􏳑<br>􏱕􏳔􏳕􏳖􏳗&gt; 现代统计自然语言处理中最有创见的想法之一</p>
+</blockquote>
+<h2 id="4-共现矩阵-Cocurrence-matrix"><a href="#4-共现矩阵-Cocurrence-matrix" class="headerlink" title="4. 共现矩阵 (Cocurrence matrix)"></a>4. 共现矩阵 (Cocurrence matrix)</h2><p><img src="/images/ml/nlp/nlp-word2vector-8.png" width="620" height="400" align="middle" img=""></p>
+<blockquote>
+<p>共现 : 共同出现</p>
+</blockquote>
+<h3 id="4-1-Word-Word"><a href="#4-1-Word-Word" class="headerlink" title="4.1 Word - Word"></a>4.1 Word - Word</h3><p><img src="/images/ml/nlp/nlp-word2vector-9.png" width="620" height="400" align="middle" img=""></p>
+<blockquote>
+<p>左右窗 length 为 1， 得到的矩阵如上</p>
+</blockquote>
+<p>存在缺点</p>
+<p><img src="/images/ml/nlp/nlp-word2vector-10.png" width="620" height="400" align="middle" img=""></p>
+<blockquote>
+<p>模型欠稳定，可以考虑下 LR 的各个参数等，变化太大，对模型求解有影响</p>
+</blockquote>
+<p><strong>用SVD对共现矩阵向量做降维</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">la = np.linalg</span><br><span class="line"></span><br><span class="line">words = [<span class="string">"I"</span>, <span class="string">"like"</span>, <span class="string">"enjoy"</span>, <span class="string">"deep"</span>, <span class="string">"learning"</span>, <span class="string">"NLP"</span>, <span class="string">"flying"</span>, <span class="string">"."</span>]</span><br><span class="line"></span><br><span class="line">X = np.array(</span><br><span class="line">    [</span><br><span class="line">        [<span class="number">0</span>, <span class="number">2</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">        [<span class="number">2</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">        [<span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>],</span><br><span class="line">        [<span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>]</span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">U, s, Vh = la.svd(X, full_matrices=<span class="keyword">False</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>SVD 降维存在的问题</strong></p>
+<ul>
+<li><p>计算量随语料库和词典增长膨胀太快，对X(n,n)维 的矩阵，计算量O(n^3)。而对大型的语料库， n~400k，语料库大小1~60B token</p>
+</li>
+<li><p>难以为词典中新加入的词分配词向量    </p>
+</li>
+<li>与其他深度学习模型框架差异大</li>
+</ul>
+<h3 id="4-2-NNLM"><a href="#4-2-NNLM" class="headerlink" title="4.2 NNLM"></a>4.2 NNLM</h3><h3 id="4-3-Word2Vec-CBOW"><a href="#4-3-Word2Vec-CBOW" class="headerlink" title="4.3 Word2Vec: CBOW"></a>4.3 Word2Vec: CBOW</h3><h3 id="4-4-Word2Vec-Skip-Gram"><a href="#4-4-Word2Vec-Skip-Gram" class="headerlink" title="4.4 Word2Vec: Skip-Gram"></a>4.4 Word2Vec: Skip-Gram</h3><h3 id="4-5-Word2Vec-缺点"><a href="#4-5-Word2Vec-缺点" class="headerlink" title="4.5 Word2Vec 缺点"></a>4.5 Word2Vec 缺点</h3><h2 id="5-总结"><a href="#5-总结" class="headerlink" title="5. 总结"></a>5. 总结</h2><h3 id="5-1-离散表示"><a href="#5-1-离散表示" class="headerlink" title="5.1 离散表示"></a>5.1 离散表示</h3><ul>
+<li>One-hot representation, Bag Of Words Unigram语言模型</li>
+<li>N-gram词向量表示和语言模型</li>
+<li>Co-currence矩阵的行(列)向量作为词向量</li>
+</ul>
+<h3 id="5-2-分布式连续表示"><a href="#5-2-分布式连续表示" class="headerlink" title="5.2 分布式连续表示"></a>5.2 分布式连续表示</h3><ul>
+<li>Co-currence矩阵的SVD降维的低维词向量表示</li>
+<li>Word2Vec: Continuous Bag of Words Model</li>
+<li>Word2Vec: Skip-Gram Model</li>
+</ul>
+<blockquote>
+<p>gensim 用 python 训练 word2vec 最好用的库<br>它的功能不至于 word2vec</p>
+</blockquote>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-NLP-常见任务"><span class="toc-number"></span> <span class="toc-text">1. NLP 常见任务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NLP-处理方法"><span class="toc-number"></span> <span class="toc-text">2. NLP 处理方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-传统-基于规则"><span class="toc-number"></span> <span class="toc-text">2.1 传统: 基于规则</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-现代-基于机器学习"><span class="toc-number"></span> <span class="toc-text">2.2 现代: 基于机器学习</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-词编码和词向量初步"><span class="toc-number"></span> <span class="toc-text">3. 词编码和词向量初步</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-离散表示-One-hot"><span class="toc-number"></span> <span class="toc-text">3.1 离散表示 One-hot</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-离散表示-Bag-of-Words"><span class="toc-number"></span> <span class="toc-text">3.2 离散表示 Bag of Words</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-离散表示-􏰜􏰝􏰞􏰟􏰒Bi-gram-􏰪N-gram"><span class="toc-number"></span> <span class="toc-text">3.3 离散表示 􏰜􏰝􏰞􏰟􏰒Bi-gram / 􏰪N-gram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-语言模型-词组合出现的概率"><span class="toc-number"></span> <span class="toc-text">3.4 语言模型 词组合出现的概率</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-离散表示-的缺点"><span class="toc-number"></span> <span class="toc-text">3.5 离散表示 的缺点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-分布式表示-提出"><span class="toc-number"></span> <span class="toc-text">3.6 分布式表示 提出</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-共现矩阵-Cocurrence-matrix"><span class="toc-number"></span> <span class="toc-text">4. 共现矩阵 (Cocurrence matrix)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Word-Word"><span class="toc-number"></span> <span class="toc-text">4.1 Word - Word</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-NNLM"><span class="toc-number"></span> <span class="toc-text">4.2 NNLM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Word2Vec-CBOW"><span class="toc-number"></span> <span class="toc-text">4.3 Word2Vec: CBOW</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-Word2Vec-Skip-Gram"><span class="toc-number"></span> <span class="toc-text">4.4 Word2Vec: Skip-Gram</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-Word2Vec-缺点"><span class="toc-number"></span> <span class="toc-text">4.5 Word2Vec 缺点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-总结"><span class="toc-number"></span> <span class="toc-text">5. 总结</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-离散表示"><span class="toc-number"></span> <span class="toc-text">5.1 离散表示</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-分布式连续表示"><span class="toc-number"></span> <span class="toc-text">5.2 分布式连续表示</span></a></li></ol></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/nlp/">nlp</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/07/29/nlp/nlp-01-jieba/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Jieba 中文处理
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/07/09/life/my-cooking/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Cooking&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2017/07/12/nlp/nlp-word-vector-basic/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

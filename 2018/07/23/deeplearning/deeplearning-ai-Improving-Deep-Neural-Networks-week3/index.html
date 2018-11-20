@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Improving DNN (week3) - Hyperparameter、Batch Regularization - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Improving DNN (week3) - Hyperparameter、Batch Regularization">
+<meta property="og:url" content="http://iequa.com/2018/07/23/deeplearning/deeplearning-ai-Improving-Deep-Neural-Networks-week3/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-1_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-2_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-3_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-4_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-5_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-6_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-7_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-8_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-9_1.png">
+<meta property="og:image" content="http://iequa.com/images/deeplearning/C2W3-9_1.png">
+<meta property="og:updated_time" content="2018-11-20T13:45:04.268Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Improving DNN (week3) - Hyperparameter、Batch Regularization">
+<meta name="twitter:description" content="MathJax.Hub.Config({
+    extensions: [&quot;tex2jax.js&quot;],
+    jax: [&quot;input/TeX&quot;],
+    tex2jax: {
+      inlineMath: [ [&apos;$&apos;,&apos;$&apos;], [&apos;\\(&apos;,&apos;\\)&apos;] ],
+      displayMath: [ [&apos;$$&apos;,&apos;$$&apos;]],
+      processEscapes:">
+<meta name="twitter:image" content="http://iequa.com/images/deeplearning/C2W3-1_1.png">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-deeplearning/deeplearning-ai-Improving-Deep-Neural-Networks-week3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Improving DNN (week3) - Hyperparameter、Batch Regularization
+      <small class=article-detail-date-index>&nbsp; 2018-07-23</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/07/23/deeplearning/deeplearning-ai-Improving-Deep-Neural-Networks-week3/" class="article-date">
+  <time datetime="2018-07-23T12:00:21.000Z" itemprop="datePublished">2018-07-23</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/deeplearning/">deeplearning</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/07/23/deeplearning/deeplearning-ai-Improving-Deep-Neural-Networks-week3/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>Hyperparameter Tuning process、Normalizing Activations in a network</p>
+<p>Fitting Batch Norm into a neural network、Why does Batch Norm work?、Batch Norm at test time</p>
+<p>Softmax regression、TensorFlow</p>
+<a id="more"></a>
+<h2 id="1-Hyperparameter-Tuning-process"><a href="#1-Hyperparameter-Tuning-process" class="headerlink" title="1. Hyperparameter Tuning process"></a>1. Hyperparameter Tuning process</h2><p>正常情况有如下超参数:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Hyperparameter</th>
+<th style="text-align:center">Desc</th>
+<th style="text-align:center">Importance level</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><font color="red">α</font></td>
+<td style="text-align:center">最重要</td>
+<td style="text-align:center">1</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="orange">hidden units</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="orange">mini-batch size</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="orange">β</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">2</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="purple">layers</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center"><font color="purple">learning rate decay</font></td>
+<td style="text-align:center"></td>
+<td style="text-align:center">3</td>
+</tr>
+<tr>
+<td style="text-align:center">$β_1,β_2,ε$</td>
+<td style="text-align:center">最不重要</td>
+<td style="text-align:center">4</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>颜色表示重要性，以及调试过程中可能会需要修改的程度.</p>
+</blockquote>
+<h3 id="那么如何选择超参数的值呢？"><a href="#那么如何选择超参数的值呢？" class="headerlink" title="那么如何选择超参数的值呢？:"></a>那么如何选择超参数的值呢？:</h3><ul>
+<li>首先是粗略地随机地寻找最优参数</li>
+</ul>
+<p><img src="/images/deeplearning/C2W3-1_1.png" width="700"></p>
+<p><strong>建议使用图右的方式，原因如下：</strong></p>
+<blockquote>
+<p>对于图左的超参数分布而言，可能会使得参考性降低，我们假设超参1是学习率α，超参2是ε，根据week2中Adam算法的介绍，我们知道ε的作用几乎可以忽略，所以对于图左25中参数分布来说，其本质只有5种参数分布。而右边则是25种随机分布，更能帮助我们选择合适的超参数.</p>
+</blockquote>
+<p><strong>其次在上面找到的最优参数分布周围再随机地寻找最有参数</strong></p>
+<p><img src="/images/deeplearning/C2W3-2_1.png" width="700"></p>
+<h2 id="2-Using-an-appropriate-scale-to-pick-hyperparameters"><a href="#2-Using-an-appropriate-scale-to-pick-hyperparameters" class="headerlink" title="2. Using an appropriate scale to pick hyperparameters"></a>2. Using an appropriate scale to pick hyperparameters</h2><p>上一节提到的的随机采样虽然能帮助我们寻找最优参数分布，但是这有点像大海捞针，如果能够指出参数取值的范围，然后再去寻找最优的参数分布岂不是更加的美滋滋？那如何为超参数选择合适的范围呢？</p>
+<blockquote>
+<p>$n^{[l]}=50,……,100$</p>
+<p>$layers=2~4$</p>
+<p>$α=0.0001，……,1$</p>
+</blockquote>
+<p>此时注意: 如按照线性划分的话(如下图)，那么随机采样的值 90% 的数据来自 [0.1,1] 这个区间, 这显然与不太符合随机性.</p>
+<p><img src="/images/deeplearning/C2W3-3_1.png" width="700"></p>
+<blockquote>
+<p>所以为了改进这一问题，我们需要将区间对数化来采样.</p>
+<p><strong>举个🌰：</strong> 我们将 [0.0001,1] 转化成四个区间 [0.0001,0.001], [0.001,0.01], [0.01,0.1], [0.1,1], 再转化成对数就是 [-4,-3], [-3,-2], [-2,-1], [-1,0].</p>
+<p>($10^{−4}=0.0001$，其他同理取指数).</p>
+</blockquote>
+<p>然后我们可以用 Python 中提供的方法来实现随机采样：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">r = <span class="number">-4</span>*np.random.rand() <span class="comment"># rand()表示在[0,1]上均匀采样, 最后的采样区间是[-4, 0]</span></span><br><span class="line">a = pow(<span class="number">10</span>, r)</span><br></pre></td></tr></table></figure>
+<p><img src="/images/deeplearning/C2W3-4_1.png" width="700"></p>
+<p><strong>$β=0.9,……,0.999$</strong></p>
+<p>同理这里也不能使用线性轴来采样数据，我们可以通过对 <strong>1-β=0.1,……,0.001</strong> 来间接采样。转化成 [0.1, 0.01], [0.01,0.001], 转化成对数指数 [-1,-2],[-2,-3]。</p>
+<p>即: $r∈[-3,-1], 1-β=10^r, β=1-10^r$</p>
+<blockquote>
+<p>当 β 接近 1 时, β 就会对细微的变化变得很敏感.</p>
+<p>for example : 0.999, 0.9995 =&gt; 1000 -&gt; 2000</p>
+<p>所以你需要更加密集的取值，在 β 接近 1 的时候.</p>
+</blockquote>
+<h2 id="3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar"><a href="#3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar" class="headerlink" title="3. Hyperparameters tuning in practice: Pandas vs Caviar"></a>3. Hyperparameters tuning in practice: Pandas vs Caviar</h2><p><img src="/images/deeplearning/C2W3-5_1.png" width="700"></p>
+<p><strong>Babysitting one model:</strong></p>
+<p>这种方法适用于有足够的数据集，但是 GPU，CPU 资源有限的情况，所以可能只能训练一个模型，然后每天对模型做某一项超参数的修改，查看效果是否变得更好.</p>
+<blockquote>
+<p>例如第一天令所有超参数随机初始化。到了第二天发现效果还不错，此时可以去增加学习率(也可以修改其他参数)。……，到了某一天加入修改了mini-batch size，结果效果明显减弱，这时则需要重新恢复到前一天的状态。</p>
+<p>总的来说这一过程就像熊猫一样，只照顾一个宝宝，多的照顾不过来.</p>
+</blockquote>
+<p><strong>Train many models in parallel:</strong></p>
+<blockquote>
+<p>这种方法适用于财大气粗的情况，即并行训练多个模型，最后选出效果最好的一个即可。这就像鱼子酱一样，一下生多大一亿的孩子.</p>
+</blockquote>
+<h2 id="4-Normalizing-Activations-in-a-network"><a href="#4-Normalizing-Activations-in-a-network" class="headerlink" title="4. Normalizing Activations in a network"></a>4. Normalizing Activations in a network</h2><p>不仅要归一化输入数据 <strong>$X$</strong>,隐藏层的数据也是要归一化的. 一般来说隐藏层数据有 $Z$ 和 $a$ 两种，Andrew Ng 推荐归一化 <strong>$z$</strong>.</p>
+<blockquote>
+<p>Batch 归一化 由 Sergey loffe 和 Christian Szegedy 两位研究者创造.</p>
+</blockquote>
+<p>Batch 归一化，会使你的参数搜索变得容易, 使神经网络对超参数的搜索更加稳定. 这样也会使得你容易训练深层神经网络。</p>
+<p><strong>输入数据 $X$ 归一化方法:</strong></p>
+<p>$$<br>μ=\frac{1}{m}\sum_{i}{x^{(i)}}<br>$$</p>
+<p>$$<br>σ^2=\frac{1}{m}\sum_{i}x^{(i)^2}<br>$$</p>
+<p>$$<br>x=\frac{x-μ}{σ^2}<br>$$</p>
+<blockquote>
+<p>m 为 mini-batch 中的 m， 而不是整个训练集</p>
+</blockquote>
+<p><strong>隐藏层数据归一化方法:</strong></p>
+<p>$$<br>μ=\frac{1}{m}\sum_{i}{z^{(i)}-μ}<br>$$</p>
+<p>$$<br>σ^2=\frac{1}{m}\sum_{i}(z^{(i)^2}-μ)^2<br>$$</p>
+<p>$$<br>z^{(i)}_{norm}=\frac{z^{(i)}-μ}{\sqrt{σ^2+ε}}<br>$$</p>
+<p>上面的归一化后的数据 $z$ 都是服从均值为 0，方差为 1 的，显然这样不能满足咱们的需求，所以还需要做进一步处理，如下：</p>
+<p>$$<br>\tilde{z}^{(i)}=γz^{(i)} + β<br>$$</p>
+<p>上式中的 $γ$ 可以设置方差，$β$ 可以设置均值.</p>
+<blockquote>
+<p>你也许不想隐层单元值必须是平均值0 和 方差1, 比如你有一个 sigmoid 函数，你不想让它的值完全集中在这里, 你不想使他们平均值和方差一直是0和1， 这样可以更好的利用非线性的 Sigmoid 函数， 而不是所有值都集中在线性的区域, $γ$ 和 $β$ 可以确保所有的 $Z^{(i)}$ 值，可以是你想赋予的任意值. 或者 它的作用是保证隐藏的单元已使均值和方差标准化. 那里均值和方差由两参数控制. $γ$ 和 $β$ 学习算法可以设置为任何值. 所以它的真正作用是使均值和方差标准化. $Z^{(i)}$ 有固定的均值和方差，均值和方差可以是0和1，也可以是其他值，由 $γ$ 和 $β$ 确定.</p>
+<p>In practice， normlizing $Z^{[2]}$ is done much more often.</p>
+</blockquote>
+<h2 id="5-Fitting-Batch-Norm-into-a-neural-network"><a href="#5-Fitting-Batch-Norm-into-a-neural-network" class="headerlink" title="5. Fitting Batch Norm into a neural network"></a>5. Fitting Batch Norm into a neural network</h2><p><strong>adding batch Norm to a network</strong></p>
+<p><img src="/images/deeplearning/C2W3-6_1.png" width="750"></p>
+<p><strong>working with mini-batches</strong></p>
+<p>一般的方法中</p>
+<p>$$<br>z^{[l]}=w^{[l]}a^{[l-1]}+b^{[l]}<br>$$</p>
+<p>在上面归一化数据过程中需要减去均值，所以 $b^{[l]}$ 这一项可以省略掉,所以归一化后是</p>
+<p>$$<br>z_{norm}^{[l]}=w^{[l]}a^{[l-1]}<br>$$</p>
+<p>为了能够使数据分布更加满足我们的要求，可以用如下公式</p>
+<p>$$<br>\tilde{z}^{[l]}=γ^{[l]}z_{norm}^{[l]}+β^{[l]}<br>$$</p>
+<p><strong>Implementing gradient descent</strong></p>
+<p>for t= 1,……,numMinBatches</p>
+<ul>
+<li>计算基于第 $t$ 批数据的前向传播</li>
+<li>在计算反向传播时使用 $\tilde{z}^{[l]}$, 得到 $dw^{[l]},dβ^{[l]},dγ^{[l]}$</li>
+<li>更新参数</li>
+</ul>
+<p>$$<br>w^{[l]}=w^{[l]}-αdw^{[l]} \\<br>β^{[l]}=β^{[l]}-αdβ^{[l]} \\<br>γ^{[l]}=γ^{[l]}-αdγ^{[l]}<br>$$</p>
+<h2 id="6-Why-does-Batch-Norm-work"><a href="#6-Why-does-Batch-Norm-work" class="headerlink" title="6. Why does Batch Norm work?"></a>6. Why does Batch Norm work?</h2><p><strong>原因一:</strong></p>
+<p><strong>batch norm</strong> 可以使得权重比你的网络更滞后或更深层，为了更好地理解可以看下面的例子:</p>
+<p><img src="/images/deeplearning/C2W3-7_1.png" width="700"></p>
+<p>如上图所示，假设我们现在要计算第三层隐藏层的值，很显然该层的计算结果依赖第二层的数据，但是第二层的数据如果未归一化之前是不可知的，分布是随机的。而如果进行归一化后，即 $\tilde{z}^{[2]}=γ^{[2]}z_{norm}^{[2]}+β^{[2]}$ 可以将第二层数据限制为均值为 $β^{[2]}$, 方差为 $γ^{[2]}$ 的分布,注意这两个参数并不需要人为设置，它会自动学习的。所以即使输入数据千变万化，但是经过归一化后分布都是可以满足我们的需求的，更简单地说就是归一化数据可以减弱前层参数的作用与后层参数的作用之间的联系，它使得网络每层都可以自己学习。</p>
+<p><strong>原因二:</strong></p>
+<p>batch norm 奏效的另一个原因则是它具有正则化的效果。其与dropout有异曲同工之妙，我们知道dropout会随机的丢掉一些节点，即数据，这样使得模型训练不会过分依赖某一个节点或某一层数据。batch norm也是如此，通过归一化使得各层之间的依赖性降低，并且会给每层都加入一些噪声，从而达到正则化的目的</p>
+<blockquote>
+<p>Batch 它限制了在前层的参数更新，会影响数值分布的程度，第三层看到的这种情况，因此得学习. <strong>batch 归一化减少了输入值改变的问题</strong>, 它的确是这些值变得更稳定. 神经网络的之后层就会有更坚实的基础. 即使输入分布改变了一些，它会改变得更少，它做的是 当前层保持学习，当层改变时，迫使后层, 适应的程度减少了，你可以这样想，它减弱了前层参数的作用，与后层参数的作用之间的联系，它使得网络每层都可以自己学习. 稍稍独立于其它层，这有助于加速整个网络的学习.</p>
+<p>batch norm 中有一个作用，可以起到轻微 正则化 的作用. (因为添加的噪音很微小，所以并不是巨大的正则化)， 你可以将 batch norm 和 dropout 一起使用.</p>
+<p>dropout, 你应用较大的 mini-batch 比如 512，那么可以减少噪音也, 因此减少了正则化的效果. 这是 dropout 的一个奇怪的性质.</p>
+<p>batch norm 是一个正则化的规则，而不要把它当做目的. 但是有时候，它会对你的算法有额外的期望和非期望效果.</p>
+<p>batch norm 一次只能处理 一个 mini-batch 的数据. 它在 mini-batch 上计算期望与方差.</p>
+</blockquote>
+<h2 id="7-Batch-Norm-at-test-time"><a href="#7-Batch-Norm-at-test-time" class="headerlink" title="7. Batch Norm at test time"></a>7. Batch Norm at test time</h2><p>前面提到的 batch norm 都是基于训练集的，但是在测试集上，有时候可能我们的测试数据很少，例如只有1个，在这个时候进行归一化则显得没多大意义了。那么该怎么办呢？均值$μ$ 和 方差$σ^2$该如何确定呢？</p>
+<blockquote>
+<p>方法还是有的，而且已经在上面提到过了, 就是第三节所介绍的<strong>指数加权平均</strong>啦，原理是类似的</p>
+</blockquote>
+<p>假设一共有如下 $x^1,x^2,……,x^5000$ 的批量数据，每组mini-batch 都得到了对应的均值$μ$, (方差同理，不详细说明了)，即 $μ^1,μ^2,……,μ^5000$, 如果测试集数据很少，那么就可以使用指数加权平均的方法来得到测试集的均值和方差。</p>
+<p>之后就根据<strong>指数加权平均</strong>计算得到的值来计算归一化后的输入值即可.</p>
+<p><img src="/images/deeplearning/C2W3-8_1.png" width="750"></p>
+<blockquote>
+<p><strong>Andrew Ng 语录:</strong></p>
+<p>如果将你的神经网络用于<strong>测试</strong>，你需要单独估算 $μ$ 和 $σ^2$, 在典型的 Batch 归一化运用中，你需要用一个指数加权平均来估算，整个平均数覆盖了所有的 mini-batch .</p>
+<p>$$<br>z^{(i)}_{norm}=\frac{z^{(i)}-μ}{\sqrt{σ^2+ε}}<br>$$</p>
+<p>上个式子 $z^{(i)}_{norm}$ 中的，$μ$, $σ^2$ 是类似加权平均出来的值.</p>
+<p>注意：测试集的均值和方差生成的方式不一定非得是上面提到的指数加权平均，也可以是简单粗暴的计算所有训练集的均值和方差，视频中 Andrew Ng 说这也是可行的.</p>
+</blockquote>
+<h2 id="8-Softmax-regression"><a href="#8-Softmax-regression" class="headerlink" title="8. Softmax regression"></a>8. Softmax regression</h2><p><img src="/images/deeplearning/C2W3-9_1.png" width="750"></p>
+<p>假设第 $l$ 层有 $z^{[l]}=w^{[l]}a^{[l-1]}+b^{[l]}$, 激活函数为 $a^{[l]}=\frac{e^{z^{[l]}}}{\sum_{j=1}^{n_l}e^{z^{[l]}_j}}$</p>
+<p>该节视频中 Andrew Ng 并没有很详细的介绍 softmax 的原理和公式推导，感兴趣的可以戳如下链接进行进一步了解：</p>
+<ul>
+<li><a href="http://ufldl.stanford.edu/wiki/index.php/Softmax回归" target="_blank" rel="external">ufldl: Softmax 回归</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/21485970" target="_blank" rel="external">softmax 公式推导&amp;算法实现</a></li>
+</ul>
+<h2 id="9-Trying-a-softmax-classifier"><a href="#9-Trying-a-softmax-classifier" class="headerlink" title="9. Trying a softmax classifier"></a>9. Trying a softmax classifier</h2><blockquote>
+<p><a href="http://www.cnblogs.com/marsggbo/p/7467347.html" target="_blank" rel="external">转载: 具体实践项目可参见softmax分类算法原理(用python实现)</a></p>
+<p>上面的转载实现 softmax 需要再仔细研究.</p>
+</blockquote>
+<h2 id="10-Deep-learning-frameworks"><a href="#10-Deep-learning-frameworks" class="headerlink" title="10. Deep learning frameworks"></a>10. Deep learning frameworks</h2><p><img src="/images/deeplearning/C2W3-9_1.png" width="750"></p>
+<h2 id="11-TensorFlow-Example"><a href="#11-TensorFlow-Example" class="headerlink" title="11. TensorFlow Example"></a>11. TensorFlow Example</h2><p>Andrew Ng 演示了 TensorFlow 使用方法.</p>
+<blockquote>
+<p>我推荐一个比较好的 TensorFlow 的练手项目：<a href="https://github.com/aymericdamien/TensorFlow-Examples" target="_blank" rel="external">TensorFlow Example</a></p>
+</blockquote>
+<h2 id="12-Reference"><a href="#12-Reference" class="headerlink" title="12. Reference"></a>12. Reference</h2><ul>
+<li><a href="https://study.163.com/my#/smarts" target="_blank" rel="external">网易云课堂 - deeplearning</a></li>
+<li><a href="https://daniellaah.github.io/2017/deeplearning-ai-Improving-Deep-Neural-Networks-week1.html" target="_blank" rel="external">deeplearning.ai 专项课程二第一周</a></li>
+<li><a href="https://www.coursera.org/specializations/deep-learning" target="_blank" rel="external">Coursera - Deep Learning Specialization</a></li>
+<li><a href="http://www.cnblogs.com/marsggbo/p/7470989.html" target="_blank" rel="external">DeepLearning.ai学习笔记汇总</a></li>
+<li><a href="https://github.com/aymericdamien/TensorFlow-Examples" target="_blank" rel="external">TensorFlow-Examples</a></li>
+<li><a href="https://github.com/fengdu78/deeplearning_ai_books" target="_blank" rel="external">吴恩达老师的深度学习课程笔记及资源</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Hyperparameter-Tuning-process"><span class="toc-number"></span> <span class="toc-text">1. Hyperparameter Tuning process</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#那么如何选择超参数的值呢？"><span class="toc-number"></span> <span class="toc-text">那么如何选择超参数的值呢？:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Using-an-appropriate-scale-to-pick-hyperparameters"><span class="toc-number"></span> <span class="toc-text">2. Using an appropriate scale to pick hyperparameters</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Hyperparameters-tuning-in-practice-Pandas-vs-Caviar"><span class="toc-number"></span> <span class="toc-text">3. Hyperparameters tuning in practice: Pandas vs Caviar</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Normalizing-Activations-in-a-network"><span class="toc-number"></span> <span class="toc-text">4. Normalizing Activations in a network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Fitting-Batch-Norm-into-a-neural-network"><span class="toc-number"></span> <span class="toc-text">5. Fitting Batch Norm into a neural network</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Why-does-Batch-Norm-work"><span class="toc-number"></span> <span class="toc-text">6. Why does Batch Norm work?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Batch-Norm-at-test-time"><span class="toc-number"></span> <span class="toc-text">7. Batch Norm at test time</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Softmax-regression"><span class="toc-number"></span> <span class="toc-text">8. Softmax regression</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Trying-a-softmax-classifier"><span class="toc-number"></span> <span class="toc-text">9. Trying a softmax classifier</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Deep-learning-frameworks"><span class="toc-number"></span> <span class="toc-text">10. Deep learning frameworks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-TensorFlow-Example"><span class="toc-number"></span> <span class="toc-text">11. TensorFlow Example</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-Reference"><span class="toc-number"></span> <span class="toc-text">12. Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/deeplearning/">deeplearning</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/deeplearning-ai/">deeplearning.ai</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/07/24/deeplearning/deeplearning-ai-Structured-Machine-Learning-Projects-week1/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Structured Machine Learning Projects (week1) - ML Strategy 1
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/07/21/deeplearning/deeplearning-ai-Improving-Deep-Neural-Networks-week2/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Improving Deep Neural Networks (week2) - Optimization Algorithm&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/07/23/deeplearning/deeplearning-ai-Improving-Deep-Neural-Networks-week3/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
