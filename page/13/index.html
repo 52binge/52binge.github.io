@@ -70,7 +70,7 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
-      <article id="post-spark-SQL" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-spark/spark-ALS" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -78,7 +78,76 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/04/28/spark-SQL/"><strong>Spark之路—Spark SQL编程</strong></a>
+      <a class="article-title-index" href="/2017/05/07/spark/spark-ALS/"><strong>Spark ALS</strong></a>
+      <small class=article-date-index>&nbsp; 2017-05-07</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/05/07/spark/spark-ALS/" class="article-date">
+  <time datetime="2017-05-07T02:28:21.000Z" itemprop="datePublished">2017-05-07</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/05/07/spark/spark-ALS/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://spark.apache.org/examples.html" target="_blank" rel="external">Spark.apache.org</a><br><a href="http://blog.javachen.com/2015/06/07/spark-configuration.html" target="_blank" rel="external">Java Chen Spark</a></p>
+<p>以下为手动计算流程 :</p>
+<h3 id="4-2-启动-spark-shell"><a href="#4-2-启动-spark-shell" class="headerlink" title="4.2 启动 spark-shell"></a>4.2 启动 spark-shell</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h3 id="4-3-输入输出-相关变量"><a href="#4-3-输入输出-相关变量" class="headerlink" title="4.3 输入输出:相关变量"></a>4.3 输入输出:相关变量</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">val inputTable = <span class="string">"mds_user_coupon_bhv"</span></span><br><span class="line">val inputUrl = <span class="string">"jdbc:mysql://192.168.xxx.xx:3306/com_profile?user=your_name&amp;password=your_password"</span></span><br><span class="line">val outputTable = <span class="string">"mds_rs_shop_coupon_tmp"</span></span><br></pre></td></tr></table></figure>
+<h3 id="4-4-核心程序代码"><a href="#4-4-核心程序代码" class="headerlink" title="4.4 核心程序代码"></a>4.4 核心程序代码</h3><figure class="highlight"><table><tr><td class="code"><pre><span class="line">package com.x.rs.service</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat</span><br><span class="line">import java.util.Date</span><br><span class="line">import java.util.Properties</span><br><span class="line"></span><br><span class="line">import org.apache.spark.sql.Row</span><br><span class="line">import org.apache.spark.sql.types._</span><br><span class="line"></span><br><span class="line">import org.apache.spark.&#123;SparkConf, SparkContext&#125;</span><br><span class="line"></span><br><span class="line">import org.apache.spark.mllib.recommendation.&#123;ALS, Rating&#125;</span><br><span class="line"></span><br><span class="line">/**</span><br><span class="line">  * Date : 2017-04-20</span><br><span class="line">  * Author : Blair Chan</span><br><span class="line">  */</span><br><span class="line">object RsCouponCalc &#123;</span><br><span class="line">  def main(args: Array[String]) &#123;</span><br><span class="line"></span><br><span class="line">    println("start...")</span><br><span class="line"></span><br><span class="line">    if (args.length &lt; 3) &#123;</span><br><span class="line">      System.err.println("Usage: &lt;file&gt;")</span><br><span class="line">      System.exit(1)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    val inputTable = args(0) // Should be some file on your system // conf = new SparkConf().setAppName(appName).setMaster("local");</span><br><span class="line">    val inputUrl = args(1)</span><br><span class="line">    val outputTable = args(2)</span><br><span class="line"></span><br><span class="line">    val conf = new SparkConf().setAppName("SparkRsOne");</span><br><span class="line">    val sc = new SparkContext(conf)</span><br><span class="line">    val sqlContext = new org.apache.spark.sql.SQLContext(sc)</span><br><span class="line"></span><br><span class="line">    //    val rawData = sc.textFile(inputFile)</span><br><span class="line">    //    val rawRatings = rawData.map(_.split("\t").take(3))</span><br><span class="line"></span><br><span class="line">    val url = inputUrl</span><br><span class="line">    val prop = new Properties()</span><br><span class="line"></span><br><span class="line">    val dfForRawData = sqlContext.read.jdbc(url, inputTable, prop)</span><br><span class="line"></span><br><span class="line">    val ratings_tmp = dfForRawData.map &#123; row =&gt; (row(1).toString().toInt, row(4).toString().toInt, row(6).toString().toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val ratings = ratings_tmp.map &#123; case (uid, couponId, rating) =&gt; Rating(uid.toInt, couponId.toInt, rating.toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val model = ALS.train(ratings, 50, 10, 0.01)</span><br><span class="line"></span><br><span class="line">    model.userFeatures.count</span><br><span class="line"></span><br><span class="line">    val K = 10</span><br><span class="line"></span><br><span class="line">    model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val originResultRdd1 = model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val curDate = new Date()</span><br><span class="line">    val createDateString = new SimpleDateFormat("yyyy-MM-dd").format(curDate)</span><br><span class="line"></span><br><span class="line">    val originResultRdd2 = originResultRdd1.map(tuple =&gt; &#123;</span><br><span class="line">      val uid = tuple._1</span><br><span class="line">      val product = tuple._2.map &#123; case Rating(user, product, score) =&gt; (product.toString, score.toString) &#125;</span><br><span class="line">      (uid, product)</span><br><span class="line">    &#125;).flatMap &#123;</span><br><span class="line">      case (uid, product) =&gt; &#123;</span><br><span class="line">        product.map &#123; case (itemId, score) =&gt; Row.apply(uid.toLong, itemId.toString, score.toDouble, createDateString.toString) &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // println(originResultRdd2.first())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val schema = StructType(</span><br><span class="line">      StructField("uid", LongType) ::</span><br><span class="line">        StructField("coupon_id", LongType) ::</span><br><span class="line">        StructField("score", DoubleType) ::</span><br><span class="line">        StructField("calc_date", StringType) :: Nil)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val df = sqlContext.createDataFrame(originResultRdd2, schema)</span><br><span class="line"></span><br><span class="line">    df.insertIntoJDBC(url, outputTable, false)</span><br><span class="line">    // 设置为 true，则为 删除表，然后自动创建，再插入</span><br><span class="line"></span><br><span class="line">    println("end !")</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>DF 通过插入 RMDB.  schema 可以通过反射来使得程序扩展性提高。</p>
+</blockquote>
+<p><a href="http://www.cnblogs.com/yaohaitao/articles/5681984.html" target="_blank" rel="external">spark sql internet</a></p>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-spark/spark-SQL" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/04/28/spark/spark-SQL/"><strong>Spark之路—Spark SQL编程</strong></a>
       <small class=article-date-index>&nbsp; 2017-04-28</small>
       <!--<a>
       <div = post.date  </div>
@@ -90,7 +159,7 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/04/28/spark-SQL/" class="article-date">
+      <!--<a href="/2017/04/28/spark/spark-SQL/" class="article-date">
   <time datetime="2017-04-28T07:28:21.000Z" itemprop="datePublished">2017-04-28</time>
 </a>-->
       <!--
@@ -102,7 +171,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/04/28/spark-SQL/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/04/28/spark/spark-SQL/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -167,7 +236,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-spark-read-mysql-four-functions" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-spark/spark-read-mysql-four-functions" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -175,7 +244,7 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/04/20/spark-read-mysql-four-functions/"><strong>Spark Read Mysql 的四种方式 (not finish)</strong></a>
+      <a class="article-title-index" href="/2017/04/20/spark/spark-read-mysql-four-functions/"><strong>Spark Read Mysql 的四种方式 (not finish)</strong></a>
       <small class=article-date-index>&nbsp; 2017-04-20</small>
       <!--<a>
       <div = post.date  </div>
@@ -187,7 +256,7 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/04/20/spark-read-mysql-four-functions/" class="article-date">
+      <!--<a href="/2017/04/20/spark/spark-read-mysql-four-functions/" class="article-date">
   <time datetime="2017-04-20T07:28:21.000Z" itemprop="datePublished">2017-04-20</time>
 </a>-->
       <!--
@@ -199,7 +268,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/04/20/spark-read-mysql-four-functions/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/04/20/spark/spark-read-mysql-four-functions/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -250,7 +319,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-ops-new-macosx-install-soft" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ops/ops-new-macosx-install-soft" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -258,7 +327,7 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/03/22/ops-new-macosx-install-soft/"><strong>New Mac Install Brew Iterm Zsh</strong></a>
+      <a class="article-title-index" href="/2017/03/22/ops/ops-new-macosx-install-soft/"><strong>New Mac Install Brew Iterm Zsh</strong></a>
       <small class=article-date-index>&nbsp; 2017-03-22</small>
       <!--<a>
       <div = post.date  </div>
@@ -270,7 +339,7 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/03/22/ops-new-macosx-install-soft/" class="article-date">
+      <!--<a href="/2017/03/22/ops/ops-new-macosx-install-soft/" class="article-date">
   <time datetime="2017-03-22T08:43:21.000Z" itemprop="datePublished">2017-03-22</time>
 </a>-->
       <!--
@@ -282,7 +351,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/03/22/ops-new-macosx-install-soft/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/03/22/ops/ops-new-macosx-install-soft/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -357,7 +426,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-recommendation-six-mouth-CF" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ml/recommendation-six-mouth-CF" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -365,7 +434,7 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/28/recommendation-six-mouth-CF/"><strong>Recommendation System - CF</strong></a>
+      <a class="article-title-index" href="/2017/02/28/ml/recommendation-six-mouth-CF/"><strong>Recommendation System - CF</strong></a>
       <small class=article-date-index>&nbsp; 2017-02-28</small>
       <!--<a>
       <div = post.date  </div>
@@ -377,7 +446,7 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/02/28/recommendation-six-mouth-CF/" class="article-date">
+      <!--<a href="/2017/02/28/ml/recommendation-six-mouth-CF/" class="article-date">
   <time datetime="2017-02-28T02:28:21.000Z" itemprop="datePublished">2017-02-28</time>
 </a>-->
       <!--
@@ -389,7 +458,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/28/recommendation-six-mouth-CF/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/02/28/ml/recommendation-six-mouth-CF/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -710,7 +779,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-ops-mac-install-tensorflow" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ops/ops-mac-install-tensorflow" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -718,7 +787,7 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/21/ops-mac-install-tensorflow/"><strong>Mac install tensorFlow</strong></a>
+      <a class="article-title-index" href="/2017/02/21/ops/ops-mac-install-tensorflow/"><strong>Mac install tensorFlow</strong></a>
       <small class=article-date-index>&nbsp; 2017-02-21</small>
       <!--<a>
       <div = post.date  </div>
@@ -730,7 +799,7 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/02/21/ops-mac-install-tensorflow/" class="article-date">
+      <!--<a href="/2017/02/21/ops/ops-mac-install-tensorflow/" class="article-date">
   <time datetime="2017-02-21T01:54:16.000Z" itemprop="datePublished">2017-02-21</time>
 </a>-->
       <!--
@@ -742,7 +811,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/21/ops-mac-install-tensorflow/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/02/21/ops/ops-mac-install-tensorflow/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -795,7 +864,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ml/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -803,7 +872,7 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/16/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/"><strong>Kaggle_Titanic</strong></a>
+      <a class="article-title-index" href="/2017/02/16/ml/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/"><strong>Kaggle_Titanic</strong></a>
       <small class=article-date-index>&nbsp; 2017-02-16</small>
       <!--<a>
       <div = post.date  </div>
@@ -815,7 +884,7 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/02/16/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/" class="article-date">
+      <!--<a href="/2017/02/16/ml/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/" class="article-date">
   <time datetime="2017-02-16T09:28:21.000Z" itemprop="datePublished">2017-02-16</time>
 </a>-->
       <!--
@@ -827,7 +896,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/16/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/02/16/ml/ml-sample-BPNN-Titanic-2017-02-16-1732-ipynb/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1025,7 +1094,7 @@ trainer end!
 
 
     
-      <article id="post-ml-coursera-ng-w4-nn-03" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ml/ml-coursera-ng-w4-nn-03" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -1033,7 +1102,7 @@ trainer end!
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/13/ml-coursera-ng-w4-nn-03/"><strong>Coursera Week 5 - Neural Networks II</strong></a>
+      <a class="article-title-index" href="/2017/02/13/ml/ml-coursera-ng-w4-nn-03/"><strong>Coursera Week 5 - Neural Networks II</strong></a>
       <small class=article-date-index>&nbsp; 2017-02-13</small>
       <!--<a>
       <div = post.date  </div>
@@ -1045,7 +1114,7 @@ trainer end!
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/02/13/ml-coursera-ng-w4-nn-03/" class="article-date">
+      <!--<a href="/2017/02/13/ml/ml-coursera-ng-w4-nn-03/" class="article-date">
   <time datetime="2017-02-13T02:28:21.000Z" itemprop="datePublished">2017-02-13</time>
 </a>-->
       <!--
@@ -1057,7 +1126,7 @@ trainer end!
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/13/ml-coursera-ng-w4-nn-03/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/02/13/ml/ml-coursera-ng-w4-nn-03/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1083,7 +1152,7 @@ trainer end!
          
           <!-- @2018-08-27 blair add
           <p class="article-more-link">
-            <a href="/2017/02/13/ml-coursera-ng-w4-nn-03/">Read More</a>
+            <a href="/2017/02/13/ml/ml-coursera-ng-w4-nn-03/">Read More</a>
           </p> 
           @2018-08-27 blair end
           -->
@@ -1107,7 +1176,7 @@ trainer end!
 
 
     
-      <article id="post-ml-coursera-ng-w4-nn-02" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ml/ml-coursera-ng-w4-nn-02" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -1115,7 +1184,7 @@ trainer end!
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/02/07/ml-coursera-ng-w4-nn-02/"><strong>Coursera Week 4 - Neural Networks I</strong></a>
+      <a class="article-title-index" href="/2017/02/07/ml/ml-coursera-ng-w4-nn-02/"><strong>Coursera Week 4 - Neural Networks I</strong></a>
       <small class=article-date-index>&nbsp; 2017-02-07</small>
       <!--<a>
       <div = post.date  </div>
@@ -1127,7 +1196,7 @@ trainer end!
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/02/07/ml-coursera-ng-w4-nn-02/" class="article-date">
+      <!--<a href="/2017/02/07/ml/ml-coursera-ng-w4-nn-02/" class="article-date">
   <time datetime="2017-02-07T02:28:21.000Z" itemprop="datePublished">2017-02-07</time>
 </a>-->
       <!--
@@ -1139,7 +1208,7 @@ trainer end!
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/02/07/ml-coursera-ng-w4-nn-02/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/02/07/ml/ml-coursera-ng-w4-nn-02/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1165,7 +1234,7 @@ trainer end!
          
           <!-- @2018-08-27 blair add
           <p class="article-more-link">
-            <a href="/2017/02/07/ml-coursera-ng-w4-nn-02/">Read More</a>
+            <a href="/2017/02/07/ml/ml-coursera-ng-w4-nn-02/">Read More</a>
           </p> 
           @2018-08-27 blair end
           -->
@@ -1189,7 +1258,7 @@ trainer end!
 
 
     
-      <article id="post-life-China-modern-history" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ops/ops-db-greenplum-mysql-ext-ods" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -1197,75 +1266,7 @@ trainer end!
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/01/21/life-China-modern-history/"><strong>China Biggest Bandit Spy</strong></a>
-      <small class=article-date-index>&nbsp; 2017-01-21</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/01/21/life-China-modern-history/" class="article-date">
-  <time datetime="2017-01-20T23:54:16.000Z" itemprop="datePublished">2017-01-21</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/life/">life</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/01/21/life-China-modern-history/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Chinese biggest bandit spy</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/01/21/life-China-modern-history/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ops-db-greenplum-mysql-ext-ods" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/01/20/ops-db-greenplum-mysql-ext-ods/"><strong>Greenplum ods</strong></a>
+      <a class="article-title-index" href="/2017/01/20/ops/ops-db-greenplum-mysql-ext-ods/"><strong>Greenplum ods</strong></a>
       <small class=article-date-index>&nbsp; 2017-01-20</small>
       <!--<a>
       <div = post.date  </div>
@@ -1277,7 +1278,7 @@ trainer end!
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/01/20/ops-db-greenplum-mysql-ext-ods/" class="article-date">
+      <!--<a href="/2017/01/20/ops/ops-db-greenplum-mysql-ext-ods/" class="article-date">
   <time datetime="2017-01-20T07:28:21.000Z" itemprop="datePublished">2017-01-20</time>
 </a>-->
       <!--
@@ -1289,7 +1290,7 @@ trainer end!
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/01/20/ops-db-greenplum-mysql-ext-ods/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/01/20/ops/ops-db-greenplum-mysql-ext-ods/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1301,7 +1302,7 @@ trainer end!
          
           <!-- @2018-08-27 blair add
           <p class="article-more-link">
-            <a href="/2017/01/20/ops-db-greenplum-mysql-ext-ods/">Read More</a>
+            <a href="/2017/01/20/ops/ops-db-greenplum-mysql-ext-ods/">Read More</a>
           </p> 
           @2018-08-27 blair end
           -->
@@ -1325,7 +1326,7 @@ trainer end!
 
 
     
-      <article id="post-ops-db-greenplum-manual-dev-steps" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ops/ops-db-greenplum-manual-dev-steps" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -1333,7 +1334,7 @@ trainer end!
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/01/12/ops-db-greenplum-manual-dev-steps/"><strong>Greenplum dev Flow</strong></a>
+      <a class="article-title-index" href="/2017/01/12/ops/ops-db-greenplum-manual-dev-steps/"><strong>Greenplum dev Flow</strong></a>
       <small class=article-date-index>&nbsp; 2017-01-12</small>
       <!--<a>
       <div = post.date  </div>
@@ -1345,7 +1346,7 @@ trainer end!
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/01/12/ops-db-greenplum-manual-dev-steps/" class="article-date">
+      <!--<a href="/2017/01/12/ops/ops-db-greenplum-manual-dev-steps/" class="article-date">
   <time datetime="2017-01-12T07:28:21.000Z" itemprop="datePublished">2017-01-12</time>
 </a>-->
       <!--
@@ -1357,7 +1358,7 @@ trainer end!
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/01/12/ops-db-greenplum-manual-dev-steps/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/01/12/ops/ops-db-greenplum-manual-dev-steps/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1408,7 +1409,7 @@ trainer end!
 
 
     
-      <article id="post-ops-db-greenplum-short-introduce" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ops/ops-db-greenplum-short-introduce" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -1416,7 +1417,7 @@ trainer end!
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/01/04/ops-db-greenplum-short-introduce/"><strong>Greenplum 学习笔记</strong></a>
+      <a class="article-title-index" href="/2017/01/04/ops/ops-db-greenplum-short-introduce/"><strong>Greenplum 学习笔记</strong></a>
       <small class=article-date-index>&nbsp; 2017-01-04</small>
       <!--<a>
       <div = post.date  </div>
@@ -1428,7 +1429,7 @@ trainer end!
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/01/04/ops-db-greenplum-short-introduce/" class="article-date">
+      <!--<a href="/2017/01/04/ops/ops-db-greenplum-short-introduce/" class="article-date">
   <time datetime="2017-01-04T07:28:21.000Z" itemprop="datePublished">2017-01-04</time>
 </a>-->
       <!--
@@ -1440,7 +1441,7 @@ trainer end!
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/01/04/ops-db-greenplum-short-introduce/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2017/01/04/ops/ops-db-greenplum-short-introduce/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1722,7 +1723,7 @@ img {
 
 
     
-      <article id="post-ef-l6u2-Going-to-the-doctor&#39;s-l4" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-English/ef-l6u2-Going-to-the-doctor&#39;s-l4" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -1730,7 +1731,7 @@ img {
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/12/27/ef-l6u2-Going-to-the-doctor's-l4/"><strong>Going to the doctor&#39;s L4 Accidents and injuries</strong></a>
+      <a class="article-title-index" href="/2016/12/27/English/ef-l6u2-Going-to-the-doctor's-l4/"><strong>Going to the doctor&#39;s L4 Accidents and injuries</strong></a>
       <small class=article-date-index>&nbsp; 2016-12-27</small>
       <!--<a>
       <div = post.date  </div>
@@ -1742,7 +1743,7 @@ img {
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2016/12/27/ef-l6u2-Going-to-the-doctor's-l4/" class="article-date">
+      <!--<a href="/2016/12/27/English/ef-l6u2-Going-to-the-doctor's-l4/" class="article-date">
   <time datetime="2016-12-26T23:15:16.000Z" itemprop="datePublished">2016-12-27</time>
 </a>-->
       <!--
@@ -1754,7 +1755,7 @@ img {
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/12/27/ef-l6u2-Going-to-the-doctor's-l4/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2016/12/27/English/ef-l6u2-Going-to-the-doctor's-l4/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1926,7 +1927,7 @@ img {
 
 
     
-      <article id="post-ef-l6u2-Going-to-the-doctor&#39;s-l3" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-English/ef-l6u2-Going-to-the-doctor&#39;s-l3" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -1934,7 +1935,7 @@ img {
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/12/16/ef-l6u2-Going-to-the-doctor's-l3/"><strong>Going to the doctor&#39;s L3 Filling a prescription</strong></a>
+      <a class="article-title-index" href="/2016/12/16/English/ef-l6u2-Going-to-the-doctor's-l3/"><strong>Going to the doctor&#39;s L3 Filling a prescription</strong></a>
       <small class=article-date-index>&nbsp; 2016-12-16</small>
       <!--<a>
       <div = post.date  </div>
@@ -1946,7 +1947,7 @@ img {
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2016/12/16/ef-l6u2-Going-to-the-doctor's-l3/" class="article-date">
+      <!--<a href="/2016/12/16/English/ef-l6u2-Going-to-the-doctor's-l3/" class="article-date">
   <time datetime="2016-12-15T23:15:16.000Z" itemprop="datePublished">2016-12-16</time>
 </a>-->
       <!--
@@ -1958,7 +1959,7 @@ img {
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/12/16/ef-l6u2-Going-to-the-doctor's-l3/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2016/12/16/English/ef-l6u2-Going-to-the-doctor's-l3/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -2087,7 +2088,7 @@ img {
 
 
     
-      <article id="post-ef-l6u2-Going-to-the-doctor&#39;s-l2" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-English/ef-l6u2-Going-to-the-doctor&#39;s-l2" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -2095,7 +2096,7 @@ img {
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/"><strong>Going to the doctor&#39;s L2 Talking with the doctor</strong></a>
+      <a class="article-title-index" href="/2016/12/13/English/ef-l6u2-Going-to-the-doctor's-l2/"><strong>Going to the doctor&#39;s L2 Talking with the doctor</strong></a>
       <small class=article-date-index>&nbsp; 2016-12-13</small>
       <!--<a>
       <div = post.date  </div>
@@ -2107,7 +2108,7 @@ img {
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/" class="article-date">
+      <!--<a href="/2016/12/13/English/ef-l6u2-Going-to-the-doctor's-l2/" class="article-date">
   <time datetime="2016-12-12T23:15:16.000Z" itemprop="datePublished">2016-12-13</time>
 </a>-->
       <!--
@@ -2119,7 +2120,7 @@ img {
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/12/13/ef-l6u2-Going-to-the-doctor's-l2/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2016/12/13/English/ef-l6u2-Going-to-the-doctor's-l2/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
