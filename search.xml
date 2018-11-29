@@ -4,13 +4,45 @@
   
     
     <entry>
-      <title><![CDATA[Chatbot Research 9 - Chatbot 的第二个版本 (新API实现)]]></title>
+      <title><![CDATA[Chatbot Research 11 - Chatbot 的第二个版本 (新API实现)]]></title>
       <url>http://iequa.com/3017/11/29/chatbot/chatbot-research11/</url>
       <content type="html"><![CDATA[<!-- 2018 -->
-<p>新版本都是用 dynamic_rnn 来构造 RNN模型，这样就避免了数据长度不同所带来的困扰，不需要再使用 model_with_buckets 这种方法来构建模型，使得我们数据处理和模型代码都简洁很多。</p>
-<p>新版本将 Attention、 Decoder 等几个主要的功能都分别进行封装，直接调用相应的 Wapper函数 进行封装即可，调用起来更加灵活方便，而且只需要写几个简单的函数既可以自定义的各个模块以满足我们个性化的需求。<br>实现了beam_search功能，可直接调用。</p>
+<p>上期博文我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.</p>
+<p>这期我们学习新版本灵活的的API，这里先来说一下二者的不同：</p>
 <a id="more"></a>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<p><strong>新版本API：</strong></p>
+<blockquote>
+<ul>
+<li><p>用 dynamic_rnn 来构造 RNN模型，这样就避免了数据长度不同所带来的困扰，不需要再使用 model_with_buckets 这种方法来构建模型，使得我们数据处理和模型代码都简洁很多。</p>
+</li>
+<li><p>新版本将 Attention、 Decoder 等几个主要的功能都分别进行封装，直接调用相应的 Wapper函数 进行封装即可，调用起来更加灵活方便，而且只需要写几个简单的函数既可以自定义的各个模块以满足我们个性化的需求。</p>
+</li>
+<li><p>实现了beam_search功能，可直接调用。</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="数据处理"><a href="#数据处理" class="headerlink" title="数据处理"></a>数据处理</h2><h2 id="模型构建"><a href="#模型构建" class="headerlink" title="模型构建"></a>模型构建</h2><p>代码主要是从 tensorflow官网 给出的nmt例子的代码简化而来，实现了最基本的 <strong>attention</strong> 和 <strong>beam_search</strong> 等功能，同时有将nmt代码中繁杂的代码逻辑进行简化。这里参考nmt中所提到的构建<code>train</code>、<code>eval</code>、<code>inference</code> , 三个图进行模型构建，好处在于 <a href="https://github.com/tensorflow/nmt#building-training-eval-and-inference-graphs" target="_blank" rel="external">nmt官方文档 Building Training, Eval, and Inference Graphs </a></p>
+<blockquote>
+<ul>
+<li>inference图 往往与 train 和 eval结构 存在较大差异，所以往往需要单独进行构建<br>.   （没有decoder输入和目标，需要使用 greedy 或 beam_search 进行 decode，batch_size 也不同等等）</li>
+<li>eval图也会得到简化，因为其不需要进行反向传播，只需要得到一个loss和acc值</li>
+<li>数据可以分别进行feed，简化数据操作</li>
+<li>变量重用变得简单，因为train、eval存在一些公用变量和代码块，就不需要我们重复定义，使代码简化</li>
+<li>只需要在 train 时不断保存模型参数，然后在 eval 和 infer 的时候 restore参数即可</li>
+</ul>
+</blockquote>
+<p>以上，所以我们构建了 train、eval、infer 三个函数来实现上面的功能。在看代码之前我们先来简单说一下新版API几个主要的模块以及相互之间的调用关系。tf.contrib.seq2seq文件夹下面主要有下面6个文件，除了loss文件和之前的sequence_loss函数没有很大区别，这里不介绍之外，其他几个文件都会简单的说一下，这里主要介绍函数和类的功能，源码会放在下篇文章中介绍。</p>
+<blockquote>
+<ul>
+<li>decoder</li>
+<li>basic_decoder</li>
+<li>helper</li>
+<li>attention_wrapper</li>
+<li>beam_search_decoder</li>
+<li>loss</li>
+</ul>
+</blockquote>
+<h2 id="BasicDecoder类和dynamic-decode"><a href="#BasicDecoder类和dynamic-decode" class="headerlink" title="BasicDecoder类和dynamic_decode"></a>BasicDecoder类和dynamic_decode</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="external">Tensorflow新版Seq2Seq接口使用</a></li>
 <li><a href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq" target="_blank" rel="external">tensorflow官网API指导</a></li>
 <li><a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="external">DeepQA</a></li>

@@ -70,6 +70,227 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
+      <article id="post-ml/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2017/05/24/ml/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/"><strong>Coursera 6 - Advice for Applying Machine Learning *</strong></a>
+      <small class=article-date-index>&nbsp; 2017-05-24</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/05/24/ml/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/" class="article-date">
+  <time datetime="2017-05-24T14:08:21.000Z" itemprop="datePublished">2017-05-24</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2017/05/24/ml/ml-coursera-ng-w6-Advice-for-Applying-Machine-Learning/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>Evaluating a Hypothesis -&gt; Model Selection、Diagnosing Bias vs Variance -&gt; Regularization、Learning Curves</p>
+<h2 id="1-Evaluating-a-Hypothesis"><a href="#1-Evaluating-a-Hypothesis" class="headerlink" title="1. Evaluating a Hypothesis"></a>1. Evaluating a Hypothesis</h2><p>Once we have done some <strong>trouble shooting</strong> for errors in our predictions by:</p>
+<ul>
+<li>Getting more training examples</li>
+<li>Trying smaller sets of features</li>
+<li>Trying additional features</li>
+<li>Trying polynomial features</li>
+<li>Increasing or decreasing $λ$</li>
+</ul>
+<p>We can move on to evaluate our new hypothesis.</p>
+<p>A hypothesis may have a low error for the training examples but still be inaccurate (because of overfitting). Thus, to evaluate a hypothesis, given a dataset of training examples, we can split up the data into two sets: a training set and a test set. Typically, the training set consists of 70% of your data and the test set is the remaining 30%.</p>
+<p>The new procedure using these two sets is then:</p>
+<ol>
+<li>Learn $\Theta$ and minimize $J_{train}(\Theta)$ using the training set</li>
+<li>Compute the test set error $J_{test}(\Theta)$</li>
+</ol>
+<p><strong>The test set error</strong></p>
+<ol>
+<li>For linear regression: $J_{test}(\Theta) = \dfrac{1}{2m_{test}} \sum_{i=1}^{m_{test}}(h_\Theta(x^{(i)}_{test}) - y^{(i)}_{test})^2$</li>
+<li>For classification ~ Misclassification error (aka 0/1 misclassification error):</li>
+</ol>
+<p>$$<br>err(h_\Theta(x),y) = \begin{matrix} 1 &amp; \mbox{if } h_\Theta(x) \geq 0.5\ and\ y = 0\ or\ h_\Theta(x) &lt; 0.5\ and\ y = 1\newline 0 &amp; \mbox otherwise \end{matrix}<br>$$</p>
+<p>This gives us a binary 0 or 1 error result based on a misclassification. The average test error for the test set is:</p>
+<p>$$<br>\text{Test Error} = \dfrac{1}{m_{test}} \sum^{m_{test}}_{i=1} err(h_\Theta(x^{(i)}_{test}), y^{(i)}_{test})<br>$$</p>
+<p>This gives us the proportion of the test data that was misclassified.</p>
+<blockquote>
+<p>inaccurate[ɪn’ækjərət]、procedure [prə’sidʒɚ] 比例<br>remaining [ri’men..]、 Misclassification [‘mis,klæsifi’keiʃən]<br>validation [,vælə’deʃən] 确认，批准</p>
+</blockquote>
+<h2 id="2-Model-Selection"><a href="#2-Model-Selection" class="headerlink" title="2. Model Selection"></a>2. Model Selection</h2><p><strong>Train/Validtion/Test Sets</strong></p>
+<p>Just because a learning algorithm fits a training set well, that does not mean it is a good hypothesis. It could over fit and as a result your predictions on the test set would be poor. The error of your hypothesis as measured on the data set with which you trained the parameters will be lower than the error on any other data set.</p>
+<p>Given many models with different polynomial degrees, we can use a systematic approach to identify the ‘best’ function. In order to choose the model of your hypothesis, you can test each degree of polynomial and look at the error result.</p>
+<p>One way to break down our dataset into the three sets is:</p>
+<ul>
+<li><font color="blue"> Training set: 60%</font></li>
+<li><font color="blue"> Cross validation set: 20%</font></li>
+<li><font color="blue"> Test set: 20%</font>
+
+</li>
+</ul>
+<p>We can now calculate three separate error values for the three different sets using the following method:</p>
+<ol>
+<li>Optimize the parameters in Θ using the training set for each polynomial degree.</li>
+<li>Find the polynomial degree d with the least error using the cross validation set.</li>
+<li>Estimate the generalization error using the test set with $J_{test}(\Theta^{(d)})$, (d = theta from polynomial with lower error);</li>
+</ol>
+<blockquote>
+<p>This way, the degree of the polynomial d has not been trained using the test set.</p>
+</blockquote>
+<h2 id="3-Diagnosing-Bias-vs-Variance"><a href="#3-Diagnosing-Bias-vs-Variance" class="headerlink" title="3. Diagnosing Bias vs. Variance"></a>3. Diagnosing Bias vs. Variance</h2><p>In this section we examine the relationship between the degree of the polynomial d and the underfitting or overfitting of our hypothesis.</p>
+<ul>
+<li>We need to distinguish whether <code>bias</code> or <code>variance</code> is the problem contributing to bad predictions.</li>
+<li>High bias is underfitting and high variance is overfitting. Ideally, we need to find a golden mean between these two.</li>
+</ul>
+<p>The training error will tend to <code>decrease</code> as we increase the degree d of the polynomial.</p>
+<p>At the same time, the cross validation error will tend to decrease as we increase d up to a point, and then it will increase as d is increased, forming a convex curve.</p>
+<p><strong>High bias (underfitting)</strong>: both $J_{train}(\Theta)$ and $J_{CV}(\Theta)$ will be high. Also, $J_{CV}(\Theta) \approx J_{train}(\Theta)$.</p>
+<p><strong>High variance (overfitting)</strong>: $J_{train}(\Theta)$ will be low and $J_{CV}(\Theta)$ will be much greater than $J_{train}(\Theta)$.</p>
+<p>The is summarized in the figure below:</p>
+<p><img src="/images/ml/coursera/ml-ng-w6-01-01.png" alt=""></p>
+<h2 id="4-Regularization-Bias-Variance"><a href="#4-Regularization-Bias-Variance" class="headerlink" title="4. Regularization Bias/Variance"></a>4. Regularization Bias/Variance</h2><p>Note: [The regularization term below and through out the video should be $\frac \lambda {2m} \sum_{j=1}^n \theta_j ^2$ and NOT $\frac \lambda {2m} \sum_{j=1}^m \theta_j ^2$]</p>
+<p><img src="/images/ml/coursera/ml-ng-w6-01-02.png" alt=""></p>
+<p>In the figure above, we see that as λ increases, our fit becomes more rigid. On the other hand, as λ approaches 0, we tend to over overfit the data. So how do we choose our parameter λ to get it ‘just right’ ? In order to choose the model and the regularization term λ, we need to:</p>
+<ol>
+<li>Create a list of lambdas (i.e. λ∈{0,0.01,0.02,0.04,0.08,0.16,0.32,0.64,1.28,2.56,5.12,10.24});</li>
+<li>Create a set of models with different degrees or any other variants.</li>
+<li>Iterate through the λs and for each λ go through all the models to learn some Θ.</li>
+<li>Compute the cross validation error using the learned Θ (computed with λ) on the $J_{CV}(\Theta)$ <strong>without</strong> regularization or λ = 0. <code>？？</code></li>
+<li>Select the best combo that produces the lowest error on the cross validation set.</li>
+<li>Using the best combo Θ and λ, apply it on $J_{test}(\Theta)$ to see if it has a good generalization of the problem.</li>
+</ol>
+<h2 id="5-Learning-Curves"><a href="#5-Learning-Curves" class="headerlink" title="5. Learning Curves"></a>5. Learning Curves</h2><p>Training an algorithm on a very few number of data points (such as 1, 2 or 3) will easily have 0 errors because we can always find a quadratic curve that touches exactly those number of points. Hence:</p>
+<ul>
+<li>As the training set gets larger, the error for a quadratic function increases.</li>
+<li>The error value will plateau out after a certain m, or training set size.</li>
+</ul>
+<p><strong>Experiencing high bias:</strong></p>
+<p>Low training set size: causes $J_{train}(\Theta)$ to be low and $J_{CV}(\Theta)$ to be high.</p>
+<p>Large training set size: causes both $J_{train}(\Theta)$ and $J_{CV}(\Theta)$  to be high with $J_{train}(\Theta)$≈$J_{CV}(\Theta)$.</p>
+<p>If a learning algorithm is suffering from high bias, getting more training data will not (by itself) help much.</p>
+<p><img src="/images/ml/coursera/ml-ng-w6-01-03.png" alt=""></p>
+<p>me : 随着train sets的增加，高偏差会降低，因为更容易找到合适的 Hypothesis 去拟合数据。所以CV error下降。</p>
+<p><strong>Experiencing high variance:</strong></p>
+<p><strong>Low training set size:</strong> $J_{train}(\Theta)$ will be low and $J_{CV}(\Theta)$ will be high.</p>
+<p><strong>Large training set size:</strong> $J_{train}(\Theta)$ increases with training set size and $J_{CV}(\Theta)$ continues to decrease without leveling off. Also, $J_{train}(\Theta)$ &lt; $J_{CV}(\Theta)$ but the difference between them remains significant.</p>
+<p>If a learning algorithm is suffering from high variance, getting more training data is likely to help.</p>
+<p><img src="/images/ml/coursera/ml-ng-w6-01-04.png" alt=""></p>
+<p>me : 随着 train sets 的增加，overfiting 越来越不容易。造成 CV error 下降。</p>
+<blockquote>
+<p>plateau out / leveling off 达到平稳状态<br><code>test error will be CV error on picture.</code></p>
+</blockquote>
+<h2 id="6-What-to-Do-Next-Revisited"><a href="#6-What-to-Do-Next-Revisited" class="headerlink" title="6. What to Do Next Revisited"></a>6. What to Do Next Revisited</h2><p><em>*Our decision process can be broken down as follows</em>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">Function</th>
+<th style="text-align:center">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Getting more training examples</td>
+<td style="text-align:center">Fixes high variance</td>
+</tr>
+<tr>
+<td style="text-align:center">Trying smaller sets of features</td>
+<td style="text-align:center">Fixes high variance</td>
+</tr>
+<tr>
+<td style="text-align:center">Increasing λ</td>
+<td style="text-align:center">Fixes high variance</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">Adding features</td>
+<td style="text-align:center">Fixes high bias</td>
+</tr>
+<tr>
+<td style="text-align:center">Adding polynomial features</td>
+<td style="text-align:center">Fixes high bias</td>
+</tr>
+<tr>
+<td style="text-align:center">Decreasing λ</td>
+<td style="text-align:center">Fixes high bias</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-1-Diagnosing-NN"><a href="#6-1-Diagnosing-NN" class="headerlink" title="6.1 Diagnosing NN"></a>6.1 Diagnosing NN</h3><ul>
+<li><p>A neural network with fewer parameters is <strong>prone to underfitting</strong>. It is also <strong>computationally cheaper</strong>.</p>
+</li>
+<li><p>A large neural network with more parameters is <strong>prone to overfitting</strong>. It is also <strong>computationally expensive</strong>. </p>
+</li>
+</ul>
+<p>In this case you can use regularization (increase λ) to address the overfitting.</p>
+<h3 id="6-2-Model-Complexity-Effects"><a href="#6-2-Model-Complexity-Effects" class="headerlink" title="6.2 Model Complexity Effects"></a>6.2 Model Complexity Effects</h3><ul>
+<li><p>Lower-order polynomials (low model complexity) have high bias and low variance. In this case, the model fits poorly consistently.</p>
+</li>
+<li><p>Higher-order polynomials (high model complexity) fit the training data extremely well and the test data extremely poorly. These have low bias on the training data, but very high variance.</p>
+</li>
+<li><p>In reality, we would want to choose a model somewhere in between, that can generalize well but also fits the data reasonably well.</p>
+</li>
+</ul>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li><a href="https://www.coursera.org/learn/machine-learning/home/week/6" target="_blank" rel="external">coursera 6 @ng</a></li>
+</ul>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
       <article id="post-English/ef-l4u1-Entertainment" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -3234,89 +3455,6 @@ trainer end!
           @2018-08-27 blair end
           -->
         
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ops/ops-db-greenplum-manual-dev-steps" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/01/12/ops/ops-db-greenplum-manual-dev-steps/"><strong>Greenplum dev Flow</strong></a>
-      <small class=article-date-index>&nbsp; 2017-01-12</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/01/12/ops/ops-db-greenplum-manual-dev-steps/" class="article-date">
-  <time datetime="2017-01-12T07:28:21.000Z" itemprop="datePublished">2017-01-12</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/devops/">devops</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/01/12/ops/ops-db-greenplum-manual-dev-steps/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><img src="/images/ops/greenplum-flow.png" alt=""></p>
-<h2 id="1-Rds-import-oss"><a href="#1-Rds-import-oss" class="headerlink" title="1. Rds import oss"></a>1. Rds import oss</h2><p>通过 datax 从 mysql 导出数据到 OSS</p>
-<p>组装 : mysql2oss-e_coupon.json</p>
-<figure class="highlight xml"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "job": &#123;</span><br><span class="line">        "content": [</span><br><span class="line">        &#123;</span><br><span class="line">            "reader": &#123;</span><br><span class="line">                "name": "mysqlreader",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "username": "xx",</span><br><span class="line">                        "password": "xx",</span><br><span class="line">                        "connection": [</span><br><span class="line">                        &#123;</span><br><span class="line">                            "jdbcUrl": [</span><br><span class="line">                                "jdbc:mysql://192.168.184.xx:port"</span><br><span class="line">                                ],</span><br><span class="line">                            "table": [</span><br><span class="line">                                "rds-lib-name.e_coupon"</span><br><span class="line">                                ]</span><br><span class="line">                        &#125;</span><br><span class="line">                        ],</span><br><span class="line">                        "column":[</span><br><span class="line">                            "id",</span><br><span class="line">                            "x_card_user_id",</span><br><span class="line">                            "coupon_discount_code",</span><br><span class="line">                            ...</span><br><span class="line">                            "order_merchant_id"</span><br><span class="line">                        ],</span><br><span class="line">                        "where": "created_time BETWEEN '2016-01-01 00:00:00' AND '2017-01-05 23:59:59'"</span><br><span class="line">                    &#125;</span><br><span class="line">            &#125;,</span><br><span class="line">                "writer": &#123;</span><br><span class="line">                    "name": "osswriter",</span><br><span class="line">                    "parameter": &#123;</span><br><span class="line">                        "accessId": "xx",</span><br><span class="line">                        "accessKey": "xx",</span><br><span class="line">                        "bucket": "company-name-data",</span><br><span class="line">                        "encoding": "UTF-8",</span><br><span class="line">                        "endpoint": "http://oss-cn-hangzhou.aliyuncs.com",</span><br><span class="line">                        "fieldDelimiter": "\t",</span><br><span class="line">                        "object": "datax_dev/libin/e_coupon",</span><br><span class="line">                        "writeMode": "truncate"</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        ],</span><br><span class="line">        "setting": &#123;</span><br><span class="line">            "speed": &#123;</span><br><span class="line">                "channel": 1</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>触发执行 :</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">python datax.py mysql2oss-e_coupon.json</span><br></pre></td></tr></table></figure>
-<h2 id="2-ext-table"><a href="#2-ext-table" class="headerlink" title="2. ext table"></a>2. ext table</h2><p>创建外部表，ext_dm_e_coupon，并将 location 指向为 oss</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> <span class="keyword">PUBLIC</span>.ext_dm_e_coupon (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">bigint</span>,</span><br><span class="line">    x_card_user_id <span class="built_in">varchar</span>,</span><br><span class="line">    coupon_discount_code <span class="built_in">varchar</span>,</span><br><span class="line">    ...</span><br><span class="line">    order_merchant_id <span class="built_in">bigint</span></span><br><span class="line">) LOCATION(</span><br><span class="line">    <span class="string">'oss://oss-cn-hangzhou.aliyuncs.com</span><br><span class="line">        dir=datax_dev/libin/</span><br><span class="line">        id=xx</span><br><span class="line">        key=xx</span><br><span class="line">        bucket=xkeshi-data'</span></span><br><span class="line">) <span class="keyword">FORMAT</span> <span class="string">'text'</span> (<span class="literal">NULL</span> <span class="keyword">AS</span> <span class="string">'null'</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">-- 45596 id comment 字段有回车 ,So del comment varchar, don't imported.</span></span><br></pre></td></tr></table></figure>
-<h2 id="3-ods-table"><a href="#3-ods-table" class="headerlink" title="3. ods table"></a>3. ods table</h2><p>创建 ods_dm_e_coupon 表，并向其中导入数据</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> ods_dm_e_coupon;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ods_dm_e_coupon <span class="keyword">AS</span> <span class="keyword">SELECT</span></span><br><span class="line">	*</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	ext_dm_e_coupon <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>注意 : 这样建表 ods table id，不是 primary key</p>
-<p>显示指定 distributed BY (id)，可读性更好</p>
-</blockquote>
-<h2 id="4-mds-table"><a href="#4-mds-table" class="headerlink" title="4. mds table"></a>4. mds table</h2><p>创建 mds_dm_e_coupon_profile 表</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> mds_dm_e_coupon_profile (</span><br><span class="line">	<span class="keyword">id</span> bigserial,</span><br><span class="line">	coupon_info_code <span class="built_in">VARCHAR</span>,</span><br><span class="line">	shop_id <span class="built_in">BIGINT</span>,</span><br><span class="line">	collected_avg_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_sum_actual_price <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>),</span><br><span class="line">	collected_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_count <span class="built_in">INT</span>,</span><br><span class="line">	verified_rate <span class="built_in">DECIMAL</span> (<span class="number">12</span>, <span class="number">2</span>)</span><br><span class="line">) <span class="keyword">WITH</span> (</span><br><span class="line">	appendonly = <span class="literal">TRUE</span>,</span><br><span class="line">	compresslevel = <span class="number">5</span></span><br><span class="line">) <span class="keyword">distributed</span> <span class="keyword">BY</span> (<span class="keyword">id</span>);</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>创建表的时候，给一个自增 id. 每一个表都有一个自增 id，是一个比较好的规范</p>
-</blockquote>
-<h2 id="5-insert-mds-table"><a href="#5-insert-mds-table" class="headerlink" title="5. insert mds table"></a>5. insert mds table</h2><p>insert data to mds_dm_e_coupon_profile</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> mds_dm_e_coupon_profile (</span><br><span class="line">	coupon_info_code,</span><br><span class="line">	shop_id,</span><br><span class="line">	collected_avg_actual_price,</span><br><span class="line">	collected_sum_actual_price,</span><br><span class="line">	collected_count,</span><br><span class="line">	verified_count,</span><br><span class="line">	verified_rate</span><br><span class="line">) <span class="keyword">SELECT</span></span><br><span class="line">	tt1.coupon_info_code,</span><br><span class="line">	tt1.shop_id,</span><br><span class="line">	tt1.avg_actual_price <span class="keyword">AS</span> collected_avg_actual_price,</span><br><span class="line">	tt1.sum_actual_price <span class="keyword">AS</span> collected_sum_actual_price,</span><br><span class="line">	tt1.collected_count,</span><br><span class="line">	<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">	<span class="keyword">round</span>(</span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">COALESCE</span> (tt2.verified_count, <span class="number">0</span>) * <span class="number">1.0</span></span><br><span class="line">		) / (tt1.collected_count * <span class="number">1.0</span>),</span><br><span class="line">		<span class="number">2</span></span><br><span class="line">	) <span class="keyword">AS</span> verified_rate</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	(</span><br><span class="line">		<span class="keyword">SELECT</span></span><br><span class="line">			t1.coupon_info_code,</span><br><span class="line">			t1.shop_id,</span><br><span class="line">			<span class="keyword">COUNT</span> (t1.<span class="keyword">ID</span>) <span class="keyword">AS</span> collected_count,</span><br><span class="line">			<span class="keyword">round</span>(<span class="keyword">AVG</span>(t1.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">			<span class="keyword">SUM</span> (t1.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">		<span class="keyword">FROM</span></span><br><span class="line">			(</span><br><span class="line">				<span class="keyword">SELECT</span></span><br><span class="line">					*</span><br><span class="line">				<span class="keyword">FROM</span></span><br><span class="line">					ods_dm_e_coupon</span><br><span class="line">				<span class="keyword">WHERE</span></span><br><span class="line">					<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			) t1</span><br><span class="line">		<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">			(t1.coupon_info_code, t1.shop_id)</span><br><span class="line">		<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">			t1.shop_id</span><br><span class="line">	) tt1</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> (</span><br><span class="line">	<span class="keyword">SELECT</span></span><br><span class="line">		t2.coupon_info_code,</span><br><span class="line">		t2.shop_id,</span><br><span class="line">		<span class="keyword">COUNT</span> (t2.<span class="keyword">ID</span>) <span class="keyword">AS</span> verified_count,</span><br><span class="line">		<span class="keyword">round</span>(<span class="keyword">AVG</span>(t2.actual_price), <span class="number">2</span>) <span class="keyword">AS</span> avg_actual_price,</span><br><span class="line">		<span class="keyword">SUM</span> (t2.actual_price) <span class="keyword">AS</span> sum_actual_price</span><br><span class="line">	<span class="keyword">FROM</span></span><br><span class="line">		(</span><br><span class="line">			<span class="keyword">SELECT</span></span><br><span class="line">				*</span><br><span class="line">			<span class="keyword">FROM</span></span><br><span class="line">				ods_dm_e_coupon</span><br><span class="line">			<span class="keyword">WHERE</span></span><br><span class="line">				<span class="keyword">status</span> = <span class="number">1</span></span><br><span class="line">			<span class="keyword">AND</span> <span class="keyword">RESULT</span> = <span class="number">2</span></span><br><span class="line">		) t2</span><br><span class="line">	<span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">		(t2.coupon_info_code, t2.shop_id)</span><br><span class="line">	<span class="keyword">ORDER</span> <span class="keyword">BY</span></span><br><span class="line">		t2.shop_id</span><br><span class="line">) tt2 <span class="keyword">ON</span> tt1.coupon_info_code = tt2.coupon_info_code</span><br><span class="line"><span class="keyword">AND</span> tt1.shop_id = tt2.shop_id</span><br></pre></td></tr></table></figure>
-<h2 id="6-validation-results"><a href="#6-validation-results" class="headerlink" title="6. validation results"></a>6. validation results</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> mds_dm_e_coupon_profile <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">id</span> <span class="keyword">limit</span> <span class="number">20</span>;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/ops/greenplum-man-1.png" alt=""></p>
-
       
     </div>
 	
