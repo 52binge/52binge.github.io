@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="上期我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.
 这期我们学习新版本灵活的的API，这里先来说一下二者的不同：">
-<meta property="og:updated_time" content="2018-12-01T08:46:52.473Z">
+<meta property="og:updated_time" content="2018-12-02T00:33:23.157Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chatbot Research 11 - Chatbot 的第二个版本 (新API实现)">
 <meta name="twitter:description" content="上期我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.
@@ -127,14 +127,19 @@ var _hmt = _hmt || [];
 <li>实现了beam_search功能，可直接调用。</li>
 </ul>
 </blockquote>
-<h2 id="数据处理"><a href="#数据处理" class="headerlink" title="数据处理"></a>数据处理</h2><h2 id="模型构建"><a href="#模型构建" class="headerlink" title="模型构建"></a>模型构建</h2><p>代码主要是从 tensorflow官网 给出的nmt例子的代码简化而来，实现了最基本的 <strong>attention</strong> 和 <strong>beam_search</strong> 等功能，同时有将nmt代码中繁杂的代码逻辑进行简化。这里参考nmt中所提到的构建<code>train</code>、<code>eval</code>、<code>inference</code> , 三个图进行模型构建，好处在于 <a href="https://github.com/tensorflow/nmt#building-training-eval-and-inference-graphs" target="_blank" rel="external">nmt官方文档 Building Training, Eval, and Inference Graphs </a></p>
+<h2 id="1-数据处理"><a href="#1-数据处理" class="headerlink" title="1. 数据处理"></a>1. 数据处理</h2><blockquote>
+<p> word2id is :  { ‘decorations’: 12002, ‘scraps’: 4599, …}</p>
+<p>id2word is :  { 0: ‘<pad>‘, 1: ‘<go>‘, 2: ‘<eos>‘, 3: ‘<unknown>‘, 4: ‘can’, 5: ‘we’, 6: ‘make’, … }</unknown></eos></go></pad></p>
+<p>trainingSamples is :<br> [<br>    [ [793, 138, 65], [35, 209, 110, 9016, 208, 382, 35, 22] ],<br>    [ [35, 209, 110, 9016, 208, 382, 35, 22], [26, 92, 1906, 47, 254, 65] ],<br>    …<br> ]</p>
+</blockquote>
+<h2 id="2-模型构建"><a href="#2-模型构建" class="headerlink" title="2. 模型构建"></a>2. 模型构建</h2><p>代码主要是从 tensorflow官网 给出的nmt例子的代码简化而来，实现了最基本的 <strong>attention</strong> 和 <strong>beam_search</strong> 等功能，同时有将nmt代码中繁杂的代码逻辑进行简化。这里参考nmt中所提到的构建<code>train</code>、<code>eval</code>、<code>inference</code> , 三个图进行模型构建，好处在于 <a href="https://github.com/tensorflow/nmt#building-training-eval-and-inference-graphs" target="_blank" rel="external">nmt官方文档 Building Training, Eval, and Inference Graphs </a></p>
 <blockquote>
 <ul>
 <li>inference图 往往与 train 和 eval结构 存在较大差异，所以往往需要单独进行构建<br>.   （没有decoder输入和目标，需要使用 greedy 或 beam_search 进行 decode，batch_size 也不同等等）</li>
-<li>eval图也会得到简化，因为其不需要进行反向传播，只需要得到一个loss和acc值</li>
-<li>数据可以分别进行feed，简化数据操作</li>
-<li>变量重用变得简单，因为train、eval存在一些公用变量和代码块，就不需要我们重复定义，使代码简化</li>
-<li>只需要在 train 时不断保存模型参数，然后在 eval 和 infer 的时候 restore参数即可</li>
+<li>eval图，不需要进行反向传播，只需要得到一个 <strong>loss</strong> 和 <strong>acc</strong>值</li>
+<li>数据进行 <code>feed</code>，简化数据操作</li>
+<li>变量重用变得简单，因为 train、eval 存在一些公用变量和代码块，就不需要我们重复定义</li>
+<li>只需要在 train 时不断保存模型参数，然后在 eval 和 infer 的时候 restore参数 即可</li>
 </ul>
 </blockquote>
 <p>以上，所以我们构建了 train、eval、infer 三个函数来实现上面的功能。在看代码之前我们先来简单说一下新版API几个主要的模块以及相互之间的调用关系。tf.contrib.seq2seq文件夹下面主要有下面6个文件，除了loss文件和之前的sequence_loss函数没有很大区别，这里不介绍之外，其他几个文件都会简单的说一下，这里主要介绍函数和类的功能，源码会放在下篇文章中介绍。</p>
@@ -148,7 +153,17 @@ var _hmt = _hmt || [];
 <li>loss</li>
 </ul>
 </blockquote>
-<h2 id="BasicDecoder类和dynamic-decode"><a href="#BasicDecoder类和dynamic-decode" class="headerlink" title="BasicDecoder类和dynamic_decode"></a>BasicDecoder类和dynamic_decode</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h3 id="2-1-BasicDecoder-类和-dynamic-decode"><a href="#2-1-BasicDecoder-类和-dynamic-decode" class="headerlink" title="2.1 BasicDecoder 类和 dynamic_decode"></a>2.1 BasicDecoder 类和 dynamic_decode</h3><p>decoder文件中定义了</p>
+<ul>
+<li>Decoder抽象类</li>
+<li>dynamic_decode函数</li>
+</ul>
+<blockquote>
+<p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程</eos></p>
+</blockquote>
+<h3 id="2-2-cell类型（Attention类型）"><a href="#2-2-cell类型（Attention类型）" class="headerlink" title="2.2 cell类型（Attention类型）"></a>2.2 cell类型（Attention类型）</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 分为3步，</span></span><br><span class="line"><span class="comment">#.  1. 定义attention机制</span></span><br><span class="line"><span class="comment">#.  2. 定义要是用的基础的RNNCell</span></span><br><span class="line"><span class="comment">#.  3. 使用AttentionWrapper进行封装</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 定义要使用的attention机制。</span></span><br><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=self.rnn_size, memory=encoder_outputs, memory_sequence_length=encoder_inputs_length)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 定义decoder阶段要是用的LSTMCell，然后为其封装attention wrapper</span></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 使用AttentionWrapper进行封装</span></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper(cell=decoder_cell, attention_mechanism=attention_mechanism, attention_layer_size=self.rnn_size, name=<span class="string">'Attention_Wrapper'</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="2-3-helper类型"><a href="#2-3-helper类型" class="headerlink" title="2.3 helper类型"></a>2.3 helper类型</h3><p>helper其实就是decode阶段如何根据预测结果得到下一时刻的输入，比如train训练过程中应该直接使用上一时刻的真实值作为下一时刻输入，预测过程中可以使用贪婪的方法选择概率最大的那个值作为下一时刻等等。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="external">Tensorflow新版Seq2Seq接口使用</a></li>
 <li><a href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq" target="_blank" rel="external">tensorflow官网API指导</a></li>
 <li><a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="external">DeepQA</a></li>
@@ -210,7 +225,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#数据处理"><span class="toc-number"></span> <span class="toc-text">数据处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模型构建"><span class="toc-number"></span> <span class="toc-text">模型构建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#BasicDecoder类和dynamic-decode"><span class="toc-number"></span> <span class="toc-text">BasicDecoder类和dynamic_decode</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-数据处理"><span class="toc-number"></span> <span class="toc-text">1. 数据处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-模型构建"><span class="toc-number"></span> <span class="toc-text">2. 模型构建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-BasicDecoder-类和-dynamic-decode"><span class="toc-number"></span> <span class="toc-text">2.1 BasicDecoder 类和 dynamic_decode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-cell类型（Attention类型）"><span class="toc-number"></span> <span class="toc-text">2.2 cell类型（Attention类型）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-helper类型"><span class="toc-number"></span> <span class="toc-text">2.3 helper类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
