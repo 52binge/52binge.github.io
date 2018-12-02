@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="上期我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.
 这期我们学习新版本灵活的的API，这里先来说一下二者的不同：">
-<meta property="og:updated_time" content="2018-12-02T00:33:23.157Z">
+<meta property="og:updated_time" content="2018-12-02T14:46:20.793Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Chatbot Research 11 - Chatbot 的第二个版本 (新API实现)">
 <meta name="twitter:description" content="上期我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.
@@ -159,7 +159,7 @@ var _hmt = _hmt || [];
 <li>dynamic_decode函数</li>
 </ul>
 <blockquote>
-<p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程</eos></p>
+<p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程.</eos></p>
 </blockquote>
 <h3 id="2-2-cell类型（Attention类型）"><a href="#2-2-cell类型（Attention类型）" class="headerlink" title="2.2 cell类型（Attention类型）"></a>2.2 cell类型（Attention类型）</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 分为3步，</span></span><br><span class="line"><span class="comment">#.  1. 定义attention机制</span></span><br><span class="line"><span class="comment">#.  2. 定义要是用的基础的RNNCell</span></span><br><span class="line"><span class="comment">#.  3. 使用AttentionWrapper进行封装</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 定义要使用的attention机制。</span></span><br><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=self.rnn_size, memory=encoder_outputs, memory_sequence_length=encoder_inputs_length)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 定义decoder阶段要是用的LSTMCell，然后为其封装attention wrapper</span></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 使用AttentionWrapper进行封装</span></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper(cell=decoder_cell, attention_mechanism=attention_mechanism, attention_layer_size=self.rnn_size, name=<span class="string">'Attention_Wrapper'</span>)</span><br></pre></td></tr></table></figure>
 <h3 id="2-3-helper类型"><a href="#2-3-helper类型" class="headerlink" title="2.3 helper类型"></a>2.3 helper类型</h3><p>helper其实就是decode阶段如何根据预测结果得到下一时刻的输入，比如train训练过程中应该直接使用上一时刻的真实值作为下一时刻输入，预测过程中可以使用贪婪的方法选择概率最大的那个值作为下一时刻等等。</p>
@@ -262,8 +262,8 @@ var _hmt = _hmt || [];
     </a>
   
   
-    <a href="/2018/11/26/chatbot/chatbot-research10/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Chatbot Research 10 - Chatbot 的第一个版本 (简单实现)&nbsp;<span>&gt;</span></div>
+    <a href="/2018/11/16/nlp/glove-1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Glove 和 fastText&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>

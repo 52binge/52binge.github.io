@@ -4,6 +4,42 @@
   
     
     <entry>
+      <title><![CDATA[Chatbot Research 12 - 理论篇： 评价指标介绍]]></title>
+      <url>http://iequa.com/2018/12/01/chatbot/chatbot-research12/</url>
+      <content type="html"><![CDATA[<!-- 2018 -->
+<p>对话系统之所以没有取得突破性的进展，很大程度是因为没有一个可以准确表示回答效果好坏的评价标准。对话系统中大都使用机器翻译、摘要生成领域提出来的评价指标，但是很明显对话系统的场景和需求与他们是存在差别的.</p>
+<a id="more"></a>
+<h2 id="1-评价指标"><a href="#1-评价指标" class="headerlink" title="1. 评价指标"></a>1. 评价指标</h2><p><strong>对于某一轮对话而言:</strong></p>
+<blockquote>
+<p>可使用响应的适当性、流畅度、相关性；</p>
+</blockquote>
+<p><strong>对于多轮对话而言:</strong></p>
+<blockquote>
+<p>关注流畅性、对话深度、多样性、一致连贯性等指标</p>
+</blockquote>
+<p><strong>对于整个对话系统:</strong></p>
+<blockquote>
+<p>我们则希望他可以涵盖更多的话题、回复真实可信等等。</p>
+</blockquote>
+<p>这些都是我们想要对话系统所拥有的能力，但是往往在一个具体的任务中我们只能关注某一项或者几项指标，这里我们主要针对开放域生成式对话模型的评价指标进行总结。</p>
+<h2 id="2-词重叠评价指标"><a href="#2-词重叠评价指标" class="headerlink" title="2. 词重叠评价指标"></a>2. 词重叠评价指标</h2><h2 id="3-BLEU"><a href="#3-BLEU" class="headerlink" title="3. BLEU"></a>3. BLEU</h2><h2 id="4-词向量评价指标"><a href="#4-词向量评价指标" class="headerlink" title="4. 词向量评价指标"></a>4. 词向量评价指标</h2><h2 id="5-perplexity困惑度"><a href="#5-perplexity困惑度" class="headerlink" title="5. perplexity困惑度"></a>5. perplexity困惑度</h2><h2 id="6-人工指标"><a href="#6-人工指标" class="headerlink" title="6. 人工指标"></a>6. 人工指标</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Chatbot Common Useful Links]]></title>
       <url>http://iequa.com/2018/12/01/chatbot/chatbot-common-links/</url>
       <content type="html"><![CDATA[<p>Here are some useful links about Chatbot</p>
@@ -84,7 +120,7 @@
 <li>dynamic_decode函数</li>
 </ul>
 <blockquote>
-<p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程</eos></p>
+<p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程.</eos></p>
 </blockquote>
 <h3 id="2-2-cell类型（Attention类型）"><a href="#2-2-cell类型（Attention类型）" class="headerlink" title="2.2 cell类型（Attention类型）"></a>2.2 cell类型（Attention类型）</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 分为3步，</span></span><br><span class="line"><span class="comment">#.  1. 定义attention机制</span></span><br><span class="line"><span class="comment">#.  2. 定义要是用的基础的RNNCell</span></span><br><span class="line"><span class="comment">#.  3. 使用AttentionWrapper进行封装</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 定义要使用的attention机制。</span></span><br><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=self.rnn_size, memory=encoder_outputs, memory_sequence_length=encoder_inputs_length)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 定义decoder阶段要是用的LSTMCell，然后为其封装attention wrapper</span></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 使用AttentionWrapper进行封装</span></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper(cell=decoder_cell, attention_mechanism=attention_mechanism, attention_layer_size=self.rnn_size, name=<span class="string">'Attention_Wrapper'</span>)</span><br></pre></td></tr></table></figure>
 <h3 id="2-3-helper类型"><a href="#2-3-helper类型" class="headerlink" title="2.3 helper类型"></a>2.3 helper类型</h3><p>helper其实就是decode阶段如何根据预测结果得到下一时刻的输入，比如train训练过程中应该直接使用上一时刻的真实值作为下一时刻输入，预测过程中可以使用贪婪的方法选择概率最大的那个值作为下一时刻等等。</p>
@@ -93,235 +129,6 @@
 <li><a href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq" target="_blank" rel="external">tensorflow官网API指导</a></li>
 <li><a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="external">DeepQA</a></li>
 <li><a href="https://github.com/pbhatia243/Neural_Conversation_Models" target="_blank" rel="external">Neural_Conversation_Models</a></li>
-</ul>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Chatbot Research 10 - Chatbot 的第一个版本 (简单实现)]]></title>
-      <url>http://iequa.com/2018/11/26/chatbot/chatbot-research10/</url>
-      <content type="html"><![CDATA[<!-- 2018 -->
-<p>本篇主要讲述如何调用 tf 提供的 seq2seq 的 API，实现一个chatbot对话系统.</p>
-<p>网上很多参考代码都是基于tf的旧版本实现，导致这些代码在新版本的tf中无法正常运行。</p>
-<a id="more"></a>
-<h2 id="1-版本兼容"><a href="#1-版本兼容" class="headerlink" title="1. 版本兼容"></a>1. 版本兼容</h2><p><strong>常见的几个问题主要是</strong>：</p>
-<ul>
-<li>seq2seq API 旧版 tf.contrib.legacy_seq2seq, 新的接口 tf.contrib.seq2seq</li>
-<li>rnn 目前也大都使用 tf.contrib.rnn 下面的 RNNCell；</li>
-<li>embedding_attention_seq2seq 函数中调用deepcopy(cell)这个函数报异常<blockquote>
-<p>deepcopy(cell)这个函数经常会爆出（TypeError: can’t pickle _thread.lock objects）的错误</p>
-</blockquote>
-</li>
-</ul>
-<p><strong>解决方案</strong>：</p>
-<ol>
-<li>切换TF版本 1.4 问题解决。</li>
-<li>不切换版本：一种解决方案就是将embedding_attention_seq2seq的传入参数中的cell改成两个，分别是encoder_cell和decoder_cell，然后这两个cell分别使用下面代码进行初始化：</li>
-</ol>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">encoCell = tf.contrib.rnn.MultiRNNCell([create_rnn_cell() <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)],)</span><br><span class="line">decoCell = tf.contrib.rnn.MultiRNNCell([create_rnn_cell() <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)],)</span><br></pre></td></tr></table></figure>
-<p>这样做不需要调用deepcopy函数对cell进行复制了，问题解决了，但在模型构建的时候速度会比较慢，猜测是因为需要构造两份RNN模型，但是最后训练的时候发现速度也很慢，无奈只能放弃这种做法。</p>
-<p>然后分析代码，发现问题并不是单纯的出现在 embedding_attention_seq2seq 这个函数，而是在调用module_with_buckets的时候会构建很多个不同bucket的seq2seq模型，这就导致了embedding_attention_seq2seq会被重复调用很多次，后来发现确实是这里出现的问题。</p>
-<p>解决方案的话就是，<code>不适用buckets构建模型</code>，而是简单的将所有序列都padding到统一长度，然后直接调用一次embedding_attention_seq2seq 函数构建模型即可，这样是不会抱错的。</p>
-<h2 id="2-数据处理"><a href="#2-数据处理" class="headerlink" title="2. 数据处理"></a>2. 数据处理</h2><p>用<a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="external">DeepQA</a>里数据处理的代码，省去从原始本文文件构造对话的过程直接使用其生成的 dataset-cornell-….pkl文件</p>
-<blockquote>
-<p>dataset-cornell-length10-filter1-vocabSize40000.pkl</p>
-</blockquote>
-<p>主要包括：</p>
-<ol>
-<li>读取数据的函数loadDataset()</li>
-<li>根据数据创建batches的函数getBatches()和createBatch()</li>
-<li>预测时将用户输入的句子转化成batch的函数sentence2enco()</li>
-</ol>
-<h2 id="3-模型构建"><a href="#3-模型构建" class="headerlink" title="3. 模型构建"></a>3. 模型构建</h2><ol>
-<li>一些变量的传入和定义</li>
-<li>OutputProjection层和sampled_softmax_loss函数的定义</li>
-<li>RNNCell的定义和创建</li>
-<li>根据训练或者测试调用相应的embedding_attention_seq2seq函数构建模型</li>
-<li>step函数定义，主要用于给定一个batch的数据，构造相应的 feed_dict 和 run_opt</li>
-</ol>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> seq2seq <span class="keyword">import</span> embedding_attention_seq2seq</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Seq2SeqModel</span><span class="params">()</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, source_vocab_size, target_vocab_size, en_de_seq_len, hidden_size, num_layers,</span><br><span class="line">                 batch_size, learning_rate, num_samples=<span class="number">1024</span>,</span><br><span class="line">                 forward_only=False, beam_search=True, beam_size=<span class="number">10</span>)</span>:</span></span><br><span class="line">        <span class="string">'''</span><br><span class="line">        初始化并创建模型</span><br><span class="line">        :param source_vocab_size:encoder输入的vocab size</span><br><span class="line">        :param target_vocab_size: decoder输入的vocab size，这里跟上面一样</span><br><span class="line">        :param en_de_seq_len: 源和目的序列最大长度</span><br><span class="line">        :param hidden_size: RNN模型的隐藏层单元个数</span><br><span class="line">        :param num_layers: RNN堆叠的层数</span><br><span class="line">        :param batch_size: batch大小</span><br><span class="line">        :param learning_rate: 学习率</span><br><span class="line">        :param num_samples: 计算loss时做sampled softmax时的采样数</span><br><span class="line">        :param forward_only: 预测时指定为真</span><br><span class="line">        :param beam_search: 预测时是采用greedy search还是beam search</span><br><span class="line">        :param beam_size: beam search的大小</span><br><span class="line">        '''</span></span><br><span class="line">        self.source_vocab_size = source_vocab_size</span><br><span class="line">        self.target_vocab_size = target_vocab_size</span><br><span class="line">        self.en_de_seq_len = en_de_seq_len</span><br><span class="line">        self.hidden_size = hidden_size</span><br><span class="line">        self.num_layers = num_layers</span><br><span class="line">        self.batch_size = batch_size</span><br><span class="line">        self.learning_rate = tf.Variable(float(learning_rate), trainable=<span class="keyword">False</span>)</span><br><span class="line">        self.num_samples = num_samples</span><br><span class="line">        self.forward_only = forward_only</span><br><span class="line">        self.beam_search = beam_search</span><br><span class="line">        self.beam_size = beam_size</span><br><span class="line">        self.global_step = tf.Variable(<span class="number">0</span>, trainable=<span class="keyword">False</span>)</span><br><span class="line"></span><br><span class="line">        output_projection = <span class="keyword">None</span></span><br><span class="line">        softmax_loss_function = <span class="keyword">None</span></span><br><span class="line">        <span class="comment"># 定义采样loss函数，传入后面的sequence_loss_by_example函数</span></span><br><span class="line">        <span class="keyword">if</span> num_samples &gt; <span class="number">0</span> <span class="keyword">and</span> num_samples &lt; self.target_vocab_size:</span><br><span class="line">            w = tf.get_variable(<span class="string">'proj_w'</span>, [hidden_size, self.target_vocab_size])</span><br><span class="line">            w_t = tf.transpose(w)</span><br><span class="line">            b = tf.get_variable(<span class="string">'proj_b'</span>, [self.target_vocab_size])</span><br><span class="line">            output_projection = (w, b)</span><br><span class="line">            <span class="comment">#调用sampled_softmax_loss函数计算sample loss，这样可以节省计算时间</span></span><br><span class="line">            <span class="function"><span class="keyword">def</span> <span class="title">sample_loss</span><span class="params">(logits, labels)</span>:</span></span><br><span class="line">                labels = tf.reshape(labels, [<span class="number">-1</span>, <span class="number">1</span>])</span><br><span class="line">                <span class="keyword">return</span> tf.nn.sampled_softmax_loss(w_t, b, labels=labels, inputs=logits, num_sampled=num_samples, num_classes=self.target_vocab_size)</span><br><span class="line">            softmax_loss_function = sample_loss</span><br><span class="line"></span><br><span class="line">        self.keep_drop = tf.placeholder(tf.float32)</span><br><span class="line">        <span class="comment"># 定义encoder和decoder阶段的多层dropout RNNCell</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">create_rnn_cell</span><span class="params">()</span>:</span></span><br><span class="line">            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(hidden_size)</span><br><span class="line">            encoDecoCell = tf.contrib.rnn.DropoutWrapper(encoDecoCell, input_keep_prob=<span class="number">1.0</span>, output_keep_prob=self.keep_drop)</span><br><span class="line">            <span class="keyword">return</span> encoDecoCell</span><br><span class="line">        encoCell = tf.contrib.rnn.MultiRNNCell([create_rnn_cell() <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 定义输入的placeholder，采用了列表的形式</span></span><br><span class="line">        self.encoder_inputs = []</span><br><span class="line">        self.decoder_inputs = []</span><br><span class="line">        self.decoder_targets = []</span><br><span class="line">        self.target_weights = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(en_de_seq_len[<span class="number">0</span>]):</span><br><span class="line">            self.encoder_inputs.append(tf.placeholder(tf.int32, shape=[<span class="keyword">None</span>, ], name=<span class="string">"encoder&#123;0&#125;"</span>.format(i)))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(en_de_seq_len[<span class="number">1</span>]):</span><br><span class="line">            self.decoder_inputs.append(tf.placeholder(tf.int32, shape=[<span class="keyword">None</span>, ], name=<span class="string">"decoder&#123;0&#125;"</span>.format(i)))</span><br><span class="line">            self.decoder_targets.append(tf.placeholder(tf.int32, shape=[<span class="keyword">None</span>, ], name=<span class="string">"target&#123;0&#125;"</span>.format(i)))</span><br><span class="line">            self.target_weights.append(tf.placeholder(tf.float32, shape=[<span class="keyword">None</span>, ], name=<span class="string">"weight&#123;0&#125;"</span>.format(i)))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># test模式，将上一时刻输出当做下一时刻输入传入</span></span><br><span class="line">        <span class="keyword">if</span> forward_only:</span><br><span class="line">            <span class="keyword">if</span> beam_search:<span class="comment">#如果是beam_search的话，则调用自己写的embedding_attention_seq2seq函数，而不是legacy_seq2seq下面的</span></span><br><span class="line">                self.beam_outputs, _, self.beam_path, self.beam_symbol = embedding_attention_seq2seq(</span><br><span class="line">                    self.encoder_inputs, self.decoder_inputs, encoCell, num_encoder_symbols=source_vocab_size,</span><br><span class="line">                    num_decoder_symbols=target_vocab_size, embedding_size=hidden_size,</span><br><span class="line">                    output_projection=output_projection, feed_previous=<span class="keyword">True</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                decoder_outputs, _ = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(</span><br><span class="line">                    self.encoder_inputs, self.decoder_inputs, encoCell, num_encoder_symbols=source_vocab_size,</span><br><span class="line">                    num_decoder_symbols=target_vocab_size, embedding_size=hidden_size,</span><br><span class="line">                    output_projection=output_projection, feed_previous=<span class="keyword">True</span>)</span><br><span class="line">                <span class="comment"># 因为seq2seq模型中未指定output_projection，所以需要在输出之后自己进行output_projection</span></span><br><span class="line">                <span class="keyword">if</span> output_projection <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">                    self.outputs = tf.matmul(decoder_outputs, output_projection[<span class="number">0</span>]) + output_projection[<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># 因为不需要将output作为下一时刻的输入，所以不用output_projection</span></span><br><span class="line">            decoder_outputs, _ = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(</span><br><span class="line">                self.encoder_inputs, self.decoder_inputs, encoCell, num_encoder_symbols=source_vocab_size,</span><br><span class="line">                num_decoder_symbols=target_vocab_size, embedding_size=hidden_size, output_projection=output_projection,</span><br><span class="line">                feed_previous=<span class="keyword">False</span>)</span><br><span class="line">            self.loss = tf.contrib.legacy_seq2seq.sequence_loss(</span><br><span class="line">                decoder_outputs, self.decoder_targets, self.target_weights, softmax_loss_function=softmax_loss_function)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># Initialize the optimizer</span></span><br><span class="line">            opt = tf.train.AdamOptimizer(learning_rate=self.learning_rate, beta1=<span class="number">0.9</span>, beta2=<span class="number">0.999</span>, epsilon=<span class="number">1e-08</span>)</span><br><span class="line">            self.optOp = opt.minimize(self.loss)</span><br><span class="line"></span><br><span class="line">        self.saver = tf.train.Saver(tf.all_variables())</span><br></pre></td></tr></table></figure>
-<p>step 函数定义，主要用于给定一个batch的数据，构造相应的 feed_dict 和 run_opt</p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">step</span><span class="params">(self, session, encoder_inputs, decoder_inputs, decoder_targets, target_weights, go_token_id)</span>:</span></span><br><span class="line">    <span class="comment"># 传入一个batch的数据，并训练性对应的模型</span></span><br><span class="line">    <span class="comment"># 构建sess.run时的feed_inpits</span></span><br><span class="line">    feed_dict = &#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.forward_only:</span><br><span class="line">        feed_dict[self.keep_drop] = <span class="number">0.5</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(self.en_de_seq_len[<span class="number">0</span>]):</span><br><span class="line">            feed_dict[self.encoder_inputs[i].name] = encoder_inputs[i]</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(self.en_de_seq_len[<span class="number">1</span>]):</span><br><span class="line">            feed_dict[self.decoder_inputs[i].name] = decoder_inputs[i]</span><br><span class="line">            feed_dict[self.decoder_targets[i].name] = decoder_targets[i]</span><br><span class="line">            feed_dict[self.target_weights[i].name] = target_weights[i]</span><br><span class="line">        run_ops = [self.optOp, self.loss]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        feed_dict[self.keep_drop] = <span class="number">1.0</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(self.en_de_seq_len[<span class="number">0</span>]):</span><br><span class="line">            feed_dict[self.encoder_inputs[i].name] = encoder_inputs[i]</span><br><span class="line">        feed_dict[self.decoder_inputs[<span class="number">0</span>].name] = [go_token_id]</span><br><span class="line">        <span class="keyword">if</span> self.beam_search:</span><br><span class="line">            run_ops = [self.beam_path, self.beam_symbol]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            run_ops = [self.outputs]</span><br><span class="line"></span><br><span class="line">    outputs = session.run(run_ops, feed_dict)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.forward_only:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">None</span>, outputs[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">if</span> self.beam_search:</span><br><span class="line">            <span class="keyword">return</span> outputs[<span class="number">0</span>], outputs[<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
-<h2 id="4-模型定制-TF-Beam-search"><a href="#4-模型定制-TF-Beam-search" class="headerlink" title="4. 模型定制 TF-Beam search"></a>4. 模型定制 TF-Beam search</h2><p>beam search 是在预测时需要用到，代替 greedy，但是如何编程实现呢？ 如何在TF内模型构建时进行？</p>
-<blockquote>
-<p>beam search 是在预测时需要用到，所以在tf之外用python实现也可，这样做可能造成decode速度变慢</p>
-</blockquote>
-<h2 id="5-模型训练"><a href="#5-模型训练" class="headerlink" title="5. 模型训练"></a>5. 模型训练</h2><h2 id="6-模型预测"><a href="#6-模型预测" class="headerlink" title="6. 模型预测"></a>6. 模型预测</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="external">Tensorflow新版Seq2Seq接口使用</a></li>
-<li><a href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq" target="_blank" rel="external">tensorflow官网API指导</a></li>
-<li><a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="external">DeepQA</a></li>
-<li><a href="https://github.com/pbhatia243/Neural_Conversation_Models" target="_blank" rel="external">Neural_Conversation_Models</a></li>
-</ul>
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Chatbot Research 9 - 旧版 tf.contrib.legacy_seq2seq API 介绍]]></title>
-      <url>http://iequa.com/2018/11/19/chatbot/chatbot-research9/</url>
-      <content type="html"><![CDATA[<p>有了对代码的深层次理解，我们之后构建 Chatbot 系统的时候有很大的帮助。</p>
-<a id="more"></a>
-<blockquote>
-<p>旧的seq2seq接口也就是tf.contrib.legacy_seq2seq下的那部分，新的接口在tf.contrib.seq2seq下。</p>
-<p>新seq2seq接口与旧的相比最主要的区别是它是动态展开的，而旧的是静态展开的。</p>
-<p>静态展开(static unrolling) ：指的是定义模型创建graph的时候，序列的长度是固定的，之后传入的所有序列都得是定义时指定的长度。这样所有的句子都要padding到指定的长度，很浪费存储空间，计算效率也不高。但想处理变长序列，也是有办法的，需要预先指定一系列的buckets，如</p>
-</blockquote>
-<h2 id="函数部分"><a href="#函数部分" class="headerlink" title="函数部分"></a>函数部分</h2><p><a href="https://github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/contrib/legacy_seq2seq/python/ops/seq2seq.py" target="_blank" rel="external">旧版legacy_seq2seq代码</a></p>
-<p>首先看一下这个文件的组成，主要包含下面几个函数：</p>
-<blockquote>
-<ul>
-<li>def _extract_argmax_and_embed(embedding, …</li>
-<li>def rnn_decoder(decoder_inputs, initial_state, …</li>
-<li>def basic_rnn_seq2seq(encoder_inputs, … </li>
-<li>def tied_rnn_seq2seq(encoder_inputs, …</li>
-<li>def embedding_rnn_seq2seq(encoder_inputs, …</li>
-<li>def embedding_tied_rnn_seq2seq(encoder_inputs, …</li>
-<li>def attention_decoder(decoder_inputs, …</li>
-<li>def embedding_attention_decoder(decoder_inputs, …</li>
-<li>def embedding_attention_seq2seq(encoder_inputs, …</li>
-<li>def one2many_rnn_seq2seq(encoder_inputs, …</li>
-<li>def sequence_loss_by_example(logits, …</li>
-<li>def sequence_loss(logits, …</li>
-<li>def model_with_buckets(encoder_inputs, …</li>
-</ul>
-</blockquote>
-<p><strong>可以看到按照调用关系和功能不同可以分成下面的结构</strong>：</p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">model_with_buckets</span><br><span class="line">│</span><br><span class="line">├── seq2seq函数</span><br><span class="line">│   </span><br><span class="line">│   ├── basic_rnn_seq2seq</span><br><span class="line">│   │   ├── rnn_decoder</span><br><span class="line">│   └── tied_rnn_seq2seq</span><br><span class="line">│   ├── embedding_tied_rnn_seq2seq</span><br><span class="line">│   └── embedding_rnn_seq2seq</span><br><span class="line">│   │   ├── embedding_rnn_decoder</span><br><span class="line">│   ├── embedding_attention_seq2seq</span><br><span class="line">│   │   ├── embedding_attention_decoder</span><br><span class="line">│   │   │   ├── attention_decoder</span><br><span class="line">│   │   │   ├── attention</span><br><span class="line">│   └── one2many_rnn_seq2seq</span><br><span class="line">│   </span><br><span class="line">└── loss函数</span><br><span class="line">    ├── sequence_loss_by_example</span><br><span class="line">    ├── sequence_loss</span><br></pre></td></tr></table></figure>
-<h3 id="model-with-buckets-函数"><a href="#model-with-buckets-函数" class="headerlink" title="model_with_buckets()函数"></a>model_with_buckets()函数</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">model_with_buckets</span><span class="params">(encoder_inputs,</span><br><span class="line">                      decoder_inputs,</span><br><span class="line">                      targets,</span><br><span class="line">                      weights,</span><br><span class="line">                      buckets,</span><br><span class="line">                      seq2seq,</span><br><span class="line">                      softmax_loss_function=None,</span><br><span class="line">                      per_example_loss=False,</span><br><span class="line">                      name=None)</span>:</span></span><br></pre></td></tr></table></figure>
-<p>这个函数，目的是为了减少计算量和加快模型计算速度，然后由于这部分代码比较古老，你会发现有些地方还在使用static_rnn()这种函数，其实新版的tf中引入dynamic_rnn之后就不需要这么做了。</p>
-<p>分析一下，其实思路很简单，就是将输入长度分成不同的间隔，这样数据的在填充时只需要填充到相应的bucket长度即可，不需要都填充到最大长度。</p>
-<p>比如 buckets 取 <code>[(5，10), (10，20),(20，30)...]</code> 每个 bucket 的</p>
-<ol>
-<li>第一个数字表示 source 填充的长度</li>
-<li>第二个数字表示 target 填充的长度</li>
-</ol>
-<p>举个🌰 eg：<strong>‘我爱你’–&gt;‘I love you’</strong>， 应该会被分配到第一个bucket中</p>
-<p>然后‘我爱你’会被pad成长度为5的序列，‘I love you’会被pad成长度为10的序列。其实就是每个bucket表示一个模型的参数配置。这样对每个bucket都构造一个模型，然后训练时取相应长度的序列进行，而这些模型将会共享参数。其实这一部分可以参考现在的dynamic_rnn来进行理解，dynamic_rnn是对每个batch的数据将其pad至本batch中长度最大的样本，而bucket则是在数据预处理环节先对数据长度进行聚类操作。</p>
-<p>我们再看一下该函数的参数和内部实现：</p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">encoder_inputs: encoder的输入，一个tensor的列表。列表中每一项都是encoder时的一个词（batch）。</span><br><span class="line">decoder_inputs: decoder的输入，同上</span><br><span class="line">targets:        目标值，与decoder_input只相差一个&lt;EOS&gt;符号，int32型</span><br><span class="line">weights:        目标序列长度值的mask标志，如果是padding则weight=<span class="number">0</span>，否则weight=<span class="number">1</span></span><br><span class="line">buckets:        就是定义的bucket值，是一个列表：[(<span class="number">5</span>，<span class="number">10</span>), (<span class="number">10</span>，<span class="number">20</span>),(<span class="number">20</span>，<span class="number">30</span>)...]</span><br><span class="line">seq2seq:        定义好的seq2seq模型，可以使用后面介绍的embedding_attention_seq2seq，embedding_rnn_seq2seq，basic_rnn_seq2seq等</span><br><span class="line">softmax_loss_function: 计算误差的函数，(labels, logits)，默认为sparse_softmax_cross_entropy_with_logits</span><br><span class="line">per_example_loss: 如果为真，则调用sequence_loss_by_example，返回一个列表，其每个元素就是一个样本的loss值。如果为假，则调用sequence_loss函数，对一个batch的样本只返回一个求和的loss值，具体见后面的分析</span><br><span class="line">name: Optional name <span class="keyword">for</span> this operation, defaults to <span class="string">"model_with_buckets"</span>.</span><br></pre></td></tr></table></figure>
-<p>内部代码这里不会全部贴上来，捡关键的说一下：</p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment">#保存每个bucket对应的loss和output    </span></span><br><span class="line">losses = []</span><br><span class="line">outputs = []</span><br><span class="line"><span class="keyword">with</span> ops.name_scope(name, <span class="string">"model_with_buckets"</span>, all_inputs):</span><br><span class="line"><span class="comment">#对每个bucket都要选择数据进行构建模型</span></span><br><span class="line"><span class="keyword">for</span> j, bucket <span class="keyword">in</span> enumerate(buckets):</span><br><span class="line"> <span class="comment">#buckets之间的参数要进行复用</span></span><br><span class="line"> <span class="keyword">with</span> variable_scope.variable_scope(variable_scope.get_variable_scope(), reuse=<span class="keyword">True</span> <span class="keyword">if</span> j &gt; <span class="number">0</span> <span class="keyword">else</span> <span class="keyword">None</span>):</span><br><span class="line"></span><br><span class="line">   <span class="comment">#调用seq2seq进行解码得到输出，这里需要注意的是，encoder_inputs和decoder_inputs是定义好的placeholder，</span></span><br><span class="line">   <span class="comment">#都是长度为序列最大长度的列表（也就是最大的那个buckets的长度），按上面的例子，这两个placeholder分别是长度为20和30的列表。</span></span><br><span class="line">   <span class="comment">#在构建模型时，对于每个bucket，只取其对应的长度个placeholder即可，如对于（5,10）这个bucket，就取前5/10个placeholder进行构建模型</span></span><br><span class="line">   bucket_outputs, _ = seq2seq(encoder_inputs[:bucket[<span class="number">0</span>]], decoder_inputs[:bucket[<span class="number">1</span>]])</span><br><span class="line">   outputs.append(bucket_outputs)</span><br><span class="line">   <span class="comment">#如果指定per_example_loss则调用sequence_loss_by_example，losses添加的是一个batch_size大小的列表</span></span><br><span class="line">   <span class="keyword">if</span> per_example_loss:</span><br><span class="line">     losses.append(</span><br><span class="line">         sequence_loss_by_example(</span><br><span class="line">             outputs[<span class="number">-1</span>],</span><br><span class="line">             targets[:bucket[<span class="number">1</span>]],</span><br><span class="line">             weights[:bucket[<span class="number">1</span>]],</span><br><span class="line">             softmax_loss_function=softmax_loss_function))</span><br><span class="line">   <span class="comment">#否则调用sequence_loss，对上面的结果进行求和，losses添加的是一个值</span></span><br><span class="line">   <span class="keyword">else</span>:</span><br><span class="line">     losses.append(</span><br><span class="line">         sequence_loss(</span><br><span class="line">             outputs[<span class="number">-1</span>],</span><br><span class="line">             targets[:bucket[<span class="number">1</span>]],</span><br><span class="line">             weights[:bucket[<span class="number">1</span>]],</span><br><span class="line">             softmax_loss_function=softmax_loss_function))</span><br></pre></td></tr></table></figure>
-<p>函数的输出为outputs和losses，其tensor的shape见上面解释。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/contrib/legacy_seq2seq/python/ops/seq2seq.py" target="_blank" rel="external">官网代码</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/27769667" target="_blank" rel="external">Tensorflow源码解读（一）：Attention Seq2Seq模型</a></li>
-<li><a href="http://complx.me/2016-06-28-easy-seq2seq/" target="_blank" rel="external">Chatbots with Seq2Seq</a></li>
-<li><a href="https://lan2720.github.io/2017/03/10/tensorflow%E7%9A%84legacy-seq2seq/" target="_blank" rel="external">tensorflow的legacy_seq2seq</a></li>
-<li><a href="https://github.com/tensorflow/nmt#tips--tricks" target="_blank" rel="external">Neural Machine Translation (seq2seq) Tutorial</a></li>
-<li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="external">Tensorflow新版Seq2Seq接口使用</a></li>
-</ul>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Chatbot Research 8 - 理论 seq2seq+Attention 机制模型详解]]></title>
-      <url>http://iequa.com/2018/11/17/chatbot/chatbot-research8/</url>
-      <content type="html"><![CDATA[<p>从具体的模型细节、公式推导、结构图以及变形等几个方向详细介绍一下 Seq-to-Seq 模型。</p>
-<a id="more"></a>
-<ul>
-<li>Seq-to-Seq 框架1</li>
-<li>Seq-to-Seq 框架2（teacher forcing）</li>
-<li>Seq-to-Seq with Attention（NMT）</li>
-<li>Seq-to-Seq with Attention 各种变形</li>
-<li>Seq-to-Seq with Beam-Search</li>
-</ul>
-<p>当输入输出都是不定长序列时，我们可以使用编码器—解码器（encoder-decoder）<a href="https://www.youtube.com/watch?v=GQh7wDQDc0Y&amp;index=18&amp;list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax" target="_blank" rel="external">1</a> 或者 seq2seq 模型 <a href="https://zh.gluon.ai/chapter_recurrent-neural-networks/gru.html" target="_blank" rel="external">2</a>。这两个模型本质上都用到了两个循环神经网络，分别叫做编码器和解码器。编码器用来分析输入序列，解码器用来生成输出序列。</p>
-<h2 id="1-Seq2Seq-框架1"><a href="#1-Seq2Seq-框架1" class="headerlink" title="1. Seq2Seq 框架1"></a>1. Seq2Seq 框架1</h2><p><img src="/images/chatbot/seq2seq-1.jpg" width="300"></p>
-<p><a href="https://arxiv.org/pdf/1406.1078.pdf" target="_blank" rel="external">Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation</a></p>
-<h3 id="1-1-encode-编码器"><a href="#1-1-encode-编码器" class="headerlink" title="1.1 encode 编码器"></a>1.1 encode 编码器</h3><p>编码器的作用是把一个不定长的输入序列变换成一个定长的背景变量 $c$，并在该背景变量中编码输入序列信息。常用的编码器是循环神经网络。</p>
-<p>让我们考虑批量大小为 1 的时序数据样本。假设输入序列是 $x_1,\ldots,x_T$, 例如 $x_i$ 是输入句子中的第 $i$ 个词。在时间步 $t$，循环神经网络将输入 $x_t$ 的特征向量 $x_t$ 和上个时间步的隐藏状态 $\boldsymbol{h}_{t-1}$ 变换为当前时间步的隐藏状态 $h_t$。我们可以用函数 $f$ 表达循环神经网络隐藏层的变换：</p>
-<p>$$<br>\boldsymbol{h}_t = f(\boldsymbol{x}_t, \boldsymbol{h}_{t-1}).<br>$$</p>
-<p>接下来编码器通过自定义函数 $q$ 将各个时间步的隐藏状态变换为背景变量</p>
-<p>$$<br>\boldsymbol{c} =  q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T).<br>$$</p>
-<p>例如，当选择 $q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T) = \boldsymbol{h}_T$ 时，背景变量是输入序列最终时间步的隐藏状态 $\boldsymbol{h}_T$。</p>
-<p>以上描述的编码器是一个单向的 RNN，每个时间步的隐藏状态只取决于该时间步及之前的输入子序列。我们也可以使用 Bi-RNN 构造编码器。这种情况下，编码器每个时间步的隐藏状态同时取决于该时间步之前和之后的子序列（包括当前时间步的输入），并编码了整个序列的信息。</p>
-<p><img src="/images/chatbot/seq2seq-5.jpeg" width="800"></p>
-<h3 id="1-2-decode-解码器"><a href="#1-2-decode-解码器" class="headerlink" title="1.2 decode 解码器"></a>1.2 decode 解码器</h3><p>Encode 编码器输出的背景变量 $c$ 编码了整个输入序列 $x_1, \ldots, x_T$ 的信息。给定训练样本中的输出序列 $y_1, y_2, \ldots, y_{T’}$，对每个时间步 $t’$（符号与输入序列或编码器的时间步 $t$ 有区别）， 解码器输出 $y_{t’}$ 的条件概率将基于之前的输出序列 $y_1,\ldots,y_{t’-1}$ 和背景变量 $c$，<strong>即</strong> $\mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, \boldsymbol{c})$。</p>
-<p>为此，我们可以使用<code>另一个RNN</code>作为解码器。 在输出序列的时间步 $t^\prime$，解码器将上一时间步的输出 $y_{t^\prime-1}$ 以及背景变量 $c$ 作为输入，并将它们与上一时间步的隐藏状态 $\boldsymbol{h}_{t^\prime-1}$ 变换为当前时间步的隐藏状态 $\boldsymbol{h}_{t^\prime}$。因此，我们可以用函数 $g$ 表达解码器隐藏层的变换：</p>
-<p>$$<br>\boldsymbol{h}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{h}_{t^\prime-1}).<br>$$</p>
-<p>有了decode的隐藏状态后，我们可以使用自定义的输出层和 softmax 运算来计算 $\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$，例如基于当前时间步的解码器隐藏状态 $\boldsymbol{h}_{t^\prime}$、上一时间步的输出 $y_{t^\prime-1}$ 以及背景变量 $c$ 来计算当前时间步输出 $y_{t^\prime}$ 的概率分布。</p>
-<h3 id="1-3-train-模型训练"><a href="#1-3-train-模型训练" class="headerlink" title="1.3 train 模型训练"></a>1.3 train 模型训练</h3><p>根据最大似然估计，我们可以最大化输出序列基于输入序列的条件概率</p>
-<p>$$<br>\begin{split}\begin{aligned}<br>\mathbb{P}(y_1, \ldots, y_{T’} \mid x_1, \ldots, x_T)<br>&amp;= \prod_{t’=1}^{T’} \mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, x_1, \ldots, x_T)\\<br>&amp;= \prod_{t’=1}^{T’} \mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, \boldsymbol{c}),<br>\end{aligned}\end{split}<br>$$</p>
-<p>并得到该输出序列的损失</p>
-<p>$$ - \log\mathbb{P}(y_1, \ldots, y_{T’} \mid x_1, \ldots, x_T) = -\sum_{t’=1}^{T’} \log \mathbb{P}(y_{t’} \mid y_1,  \ldots, y_{t’-1}, \boldsymbol{c}),<br>$$</p>
-<p><img src="/images/chatbot/seq2seq-6.png" width="800"></p>
-<p>在模型训练中，所有输出序列损失的均值通常作为需要最小化的损失函数。在图中所描述的模型预测中，我们需要将decode在上一个时间步的输出作为当前时间步的输入。与此不同，在训练中我们也可以将标签序列在上一个时间步的标签作为decode在当前时间步的输入。这叫做强制教学（teacher forcing）。</p>
-<h3 id="1-4-小结"><a href="#1-4-小结" class="headerlink" title="1.4 小结"></a>1.4 小结</h3><ul>
-<li>编码器 - 解码器（seq2seq）可以输入并输出不定长的序列。</li>
-<li>编码器—解码器使用了两个循环神经网络。</li>
-<li>在编码器—解码器的训练中，我们可以采用强制教学。 （这也是 Seq2Seq 2 的内容）</li>
-</ul>
-<h2 id="2-Seq2Seq-框架2"><a href="#2-Seq2Seq-框架2" class="headerlink" title="2. Seq2Seq 框架2"></a>2. Seq2Seq 框架2</h2><p>第二个要讲的Seq-to-Seq模型来自于 “<a href="https://arxiv.org/pdf/1409.3215.pdf" target="_blank" rel="external">Sequence to Sequence Learning with Neural Networks</a>”，其模型结构图如下所示：</p>
-<p><img src="/images/chatbot/seq2seq-2.jpg" width="600"></p>
-<p>与上面模型最大的区别在于其source编码后的 向量$C$ 直接作为Decoder阶段RNN的初始化state，而不是在每次decode时都作为<code>RNN cell</code>的输入。此外，decode时RNN的输入是目标值，而不是前一时刻的输出。首先看一下编码阶段：</p>
-<p><img src="/images/chatbot/seq2seq-3.jpg" width="500"></p>
-<p>就是简单的RNN模型，每个词经过RNN之后都会编码为hidden state（e0,e1,e2），并且source序列的编码向量e就是最终的hidden state e2。接下来再看一下解码阶段：</p>
-<p><img src="/images/chatbot/seq2seq-4.jpg" width="500"></p>
-<p>e向量仅作为RNN的初始化状态传入decode模型。接下来就是标准的循环神经网络，每一时刻输入都是前一时刻的正确label。直到最终输入<eos>符号截止滚动。</eos></p>
-<h2 id="3-Seq2Seq-Attention"><a href="#3-Seq2Seq-Attention" class="headerlink" title="3. Seq2Seq Attention"></a>3. Seq2Seq Attention</h2><p><strong>decode</strong> 在各个时间步依赖相同的 <strong>背景变量 $c$</strong> 来获取输入序列信息。当 <strong>encode</strong> 为 RNN 时，<strong>背景变量$c$</strong> 来自它最终时间步的隐藏状态。</p>
-<blockquote>
-<p>英语输入：“They”、“are”、“watching”、“.”<br>法语输出：“Ils”、“regardent”、“.”</p>
-<p>翻译例子：输入为英语序列“They”、“are”、“watching”、“.”，输出为法语序列“Ils”、“regardent”、“.”。，<strong>decode</strong> 在生成输出序列中的每一个词时可能只需利用输入序列某一部分的信息。例如，在输出序列的时间步 1，解码器可以主要依赖“They”、“are”的信息来生成“Ils”，在时间步 2 则主要使用来自“watching”的编码信息生成“regardent”，最后在时间步 3 则直接映射句号“.”。这看上去就像是在 <strong>decode</strong> 的每一时间步对输入序列中不同时间步的编码信息分配不同的注意力一样。这也是注意力机制的由来 <a href="https://www.youtube.com/watch?v=GQh7wDQDc0Y&amp;index=18&amp;list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax" target="_blank" rel="external">1</a>。</p>
-<p>仍以 RNN 为例，Attention 通过对 Encode 所有时间步的隐藏状态做<strong>加权平均</strong>来得到背景变量$c$。Decode 在每一时间步调整这些权重，即 Attention weight，从而能够在不同时间步分别关注输入序列中的不同部分并编码进相应时间步的背景变量$c$。本节我们将讨论 Attention机制 是怎么工作的。</p>
-</blockquote>
-<p>在“编码器—解码器（seq2seq）”, 解码器在时间步 $t’$ 的隐藏状态</p>
-<p>$$<br>\boldsymbol{s}_{t’} = g(\boldsymbol{y}_{t’-1}, \boldsymbol{c}, \boldsymbol{s}_{t’-1})<br>$$</p>
-<p>在 Attention机制 中, 解码器的每一时间步将使用可变的背景变量$c$</p>
-<p>$$<br>\boldsymbol{s}_{t’} = g(\boldsymbol{y}_{t’-1}, \boldsymbol{c}_{t’}, \boldsymbol{s}_{t’-1}).<br>$$</p>
-<p>关键是如何计算背景变量 $\boldsymbol{c}_{t’}$ 和如何利用它来更新隐藏状态 $\boldsymbol{s}_{t’}$。以下将分别描述这两个关键点。</p>
-<h3 id="3-1-计算背景变量-c"><a href="#3-1-计算背景变量-c" class="headerlink" title="3.1 计算背景变量 c"></a>3.1 计算背景变量 c</h3><p>$$<br>\boldsymbol{c}_{t’} = \sum_{t=1}^T \alpha_{t’ t} \boldsymbol{h}_t,<br>$$</p>
-<p>其中给定 $t’$ 时，权重 $\alpha_{t’ t}$ 在 $t=1,\ldots,T$ 的值是一个概率分布。为了得到概率分布，可以使用 softmax 运算:</p>
-<p>$$<br>\alpha_{t’ t} = \frac{\exp(e_{t’ t})}{ \sum_{k=1}^T \exp(e_{t’ k}) },\quad t=1,\ldots,T.<br>$$</p>
-<p>现在，我们需要定义如何计算上式中 softmax 运算的输入 $e_{t’ t}$。由于 $e_{t’ t}$ 同时取决于decode的时间步 $t’$ 和encode的时间步 $t$，我们不妨以解码器在时间步 $t’−1$ 的隐藏状态 $\boldsymbol{s}_{t’ - 1}$ 与编码器在时间步 $t$ 的隐藏状态 $h_t$ 为输入，并通过函数 $a$ 计算 $e_{t’ t}$：</p>
-<p>$$<br>e_{t’ t} = a(\boldsymbol{s}_{t’ - 1}, \boldsymbol{h}_t).<br>$$</p>
-<p>这里函数 a 有多种选择，如果两个输入向量长度相同，一个简单的选择是计算它们的内积 $a(\boldsymbol{s}, \boldsymbol{h})=\boldsymbol{s}^\top \boldsymbol{h}$。而最早提出Attention机制的论文则将输入连结后通过含单隐藏层的多层感知机MLP 变换 </p>
-<p>$$<br>a(\boldsymbol{s}, \boldsymbol{h}) = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s} + \boldsymbol{W}_h \boldsymbol{h}),<br>$$</p>
-<p>其中 $v、W_s、W_h$ 都是可以学习的模型参数。</p>
-<h3 id="3-2-更新隐藏状态"><a href="#3-2-更新隐藏状态" class="headerlink" title="3.2 更新隐藏状态"></a>3.2 更新隐藏状态</h3><p>以门控循环单元为例，在解码器中我们可以对门控循环单元的设计稍作修改。解码器在时间步 $t’$ 的隐藏状态为</p>
-<p>$$<br>\boldsymbol{s}_{t’} = \boldsymbol{z}_{t’} \odot \boldsymbol{s}_{t’-1}  + (1 - \boldsymbol{z}_{t’}) \odot \tilde{\boldsymbol{s}}_{t’},<br>$$</p>
-<p>其中的重置门、更新门和候选隐含状态分别为 :</p>
-<p>$$<br>\begin{split}\begin{aligned}<br>\boldsymbol{r}_{t’} &amp;= \sigma(\boldsymbol{W}_{yr} \boldsymbol{y}_{t’-1} + \boldsymbol{W}_{sr} \boldsymbol{s}_{t’ - 1} + \boldsymbol{W}_{cr} \boldsymbol{c}_{t’} + \boldsymbol{b}_r),\\<br>\boldsymbol{z}_{t’} &amp;= \sigma(\boldsymbol{W}_{yz} \boldsymbol{y}_{t’-1} + \boldsymbol{W}_{sz} \boldsymbol{s}_{t’ - 1} + \boldsymbol{W}_{cz} \boldsymbol{c}_{t’} + \boldsymbol{b}_z),\\<br>\tilde{\boldsymbol{s}}_{t’} &amp;= \text{tanh}(\boldsymbol{W}_{ys} \boldsymbol{y}_{t’-1} + \boldsymbol{W}_{ss} (\boldsymbol{s}_{t’ - 1} \odot \boldsymbol{r}_{t’}) + \boldsymbol{W}_{cs} \boldsymbol{c}_{t’} + \boldsymbol{b}_s),<br>\end{aligned}\end{split}<br>$$</p>
-<p>其中含下标的 W 和 b 分别为门控循环单元的权重参数和偏差参数。</p>
-<p><img src="/images/chatbot/seq2seq-7.jpeg" width="800"></p>
-<h3 id="3-3-小结"><a href="#3-3-小结" class="headerlink" title="3.3 小结"></a>3.3 小结</h3><ul>
-<li>可以在decode的每个时间步使用不同的背景变量，并对输入序列中不同时间步编码的信息分配不同的注意力。</li>
-<li>Attention机制可以采用更为高效的矢量化计算。</li>
-</ul>
-<h2 id="4-Seq2Seq-Attention各种变形"><a href="#4-Seq2Seq-Attention各种变形" class="headerlink" title="4. Seq2Seq Attention各种变形"></a>4. Seq2Seq Attention各种变形</h2><p>第四个Seq-to-Seq模型，来自于论文 <a href="http://link.zhihu.com/?target=http%3A//aclweb.org/anthology/D15-1166" target="_blank" rel="external">Effective Approaches to Attention-based Neural Machine Translation</a> 这篇论文提出了两种 Seq2Seq模型 分别是global Attention 和 local Attention。</p>
-<h2 id="5-Seq2Seq-with-Beam-Search"><a href="#5-Seq2Seq-with-Beam-Search" class="headerlink" title="5. Seq2Seq with Beam-Search"></a>5. Seq2Seq with Beam-Search</h2><p>上面讲的几种Seq2Seq模型都是从模型结构上进行的改进，也就说为了从训练的层面上改善模型的效果，但这里要介绍的beam-search是在测试的时候才用到的技术。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://www.youtube.com/watch?v=GQh7wDQDc0Y&amp;index=18&amp;list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax" target="_blank" rel="external">动手学深度学习第十八课：seq2seq（编码器和解码器）和注意力机制</a></li>
-<li><a href="https://zh.gluon.ai/chapter_recurrent-neural-networks/gru.html" target="_blank" rel="external">门控循环单元（GRU）</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/32092871" target="_blank" rel="external">seq2seq+Attention机制模型详解</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/38064637" target="_blank" rel="external">三分钟带你对 Softmax 划重点</a></li>
-<li><a href="https://zh.gluon.ai/chapter_deep-learning-basics/softmax-regression.html" target="_blank" rel="external">Softmax 回归</a></li>
 </ul>
 <script type="text/x-mathjax-config">
   MathJax.Hub.Config({
@@ -8945,6 +8752,231 @@ array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])
 <li><a href="https://www.deeplearning.ai/" target="_blank" rel="external">Andrew Ng - deeplearning.ai</a></li>
 <li><a href="https://mooc.study.163.com/learn/2001281002?tid=2001392029#/learn/content?type=detail&amp;id=2001702004&amp;cid=2001694006" target="_blank" rel="external">网易云课堂 - 第一周深度学习概论</a></li>
 </ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Chatbot Research 10 - Chatbot 的第一个版本 (简单实现)]]></title>
+      <url>http://iequa.com/2017/11/26/chatbot/chatbot-research10/</url>
+      <content type="html"><![CDATA[<!-- 2018 -->
+<p>本篇主要讲述如何调用 tf 提供的 seq2seq 的 API，实现一个chatbot对话系统.</p>
+<p>网上很多参考代码都是基于tf的旧版本实现，导致这些代码在新版本的tf中无法正常运行。</p>
+<a id="more"></a>
+<h2 id="1-版本兼容"><a href="#1-版本兼容" class="headerlink" title="1. 版本兼容"></a>1. 版本兼容</h2><p><strong>常见的几个问题主要是</strong>：</p>
+<ul>
+<li>seq2seq API 旧版 tf.contrib.legacy_seq2seq, 新的接口 tf.contrib.seq2seq</li>
+<li>rnn 目前也大都使用 tf.contrib.rnn 下面的 RNNCell；</li>
+<li>embedding_attention_seq2seq 函数中调用deepcopy(cell)这个函数报异常<blockquote>
+<p>deepcopy(cell)这个函数经常会爆出（TypeError: can’t pickle _thread.lock objects）的错误</p>
+</blockquote>
+</li>
+</ul>
+<p><strong>解决方案</strong>：</p>
+<ol>
+<li>切换TF版本 1.4 问题解决。</li>
+<li>不切换版本：一种解决方案就是将embedding_attention_seq2seq的传入参数中的cell改成两个，分别是encoder_cell和decoder_cell，然后这两个cell分别使用下面代码进行初始化：</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">encoCell = tf.contrib.rnn.MultiRNNCell([create_rnn_cell() <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)],)</span><br><span class="line">decoCell = tf.contrib.rnn.MultiRNNCell([create_rnn_cell() <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)],)</span><br></pre></td></tr></table></figure>
+<p>这样做不需要调用deepcopy函数对cell进行复制了，问题解决了，但在模型构建的时候速度会比较慢，猜测是因为需要构造两份RNN模型，但是最后训练的时候发现速度也很慢，无奈只能放弃这种做法。</p>
+<p>然后分析代码，发现问题并不是单纯的出现在 embedding_attention_seq2seq 这个函数，而是在调用module_with_buckets的时候会构建很多个不同bucket的seq2seq模型，这就导致了embedding_attention_seq2seq会被重复调用很多次，后来发现确实是这里出现的问题。</p>
+<p>解决方案的话就是，<code>不适用buckets构建模型</code>，而是简单的将所有序列都padding到统一长度，然后直接调用一次embedding_attention_seq2seq 函数构建模型即可，这样是不会抱错的。</p>
+<h2 id="2-数据处理"><a href="#2-数据处理" class="headerlink" title="2. 数据处理"></a>2. 数据处理</h2><p>用<a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="external">DeepQA</a>里数据处理的代码，省去从原始本文文件构造对话的过程直接使用其生成的 dataset-cornell-….pkl文件</p>
+<blockquote>
+<p>dataset-cornell-length10-filter1-vocabSize40000.pkl</p>
+</blockquote>
+<p>主要包括：</p>
+<ol>
+<li>读取数据的函数loadDataset()</li>
+<li>根据数据创建batches的函数getBatches()和createBatch()</li>
+<li>预测时将用户输入的句子转化成batch的函数sentence2enco()</li>
+</ol>
+<h2 id="3-模型构建"><a href="#3-模型构建" class="headerlink" title="3. 模型构建"></a>3. 模型构建</h2><ol>
+<li>一些变量的传入和定义</li>
+<li>OutputProjection层和sampled_softmax_loss函数的定义</li>
+<li>RNNCell的定义和创建</li>
+<li>根据训练或者测试调用相应的embedding_attention_seq2seq函数构建模型</li>
+<li>step函数定义，主要用于给定一个batch的数据，构造相应的 feed_dict 和 run_opt</li>
+</ol>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">from</span> seq2seq <span class="keyword">import</span> embedding_attention_seq2seq</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Seq2SeqModel</span><span class="params">()</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, source_vocab_size, target_vocab_size, en_de_seq_len, hidden_size, num_layers,</span><br><span class="line">                 batch_size, learning_rate, num_samples=<span class="number">1024</span>,</span><br><span class="line">                 forward_only=False, beam_search=True, beam_size=<span class="number">10</span>)</span>:</span></span><br><span class="line">        <span class="string">'''</span><br><span class="line">        初始化并创建模型</span><br><span class="line">        :param source_vocab_size:encoder输入的vocab size</span><br><span class="line">        :param target_vocab_size: decoder输入的vocab size，这里跟上面一样</span><br><span class="line">        :param en_de_seq_len: 源和目的序列最大长度</span><br><span class="line">        :param hidden_size: RNN模型的隐藏层单元个数</span><br><span class="line">        :param num_layers: RNN堆叠的层数</span><br><span class="line">        :param batch_size: batch大小</span><br><span class="line">        :param learning_rate: 学习率</span><br><span class="line">        :param num_samples: 计算loss时做sampled softmax时的采样数</span><br><span class="line">        :param forward_only: 预测时指定为真</span><br><span class="line">        :param beam_search: 预测时是采用greedy search还是beam search</span><br><span class="line">        :param beam_size: beam search的大小</span><br><span class="line">        '''</span></span><br><span class="line">        self.source_vocab_size = source_vocab_size</span><br><span class="line">        self.target_vocab_size = target_vocab_size</span><br><span class="line">        self.en_de_seq_len = en_de_seq_len</span><br><span class="line">        self.hidden_size = hidden_size</span><br><span class="line">        self.num_layers = num_layers</span><br><span class="line">        self.batch_size = batch_size</span><br><span class="line">        self.learning_rate = tf.Variable(float(learning_rate), trainable=<span class="keyword">False</span>)</span><br><span class="line">        self.num_samples = num_samples</span><br><span class="line">        self.forward_only = forward_only</span><br><span class="line">        self.beam_search = beam_search</span><br><span class="line">        self.beam_size = beam_size</span><br><span class="line">        self.global_step = tf.Variable(<span class="number">0</span>, trainable=<span class="keyword">False</span>)</span><br><span class="line"></span><br><span class="line">        output_projection = <span class="keyword">None</span></span><br><span class="line">        softmax_loss_function = <span class="keyword">None</span></span><br><span class="line">        <span class="comment"># 定义采样loss函数，传入后面的sequence_loss_by_example函数</span></span><br><span class="line">        <span class="keyword">if</span> num_samples &gt; <span class="number">0</span> <span class="keyword">and</span> num_samples &lt; self.target_vocab_size:</span><br><span class="line">            w = tf.get_variable(<span class="string">'proj_w'</span>, [hidden_size, self.target_vocab_size])</span><br><span class="line">            w_t = tf.transpose(w)</span><br><span class="line">            b = tf.get_variable(<span class="string">'proj_b'</span>, [self.target_vocab_size])</span><br><span class="line">            output_projection = (w, b)</span><br><span class="line">            <span class="comment">#调用sampled_softmax_loss函数计算sample loss，这样可以节省计算时间</span></span><br><span class="line">            <span class="function"><span class="keyword">def</span> <span class="title">sample_loss</span><span class="params">(logits, labels)</span>:</span></span><br><span class="line">                labels = tf.reshape(labels, [<span class="number">-1</span>, <span class="number">1</span>])</span><br><span class="line">                <span class="keyword">return</span> tf.nn.sampled_softmax_loss(w_t, b, labels=labels, inputs=logits, num_sampled=num_samples, num_classes=self.target_vocab_size)</span><br><span class="line">            softmax_loss_function = sample_loss</span><br><span class="line"></span><br><span class="line">        self.keep_drop = tf.placeholder(tf.float32)</span><br><span class="line">        <span class="comment"># 定义encoder和decoder阶段的多层dropout RNNCell</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">create_rnn_cell</span><span class="params">()</span>:</span></span><br><span class="line">            encoDecoCell = tf.contrib.rnn.BasicLSTMCell(hidden_size)</span><br><span class="line">            encoDecoCell = tf.contrib.rnn.DropoutWrapper(encoDecoCell, input_keep_prob=<span class="number">1.0</span>, output_keep_prob=self.keep_drop)</span><br><span class="line">            <span class="keyword">return</span> encoDecoCell</span><br><span class="line">        encoCell = tf.contrib.rnn.MultiRNNCell([create_rnn_cell() <span class="keyword">for</span> _ <span class="keyword">in</span> range(num_layers)])</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 定义输入的placeholder，采用了列表的形式</span></span><br><span class="line">        self.encoder_inputs = []</span><br><span class="line">        self.decoder_inputs = []</span><br><span class="line">        self.decoder_targets = []</span><br><span class="line">        self.target_weights = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(en_de_seq_len[<span class="number">0</span>]):</span><br><span class="line">            self.encoder_inputs.append(tf.placeholder(tf.int32, shape=[<span class="keyword">None</span>, ], name=<span class="string">"encoder&#123;0&#125;"</span>.format(i)))</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(en_de_seq_len[<span class="number">1</span>]):</span><br><span class="line">            self.decoder_inputs.append(tf.placeholder(tf.int32, shape=[<span class="keyword">None</span>, ], name=<span class="string">"decoder&#123;0&#125;"</span>.format(i)))</span><br><span class="line">            self.decoder_targets.append(tf.placeholder(tf.int32, shape=[<span class="keyword">None</span>, ], name=<span class="string">"target&#123;0&#125;"</span>.format(i)))</span><br><span class="line">            self.target_weights.append(tf.placeholder(tf.float32, shape=[<span class="keyword">None</span>, ], name=<span class="string">"weight&#123;0&#125;"</span>.format(i)))</span><br><span class="line"></span><br><span class="line">        <span class="comment"># test模式，将上一时刻输出当做下一时刻输入传入</span></span><br><span class="line">        <span class="keyword">if</span> forward_only:</span><br><span class="line">            <span class="keyword">if</span> beam_search:<span class="comment">#如果是beam_search的话，则调用自己写的embedding_attention_seq2seq函数，而不是legacy_seq2seq下面的</span></span><br><span class="line">                self.beam_outputs, _, self.beam_path, self.beam_symbol = embedding_attention_seq2seq(</span><br><span class="line">                    self.encoder_inputs, self.decoder_inputs, encoCell, num_encoder_symbols=source_vocab_size,</span><br><span class="line">                    num_decoder_symbols=target_vocab_size, embedding_size=hidden_size,</span><br><span class="line">                    output_projection=output_projection, feed_previous=<span class="keyword">True</span>)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                decoder_outputs, _ = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(</span><br><span class="line">                    self.encoder_inputs, self.decoder_inputs, encoCell, num_encoder_symbols=source_vocab_size,</span><br><span class="line">                    num_decoder_symbols=target_vocab_size, embedding_size=hidden_size,</span><br><span class="line">                    output_projection=output_projection, feed_previous=<span class="keyword">True</span>)</span><br><span class="line">                <span class="comment"># 因为seq2seq模型中未指定output_projection，所以需要在输出之后自己进行output_projection</span></span><br><span class="line">                <span class="keyword">if</span> output_projection <span class="keyword">is</span> <span class="keyword">not</span> <span class="keyword">None</span>:</span><br><span class="line">                    self.outputs = tf.matmul(decoder_outputs, output_projection[<span class="number">0</span>]) + output_projection[<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># 因为不需要将output作为下一时刻的输入，所以不用output_projection</span></span><br><span class="line">            decoder_outputs, _ = tf.contrib.legacy_seq2seq.embedding_attention_seq2seq(</span><br><span class="line">                self.encoder_inputs, self.decoder_inputs, encoCell, num_encoder_symbols=source_vocab_size,</span><br><span class="line">                num_decoder_symbols=target_vocab_size, embedding_size=hidden_size, output_projection=output_projection,</span><br><span class="line">                feed_previous=<span class="keyword">False</span>)</span><br><span class="line">            self.loss = tf.contrib.legacy_seq2seq.sequence_loss(</span><br><span class="line">                decoder_outputs, self.decoder_targets, self.target_weights, softmax_loss_function=softmax_loss_function)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># Initialize the optimizer</span></span><br><span class="line">            opt = tf.train.AdamOptimizer(learning_rate=self.learning_rate, beta1=<span class="number">0.9</span>, beta2=<span class="number">0.999</span>, epsilon=<span class="number">1e-08</span>)</span><br><span class="line">            self.optOp = opt.minimize(self.loss)</span><br><span class="line"></span><br><span class="line">        self.saver = tf.train.Saver(tf.all_variables())</span><br></pre></td></tr></table></figure>
+<p>step 函数定义，主要用于给定一个batch的数据，构造相应的 feed_dict 和 run_opt</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">step</span><span class="params">(self, session, encoder_inputs, decoder_inputs, decoder_targets, target_weights, go_token_id)</span>:</span></span><br><span class="line">    <span class="comment"># 传入一个batch的数据，并训练性对应的模型</span></span><br><span class="line">    <span class="comment"># 构建sess.run时的feed_inpits</span></span><br><span class="line">    feed_dict = &#123;&#125;</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.forward_only:</span><br><span class="line">        feed_dict[self.keep_drop] = <span class="number">0.5</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(self.en_de_seq_len[<span class="number">0</span>]):</span><br><span class="line">            feed_dict[self.encoder_inputs[i].name] = encoder_inputs[i]</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(self.en_de_seq_len[<span class="number">1</span>]):</span><br><span class="line">            feed_dict[self.decoder_inputs[i].name] = decoder_inputs[i]</span><br><span class="line">            feed_dict[self.decoder_targets[i].name] = decoder_targets[i]</span><br><span class="line">            feed_dict[self.target_weights[i].name] = target_weights[i]</span><br><span class="line">        run_ops = [self.optOp, self.loss]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        feed_dict[self.keep_drop] = <span class="number">1.0</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> range(self.en_de_seq_len[<span class="number">0</span>]):</span><br><span class="line">            feed_dict[self.encoder_inputs[i].name] = encoder_inputs[i]</span><br><span class="line">        feed_dict[self.decoder_inputs[<span class="number">0</span>].name] = [go_token_id]</span><br><span class="line">        <span class="keyword">if</span> self.beam_search:</span><br><span class="line">            run_ops = [self.beam_path, self.beam_symbol]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            run_ops = [self.outputs]</span><br><span class="line"></span><br><span class="line">    outputs = session.run(run_ops, feed_dict)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> self.forward_only:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">None</span>, outputs[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">if</span> self.beam_search:</span><br><span class="line">            <span class="keyword">return</span> outputs[<span class="number">0</span>], outputs[<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="external">Tensorflow新版Seq2Seq接口使用</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq" target="_blank" rel="external">tensorflow官网API指导</a></li>
+<li><a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="external">DeepQA</a></li>
+<li><a href="https://github.com/pbhatia243/Neural_Conversation_Models" target="_blank" rel="external">Neural_Conversation_Models</a></li>
+</ul>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Chatbot Research 9 - 旧版 tf.contrib.legacy_seq2seq API 介绍]]></title>
+      <url>http://iequa.com/2017/11/19/chatbot/chatbot-research9/</url>
+      <content type="html"><![CDATA[<p>有了对代码的深层次理解，我们之后构建 Chatbot 系统的时候有很大的帮助。</p>
+<a id="more"></a>
+<blockquote>
+<p>旧的seq2seq接口也就是tf.contrib.legacy_seq2seq下的那部分，新的接口在tf.contrib.seq2seq下。</p>
+<p>新seq2seq接口与旧的相比最主要的区别是它是动态展开的，而旧的是静态展开的。</p>
+<p>静态展开(static unrolling) ：指的是定义模型创建graph的时候，序列的长度是固定的，之后传入的所有序列都得是定义时指定的长度。这样所有的句子都要padding到指定的长度，很浪费存储空间，计算效率也不高。但想处理变长序列，也是有办法的，需要预先指定一系列的buckets，如</p>
+</blockquote>
+<h2 id="函数部分"><a href="#函数部分" class="headerlink" title="函数部分"></a>函数部分</h2><p><a href="https://github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/contrib/legacy_seq2seq/python/ops/seq2seq.py" target="_blank" rel="external">旧版legacy_seq2seq代码</a></p>
+<p>首先看一下这个文件的组成，主要包含下面几个函数：</p>
+<blockquote>
+<ul>
+<li>def _extract_argmax_and_embed(embedding, …</li>
+<li>def rnn_decoder(decoder_inputs, initial_state, …</li>
+<li>def basic_rnn_seq2seq(encoder_inputs, … </li>
+<li>def tied_rnn_seq2seq(encoder_inputs, …</li>
+<li>def embedding_rnn_seq2seq(encoder_inputs, …</li>
+<li>def embedding_tied_rnn_seq2seq(encoder_inputs, …</li>
+<li>def attention_decoder(decoder_inputs, …</li>
+<li>def embedding_attention_decoder(decoder_inputs, …</li>
+<li>def embedding_attention_seq2seq(encoder_inputs, …</li>
+<li>def one2many_rnn_seq2seq(encoder_inputs, …</li>
+<li>def sequence_loss_by_example(logits, …</li>
+<li>def sequence_loss(logits, …</li>
+<li>def model_with_buckets(encoder_inputs, …</li>
+</ul>
+</blockquote>
+<p><strong>可以看到按照调用关系和功能不同可以分成下面的结构</strong>：</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">model_with_buckets</span><br><span class="line">│</span><br><span class="line">├── seq2seq函数</span><br><span class="line">│   </span><br><span class="line">│   ├── basic_rnn_seq2seq</span><br><span class="line">│   │   ├── rnn_decoder</span><br><span class="line">│   └── tied_rnn_seq2seq</span><br><span class="line">│   ├── embedding_tied_rnn_seq2seq</span><br><span class="line">│   └── embedding_rnn_seq2seq</span><br><span class="line">│   │   ├── embedding_rnn_decoder</span><br><span class="line">│   ├── embedding_attention_seq2seq</span><br><span class="line">│   │   ├── embedding_attention_decoder</span><br><span class="line">│   │   │   ├── attention_decoder</span><br><span class="line">│   │   │   ├── attention</span><br><span class="line">│   └── one2many_rnn_seq2seq</span><br><span class="line">│   </span><br><span class="line">└── loss函数</span><br><span class="line">    ├── sequence_loss_by_example</span><br><span class="line">    ├── sequence_loss</span><br></pre></td></tr></table></figure>
+<h3 id="model-with-buckets-函数"><a href="#model-with-buckets-函数" class="headerlink" title="model_with_buckets()函数"></a>model_with_buckets()函数</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">model_with_buckets</span><span class="params">(encoder_inputs,</span><br><span class="line">                      decoder_inputs,</span><br><span class="line">                      targets,</span><br><span class="line">                      weights,</span><br><span class="line">                      buckets,</span><br><span class="line">                      seq2seq,</span><br><span class="line">                      softmax_loss_function=None,</span><br><span class="line">                      per_example_loss=False,</span><br><span class="line">                      name=None)</span>:</span></span><br></pre></td></tr></table></figure>
+<p>这个函数，目的是为了减少计算量和加快模型计算速度，然后由于这部分代码比较古老，你会发现有些地方还在使用static_rnn()这种函数，其实新版的tf中引入dynamic_rnn之后就不需要这么做了。</p>
+<p>分析一下，其实思路很简单，就是将输入长度分成不同的间隔，这样数据的在填充时只需要填充到相应的bucket长度即可，不需要都填充到最大长度。</p>
+<p>比如 buckets 取 <code>[(5，10), (10，20),(20，30)...]</code> 每个 bucket 的</p>
+<ol>
+<li>第一个数字表示 source 填充的长度</li>
+<li>第二个数字表示 target 填充的长度</li>
+</ol>
+<p>举个🌰 eg：<strong>‘我爱你’–&gt;‘I love you’</strong>， 应该会被分配到第一个bucket中</p>
+<p>然后‘我爱你’会被pad成长度为5的序列，‘I love you’会被pad成长度为10的序列。其实就是每个bucket表示一个模型的参数配置。这样对每个bucket都构造一个模型，然后训练时取相应长度的序列进行，而这些模型将会共享参数。其实这一部分可以参考现在的dynamic_rnn来进行理解，dynamic_rnn是对每个batch的数据将其pad至本batch中长度最大的样本，而bucket则是在数据预处理环节先对数据长度进行聚类操作。</p>
+<p>我们再看一下该函数的参数和内部实现：</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">encoder_inputs: encoder的输入，一个tensor的列表。列表中每一项都是encoder时的一个词（batch）。</span><br><span class="line">decoder_inputs: decoder的输入，同上</span><br><span class="line">targets:        目标值，与decoder_input只相差一个&lt;EOS&gt;符号，int32型</span><br><span class="line">weights:        目标序列长度值的mask标志，如果是padding则weight=<span class="number">0</span>，否则weight=<span class="number">1</span></span><br><span class="line">buckets:        就是定义的bucket值，是一个列表：[(<span class="number">5</span>，<span class="number">10</span>), (<span class="number">10</span>，<span class="number">20</span>),(<span class="number">20</span>，<span class="number">30</span>)...]</span><br><span class="line">seq2seq:        定义好的seq2seq模型，可以使用后面介绍的embedding_attention_seq2seq，embedding_rnn_seq2seq，basic_rnn_seq2seq等</span><br><span class="line">softmax_loss_function: 计算误差的函数，(labels, logits)，默认为sparse_softmax_cross_entropy_with_logits</span><br><span class="line">per_example_loss: 如果为真，则调用sequence_loss_by_example，返回一个列表，其每个元素就是一个样本的loss值。如果为假，则调用sequence_loss函数，对一个batch的样本只返回一个求和的loss值，具体见后面的分析</span><br><span class="line">name: Optional name <span class="keyword">for</span> this operation, defaults to <span class="string">"model_with_buckets"</span>.</span><br></pre></td></tr></table></figure>
+<p>内部代码这里不会全部贴上来，捡关键的说一下：</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment">#保存每个bucket对应的loss和output    </span></span><br><span class="line">losses = []</span><br><span class="line">outputs = []</span><br><span class="line"><span class="keyword">with</span> ops.name_scope(name, <span class="string">"model_with_buckets"</span>, all_inputs):</span><br><span class="line"><span class="comment">#对每个bucket都要选择数据进行构建模型</span></span><br><span class="line"><span class="keyword">for</span> j, bucket <span class="keyword">in</span> enumerate(buckets):</span><br><span class="line"> <span class="comment">#buckets之间的参数要进行复用</span></span><br><span class="line"> <span class="keyword">with</span> variable_scope.variable_scope(variable_scope.get_variable_scope(), reuse=<span class="keyword">True</span> <span class="keyword">if</span> j &gt; <span class="number">0</span> <span class="keyword">else</span> <span class="keyword">None</span>):</span><br><span class="line"></span><br><span class="line">   <span class="comment">#调用seq2seq进行解码得到输出，这里需要注意的是，encoder_inputs和decoder_inputs是定义好的placeholder，</span></span><br><span class="line">   <span class="comment">#都是长度为序列最大长度的列表（也就是最大的那个buckets的长度），按上面的例子，这两个placeholder分别是长度为20和30的列表。</span></span><br><span class="line">   <span class="comment">#在构建模型时，对于每个bucket，只取其对应的长度个placeholder即可，如对于（5,10）这个bucket，就取前5/10个placeholder进行构建模型</span></span><br><span class="line">   bucket_outputs, _ = seq2seq(encoder_inputs[:bucket[<span class="number">0</span>]], decoder_inputs[:bucket[<span class="number">1</span>]])</span><br><span class="line">   outputs.append(bucket_outputs)</span><br><span class="line">   <span class="comment">#如果指定per_example_loss则调用sequence_loss_by_example，losses添加的是一个batch_size大小的列表</span></span><br><span class="line">   <span class="keyword">if</span> per_example_loss:</span><br><span class="line">     losses.append(</span><br><span class="line">         sequence_loss_by_example(</span><br><span class="line">             outputs[<span class="number">-1</span>],</span><br><span class="line">             targets[:bucket[<span class="number">1</span>]],</span><br><span class="line">             weights[:bucket[<span class="number">1</span>]],</span><br><span class="line">             softmax_loss_function=softmax_loss_function))</span><br><span class="line">   <span class="comment">#否则调用sequence_loss，对上面的结果进行求和，losses添加的是一个值</span></span><br><span class="line">   <span class="keyword">else</span>:</span><br><span class="line">     losses.append(</span><br><span class="line">         sequence_loss(</span><br><span class="line">             outputs[<span class="number">-1</span>],</span><br><span class="line">             targets[:bucket[<span class="number">1</span>]],</span><br><span class="line">             weights[:bucket[<span class="number">1</span>]],</span><br><span class="line">             softmax_loss_function=softmax_loss_function))</span><br></pre></td></tr></table></figure>
+<p>函数的输出为outputs和losses，其tensor的shape见上面解释。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://github.com/tensorflow/tensorflow/blob/r1.4/tensorflow/contrib/legacy_seq2seq/python/ops/seq2seq.py" target="_blank" rel="external">官网代码</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/27769667" target="_blank" rel="external">Tensorflow源码解读（一）：Attention Seq2Seq模型</a></li>
+<li><a href="http://complx.me/2016-06-28-easy-seq2seq/" target="_blank" rel="external">Chatbots with Seq2Seq</a></li>
+<li><a href="https://lan2720.github.io/2017/03/10/tensorflow%E7%9A%84legacy-seq2seq/" target="_blank" rel="external">tensorflow的legacy_seq2seq</a></li>
+<li><a href="https://github.com/tensorflow/nmt#tips--tricks" target="_blank" rel="external">Neural Machine Translation (seq2seq) Tutorial</a></li>
+<li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="external">Tensorflow新版Seq2Seq接口使用</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Chatbot Research 8 - 理论 seq2seq+Attention 机制模型详解]]></title>
+      <url>http://iequa.com/2017/11/17/chatbot/chatbot-research8/</url>
+      <content type="html"><![CDATA[<p>从具体的模型细节、公式推导、结构图以及变形等几个方向详细介绍一下 Seq-to-Seq 模型。</p>
+<a id="more"></a>
+<ul>
+<li>Seq-to-Seq 框架1</li>
+<li>Seq-to-Seq 框架2（teacher forcing）</li>
+<li>Seq-to-Seq with Attention（NMT）</li>
+<li>Seq-to-Seq with Attention 各种变形</li>
+<li>Seq-to-Seq with Beam-Search</li>
+</ul>
+<p>当输入输出都是不定长序列时，我们可以使用编码器—解码器（encoder-decoder）<a href="https://www.youtube.com/watch?v=GQh7wDQDc0Y&amp;index=18&amp;list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax" target="_blank" rel="external">1</a> 或者 seq2seq 模型 <a href="https://zh.gluon.ai/chapter_recurrent-neural-networks/gru.html" target="_blank" rel="external">2</a>。这两个模型本质上都用到了两个循环神经网络，分别叫做编码器和解码器。编码器用来分析输入序列，解码器用来生成输出序列。</p>
+<h2 id="1-Seq2Seq-框架1"><a href="#1-Seq2Seq-框架1" class="headerlink" title="1. Seq2Seq 框架1"></a>1. Seq2Seq 框架1</h2><p><img src="/images/chatbot/seq2seq-1.jpg" width="300"></p>
+<p><a href="https://arxiv.org/pdf/1406.1078.pdf" target="_blank" rel="external">Learning Phrase Representations using RNN Encoder–Decoder for Statistical Machine Translation</a></p>
+<h3 id="1-1-encode-编码器"><a href="#1-1-encode-编码器" class="headerlink" title="1.1 encode 编码器"></a>1.1 encode 编码器</h3><p>编码器的作用是把一个不定长的输入序列变换成一个定长的背景变量 $c$，并在该背景变量中编码输入序列信息。常用的编码器是循环神经网络。</p>
+<p>让我们考虑批量大小为 1 的时序数据样本。假设输入序列是 $x_1,\ldots,x_T$, 例如 $x_i$ 是输入句子中的第 $i$ 个词。在时间步 $t$，循环神经网络将输入 $x_t$ 的特征向量 $x_t$ 和上个时间步的隐藏状态 $\boldsymbol{h}_{t-1}$ 变换为当前时间步的隐藏状态 $h_t$。我们可以用函数 $f$ 表达循环神经网络隐藏层的变换：</p>
+<p>$$<br>\boldsymbol{h}_t = f(\boldsymbol{x}_t, \boldsymbol{h}_{t-1}).<br>$$</p>
+<p>接下来编码器通过自定义函数 $q$ 将各个时间步的隐藏状态变换为背景变量</p>
+<p>$$<br>\boldsymbol{c} =  q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T).<br>$$</p>
+<p>例如，当选择 $q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T) = \boldsymbol{h}_T$ 时，背景变量是输入序列最终时间步的隐藏状态 $\boldsymbol{h}_T$。</p>
+<p>以上描述的编码器是一个单向的 RNN，每个时间步的隐藏状态只取决于该时间步及之前的输入子序列。我们也可以使用 Bi-RNN 构造编码器。这种情况下，编码器每个时间步的隐藏状态同时取决于该时间步之前和之后的子序列（包括当前时间步的输入），并编码了整个序列的信息。</p>
+<p><img src="/images/chatbot/seq2seq-5.jpeg" width="800"></p>
+<h3 id="1-2-decode-解码器"><a href="#1-2-decode-解码器" class="headerlink" title="1.2 decode 解码器"></a>1.2 decode 解码器</h3><p>Encode 编码器输出的背景变量 $c$ 编码了整个输入序列 $x_1, \ldots, x_T$ 的信息。给定训练样本中的输出序列 $y_1, y_2, \ldots, y_{T’}$，对每个时间步 $t’$（符号与输入序列或编码器的时间步 $t$ 有区别）， 解码器输出 $y_{t’}$ 的条件概率将基于之前的输出序列 $y_1,\ldots,y_{t’-1}$ 和背景变量 $c$，<strong>即</strong> $\mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, \boldsymbol{c})$。</p>
+<p>为此，我们可以使用<code>另一个RNN</code>作为解码器。 在输出序列的时间步 $t^\prime$，解码器将上一时间步的输出 $y_{t^\prime-1}$ 以及背景变量 $c$ 作为输入，并将它们与上一时间步的隐藏状态 $\boldsymbol{h}_{t^\prime-1}$ 变换为当前时间步的隐藏状态 $\boldsymbol{h}_{t^\prime}$。因此，我们可以用函数 $g$ 表达解码器隐藏层的变换：</p>
+<p>$$<br>\boldsymbol{h}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{h}_{t^\prime-1}).<br>$$</p>
+<p>有了decode的隐藏状态后，我们可以使用自定义的输出层和 softmax 运算来计算 $\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$，例如基于当前时间步的解码器隐藏状态 $\boldsymbol{h}_{t^\prime}$、上一时间步的输出 $y_{t^\prime-1}$ 以及背景变量 $c$ 来计算当前时间步输出 $y_{t^\prime}$ 的概率分布。</p>
+<h3 id="1-3-train-模型训练"><a href="#1-3-train-模型训练" class="headerlink" title="1.3 train 模型训练"></a>1.3 train 模型训练</h3><p>根据最大似然估计，我们可以最大化输出序列基于输入序列的条件概率</p>
+<p>$$<br>\begin{split}\begin{aligned}<br>\mathbb{P}(y_1, \ldots, y_{T’} \mid x_1, \ldots, x_T)<br>&amp;= \prod_{t’=1}^{T’} \mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, x_1, \ldots, x_T)\\<br>&amp;= \prod_{t’=1}^{T’} \mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, \boldsymbol{c}),<br>\end{aligned}\end{split}<br>$$</p>
+<p>并得到该输出序列的损失</p>
+<p>$$ - \log\mathbb{P}(y_1, \ldots, y_{T’} \mid x_1, \ldots, x_T) = -\sum_{t’=1}^{T’} \log \mathbb{P}(y_{t’} \mid y_1,  \ldots, y_{t’-1}, \boldsymbol{c}),<br>$$</p>
+<p><img src="/images/chatbot/seq2seq-6.png" width="800"></p>
+<p>在模型训练中，所有输出序列损失的均值通常作为需要最小化的损失函数。在图中所描述的模型预测中，我们需要将decode在上一个时间步的输出作为当前时间步的输入。与此不同，在训练中我们也可以将标签序列在上一个时间步的标签作为decode在当前时间步的输入。这叫做强制教学（teacher forcing）。</p>
+<h3 id="1-4-小结"><a href="#1-4-小结" class="headerlink" title="1.4 小结"></a>1.4 小结</h3><ul>
+<li>编码器 - 解码器（seq2seq）可以输入并输出不定长的序列。</li>
+<li>编码器—解码器使用了两个循环神经网络。</li>
+<li>在编码器—解码器的训练中，我们可以采用强制教学。 （这也是 Seq2Seq 2 的内容）</li>
+</ul>
+<h2 id="2-Seq2Seq-框架2"><a href="#2-Seq2Seq-框架2" class="headerlink" title="2. Seq2Seq 框架2"></a>2. Seq2Seq 框架2</h2><p>第二个要讲的Seq-to-Seq模型来自于 “<a href="https://arxiv.org/pdf/1409.3215.pdf" target="_blank" rel="external">Sequence to Sequence Learning with Neural Networks</a>”，其模型结构图如下所示：</p>
+<p><img src="/images/chatbot/seq2seq-2.jpg" width="600"></p>
+<p>与上面模型最大的区别在于其source编码后的 向量$C$ 直接作为Decoder阶段RNN的初始化state，而不是在每次decode时都作为<code>RNN cell</code>的输入。此外，decode时RNN的输入是目标值，而不是前一时刻的输出。首先看一下编码阶段：</p>
+<p><img src="/images/chatbot/seq2seq-3.jpg" width="500"></p>
+<p>就是简单的RNN模型，每个词经过RNN之后都会编码为hidden state（e0,e1,e2），并且source序列的编码向量e就是最终的hidden state e2。接下来再看一下解码阶段：</p>
+<p><img src="/images/chatbot/seq2seq-4.jpg" width="500"></p>
+<p>e向量仅作为RNN的初始化状态传入decode模型。接下来就是标准的循环神经网络，每一时刻输入都是前一时刻的正确label。直到最终输入<eos>符号截止滚动。</eos></p>
+<h2 id="3-Seq2Seq-Attention"><a href="#3-Seq2Seq-Attention" class="headerlink" title="3. Seq2Seq Attention"></a>3. Seq2Seq Attention</h2><p><strong>decode</strong> 在各个时间步依赖相同的 <strong>背景变量 $c$</strong> 来获取输入序列信息。当 <strong>encode</strong> 为 RNN 时，<strong>背景变量$c$</strong> 来自它最终时间步的隐藏状态。</p>
+<blockquote>
+<p>英语输入：“They”、“are”、“watching”、“.”<br>法语输出：“Ils”、“regardent”、“.”</p>
+<p>翻译例子：输入为英语序列“They”、“are”、“watching”、“.”，输出为法语序列“Ils”、“regardent”、“.”。，<strong>decode</strong> 在生成输出序列中的每一个词时可能只需利用输入序列某一部分的信息。例如，在输出序列的时间步 1，解码器可以主要依赖“They”、“are”的信息来生成“Ils”，在时间步 2 则主要使用来自“watching”的编码信息生成“regardent”，最后在时间步 3 则直接映射句号“.”。这看上去就像是在 <strong>decode</strong> 的每一时间步对输入序列中不同时间步的编码信息分配不同的注意力一样。这也是注意力机制的由来 <a href="https://www.youtube.com/watch?v=GQh7wDQDc0Y&amp;index=18&amp;list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax" target="_blank" rel="external">1</a>。</p>
+<p>仍以 RNN 为例，Attention 通过对 Encode 所有时间步的隐藏状态做<strong>加权平均</strong>来得到背景变量$c$。Decode 在每一时间步调整这些权重，即 Attention weight，从而能够在不同时间步分别关注输入序列中的不同部分并编码进相应时间步的背景变量$c$。本节我们将讨论 Attention机制 是怎么工作的。</p>
+</blockquote>
+<p>在“编码器—解码器（seq2seq）”, 解码器在时间步 $t’$ 的隐藏状态</p>
+<p>$$<br>\boldsymbol{s}_{t’} = g(\boldsymbol{y}_{t’-1}, \boldsymbol{c}, \boldsymbol{s}_{t’-1})<br>$$</p>
+<p>在 Attention机制 中, 解码器的每一时间步将使用可变的背景变量$c$</p>
+<p>$$<br>\boldsymbol{s}_{t’} = g(\boldsymbol{y}_{t’-1}, \boldsymbol{c}_{t’}, \boldsymbol{s}_{t’-1}).<br>$$</p>
+<p>关键是如何计算背景变量 $\boldsymbol{c}_{t’}$ 和如何利用它来更新隐藏状态 $\boldsymbol{s}_{t’}$。以下将分别描述这两个关键点。</p>
+<h3 id="3-1-计算背景变量-c"><a href="#3-1-计算背景变量-c" class="headerlink" title="3.1 计算背景变量 c"></a>3.1 计算背景变量 c</h3><p>$$<br>\boldsymbol{c}_{t’} = \sum_{t=1}^T \alpha_{t’ t} \boldsymbol{h}_t,<br>$$</p>
+<p>其中给定 $t’$ 时，权重 $\alpha_{t’ t}$ 在 $t=1,\ldots,T$ 的值是一个概率分布。为了得到概率分布，可以使用 softmax 运算:</p>
+<p>$$<br>\alpha_{t’ t} = \frac{\exp(e_{t’ t})}{ \sum_{k=1}^T \exp(e_{t’ k}) },\quad t=1,\ldots,T.<br>$$</p>
+<p>现在，我们需要定义如何计算上式中 softmax 运算的输入 $e_{t’ t}$。由于 $e_{t’ t}$ 同时取决于decode的时间步 $t’$ 和encode的时间步 $t$，我们不妨以解码器在时间步 $t’−1$ 的隐藏状态 $\boldsymbol{s}_{t’ - 1}$ 与编码器在时间步 $t$ 的隐藏状态 $h_t$ 为输入，并通过函数 $a$ 计算 $e_{t’ t}$：</p>
+<p>$$<br>e_{t’ t} = a(\boldsymbol{s}_{t’ - 1}, \boldsymbol{h}_t).<br>$$</p>
+<p>这里函数 a 有多种选择，如果两个输入向量长度相同，一个简单的选择是计算它们的内积 $a(\boldsymbol{s}, \boldsymbol{h})=\boldsymbol{s}^\top \boldsymbol{h}$。而最早提出Attention机制的论文则将输入连结后通过含单隐藏层的多层感知机MLP 变换 </p>
+<p>$$<br>a(\boldsymbol{s}, \boldsymbol{h}) = \boldsymbol{v}^\top \tanh(\boldsymbol{W}_s \boldsymbol{s} + \boldsymbol{W}_h \boldsymbol{h}),<br>$$</p>
+<p>其中 $v、W_s、W_h$ 都是可以学习的模型参数。</p>
+<h3 id="3-2-更新隐藏状态"><a href="#3-2-更新隐藏状态" class="headerlink" title="3.2 更新隐藏状态"></a>3.2 更新隐藏状态</h3><p>以门控循环单元为例，在解码器中我们可以对门控循环单元的设计稍作修改。解码器在时间步 $t’$ 的隐藏状态为</p>
+<p>$$<br>\boldsymbol{s}_{t’} = \boldsymbol{z}_{t’} \odot \boldsymbol{s}_{t’-1}  + (1 - \boldsymbol{z}_{t’}) \odot \tilde{\boldsymbol{s}}_{t’},<br>$$</p>
+<p>其中的重置门、更新门和候选隐含状态分别为 :</p>
+<p>$$<br>\begin{split}\begin{aligned}<br>\boldsymbol{r}_{t’} &amp;= \sigma(\boldsymbol{W}_{yr} \boldsymbol{y}_{t’-1} + \boldsymbol{W}_{sr} \boldsymbol{s}_{t’ - 1} + \boldsymbol{W}_{cr} \boldsymbol{c}_{t’} + \boldsymbol{b}_r),\\<br>\boldsymbol{z}_{t’} &amp;= \sigma(\boldsymbol{W}_{yz} \boldsymbol{y}_{t’-1} + \boldsymbol{W}_{sz} \boldsymbol{s}_{t’ - 1} + \boldsymbol{W}_{cz} \boldsymbol{c}_{t’} + \boldsymbol{b}_z),\\<br>\tilde{\boldsymbol{s}}_{t’} &amp;= \text{tanh}(\boldsymbol{W}_{ys} \boldsymbol{y}_{t’-1} + \boldsymbol{W}_{ss} (\boldsymbol{s}_{t’ - 1} \odot \boldsymbol{r}_{t’}) + \boldsymbol{W}_{cs} \boldsymbol{c}_{t’} + \boldsymbol{b}_s),<br>\end{aligned}\end{split}<br>$$</p>
+<p>其中含下标的 W 和 b 分别为门控循环单元的权重参数和偏差参数。</p>
+<p><img src="/images/chatbot/seq2seq-7.jpeg" width="800"></p>
+<h3 id="3-3-小结"><a href="#3-3-小结" class="headerlink" title="3.3 小结"></a>3.3 小结</h3><ul>
+<li>可以在decode的每个时间步使用不同的背景变量，并对输入序列中不同时间步编码的信息分配不同的注意力。</li>
+<li>Attention机制可以采用更为高效的矢量化计算。</li>
+</ul>
+<h2 id="4-Seq2Seq-Attention各种变形"><a href="#4-Seq2Seq-Attention各种变形" class="headerlink" title="4. Seq2Seq Attention各种变形"></a>4. Seq2Seq Attention各种变形</h2><p>第四个Seq-to-Seq模型，来自于论文 <a href="http://link.zhihu.com/?target=http%3A//aclweb.org/anthology/D15-1166" target="_blank" rel="external">Effective Approaches to Attention-based Neural Machine Translation</a> 这篇论文提出了两种 Seq2Seq模型 分别是global Attention 和 local Attention。</p>
+<h2 id="5-Seq2Seq-with-Beam-Search"><a href="#5-Seq2Seq-with-Beam-Search" class="headerlink" title="5. Seq2Seq with Beam-Search"></a>5. Seq2Seq with Beam-Search</h2><p>上面讲的几种Seq2Seq模型都是从模型结构上进行的改进，也就说为了从训练的层面上改善模型的效果，但这里要介绍的beam-search是在测试的时候才用到的技术。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://www.youtube.com/watch?v=GQh7wDQDc0Y&amp;index=18&amp;list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax" target="_blank" rel="external">动手学深度学习第十八课：seq2seq（编码器和解码器）和注意力机制</a></li>
+<li><a href="https://zh.gluon.ai/chapter_recurrent-neural-networks/gru.html" target="_blank" rel="external">门控循环单元（GRU）</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/32092871" target="_blank" rel="external">seq2seq+Attention机制模型详解</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/38064637" target="_blank" rel="external">三分钟带你对 Softmax 划重点</a></li>
+<li><a href="https://zh.gluon.ai/chapter_deep-learning-basics/softmax-regression.html" target="_blank" rel="external">Softmax 回归</a></li>
+</ul>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
 ]]></content>
     </entry>
     
@@ -23467,6 +23499,43 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://iequa.com/2016/09/12/ml/ml-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[熵 介绍]]></title>
       <url>http://iequa.com/2016/09/12/ml/ml-entropy-base/</url>
       <content type="html"><![CDATA[<script type="text/x-mathjax-config">
@@ -23509,43 +23578,6 @@ img {
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://iequa.com/2016/09/12/ml/ml-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<script type="text/x-mathjax-config">
-  MathJax.Hub.Config({
-    extensions: ["tex2jax.js"],
-    jax: ["input/TeX"],
-    tex2jax: {
-      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
-      displayMath: [ ['$$','$$']],
-      processEscapes: true
-    }
-  });
-</script>
-<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
-</script>
-
-<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -25052,107 +25084,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Elasticsearch installation plugins]]></title>
-      <url>http://iequa.com/2016/05/17/elasticsearch/elasticsearch-0-install-plugins/</url>
-      <content type="html"><![CDATA[<blockquote>
-<p>Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
-</blockquote>
-<a id="more"></a>
-<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
-<p><strong>Install es</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Config es</strong></p>
-<p>$ES_HOME/config/elasticsearch.yml</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
-<p><strong>Startup</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>运行之后，会产生 data 和 logs 目录</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
-<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
-<p>ES-Head的主要作用</p>
-<ul>
-<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
-<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
-<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
-</ul>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
-<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
-<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
-<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
-<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
-<p>service log 在 logs/service.log 中。</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
-<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
-</blockquote>
-<hr>
-<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
-<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
-<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
-<p><strong>Install-Verify</strong></p>
-<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
-<p><strong>Config http-basic param</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
-<p><strong>./bin/plugin –list</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
-<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
-<p>download and add mysql-driver</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
-<p>停止river</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
-<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
-<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>XPUT data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p><strong>XGET data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p>output</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
-<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
-<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
-<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
-<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
-<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
-<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
-</ol>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Elasticsearch * 入门]]></title>
       <url>http://iequa.com/2016/05/17/elasticsearch/elasticsearch-1-indoor/</url>
       <content type="html"><![CDATA[<p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎、<code>实时分布式搜索</code>和<code>分析引擎</code>。</p>
@@ -25304,6 +25235,107 @@ img {
 <li>将集群中任意一个节点上的请求路由到相应数据所在的节点。</li>
 <li>无论是增加节点，还是移除节点，分片都可以做到无缝的扩展和迁移。</li>
 </ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Elasticsearch installation plugins]]></title>
+      <url>http://iequa.com/2016/05/17/elasticsearch/elasticsearch-0-install-plugins/</url>
+      <content type="html"><![CDATA[<blockquote>
+<p>Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
+</blockquote>
+<a id="more"></a>
+<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
+<p><strong>Install es</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Config es</strong></p>
+<p>$ES_HOME/config/elasticsearch.yml</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
+<p><strong>Startup</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行之后，会产生 data 和 logs 目录</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
+<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
+<p>ES-Head的主要作用</p>
+<ul>
+<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
+<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
+<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
+</ul>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
+<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
+<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
+<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
+<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
+<p>service log 在 logs/service.log 中。</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
+<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
+</blockquote>
+<hr>
+<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
+<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
+<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
+<p><strong>Install-Verify</strong></p>
+<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
+<p><strong>Config http-basic param</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
+<p><strong>./bin/plugin –list</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
+<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
+<p>download and add mysql-driver</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
+<p>停止river</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
+<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
+<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>XPUT data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p><strong>XGET data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p>output</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
+<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
+<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
+<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
+<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
+<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
+<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
+</ol>
 ]]></content>
     </entry>
     
@@ -26582,8 +26614,80 @@ public final class Boolean
     </entry>
     
     <entry>
+      <title><![CDATA[Java SE Introduce]]></title>
+      <url>http://iequa.com/2013/02/02/java/java-se-1-introduce/</url>
+      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
+<a id="more"></a>
+<ul>
+<li>Java data type</li>
+<li>OO</li>
+<li>Exception</li>
+<li>Java Array  </li>
+<li>Java 常用类 </li>
+<li>Java 容器类</li>
+<li>Collection / Generic</li>
+<li>Java I/O Stream</li>
+<li>Java Thread</li>
+<li>Java TCP/UDP, socket</li>
+</ul>
+<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
+<li>Java 运行机制</li>
+<li>JDK &amp; JRE</li>
+<li>Java env install</li>
+<li>Java Basic Content</li>
+</ul>
+<blockquote>
+<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
+</blockquote>
+<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
+<li>一种 OO 语言  </li>
+<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
+<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
+</ul>
+<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
+<ul>
+<li>Java Virtual Machine</li>
+<li>Garbage collection</li>
+</ul>
+<blockquote>
+<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
+<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
+<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
+</blockquote>
+<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
+<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
+<li>Java Runtime Environment  用户只需 JRE  </li>
+</ul>
+<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
+</blockquote>
+<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
+<li>类名首字母大写  </li>
+<li>变量名和方法名的首字母小写  </li>
+<li>运用驼峰标识   </li>
+</ol>
+<p>HelloWorld.java</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
+</blockquote>
+<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
+</blockquote>
+<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
-      <url>http://iequa.com/2013/02/02/java/java-se-2.5-notes-array/</url>
+      <url>http://iequa.com/2013/02/02/java/java-se-2.4-notes-exception/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
 <a id="more"></a>
 <h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1. 环境配置"></a>1. 环境配置</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
@@ -26991,80 +27095,8 @@ JDK 1.5 之后 {
     </entry>
     
     <entry>
-      <title><![CDATA[Java SE Introduce]]></title>
-      <url>http://iequa.com/2013/02/02/java/java-se-1-introduce/</url>
-      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
-<a id="more"></a>
-<ul>
-<li>Java data type</li>
-<li>OO</li>
-<li>Exception</li>
-<li>Java Array  </li>
-<li>Java 常用类 </li>
-<li>Java 容器类</li>
-<li>Collection / Generic</li>
-<li>Java I/O Stream</li>
-<li>Java Thread</li>
-<li>Java TCP/UDP, socket</li>
-</ul>
-<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
-<li>Java 运行机制</li>
-<li>JDK &amp; JRE</li>
-<li>Java env install</li>
-<li>Java Basic Content</li>
-</ul>
-<blockquote>
-<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
-</blockquote>
-<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
-<li>一种 OO 语言  </li>
-<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
-<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
-</ul>
-<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
-<ul>
-<li>Java Virtual Machine</li>
-<li>Garbage collection</li>
-</ul>
-<blockquote>
-<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
-<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
-<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
-</blockquote>
-<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
-<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
-<li>Java Runtime Environment  用户只需 JRE  </li>
-</ul>
-<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
-</blockquote>
-<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
-<li>类名首字母大写  </li>
-<li>变量名和方法名的首字母小写  </li>
-<li>运用驼峰标识   </li>
-</ol>
-<p>HelloWorld.java</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
-</blockquote>
-<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
-<hr>
-<blockquote>
-<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
-</blockquote>
-<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
-      <url>http://iequa.com/2013/02/02/java/java-se-2.4-notes-exception/</url>
+      <url>http://iequa.com/2013/02/02/java/java-se-2.5-notes-array/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
 <a id="more"></a>
 <h2 id="1-环境配置"><a href="#1-环境配置" class="headerlink" title="1. 环境配置"></a>1. 环境配置</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">### JAVA ###</span></span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk/Contents/Home</span><br><span class="line">JAVA_BIN=<span class="variable">$JAVA_HOME</span>/bin</span><br><span class="line">PATH=<span class="variable">$JAVA_HOME</span>/bin:<span class="variable">$PATH</span></span><br><span class="line">CLASSPATH=.:<span class="variable">$JAVA_HOME</span>/jre/lib/rt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/jre/lib/tools.jar</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
