@@ -70,7 +70,7 @@ var _hmt = _hmt || [];
 
     <br>
     <section id="main" class="outer">
-      <article id="post-chatbot/chatbot-research9" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-java/java-special-arms-p3-jvm" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -78,8 +78,8 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/19/chatbot/chatbot-research9/"><strong>Chatbot Research 9 - 旧版 tf.contrib.legacy_seq2seq API 介绍</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-19</small>
+      <a class="article-title-index" href="/2016/08/16/java/java-special-arms-p3-jvm/"><strong>JVM 跨平台与字节码原理初步</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-16</small>
       <!--<a>
       <div = post.date  </div>
       </a>-->
@@ -90,19 +90,19 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/11/19/chatbot/chatbot-research9/" class="article-date">
-  <time datetime="2017-11-19T06:00:21.000Z" itemprop="datePublished">2017-11-19</time>
+      <!--<a href="/2016/08/16/java/java-special-arms-p3-jvm/" class="article-date">
+  <time datetime="2016-08-16T08:54:16.000Z" itemprop="datePublished">2016-08-16</time>
 </a>-->
       <!--
   <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/chatbot/">chatbot</a>
+    <a class="article-category-index-link" href="/categories/java/">java</a>
   </div>
 
 -->
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/19/chatbot/chatbot-research9/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2016/08/16/java/java-special-arms-p3-jvm/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -110,15 +110,49 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>有了对代码的深层次理解，我们之后构建 Chatbot 系统的时候有很大的帮助。</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/19/chatbot/chatbot-research9/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
+        <p>用到 JVM 的场景</p>
+<ol>
+<li>Out of memory 时，团队高手不在</li>
+<li>系统服务器架构，老大问你 投入多少服务器成本，VM 分配多大， 如何分配?</li>
+</ol>
+<h2 id="1-javap-命令"><a href="#1-javap-命令" class="headerlink" title="1. javap 命令"></a>1. javap 命令</h2><blockquote>
+<p>通过这种方式认知比 Java 更低一个抽象层次的逻辑，虚指令有时候更好解释问题。</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringTest</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">test1</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        String a = <span class="string">"a"</span> + <span class="string">"b"</span> + <span class="number">1</span>;</span><br><span class="line">        String b = <span class="string">"ab1"</span>;</span><br><span class="line">        System.out.println(a == b); <span class="comment">// true 编译时优化</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  p3jvm git:(master) ✗ <span class="built_in">pwd</span></span><br><span class="line">/Users/hp/ghome/github/language/java/jsarms/p3jvm</span><br><span class="line">➜  p3jvm git:(master) ✗ javac</span><br><span class="line">Usage: javac &lt;options&gt; &lt;<span class="built_in">source</span> files&gt;</span><br><span class="line"><span class="built_in">where</span> possible options include:</span><br><span class="line">  -g                         Generate all debugging info</span><br><span class="line">  -g:none                    Generate no debugging info</span><br><span class="line">  -g:&#123;lines,vars,<span class="built_in">source</span>&#125;     Generate only some debugging info</span><br><span class="line">  -nowarn                    Generate no warnings</span><br><span class="line">  -verbose                   Output messages about what the compiler is doing</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  p3jvm git:(master) ✗ javac -g:vars,lines StringTest.java</span><br><span class="line">➜  p3jvm git:(master) ✗ javap -verbose StringTest</span><br><span class="line">Classfile /Users/hp/ghome/github/language/java/jsarms/p3jvm/StringTest.class</span><br><span class="line">  Last modified Aug 16, 2016; size 559 bytes</span><br><span class="line">  MD5 checksum 772d18512cb982c953e7db8c72522918</span><br><span class="line">public class StringTest</span><br><span class="line">  minor version: 0</span><br><span class="line">  major version: 51</span><br><span class="line">  flags: ACC_PUBLIC, ACC_SUPER</span><br><span class="line">Constant pool:</span><br><span class="line">   <span class="comment">#1 = Methodref          #6.#21         //  java/lang/Object."&lt;init&gt;":()V</span></span><br><span class="line">   <span class="comment">#2 = String             #22            //  ab1</span></span><br><span class="line">   <span class="comment">#3 = Fieldref           #23.#24        //  java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line">   <span class="comment">#4 = Methodref          #25.#26        //  java/io/PrintStream.println:(Z)V</span></span><br><span class="line">   <span class="comment">#5 = Class              #27            //  StringTest</span></span><br><span class="line">   <span class="comment">#6 = Class              #28            //  java/lang/Object</span></span><br><span class="line">   <span class="comment">#7 = Utf8               &lt;init&gt;</span></span><br><span class="line">   <span class="comment">#8 = Utf8               ()V</span></span><br><span class="line">   <span class="comment">#9 = Utf8               Code</span></span><br><span class="line">  <span class="comment">#10 = Utf8               LineNumberTable</span></span><br><span class="line">  <span class="comment">#11 = Utf8               LocalVariableTable</span></span><br><span class="line">  <span class="comment">#12 = Utf8               this</span></span><br><span class="line">  <span class="comment">#13 = Utf8               LStringTest;</span></span><br><span class="line">  <span class="comment">#14 = Utf8               test1</span></span><br><span class="line">  <span class="comment">#15 = Utf8               a</span></span><br><span class="line">  <span class="comment">#16 = Utf8               Ljava/lang/String;</span></span><br><span class="line">  <span class="comment">#17 = Utf8               b</span></span><br><span class="line">  <span class="comment">#18 = Utf8               StackMapTable</span></span><br><span class="line">  <span class="comment">#19 = Class              #29            //  java/lang/String</span></span><br><span class="line">  <span class="comment">#20 = Class              #30            //  java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#21 = NameAndType        #7:#8          //  "&lt;init&gt;":()V</span></span><br><span class="line">  <span class="comment">#22 = Utf8               ab1</span></span><br><span class="line">  <span class="comment">#23 = Class              #31            //  java/lang/System</span></span><br><span class="line">  <span class="comment">#24 = NameAndType        #32:#33        //  out:Ljava/io/PrintStream;</span></span><br><span class="line">  <span class="comment">#25 = Class              #30            //  java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#26 = NameAndType        #34:#35        //  println:(Z)V</span></span><br><span class="line">  <span class="comment">#27 = Utf8               StringTest</span></span><br><span class="line">  <span class="comment">#28 = Utf8               java/lang/Object</span></span><br><span class="line">  <span class="comment">#29 = Utf8               java/lang/String</span></span><br><span class="line">  <span class="comment">#30 = Utf8               java/io/PrintStream</span></span><br><span class="line">  <span class="comment">#31 = Utf8               java/lang/System</span></span><br><span class="line">  <span class="comment">#32 = Utf8               out</span></span><br><span class="line">  <span class="comment">#33 = Utf8               Ljava/io/PrintStream;</span></span><br><span class="line">  <span class="comment">#34 = Utf8               println</span></span><br><span class="line">  <span class="comment">#35 = Utf8               (Z)V</span></span><br><span class="line">// 以上是 Constant pool， 仅仅是陈列操作，并没有开始执行任务，看下面开始</span><br><span class="line">&#123;</span><br><span class="line">  public StringTest();</span><br><span class="line">    flags: ACC_PUBLIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=1, locals=1, args_size=1 // 所有方法都会有。</span><br><span class="line">      // stack 为栈顶的单位大小 (每个大小为 1 slot，4 byte)</span><br><span class="line">      // locals=1，非静态方法，本地变量增加 this</span><br><span class="line">         0: aload_0</span><br><span class="line">         1: invokespecial <span class="comment">#1                  // Method java/lang/Object."&lt;init&gt;":()V</span></span><br><span class="line">         4: <span class="built_in">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 1: 0</span><br><span class="line">      LocalVariableTable:</span><br><span class="line">        Start  Length  Slot  Name   Signature</span><br><span class="line">               0       5     0  this   LStringTest;</span><br><span class="line"></span><br><span class="line">  public static void <span class="built_in">test</span>1();</span><br><span class="line">    flags: ACC_PUBLIC, ACC_STATIC</span><br><span class="line">    Code:</span><br><span class="line">      stack=3, locals=2, args_size=0 </span><br><span class="line">      // stack=3，本地栈slot个数为3，String需要load，String.out 占用一个再。当对比发生 boolean 时，两个String引用栈顶pop</span><br><span class="line">      // locals=2， 因为只有两个 String</span><br><span class="line">      // args_size=0，方法没有入口参数</span><br><span class="line">         0: ldc           <span class="comment">#2                  // String ab1</span></span><br><span class="line">         // 引用常量池内容</span><br><span class="line">         2: astore_0</span><br><span class="line">         // 将栈顶引用值，写入第 1 个 slot 所在的本地变量</span><br><span class="line">         3: ldc           <span class="comment">#2                  // String ab1</span></span><br><span class="line">         5: astore_1</span><br><span class="line">         6: getstatic     <span class="comment">#3                  // Field java/lang/System.out:Ljava/io/PrintStream;</span></span><br><span class="line">         // 获取静态域，放入栈顶，此时静态域是 System.out 对象</span><br><span class="line">         9: aload_0</span><br><span class="line">        10: aload_1</span><br><span class="line">        11: <span class="keyword">if</span>_acmpne     18</span><br><span class="line">        14: iconst_1</span><br><span class="line">        15: goto          19</span><br><span class="line">        18: iconst_0</span><br><span class="line">        19: invokevirtual <span class="comment">#4                  // Method java/io/PrintStream.println:(Z)V</span></span><br><span class="line">        22: <span class="built_in">return</span></span><br><span class="line">      LineNumberTable:</span><br><span class="line">        line 4: 0</span><br><span class="line">        line 5: 3</span><br><span class="line">        line 6: 6</span><br><span class="line">        line 7: 22</span><br><span class="line">      LocalVariableTable:</span><br><span class="line">        Start  Length  Slot  Name   Signature</span><br><span class="line">               3      20     0     a   Ljava/lang/String;</span><br><span class="line">               6      17     1     b   Ljava/lang/String;</span><br><span class="line">      // 本地变量列表 LocalVariableTable. from javac -g:vars</span><br><span class="line">      StackMapTable: number_of_entries = 2</span><br><span class="line">           frame_<span class="built_in">type</span> = 255 /* full_frame */</span><br><span class="line">          offset_delta = 18</span><br><span class="line">          locals = [ class java/lang/String, class java/lang/String ]</span><br><span class="line">          stack = [ class java/io/PrintStream ]</span><br><span class="line">           frame_<span class="built_in">type</span> = 255 /* full_frame */</span><br><span class="line">          offset_delta = 0</span><br><span class="line">          locals = [ class java/lang/String, class java/lang/String ]</span><br><span class="line">          stack = [ class java/io/PrintStream, int ]</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">➜  p3jvm git:(master) ✗</span><br></pre></td></tr></table></figure>
+<h2 id="2-Java-字节码结构"><a href="#2-Java-字节码结构" class="headerlink" title="2. Java 字节码结构"></a>2. Java 字节码结构</h2><p>javac 命令本身只是一个引导器，它引导编译器程序的运行。编译器本身是一个java程序 <code>com.sun.tools.javac.main.JavaCompiler</code>, 该类完成 java 源文件 的 Parser、Annotation process、检查、泛型处理、语法转换等，最终胜出 Class 文件。</p>
+<p>Java 字节码文件主体结构: </p>
+<table>
+<thead>
+<tr>
+<th><strong>Class 文件头部</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Constant pool</td>
+<td></td>
+</tr>
+<tr>
+<td>当前Clas的描述信息</td>
+<td></td>
+</tr>
+<tr>
+<td>属性列表</td>
+<td></td>
+</tr>
+<tr>
+<td>方法列表</td>
+<td></td>
+</tr>
+<tr>
+<td>…</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
       
     </div>
 	
@@ -138,7 +172,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-chatbot/chatbot-research8" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-ml/ml-5-decisionTree-part1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -146,8 +180,8 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/17/chatbot/chatbot-research8/"><strong>Chatbot Research 8 - 理论 seq2seq+Attention 机制模型详解</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-17</small>
+      <a class="article-title-index" href="/2016/08/16/ml/ml-5-decisionTree-part1/"><strong>决策树 * Part1</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-16</small>
       <!--<a>
       <div = post.date  </div>
       </a>-->
@@ -158,87 +192,19 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/11/17/chatbot/chatbot-research8/" class="article-date">
-  <time datetime="2017-11-17T14:00:21.000Z" itemprop="datePublished">2017-11-17</time>
+      <!--<a href="/2016/08/16/ml/ml-5-decisionTree-part1/" class="article-date">
+  <time datetime="2016-08-16T08:43:21.000Z" itemprop="datePublished">2016-08-16</time>
 </a>-->
       <!--
   <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/chatbot/">chatbot</a>
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
   </div>
 
 -->
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/17/chatbot/chatbot-research8/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>从具体的模型细节、公式推导、结构图以及变形等几个方向详细介绍一下 Seq-to-Seq 模型。</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/17/chatbot/chatbot-research8/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-nlp/hidden-markov-model" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/14/nlp/hidden-markov-model/"><strong>Hidden Markov Model</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-14</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/11/14/nlp/hidden-markov-model/" class="article-date">
-  <time datetime="2017-11-14T08:08:21.000Z" itemprop="datePublished">2017-11-14</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/nlp/">nlp</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/14/nlp/hidden-markov-model/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2016/08/16/ml/ml-5-decisionTree-part1/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -260,11 +226,11 @@ var _hmt = _hmt || [];
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
 </script>
 
-<p>Hidden Markov Model (HMM) model is the most rapid and effective method to solve most Natural Language Processing problems. It successfully solves the problems of speech recognition, Machine Translation.
+<p>决策树（decision tree）是一个树结构（可以是二叉树或非二叉树）。其每个非叶节点表示一个特征属性上的测试，每个分支代表这个特征属性在某个值。</p>
          
           <!-- @2018-08-27 blair add
           <p class="article-more-link">
-            <a href="/2017/11/14/nlp/hidden-markov-model/">Read More</a>
+            <a href="/2016/08/16/ml/ml-5-decisionTree-part1/">Read More</a>
           </p> 
           @2018-08-27 blair end
           -->
@@ -288,7 +254,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-nlp/statistics-language-model" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-English/ef-l3u3-Hotels" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -296,8 +262,8 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/13/nlp/statistics-language-model/"><strong>NLP 简介 &amp; 统计语言模型</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-13</small>
+      <a class="article-title-index" href="/2016/08/15/English/ef-l3u3-Hotels/"><strong>Hotels</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-15</small>
       <!--<a>
       <div = post.date  </div>
       </a>-->
@@ -308,486 +274,8 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/11/13/nlp/statistics-language-model/" class="article-date">
-  <time datetime="2017-11-13T02:08:21.000Z" itemprop="datePublished">2017-11-13</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/nlp/">nlp</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/13/nlp/statistics-language-model/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>1946年 计算机出现之后，计算机很多事情比人类做得好，那么机器是否能懂<strong>自然语言</strong>?</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/13/nlp/statistics-language-model/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-ops/ops-bandwagonhost-ssh-openvpn" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/12/ops/ops-bandwagonhost-ssh-openvpn/"><strong>搬瓦工VPS 配置 SSH 与 OpenVpn</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-12</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/11/12/ops/ops-bandwagonhost-ssh-openvpn/" class="article-date">
-  <time datetime="2017-11-12T05:16:21.000Z" itemprop="datePublished">2017-11-12</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/devops/">devops</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/12/ops/ops-bandwagonhost-ssh-openvpn/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>搬瓦工VPS 配置 ssh 登录 与 iphone 配置使用 openvpn</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/12/ops/ops-bandwagonhost-ssh-openvpn/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-nlp/word-language-number-info-history" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/08/nlp/word-language-number-info-history/"><strong>文字和语言 vs 数字和信息</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-08</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/11/08/nlp/word-language-number-info-history/" class="article-date">
-  <time datetime="2017-11-08T02:08:21.000Z" itemprop="datePublished">2017-11-08</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/nlp/">nlp</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/08/nlp/word-language-number-info-history/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>数字、文字、自然语言 一样，都是信息的载体。
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/08/nlp/word-language-number-info-history/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-techs/support-pay-blog" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/05/techs/support-pay-blog/"><strong>博文的赞助方式</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-05</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/11/05/techs/support-pay-blog/" class="article-date">
-  <time datetime="2017-11-05T12:05:21.000Z" itemprop="datePublished">2017-11-05</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/life/">life</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/05/techs/support-pay-blog/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>你的一点激励，可以鼓励作者写出更多的好文章，让更多的人喜欢，从中受益，构建一个良性的循环.</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/05/techs/support-pay-blog/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-tensorflow/tf-5.4-contrib-learn-Estimator" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/04/tensorflow/tf-5.4-contrib-learn-Estimator/"><strong>TensorFlow - tf.contrib.learn 创建 Estimator</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-04</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/11/04/tensorflow/tf-5.4-contrib-learn-Estimator/" class="article-date">
-  <time datetime="2017-11-04T02:10:21.000Z" itemprop="datePublished">2017-11-04</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/python/">python</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/04/tensorflow/tf-5.4-contrib-learn-Estimator/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>tf.contrib.learn 框架可以通过其高级别的 Estimator API 轻松构建和训练机器学习模型.</p>
-<p>Estimator 提供您可以实例化的类以快速配置常见的模型类型，如 regressors 和 classifiers：</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/04/tensorflow/tf-5.4-contrib-learn-Estimator/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-python/py-language-structure-project" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/04/python/py-language-structure-project/"><strong>python 结构化您的工程 (not finish)</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-04</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/11/04/python/py-language-structure-project/" class="article-date">
-  <time datetime="2017-11-04T02:05:21.000Z" itemprop="datePublished">2017-11-04</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/python/">python</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/04/python/py-language-structure-project/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>如何利用Python的特性来创造简洁、高效的代码。 “<strong>结构化</strong>” 意味着通过编写简洁的代码，使逻辑和依赖清晰.</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/04/python/py-language-structure-project/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-tensorflow/tf-5.3-contrib-learn-MonitorAPI" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/04/tensorflow/tf-5.3-contrib-learn-MonitorAPI/"><strong>TensorFlow - tf.contrib.learn 基础的记录和监控教程</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-04</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/11/04/tensorflow/tf-5.3-contrib-learn-MonitorAPI/" class="article-date">
-  <time datetime="2017-11-04T01:10:21.000Z" itemprop="datePublished">2017-11-04</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/python/">python</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/04/tensorflow/tf-5.3-contrib-learn-MonitorAPI/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>训练模型时，实时跟踪和评估进度通常很有价值。</p>
-<p>学习使用TensorFlow的日志记录功能和MonitorAPI来监督正在用神经网络分类器分类irises的训练情况。</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/04/tensorflow/tf-5.3-contrib-learn-MonitorAPI/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-English/engvid-Taking-care-of-your-pet" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/02/English/engvid-Taking-care-of-your-pet/"><strong>Taking care of your pet DOG!</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-02</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/11/02/English/engvid-Taking-care-of-your-pet/" class="article-date">
-  <time datetime="2017-11-01T23:30:16.000Z" itemprop="datePublished">2017-11-02</time>
+      <!--<a href="/2016/08/15/English/ef-l3u3-Hotels/" class="article-date">
+  <time datetime="2016-08-14T22:59:16.000Z" itemprop="datePublished">2016-08-15</time>
 </a>-->
       <!--
   <div class="article-category-index">
@@ -798,7 +286,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/02/English/engvid-Taking-care-of-your-pet/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2016/08/15/English/ef-l3u3-Hotels/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -806,15 +294,292 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Do you have a dog? Do you want a dog?<br>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/02/English/engvid-Taking-care-of-your-pet/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
+        <style>
+img {
+        display: block !important;
+        width: 550px;
+        margin-left: 120px !important;
+}
+</style>
+
+<h2 id="1-Recommending-a-hotel"><a href="#1-Recommending-a-hotel" class="headerlink" title="1. Recommending a hotel"></a>1. Recommending a hotel</h2><ul>
+<li>right downtown.</li>
+<li>The rates are reasonable.</li>
+</ul>
+<p><img src="/images/english/ef-l3u3l1.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[JOAN] I have a meeting there on March 15th. Can you recommend a good hotel?</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] How about the Hotel Anna? <code>It’s right downtown</code>. The rates are reasonable.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Thanks good. How much is it a night?</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] I think it’s around 200 a night.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Not bad. <code>Is there a fitness center</code> in the hotel ?</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] Yes, there is. Oh! And you get free wireless internet in your room. I love that.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] <code>What are the rooms like</code>?</td>
+<td></td>
+</tr>
+<tr>
+<td>[TODD] They’re nice. The bathrooms are pretty small. But they’re modern and clean.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Great! sounds perfect.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>It isn’t near the airport.<br>It’s close to shopping.<br>Every room has free wireless internet.<br>It doesn’t have a business center.</p>
+</blockquote>
+<h2 id="2-Making-a-hotel-reservation"><a href="#2-Making-a-hotel-reservation" class="headerlink" title="2. Making a hotel reservation"></a>2. Making a hotel reservation</h2><p><img src="/images/english/ef-l3u3l2.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th>Making a hotel reservation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[CLERK] Hotel Anna，How Can I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] I’d like to make a reservation please.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] <code>For how many people?</code> / For how many nights?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Just me.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] OK, When are you <code>checking in</code>?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Check in March 15th and check out March 19th</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] 15th to 19th. So, that. Would you like a single room or a double ?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] A single please. I’d like to have a nonsmoking room.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] That’s no problem. <code>Would you like me to reserve it for you, now?</code></td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] What’s the rate?</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] It’s 210 a night.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] OK, Yes. Please reserve it for me now. My name is Baxter.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] May I have your credit card number?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] It’s 3788-6672-4038-24.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] Great. Just one moment … All set. Can I help you with anything else?</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-Checking-in-to-a-hotel"><a href="#3-Checking-in-to-a-hotel" class="headerlink" title="3. Checking in to a hotel"></a>3. Checking in to a hotel</h2><ul>
+<li>suitcase</li>
+<li>front desk</li>
+<li>luggage</li>
+<li>lobby</li>
+<li>key card</li>
+<li>credit card</li>
+<li>elevator</li>
+<li>hotel clerk</li>
+<li>umbrella</li>
+</ul>
+<p><img src="/images/english/ef-l3u3l3.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[CLERK] Good afternoon，May I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Yes, <code>I&#39;m checking in</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] May I see your passport?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Yes, Here you are.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] OK, Welcome to the hotel Ana. So that’s two people, for four nights.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Actually, it’s for one person – just me.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] Oh, sorry about it, Ah, yes - a nonsmoking single.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] That’s right.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] And <code>you&#39;re staying with us for four nights</code>, checking out on the 19th.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Yes.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] OK, May I see your credit card?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Here you are.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] Wonderful ! <code>You&#39;re all set</code>. Here your credit card and Passport. Here’s your key card for 1412.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] <code>You can take the elevator behind you</code>. Would you like help with your luggage?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] No, Thank you.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] Ok, <code>Have a pleasant stay</code>. [‘plez(ə)nt]</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>We’re checking in on the 3rd and checking out on the 14th.<br>So, that’s one person for 10 nights.  </p>
+</blockquote>
+<h2 id="4-Checking-out-to-a-hotel"><a href="#4-Checking-out-to-a-hotel" class="headerlink" title="4. Checking out to a hotel"></a>4. Checking out to a hotel</h2><ul>
+<li>plus room service</li>
+<li>It’s not a big deal.</li>
+<li>receipt</li>
+</ul>
+<p><img src="/images/english/ef-l3u3l4.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[CLERK] Good morning，May I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Yes, <code>I&#39;d like to check out</code>, please.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] <code>How was your stay?</code></td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Pretty good, But <code>The neighborhood&#39;s a little noisy</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] Oh, I’m sorry to hear that..</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] It’s okay. I love the room. <code>The fitness center&#39;s amazing</code>.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] Great! Would you like pay with your credit card?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] please.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] That’s 996.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Really? That seems high.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CLERK] Would you like a receipt ?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Yes, I need the receipt.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Your bill comes to 996.<br>The total amount is 996.<br>That doesn’t seem right.<br>I’d like to review my bill, please.<br>How would you like to pay for that? </p>
+</blockquote>
+
       
     </div>
 	
@@ -834,7 +599,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-tensorflow/tf-5.2-contrib-learn-Input-fn" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-life/Chinese-named" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -842,8 +607,8 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/11/01/tensorflow/tf-5.2-contrib-learn-Input-fn/"><strong>TensorFlow - tf.contrib.learn 构建输入函数</strong></a>
-      <small class=article-date-index>&nbsp; 2017-11-01</small>
+      <a class="article-title-index" href="/2016/08/13/life/Chinese-named/"><strong>中国人起名字的学问 - 自我研究</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-13</small>
       <!--<a>
       <div = post.date  </div>
       </a>-->
@@ -854,146 +619,8 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/11/01/tensorflow/tf-5.2-contrib-learn-Input-fn/" class="article-date">
-  <time datetime="2017-11-01T08:10:21.000Z" itemprop="datePublished">2017-11-01</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/python/">python</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/11/01/tensorflow/tf-5.2-contrib-learn-Input-fn/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>介绍如何在tf.contrib.learn中创建输入函数。了解如何构建input_fn去预处理和将数据输到模型中的概述。</p>
-<p>实现利用input_fn将训练，评估和预测数据提供给神经网络回归器，用于预测房价中位数。</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/11/01/tensorflow/tf-5.2-contrib-learn-Input-fn/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-tensorflow/tf-5.1-contrib-learn-Quickstart" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/10/31/tensorflow/tf-5.1-contrib-learn-Quickstart/"><strong>TensorFlow - tf.contrib.learn 快速入门</strong></a>
-      <small class=article-date-index>&nbsp; 2017-10-31</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/10/31/tensorflow/tf-5.1-contrib-learn-Quickstart/" class="article-date">
-  <time datetime="2017-10-31T08:10:21.000Z" itemprop="datePublished">2017-10-31</time>
-</a>-->
-      <!--
-  <div class="article-category-index">
-    <a class="article-category-index-link" href="/categories/python/">python</a>
-  </div>
-
--->
-      <!--
-      
-        <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/10/31/tensorflow/tf-5.1-contrib-learn-Quickstart/#disqus_thread" class="article-comment-link">Comments</a>
-        </div>
-      
-      -->
-    </div>
-	
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>TensorFlow 的高级机器学习API（tf.contrib.learn）可以轻松配置，训练和评估各种机器学习模型。</p>
-<p>使用tf.contrib.learn构建 神经网络 分类器并在<strong>Iris</strong>数据集上进行训练. 基于花萼/花瓣几何形状来预测花种。</p>
-         
-          <!-- @2018-08-27 blair add
-          <p class="article-more-link">
-            <a href="/2017/10/31/tensorflow/tf-5.1-contrib-learn-Quickstart/">Read More</a>
-          </p> 
-          @2018-08-27 blair end
-          -->
-        
-      
-    </div>
-	
-    <!--
-	
-    -->
-    <!--
-    
-      <footer class="article-footer">
-      </footer>
-    
-    -->
-  </div>
-  
-</article>
-
-
-
-    
-      <article id="post-life/music-guitar-3" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/10/28/life/music-guitar-3/"><strong>Guitar 基本乐理</strong></a>
-      <small class=article-date-index>&nbsp; 2017-10-28</small>
-      <!--<a>
-      <div = post.date  </div>
-      </a>-->
-    </myh11>
-  
-
-
-      </header>
-    
-    <div class="article-meta">
-      <!--<a href="/2017/10/28/life/music-guitar-3/" class="article-date">
-  <time datetime="2017-10-28T13:00:16.000Z" itemprop="datePublished">2017-10-28</time>
+      <!--<a href="/2016/08/13/life/Chinese-named/" class="article-date">
+  <time datetime="2016-08-12T23:54:16.000Z" itemprop="datePublished">2016-08-13</time>
 </a>-->
       <!--
   <div class="article-category-index">
@@ -1004,7 +631,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/10/28/life/music-guitar-3/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2016/08/13/life/Chinese-named/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1012,11 +639,641 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>音乐分为 噪音 与 乐音</p>
+        <h2 id="1-五行八字介绍"><a href="#1-五行八字介绍" class="headerlink" title="1. 五行八字介绍"></a>1. 五行八字介绍</h2><h3 id="1-1-五行"><a href="#1-1-五行" class="headerlink" title="1.1 五行"></a>1.1 五行</h3><p>　五行就是周易中常说的木、火、土、金、水。易经中各类事物均可以五行来区分，如干支、地支、季节、方位、人体、颜色、味道等等。五行有相生与相克的特质，很多的事物可藉由五行的运算，了解元素之兴衰，来判别事物的起伏变化和你一生的好坏吉凶。</p>
+<h3 id="1-2-三才"><a href="#1-2-三才" class="headerlink" title="1.2 三才"></a>1.2 三才</h3><p>　　三才配置即天、人、地。中国传统文化理解人立足于大地之上，在天之下，受到上天之眷顾，大地的滋养，而生生不息。亦有顺应天时、地利、人和的行事哲理。三才配置在姓名学中，占有很大的分量。</p>
+<h3 id="1-3-五格"><a href="#1-3-五格" class="headerlink" title="1.3 五格"></a>1.3 五格</h3><p>　　五格配置是指天格、地格、人格、外格、总格共五格之间的关系。天格是由祖先流传而来，单独出现对人生没有多大影响;人格是姓名剖象数理的中心所在，对人生的影响最大;人格与地格结合的数理则为基础运。地格主要是36岁前的人生，也叫前运力，外格代表人的外围，吉凶无谓。总格是36岁以后的人生，也是后运力。五格配置在姓名学中占有主要位置。</p>
+<h2 id="2-判断五行所缺"><a href="#2-判断五行所缺" class="headerlink" title="2. 判断五行所缺"></a>2. 判断五行所缺</h2><blockquote>
+<p>起名字，需要根据五行八字所缺少的五行来用相应的属性字(更准确的说法是用<code>喜用神</code>)来填补，所以需要判断五行所缺。</p>
+</blockquote>
+<p><a href="http://www.360doc.com/content/15/0313/16/15585030_454852610.shtml" target="_blank" rel="external">解析四柱八字的精髓喜用神</a><br><a href="http://baike.baidu.com/view/1373942.htm" target="_blank" rel="external">喜用神百科</a><br><a href="http://blog.sina.com.cn/s/blog_6e775646010136qp.html" target="_blank" rel="external">如何知道自己八字的喜神，用神</a></p>
+<blockquote>
+<p>八字就是从这个平衡理论，去分析人一生的起落</p>
+</blockquote>
+<p>　　知道了五行的知识，我们也知道很多人的八字五行都不太齐全，有的不只缺一个，还会缺两个甚至三个。比如我们常听说的“五行缺金”之类的话，那么如何知道起名字五行缺什么呢?</p>
+<h3 id="2-1-判断五行八字及喜用神"><a href="#2-1-判断五行八字及喜用神" class="headerlink" title="2.1 判断五行八字及喜用神"></a>2.1 判断五行八字及喜用神</h3><p>查询五行八字是为了看八字中缺少五行中的哪一行(<strong>以喜用神为准</strong>)，然后用名中字尽量补齐 : <code>金、木、水、火、土</code></p>
+<p><strong>以 2015年10月11日13时30分 为例查询检验判断五行八字</strong></p>
+<p>以下网址查询结果一致 :</p>
+<ul>
+<li><a href="http://www.sheup.com/shengchenbazi.php" target="_blank" rel="external">三藏八字查询</a></li>
+<li><a href="http://www.zhyw.net/myweb/bz/bazi.htm" target="_blank" rel="external">周易网</a>  </li>
+<li><a href="http://www.69jk.cn/tools/bazi/" target="_blank" rel="external">中国健康网</a></li>
+</ul>
+<p>以下网址查询结果一致 :</p>
+<ul>
+<li><a href="http://www.meimingteng.com/Tool/Bazi.aspx" target="_blank" rel="external">美名腾</a></li>
+<li><a href="http://m.zhouyi.cc/bazi/xys/xiyongsheng.php" target="_blank" rel="external">易安居算命网</a></li>
+<li><a href="http://www.fututa.com/" target="_blank" rel="external">浮图塔</a></li>
+<li><a href="http://bazi.dosame.com/" target="_blank" rel="external">生辰八字喜用神查询</a></li>
+<li><a href="http://sm.wonyoo.com" target="_blank" rel="external">中华忘忧网</a></li>
+</ul>
+<blockquote>
+<p> 这类网址很多，如 : <a href="http://www.meimingteng.com/Tool/Bazi.aspx" target="_blank" rel="external">美名腾</a>、<a href="http://www.pcbaby.com.cn/tools/scbz/" target="_blank" rel="external">太平洋亲子网</a>、<a href="http://www.zhyw.net/myweb/bz/bazi.htm" target="_blank" rel="external">周易网</a>、<a href="http://www.69jk.cn/tools/bazi/" target="_blank" rel="external">中国健康网</a>、<a href="http://www.sheup.com/shengchenbazi.php" target="_blank" rel="external">三藏八字查询</a> 等等。请自行判断查询结果准确性。</p>
+<p>周易网、中国健康网、三藏八字查询结果 与 老爷书 一致</p>
+</blockquote>
+<p><code>喜用神</code>查询你也可以参考如下网址查询，但准确性请自行裁断。</p>
+<ul>
+<li><a href="http://www.meimingteng.com/Tool/Bazi.aspx" target="_blank" rel="external">美名腾</a></li>
+<li><a href="http://m.zhouyi.cc/bazi/xys/xiyongsheng.php" target="_blank" rel="external">易安居</a></li>
+<li><a href="http://www.fututa.com/" target="_blank" rel="external">浮图塔</a></li>
+<li><a href="http://www.babyqiming.com/zybz/bz.php" target="_blank" rel="external">babyqiming喜用神</a></li>
+<li><a href="http://v.youku.com/v_show/id_XNDAwMTAwNDQ0.html" target="_blank" rel="external">优酷视频: 怎么样算八字 什么是八字喜用神 四柱</a></li>
+</ul>
+<h3 id="2-2-五行不缺的情况"><a href="#2-2-五行不缺的情况" class="headerlink" title="2.2 五行不缺的情况"></a>2.2 五行不缺的情况</h3><p>五行不缺的情况，参见 <a href="http://baike.baidu.com/view/1373942.htm" target="_blank" rel="external">喜用神</a>。<br>五行缺少的情况，参见 <a href="http://baike.baidu.com/view/1373942.htm" target="_blank" rel="external">喜用神</a>，但在多数情况下，缺少的一个就为它的喜用神，具体参见喜用神查询。 </p>
+<blockquote>
+<p>喜用神查询 与 八字五行 查询，请仔细辨别查询的结果可靠性。</p>
+</blockquote>
+<h2 id="3-姓名笔画吉凶"><a href="#3-姓名笔画吉凶" class="headerlink" title="3. 姓名笔画吉凶"></a>3. 姓名笔画吉凶</h2><blockquote>
+<p>推荐 31 或者 23画</p>
+</blockquote>
+<p>二十三画　　　旭日升天，名显四方，渐次进展，终成大业。　　（吉）<br>三十一画　　　此数大吉，名利双收，渐进向上，大业成就。　　（吉）</p>
+<p><a href="http://blog.sina.com.cn/s/blog_4d4f386c0102vg9r.html" target="_blank" rel="external">详见姓名笔画吉凶大全</a></p>
+<blockquote>
+<p>起名中用字的笔画数参见 <a href="http://tool.httpcn.com/KangXi/" target="_blank" rel="external">康子字典</a> (非简体字或繁体字)</p>
+</blockquote>
+<h2 id="4-手机APP的运用"><a href="#4-手机APP的运用" class="headerlink" title="4. 手机APP的运用"></a>4. 手机APP的运用</h2><ol>
+<li>美名腾智能起名 APP</li>
+<li>…</li>
+</ol>
+<blockquote>
+<p>运用相关手机app，可以更方便的辅助想出好名字</p>
+</blockquote>
+<h2 id="5-姓名打分测试"><a href="#5-姓名打分测试" class="headerlink" title="5. 姓名打分测试"></a>5. 姓名打分测试</h2><p>打分测试这种网站比较多，根据我个人的经验判别我推荐 <a href="http://www.sheup.com/xingming_dafen.php" target="_blank" rel="external">三藏网打分测试</a>，根据三藏网查询的结果，可以看到 三才五格的解析以及康熙字典的笔画数目等。</p>
+<hr>
+<p>举例如下 :</p>
+<p><img src="/images/life/life-named-xin.png" alt="example"></p>
+<h2 id="6-小结"><a href="#6-小结" class="headerlink" title="6. 小结"></a>6. 小结</h2><p>综上所述: 起名字只需要在名字中，使用喜用神的字 并且 三才五格打分 都比较不错的情况下，方为好名字。</p>
+<blockquote>
+<p>个人意见 : 名字还是 顺耳，脱俗 的名字是最重要的。</p>
+</blockquote>
+<p><strong>起名选择字的方法一如如下图片所示，可参考百度搜索的姓名学</strong></p>
+<p><img src="/images/life/life-named-searchword.png" alt="选择字方法参见"></p>
+<h2 id="7-Reference-article"><a href="#7-Reference-article" class="headerlink" title="7. Reference article"></a>7. Reference article</h2><ul>
+<li><a href="http://www.zhyw.net/myweb/bz/bazi.htm" target="_blank" rel="external">周易网</a>  </li>
+<li><a href="http://www.69jk.cn/tools/bazi/" target="_blank" rel="external">中国健康网</a></li>
+<li><a href="http://www.meimingteng.com/Tool/Bazi.aspx" target="_blank" rel="external">美名腾</a></li>
+<li><a href="http://www.pcbaby.com.cn/tools/scbz/" target="_blank" rel="external">太平洋亲子网</a></li>
+<li><a href="http://www.360doc.com/content/15/0313/16/15585030_454852610.shtml" target="_blank" rel="external">解析四柱八字的精髓喜用神</a>  </li>
+<li><a href="http://www.babyqiming.com/zybz/bz.php" target="_blank" rel="external">不一定准确的喜用神查询</a></li>
+<li><a href="http://www.chinesefortunecalendar.com/CAb5.htm" target="_blank" rel="external">八字五行算命和人生起伏圖</a></li>
+<li><a href="http://blog.sina.com.cn/s/blog_4d4f386c0102vg9r.html" target="_blank" rel="external">详见姓名笔画吉凶大全</a></li>
+<li><a href="http://tool.httpcn.com/KangXi/" target="_blank" rel="external">康子字典</a></li>
+<li><a href="http://www.sheup.com/xingming_dafen.php" target="_blank" rel="external">三藏网</a></li>
+<li><a href="http://www.7mingzi.com/hanziwuxing-zi-%E9%99%88/" target="_blank" rel="external">起名网</a></li>
+<li>…</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">公历：****年**月**日(星期四)11点</span><br><span class="line">农历：丙申年四月十三日午时</span><br><span class="line">春节：2月8日</span><br><span class="line">节前：乙未年</span><br><span class="line">节后：丙申年</span><br><span class="line">八字：丙申　癸巳　辛丑　甲午</span><br><span class="line">五行：火金　水火　金土　木火</span><br><span class="line">方位：南西　北南　西中　东南</span><br><span class="line">生肖：猴</span><br><span class="line">92 三才配置 吉， 天地人外总格 大吉  31画</span><br><span class="line">陈俊妃</span><br><span class="line">陈俊帆</span><br><span class="line">陈泊羊</span><br><span class="line">陈泊亦</span><br><span class="line">陈音竹</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-English/ef-l3u2-Locations-and-directions" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/08/10/English/ef-l3u2-Locations-and-directions/"><strong>Locations and directions</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-10</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/08/10/English/ef-l3u2-Locations-and-directions/" class="article-date">
+  <time datetime="2016-08-09T22:59:16.000Z" itemprop="datePublished">2016-08-10</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/English/">English</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/08/10/English/ef-l3u2-Locations-and-directions/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <style>
+img {
+        display: block !important;
+        width: 550px;
+        margin-left: 200px !important;
+}
+</style>
+
+<h2 id="1-Telling-someone-where-you-live"><a href="#1-Telling-someone-where-you-live" class="headerlink" title="1. Telling someone where you live"></a>1. Telling someone where you live</h2><p>The bank is <code>on the corner of</code> Pine Street and First Street.<br>The bus stop is <code>in front of</code> the supermarket.<br>The post office is between the restaurant and the movie theater.<br>The pizza place is <code>behind</code> the library.<br>The bookstore is <code>across the street</code> from the restaurant.  </p>
+<p><img src="/images/english/ef-l3u2l1.png" alt=""></p>
+<p><strong>on，at，in</strong></p>
+<ul>
+<li>I live <code>on</code> Maple Road. I live <code>at</code> 1215 Maple Road. </li>
+<li>They live <code>in</code> Paris, but they’re from the US.<br>&nbsp;</li>
+<li>The library is <code>on</code> Pine Street.</li>
+<li>The library is <code>at</code> 57 Pine Street.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th><strong>Main Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B: Are you coming to my party Saturday？</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Where do you live?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I live at 1215 Maple Road.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: The cross street is 4th Avenue.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: between the library and the park</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I’m on the 11th floor, number 17.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>street = St.    街</li>
+<li>road = Rd.    路</li>
+<li>avenue = Ave.    大街</li>
+<li>boulevard = Blvd.    大道</li>
+<li>drive = Dr.    道</li>
+</ul>
+<h2 id="2-Giving-directions"><a href="#2-Giving-directions" class="headerlink" title="2. Giving directions"></a>2. Giving directions</h2><p><code>Go straight</code> on Pine Avenue. Then turn right on Central Boulevard.<br><code>Go down</code> Oak Street. Next, <code>turn left</code> on Valley Road.<br><code>Go right</code> on Central Boulevard.<br><code>Make a left</code> on Valley Road.</p>
+<h2 id="3-Asking-for-directions-to-a-business"><a href="#3-Asking-for-directions-to-a-business" class="headerlink" title="3. Asking for directions to a business"></a>3. Asking for directions to a business</h2><ul>
+<li>take the train</li>
+<li>go by ferry  [‘ferɪ]</li>
+<li>take the subway</li>
+<li>ride the streetcar 有轨电车</li>
+<li>go on foot</li>
+<li>ride a bike</li>
+</ul>
+<p><img src="/images/english/ef-l3u2l3.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: ABC Company. How can I help you?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I have a meeting at your company today. Can you tell me <code>how to get to your office</code>, please?</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Where are you coming from ?</td>
+<td></td>
+</tr>
+<tr>
+<td>B: I’m in front of the Regency Hotel on Park Drive. I’m walking.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Oh, OK. First, <code>go north on Park Drive for two blocks</code>, and make a right on Seventh Avenue.</td>
+<td></td>
+</tr>
+<tr>
+<td>B: North on Park, turn right on Seventh.</td>
+<td></td>
+</tr>
+<tr>
+<td>A: Correct. Next, go one block  on Seventh, and take a left on Chase Street. Our building is on the right   - number 729. We’re on the third floor  . Our office is number 316.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th><strong>Visit a business</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>How do I get to your office, please?</td>
+<td></td>
+</tr>
+<tr>
+<td>Can you please tell me how to get there?</td>
+<td></td>
+</tr>
+<tr>
+<td>How are you coming?</td>
+<td></td>
+</tr>
+<tr>
+<td>How long does it take?</td>
+<td></td>
+</tr>
+<tr>
+<td>It takes about 20 to 30 minutes.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-Describing-the-location-of-a-city"><a href="#4-Describing-the-location-of-a-city" class="headerlink" title="4. Describing the location of a city"></a>4. Describing the location of a city</h2><ul>
+<li>east coast</li>
+<li>kilometers</li>
+<li>ocean, desert</li>
+<li>forest, hills, valley</li>
+</ul>
+<p><img src="/images/english/ef-l3u2l4-1.png" alt=""></p>
+<blockquote>
+<p>California [,kælɪ’fɔ:njə], summertime</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th><strong>Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[CARLOS]  That’s my hometown.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] best! on the esat coast. Where is Rio?</td>
+<td></td>
+</tr>
+<tr>
+<td>[CARLOS] It’s in the south. down here.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] How far is it from Salvador to Rio?</td>
+<td></td>
+</tr>
+<tr>
+<td>[CARLOS] It’s about 1200 kilometers</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] So you live on the coast.  I love the ocean，Do you know Big Sur?</td>
+<td></td>
+</tr>
+<tr>
+<td>[CARLOS] No, Where’s that?</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] It’s in California. It’s in the mountains, but it’s also on the coast.</td>
+<td></td>
+</tr>
+<tr>
+<td>[SALLY] There it is, on the west coast. It’s so beautiful there. In the summertime, you can go camping…</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><img src="/images/english/ef-l3u2l4.png" alt=""></p>
+<h2 id="Expressions"><a href="#Expressions" class="headerlink" title="Expressions"></a>Expressions</h2><p>A: Let’s go to the coffee shop.<br>B: How far is it?<br>A: It’s only two blocks.<br>A: How far is it from your house to the beach?<br>B: It’s about two kilometers.</p>
+<h2 id="Reading"><a href="#Reading" class="headerlink" title="Reading"></a>Reading</h2><p>Rio de Janeiro is a big city in the south of Brazil. It’s on the east coast of the country. Rio has beautiful beaches on the Atlantic Ocean. Two very famous beaches are Ipanema and Copacabana. Rio also is in the mountains. Sugarloaf is the name of a very famous mountain in Rio.</p>
+<h2 id="Writing"><a href="#Writing" class="headerlink" title="Writing"></a>Writing</h2><p>My hometown is China Hangzhou. It sits at the head of Hangzhou Bay, which separates Shanghai and Ningbo.  The city has many beautiful old buildings、temple and a lot of parks. The Qian Tang River is the city’s civilization. The city’s West Lake is its best-known attraction. and G20 economic conference to be held here. Many people like to visit west lake. </p>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-English/ef-l3u1-Hobbies-and-interests" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/08/07/English/ef-l3u1-Hobbies-and-interests/"><strong>Hobbies and interests</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-07</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/08/07/English/ef-l3u1-Hobbies-and-interests/" class="article-date">
+  <time datetime="2016-08-06T22:59:16.000Z" itemprop="datePublished">2016-08-07</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/English/">English</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/08/07/English/ef-l3u1-Hobbies-and-interests/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <style>
+img {
+        display: block !important;
+        width: 500px;
+        margin-left: 200px !important;
+}
+</style>
+
+<h2 id="1-Talking-about-your-hobbies-and-interests"><a href="#1-Talking-about-your-hobbies-and-interests" class="headerlink" title="1. Talking about your hobbies and interests"></a>1. Talking about your hobbies and interests</h2><ul>
+<li>stamp collecting、taking photographs</li>
+<li>woodworking、reading、running</li>
+<li>cooking、drawing、sewing [ˈsəʊɪŋ] </li>
+</ul>
+<p><img src="/images/english/ef-l3u1l1-2.png" alt=""></p>
+<ul>
+<li>traveling、oil painting、gardening、camping</li>
+<li>birdwatching、grow vegetables</li>
+<li>going to the theater [‘θɪətə]</li>
+<li>going to an exhibit [ɪg’zɪbɪt]</li>
+<li>collecting comic books [‘kɒmɪk]</li>
+</ul>
+<p><img src="/images/english/ef-l3u1l2-1.png" alt=""></p>
+<h3 id="be-good-at-be-interested-in"><a href="#be-good-at-be-interested-in" class="headerlink" title="be good at = be interested in"></a>be good at = be interested in</h3><p>A: <font color="#c7254e">What are you interested in?</font>  </p>
+<p>A: What do you like doing?<br>B: I’m into doing things at home.  </p>
+<p>A: Are you good at (interested in) cooking?<br>B: She’s good at drawing.</p>
+<p>A: <font color="#c7254e">What do you like to do in your free time?</font><br>B: I enjoy stamp collecting.<br>B: I like getting together with friends.</p>
+<h2 id="2-Asking-people-about-their-interests"><a href="#2-Asking-people-about-their-interests" class="headerlink" title="2. Asking people about their interests"></a>2. Asking people about their interests</h2><p>A: <font color="#c7254e">How often</font> do you travel?<br>B: Well, I go to China every summer.</p>
+<p>A: <font color="#c7254e">Do you ever</font> go fishing?<br>B: No, I don’t. </p>
+<p>A : <font color="#c7254e">What do you usually do?</font><br>B : Well, I watch TV. And I sometimes read comic books.</p>
+<p>A: I do fun things near home.<br>B: <font color="#c7254e">Like what?</font><br>A: Like collecting comic books.  </p>
+<p>A: <font color="#c7254e">What else do you like to do?</font><br>B: Well, I really like gardening.</p>
+<h3 id="frequency"><a href="#frequency" class="headerlink" title="frequency"></a>frequency</h3><p>100% = always、80% = usually、60% = often<br>40% = sometimes、20% = rarely、0% = never  </p>
+<h2 id="3-Talking-about-musical-instruments"><a href="#3-Talking-about-musical-instruments" class="headerlink" title="3. Talking about musical instruments"></a>3. Talking about musical instruments</h2><ul>
+<li>cello piano guitar</li>
+<li>violin trumpet drums</li>
+<li>flute saxophone</li>
+</ul>
+<p><img src="/images/english/ef-l3u1l3-1.png" alt=""></p>
+<p>Three people in my family can play a <code>musical instrument</code>. I play the saxophone. My father and mother play the violin. My sister can’t play an instrument, but she can sing. Sometimes, people ask us to play a song.</p>
+<p><strong>My Piano and Me</strong></p>
+<p>I’m really into my piano. It’s very old and has a beautiful sound. Sometimes my friends come to my house. They enjoy listening to me play. They always ask me to play a new song. I can say beautiful things with piano music.</p>
+<h2 id="4-Making-plans-for-a-visitor"><a href="#4-Making-plans-for-a-visitor" class="headerlink" title="4. Making plans for a visitor"></a>4. Making plans for a visitor</h2><p><img src="/images/english/ef-l3u1l4.png" alt=""></p>
+<table>
+<thead>
+<tr>
+<th><strong>Main Dialog</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>[JOAN] Hi. Listen, Carlos, <code>do you have any plans</code> this weekend?</td>
+<td></td>
+</tr>
+<tr>
+<td>[Carlos] No , Why?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Gonzales is visiting. He’s the manager of the Mexico City office. And I’m <code>out of town</code> all weekend.</td>
+<td></td>
+</tr>
+<tr>
+<td>[Carlos] Right?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Can you show him around? Carlos  It’s really important.</td>
+<td></td>
+</tr>
+<tr>
+<td>[Carlos] Of course，show him around。 <code>What&#39;s He interested in</code>?</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] I know he enjoys eating out.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CARLOS] Well, I know a lot of good restaurants.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Oh, and he’s really into art.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CARLOS] There’s probably a good exhibition at the art museum.</td>
+<td></td>
+</tr>
+<tr>
+<td>[JOAN] Great. Thank you. Look - you can have two extra days’ vacation for this.</td>
+<td></td>
+</tr>
+<tr>
+<td>[CARLOS] really? Thanks.</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ops/ops-macosx-update-python-version" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/08/04/ops/ops-macosx-update-python-version/"><strong>MAC OSX Update Python Version</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-04</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/08/04/ops/ops-macosx-update-python-version/" class="article-date">
+  <time datetime="2016-08-04T08:43:21.000Z" itemprop="datePublished">2016-08-04</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/devops/">devops</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/08/04/ops/ops-macosx-update-python-version/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>by update Python 3.5.2 as example</p>
+</blockquote>
+<h2 id="1-Download"><a href="#1-Download" class="headerlink" title="1. Download"></a>1. Download</h2><ul>
+<li><a href="https://www.python.org/downloads/mac-osx/" target="_blank" rel="external">https://www.python.org/downloads/mac-osx/</a></li>
+<li>Latest Python 3 Release - Python 3.5.2</li>
+</ul>
+<h2 id="2-Install"><a href="#2-Install" class="headerlink" title="2. Install"></a>2. Install</h2><ul>
+<li>python-3.5.2-macosx10.6.pkg</li>
+</ul>
+<h2 id="3-Update"><a href="#3-Update" class="headerlink" title="3. Update"></a>3. Update</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#python版号需要修改两个地方</span></span><br><span class="line"><span class="comment">#1. new_version</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#sudo -i #得到超级权限</span></span><br><span class="line">new_version=<span class="string">"3.5"</span></span><br><span class="line"></span><br><span class="line">PYPATH=/System/Library/Frameworks/Python.framework/Versions/<span class="string">"<span class="variable">$new_version</span>"</span></span><br><span class="line"><span class="comment">#第1步 移动新版python到mac默认目录下</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"move.."</span></span><br><span class="line">mv /Library/Frameworks/Python.framework/Versions/<span class="string">"<span class="variable">$new_version</span>"</span> /System/Library/Frameworks/Python.framework/Versions/</span><br><span class="line"><span class="comment">#第2步 改变用户目录的用户组</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"chown.."</span></span><br><span class="line">chown -R root:wheel <span class="variable">$&#123;PYPATH&#125;</span></span><br><span class="line"><span class="comment">#第3步 删除原来2.7的链接文件</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"del.."</span></span><br><span class="line">rm /System/Library/Frameworks/Python.framework/Versions/Current</span><br><span class="line"><span class="comment">#第4步 重新链接到最新版本的python</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"ln.."</span></span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span> /System/Library/Frameworks/Python.framework/Versions/Current</span><br><span class="line"><span class="comment">#第5步 删除旧的命令符号链接</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"rm.."</span></span><br><span class="line">rm /usr/bin/&#123;pydoc,python,pythonw,python-config&#125;</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"ln bin.."</span></span><br><span class="line"><span class="comment">#第6步 重新建立新的命令符号链接</span></span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span>/bin/pydoc<span class="string">"<span class="variable">$new_version</span>"</span> /usr/bin/pydoc</span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span>/bin/python<span class="string">"<span class="variable">$new_version</span>"</span> /usr/bin/python</span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span>/bin/pythonw<span class="string">"<span class="variable">$new_version</span>"</span> /usr/bin/pythonw</span><br><span class="line">ln <span class="_">-s</span> <span class="variable">$&#123;PYPATH&#125;</span>/bin/python<span class="string">"<span class="variable">$new_version</span>"</span>m-config /usr/bin/python-config</span><br><span class="line"></span><br><span class="line">python_param_list=`<span class="built_in">cd</span> /usr/<span class="built_in">local</span>/bin &amp;&amp; ls -al |grep <span class="string">"Python"</span>|awk <span class="string">'ORS=" " &#123;print $9&#125;'</span>`</span><br><span class="line"><span class="comment">#第7步 修复其他链接</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$python_param_list</span>; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"info: <span class="variable">$i</span>"</span></span><br><span class="line">    rm <span class="_">-f</span> /usr/<span class="built_in">local</span>/bin/<span class="variable">$&#123;i&#125;</span></span><br><span class="line">    ln -sv /System/Library/Frameworks/Python.framework/Versions/<span class="string">"<span class="variable">$new_version</span>"</span>/bin/<span class="variable">$&#123;i&#125;</span> /usr/<span class="built_in">local</span>/bin/<span class="variable">$&#123;i&#125;</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#第8步 环境变量要修改为最新的版本号</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">'export PATH=/System/Library/Frameworks/Python.framework/Versions/3.5/bin:$&#123;PATH&#125;'</span> &gt;&gt; ~/.bashrc</span><br><span class="line"><span class="built_in">echo</span> <span class="string">'export PATH=/System/Library/Frameworks/Python.framework/Versions/3.5/bin:$&#123;PATH&#125;'</span> &gt;&gt; ~/.zshrc</span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> <span class="comment">#退出超级权限</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-Verifiy"><a href="#4-Verifiy" class="headerlink" title="4. Verifiy"></a>4. Verifiy</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  ~ Python -V</span><br><span class="line">Python 3.5.2</span><br><span class="line">➜  ~</span><br></pre></td></tr></table></figure>
+<h2 id="5-Refence-article"><a href="#5-Refence-article" class="headerlink" title="5. Refence article"></a>5. Refence article</h2><ul>
+<li><a href="http://blog.csdn.net/wirelessqa/article/details/23261723" target="_blank" rel="external">老毕码农</a></li>
+<li><a href="http://www.jianshu.com/p/1a002847265e" target="_blank" rel="external">mac pycharm 切换PYTHON版本</a></li>
+</ul>
+
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-python/py-language-1-data-analysis-environment" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/08/02/python/py-language-1-data-analysis-environment/"><strong>Python Data Mining and Analysis environment</strong></a>
+      <small class=article-date-index>&nbsp; 2016-08-02</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/08/02/python/py-language-1-data-analysis-environment/" class="article-date">
+  <time datetime="2016-08-02T08:43:21.000Z" itemprop="datePublished">2016-08-02</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/python/">python</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/08/02/python/py-language-1-data-analysis-environment/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这是用 Python 进行数据分析挖掘的一小部分，包括 高维数组、数值计算、机器学习、神经网络 和 语言模型等。</p>
          
           <!-- @2018-08-27 blair add
           <p class="article-more-link">
-            <a href="/2017/10/28/life/music-guitar-3/">Read More</a>
+            <a href="/2016/08/02/python/py-language-1-data-analysis-environment/">Read More</a>
           </p> 
           @2018-08-27 blair end
           -->
@@ -1040,7 +1297,7 @@ var _hmt = _hmt || [];
 
 
     
-      <article id="post-ops/ops-linux-cmd-file-search" class="article article-type-post" itemscope itemprop="blogPost">
+      <article id="post-elasticsearch/elasticsearch-1-indoor" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -1048,8 +1305,8 @@ var _hmt = _hmt || [];
         
   
     <myh11 itemprop="name">
-      <a class="article-title-index" href="/2017/10/24/ops/ops-linux-cmd-file-search/"><strong>Linux Search Cmd</strong></a>
-      <small class=article-date-index>&nbsp; 2017-10-24</small>
+      <a class="article-title-index" href="/2016/05/17/elasticsearch/elasticsearch-1-indoor/"><strong>Elasticsearch * 入门</strong></a>
+      <small class=article-date-index>&nbsp; 2016-05-17</small>
       <!--<a>
       <div = post.date  </div>
       </a>-->
@@ -1060,8 +1317,296 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2017/10/24/ops/ops-linux-cmd-file-search/" class="article-date">
-  <time datetime="2017-10-24T14:04:21.000Z" itemprop="datePublished">2017-10-24</time>
+      <!--<a href="/2016/05/17/elasticsearch/elasticsearch-1-indoor/" class="article-date">
+  <time datetime="2016-05-17T07:59:16.000Z" itemprop="datePublished">2016-05-17</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/hadoop/">hadoop</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/05/17/elasticsearch/elasticsearch-1-indoor/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎、<code>实时分布式搜索</code>和<code>分析引擎</code>。</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/05/17/elasticsearch/elasticsearch-1-indoor/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-elasticsearch/elasticsearch-0-install-plugins" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/05/17/elasticsearch/elasticsearch-0-install-plugins/"><strong>Elasticsearch installation plugins</strong></a>
+      <small class=article-date-index>&nbsp; 2016-05-17</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/05/17/elasticsearch/elasticsearch-0-install-plugins/" class="article-date">
+  <time datetime="2016-05-17T07:59:16.000Z" itemprop="datePublished">2016-05-17</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/hadoop/">hadoop</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/05/17/elasticsearch/elasticsearch-0-install-plugins/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
+</blockquote>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/05/17/elasticsearch/elasticsearch-0-install-plugins/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ml/ml-math-distance-formula-of-point-to-plain" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/05/17/ml/ml-math-distance-formula-of-point-to-plain/"><strong>点到平面的距离公式</strong></a>
+      <small class=article-date-index>&nbsp; 2016-05-17</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/05/17/ml/ml-math-distance-formula-of-point-to-plain/" class="article-date">
+  <time datetime="2016-05-17T07:07:21.000Z" itemprop="datePublished">2016-05-17</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/machine-learning/">machine-learning</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/05/17/ml/ml-math-distance-formula-of-point-to-plain/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$'], ['\[','\]'] ],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+<p>平面的一般式方程, 向量的模（长度）, 向量的数量积, 点到平面的距离</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/05/17/ml/ml-math-distance-formula-of-point-to-plain/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-spark/spark-machine-learning-p1" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/04/25/spark/spark-machine-learning-p1/"><strong>Spark Machine Learning p1 - Spark编程入门</strong></a>
+      <small class=article-date-index>&nbsp; 2016-04-25</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/04/25/spark/spark-machine-learning-p1/" class="article-date">
+  <time datetime="2016-04-25T02:07:21.000Z" itemprop="datePublished">2016-04-25</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/spark/">spark</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/04/25/spark/spark-machine-learning-p1/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Spark 的环境搭建与运行, 接触了 RDD 与 SparkContext, 启动 Spark-Shell 以及如何使用 Scala、Python 编写 Spark 程序. </p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/04/25/spark/spark-machine-learning-p1/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ops/ops-centos7-install-common-software" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/04/19/ops/ops-centos7-install-common-software/"><strong>CentOS 7.1 install Common software</strong></a>
+      <small class=article-date-index>&nbsp; 2016-04-19</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/04/19/ops/ops-centos7-install-common-software/" class="article-date">
+  <time datetime="2016-04-18T23:54:16.000Z" itemprop="datePublished">2016-04-19</time>
 </a>-->
       <!--
   <div class="article-category-index">
@@ -1072,7 +1617,7 @@ var _hmt = _hmt || [];
       <!--
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2017/10/24/ops/ops-linux-cmd-file-search/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2016/04/19/ops/ops-centos7-install-common-software/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -1080,11 +1625,1183 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>which，whereis，locate，find，find exec，find xargs，find…</p>
+        <p>ifconfig、vim、wget、git、netcat …</p>
          
           <!-- @2018-08-27 blair add
           <p class="article-more-link">
-            <a href="/2017/10/24/ops/ops-linux-cmd-file-search/">Read More</a>
+            <a href="/2016/04/19/ops/ops-centos7-install-common-software/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ops/ops-internet-company-computer-introduce" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/04/15/ops/ops-internet-company-computer-introduce/"><strong>人工智能 机器学习、 计算机语言发展史、 技术职位 介绍</strong></a>
+      <small class=article-date-index>&nbsp; 2016-04-15</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/04/15/ops/ops-internet-company-computer-introduce/" class="article-date">
+  <time datetime="2016-04-15T13:17:21.000Z" itemprop="datePublished">2016-04-15</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/devops/">devops</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/04/15/ops/ops-internet-company-computer-introduce/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li>人工智能 机器学习 介绍</li>
+<li>计算机语言发展史</li>
+<li>技术职位介绍  </li>
+</ul>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/04/15/ops/ops-internet-company-computer-introduce/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-spark/spark-scala-sbt-hello" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/03/16/spark/spark-scala-sbt-hello/"><strong>SBT Hello</strong></a>
+      <small class=article-date-index>&nbsp; 2016-03-16</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/03/16/spark/spark-scala-sbt-hello/" class="article-date">
+  <time datetime="2016-03-15T23:54:16.000Z" itemprop="datePublished">2016-03-16</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/spark/">spark</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/03/16/spark/spark-scala-sbt-hello/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ol>
+<li>什么是 SBT ?</li>
+<li>SBT 项目工程目录</li>
+<li>SBT 编译打包 Scala HelloWorld</li>
+</ol>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/03/16/spark/spark-scala-sbt-hello/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-hadoop/hadoop-cdh-install-online" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/03/14/hadoop/hadoop-cdh-install-online/"><strong>大数据平台CDH集群在线安装</strong></a>
+      <small class=article-date-index>&nbsp; 2016-03-14</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/03/14/hadoop/hadoop-cdh-install-online/" class="article-date">
+  <time datetime="2016-03-14T07:54:16.000Z" itemprop="datePublished">2016-03-14</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/hadoop/">hadoop</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/03/14/hadoop/hadoop-cdh-install-online/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>介绍了 CDH 集群的搭建与安装，其中 Server 安装步骤非常准确, Agent 需要进一步验证.</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/03/14/hadoop/hadoop-cdh-install-online/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ops/ops-centos7-ipython-nodebook-install" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/03/11/ops/ops-centos7-ipython-nodebook-install/"><strong>CentOS 7 install spark ipython nodebook</strong></a>
+      <small class=article-date-index>&nbsp; 2016-03-11</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/03/11/ops/ops-centos7-ipython-nodebook-install/" class="article-date">
+  <time datetime="2016-03-10T23:54:16.000Z" itemprop="datePublished">2016-03-11</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/devops/">devops</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/03/11/ops/ops-centos7-ipython-nodebook-install/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>IPython notebook 目前已经成为用 Python 做教学、计算、科研的一个重要工具。</p>
+</blockquote>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/03/11/ops/ops-centos7-ipython-nodebook-install/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-hadoop/hadoop-sqoop-learn-use01" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/02/16/hadoop/hadoop-sqoop-learn-use01/"><strong>Sqoop introduce</strong></a>
+      <small class=article-date-index>&nbsp; 2016-02-16</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/02/16/hadoop/hadoop-sqoop-learn-use01/" class="article-date">
+  <time datetime="2016-02-16T07:54:16.000Z" itemprop="datePublished">2016-02-16</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/hadoop/">hadoop</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/02/16/hadoop/hadoop-sqoop-learn-use01/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Sqoop 即 SQL to Hadoop, 是一款方便的在传统关系数据库与 Hadoop 之间进行数据迁移的工具，充分利用 MapReduce 并行特点以批处理的方式加快数据传输.</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/02/16/hadoop/hadoop-sqoop-learn-use01/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-hadoop/hadoop-hive-brief" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/02/15/hadoop/hadoop-hive-brief/"><strong>Hive Introduce 1</strong></a>
+      <small class=article-date-index>&nbsp; 2016-02-15</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/02/15/hadoop/hadoop-hive-brief/" class="article-date">
+  <time datetime="2016-02-15T07:07:21.000Z" itemprop="datePublished">2016-02-15</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/hadoop/">hadoop</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/02/15/hadoop/hadoop-hive-brief/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ol>
+<li>初步了解 Hadoop 生态圈</li>
+<li>初步了解 Hive 架构图</li>
+</ol>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/02/15/hadoop/hadoop-hive-brief/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-spark/spark-introduce-and-install" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/02/01/spark/spark-introduce-and-install/"><strong>Spark Introduce and Install</strong></a>
+      <small class=article-date-index>&nbsp; 2016-02-01</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/02/01/spark/spark-introduce-and-install/" class="article-date">
+  <time datetime="2016-02-01T02:07:21.000Z" itemprop="datePublished">2016-02-01</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/spark/">spark</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/02/01/spark/spark-introduce-and-install/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>介绍 Spark 的历史，介绍 Spark 的安装与部署，介绍 Spark 的代码架构 等</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/02/01/spark/spark-introduce-and-install/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ops/ops-db-etl-kettle" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2016/01/22/ops/ops-db-etl-kettle/"><strong>Kettle ETL</strong></a>
+      <small class=article-date-index>&nbsp; 2016-01-22</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2016/01/22/ops/ops-db-etl-kettle/" class="article-date">
+  <time datetime="2016-01-22T07:34:16.000Z" itemprop="datePublished">2016-01-22</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/devops/">devops</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2016/01/22/ops/ops-db-etl-kettle/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Kettle 的使用初步介绍</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2016/01/22/ops/ops-db-etl-kettle/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-java/java-logback-indoor" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2015/12/27/java/java-logback-indoor/"><strong>Logback 入门初步</strong></a>
+      <small class=article-date-index>&nbsp; 2015-12-27</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2015/12/27/java/java-logback-indoor/" class="article-date">
+  <time datetime="2015-12-27T07:54:16.000Z" itemprop="datePublished">2015-12-27</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2015/12/27/java/java-logback-indoor/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Logback 一个开源日志组件, SLF4J 这个简单的日志前端接口（Façade）来替代 Jakarta Commons-Logging 。</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2015/12/27/java/java-logback-indoor/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-ops/ops-linux-bashrc-profile" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2014/05/18/ops/ops-linux-bashrc-profile/"><strong>Linux, profile / bashrc Brief Introduce</strong></a>
+      <small class=article-date-index>&nbsp; 2014-05-18</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2014/05/18/ops/ops-linux-bashrc-profile/" class="article-date">
+  <time datetime="2014-05-17T23:54:16.000Z" itemprop="datePublished">2014-05-18</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/devops/">devops</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2014/05/18/ops/ops-linux-bashrc-profile/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>/etc/profile、/etc/bashrc、~/.bash_profile、~/.bashrc </p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2014/05/18/ops/ops-linux-bashrc-profile/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-life/my-dev-trainee" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2014/05/07/life/my-dev-trainee/"><strong>Qunar Trainee Summary</strong></a>
+      <small class=article-date-index>&nbsp; 2014-05-07</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2014/05/07/life/my-dev-trainee/" class="article-date">
+  <time datetime="2014-05-06T22:24:16.000Z" itemprop="datePublished">2014-05-07</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/life/">life</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2014/05/07/life/my-dev-trainee/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>an trainee in qunar</p>
+</blockquote>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2014/05/07/life/my-dev-trainee/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-java/java-se-2.4-notes-exception-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2013/11/24/java/java-se-2.4-notes-exception-2/"><strong>Java SE Learning Notes for Exception</strong></a>
+      <small class=article-date-index>&nbsp; 2013-11-24</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2013/11/24/java/java-se-2.4-notes-exception-2/" class="article-date">
+  <time datetime="2013-11-24T06:54:16.000Z" itemprop="datePublished">2013-11-24</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2013/11/24/java/java-se-2.4-notes-exception-2/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Java SE <code>异常处理</code>部分的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>.</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2013/11/24/java/java-se-2.4-notes-exception-2/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-java/java-se-2.3-notes-oo" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2013/11/24/java/java-se-2.3-notes-oo/"><strong>Java SE Learning Notes for OO</strong></a>
+      <small class=article-date-index>&nbsp; 2013-11-24</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2013/11/24/java/java-se-2.3-notes-oo/" class="article-date">
+  <time datetime="2013-11-24T05:54:16.000Z" itemprop="datePublished">2013-11-24</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2013/11/24/java/java-se-2.3-notes-oo/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Java SE <code>面向对象</code>部分的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>.</p>
+<p>定义类  生成对象  ， 定义方法  被调用 </p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2013/11/24/java/java-se-2.3-notes-oo/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-java/java-se-2.2-notes-app" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2013/02/02/java/java-se-2.2-notes-app/"><strong>Java SE Learning Notes for Hello World</strong></a>
+      <small class=article-date-index>&nbsp; 2013-02-02</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2013/02/02/java/java-se-2.2-notes-app/" class="article-date">
+  <time datetime="2013-02-02T02:54:16.000Z" itemprop="datePublished">2013-02-02</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2013/02/02/java/java-se-2.2-notes-app/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>第一个 Java 程序 HelloWorld.java.  <code>手中无剑</code>, <code>心中有剑</code>.</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2013/02/02/java/java-se-2.2-notes-app/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-java/java-se-2.1-notes-env" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2013/02/02/java/java-se-2.1-notes-env/"><strong>Java SE Learning Notes for Environment</strong></a>
+      <small class=article-date-index>&nbsp; 2013-02-02</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2013/02/02/java/java-se-2.1-notes-env/" class="article-date">
+  <time datetime="2013-02-02T00:54:16.000Z" itemprop="datePublished">2013-02-02</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2013/02/02/java/java-se-2.1-notes-env/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Java 环境的搭建 <code>手中无剑</code>, <code>心中有剑</code>.</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2013/02/02/java/java-se-2.1-notes-env/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-java/java-se-1-introduce" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2013/02/02/java/java-se-1-introduce/"><strong>Java SE Introduce</strong></a>
+      <small class=article-date-index>&nbsp; 2013-02-02</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2013/02/02/java/java-se-1-introduce/" class="article-date">
+  <time datetime="2013-02-01T23:54:16.000Z" itemprop="datePublished">2013-02-02</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2013/02/02/java/java-se-1-introduce/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2013/02/02/java/java-se-1-introduce/">Read More</a>
+          </p> 
+          @2018-08-27 blair end
+          -->
+        
+      
+    </div>
+	
+    <!--
+	
+    -->
+    <!--
+    
+      <footer class="article-footer">
+      </footer>
+    
+    -->
+  </div>
+  
+</article>
+
+
+
+    
+      <article id="post-java/java-se-2.5-notes-array" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <myh11 itemprop="name">
+      <a class="article-title-index" href="/2013/02/02/java/java-se-2.5-notes-array/"><strong>Java SE Learning Notes for All</strong></a>
+      <small class=article-date-index>&nbsp; 2013-02-02</small>
+      <!--<a>
+      <div = post.date  </div>
+      </a>-->
+    </myh11>
+  
+
+
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2013/02/02/java/java-se-2.5-notes-array/" class="article-date">
+  <time datetime="2013-02-01T23:54:16.000Z" itemprop="datePublished">2013-02-02</time>
+</a>-->
+      <!--
+  <div class="article-category-index">
+    <a class="article-category-index-link" href="/categories/java/">java</a>
+  </div>
+
+-->
+      <!--
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2013/02/02/java/java-se-2.5-notes-array/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+	
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
+         
+          <!-- @2018-08-27 blair add
+          <p class="article-more-link">
+            <a href="/2013/02/02/java/java-se-2.5-notes-array/">Read More</a>
           </p> 
           @2018-08-27 blair end
           -->
@@ -1109,7 +2826,7 @@ var _hmt = _hmt || [];
 
     
       <nav id="page-nav">
-        <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="page-number" href="/page/11/">11</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
+        <a class="extend prev" rel="prev" href="/page/8/">&laquo; Prev</a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/10/">Next &raquo;</a>
       </nav>
     
 
