@@ -11,14 +11,14 @@
 <meta property="og:url" content="http://iequa.com/2017/08/10/ml/4-naive-bayes-1/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="贝叶斯方法是一个历史悠久，有着坚实的理论基础的方法，同时处理很多问题时直接而又高效, 很多高级 NLP 模型也可以从它演化而来。因此，学习贝叶斯方法，是研究 NLP 问题的一个非常好的切入口。">
-<meta property="og:image" content="http://iequa.com/images/ml/nlp/bayes-03.jpg">
-<meta property="og:image" content="http://iequa.com/images/ml/nlp/bayes-04.jpg">
-<meta property="og:image" content="http://iequa.com/images/nlp/nlp-bayes-07.jpg">
-<meta property="og:updated_time" content="2018-12-13T15:58:39.645Z">
+<meta property="og:image" content="http://iequa.com/images/ml/bayes/bayes-03.jpg">
+<meta property="og:image" content="http://iequa.com/images/ml/bayes/bayes-04.jpg">
+<meta property="og:image" content="http://iequa.com/images/ml/bayes/bayes-07.jpg">
+<meta property="og:updated_time" content="2018-12-13T23:38:23.928Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Naive Bayes * 垃圾邮件分类">
 <meta name="twitter:description" content="贝叶斯方法是一个历史悠久，有着坚实的理论基础的方法，同时处理很多问题时直接而又高效, 很多高级 NLP 模型也可以从它演化而来。因此，学习贝叶斯方法，是研究 NLP 问题的一个非常好的切入口。">
-<meta name="twitter:image" content="http://iequa.com/images/ml/nlp/bayes-03.jpg">
+<meta name="twitter:image" content="http://iequa.com/images/ml/bayes/bayes-03.jpg">
   
   
     <link rel="icon" href="/favicon.png">
@@ -201,7 +201,7 @@ var _hmt = _hmt || [];
 <p>$$<br>P(“发票”|S）=\frac{出现“发票”的垃圾邮件的封数}{每封垃圾邮件中所有词出现次数（出现了只计算一次）的总和}<br>$$</p>
 <p>这样的模型叫作 <font color="blue">伯努利模型</font>（又称为二项独立模型）。这种方式更加简化与方便。当然它丢失了词频的信息，因此效果可能会差一些。</p>
 <h3 id="9-3-混合模型"><a href="#9-3-混合模型" class="headerlink" title="9.3 混合模型"></a>9.3 混合模型</h3><p>第三种方式是在计算句子概率时，不考虑重复词语出现的次数，但是在统计计算词语的概率$P(“词语”|S)$ 时，却考虑重复词语的出现次数，这样的模型可以叫作混合模型。</p>
-<p><img src="/images/ml/nlp/bayes-03.jpg" alt=""></p>
+<p><img src="/images/ml/bayes/bayes-03.jpg" alt=""></p>
 <p>具体实践中采用那种模型，关键看具体的业务场景，一个简单经验是，对于垃圾邮件识别，混合模型更好些。</p>
 <h2 id="10-去除停用词与选择关键词"><a href="#10-去除停用词与选择关键词" class="headerlink" title="10. 去除停用词与选择关键词"></a>10. 去除停用词与选择关键词</h2><p>我们继续观察<strong>（“我”,“司”,“可”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”)</strong> 这句话。其实，像<strong>“我”、“可”</strong>之类词其实非常中性，无论其是否出现在垃圾邮件中都无法帮助判断的有用信息。所以可以直接不考虑这些典型的词。这些无助于我们分类的词语叫作 “停用词”（<code>Stop Words</code>）。这样可以减少我们训练模型、判断分类的时间。 于是之前的句子就变成了<strong>（“司”,“办理”,“正规发票”,“保真”,“增值税”,“发票”,“点数”,“优惠”) </strong>。</p>
 <p>我们进一步分析。以人类的经验，其实 <strong>“正规发票”、“发票”</strong> 这类的词如果出现的话，邮件作为垃圾邮件的概率非常大，可以作为我们区分垃圾邮件的“关键词”。而像 <strong>“司”、“办理”、“优惠”</strong> 这类的词则有点鸡肋，可能有助于分类，但又不那么强烈。如果想省事做个简单的分类器的话，则可以直接采用“关键词”进行统计与判断，剩下的词就可以先不管了。于是之前的垃圾邮件句子就变成了<strong>（“正规发票”,“发票”)</strong> 。这样就更加减少了我们训练模型、判断分类的时间，速度非常快。</p>
@@ -243,11 +243,11 @@ var _hmt = _hmt || [];
 <p>$$<br>+log{\frac{P(“保真”|S)}{P(“保真”|H)}}+log{\frac{P(“增值税”|S)}{P(“增值税”|H)}}+log{\frac{P(“发票”|S)}{P(“发票”|H)}}+log{\frac{P(“点数”|S)}{P(“点数”|H)}}+log{\frac{P(“优惠”|S)}{P(“优惠”|H)}}+log{\frac{P(“正常邮件”|S)}{P(“正常邮件”)}}<br>$$</p>
 <p>$log{\frac{C}{\overline{C}}}$如果大于0则属于垃圾邮件。我们可以把其中每一项作为其对应词语的权重，比如 $log{\frac{P(“发票”|S)}{P(“发票”|H)}}$  就可以作为词语“发票”的权重，权重越大就越说明“发票”更可能是与“垃圾邮件”相关的特征。这样可以根据权重的大小来评估和筛选显著的特征，比如关键词。而这些权重值可以直接提前计算好而存在hash表中 。判断的时候直接将权重求和即可。</p>
 <p>关键词hash表的样子如下，左列是权重，右列是其对应的词语，权重越高的说明越“关键”：</p>
-<p><img src="/images/ml/nlp/bayes-04.jpg" alt=""></p>
+<p><img src="/images/ml/bayes/bayes-04.jpg" alt=""></p>
 <h3 id="14-3-trick3：选取topk的关键词"><a href="#14-3-trick3：选取topk的关键词" class="headerlink" title="14.3 trick3：选取topk的关键词"></a>14.3 trick3：选取topk的关键词</h3><p>前文说过可以通过提前选取关键词来提高判断的速度。有一种方法可以省略提前选取关键词的步骤，就是直接选取一段文本中权重最高的K个词语，将其权重进行加和。比如Paul Graham 在《黑客与画家》中是选取邮件中权重最高的15个词语计算的。</p>
 <p>通过权重hash表可知，如果是所有词语的权重，则权重有正有负。如果只选择权重最高的 $K$ 个词语，则它们的权重基本都是正的。所以就不能像之前那样判断 $log{\frac{C}{\overline{C}}}$ 是否大于0来区分邮件了。而这需要依靠经验选定一个正数的阈值（门槛值） ，依据 $log{\frac{C}{\overline{C}}}$  与该门槛值的大小来识别垃圾邮件。</p>
 <p>如下图所示，蓝色点代表垃圾邮件，绿色点代表正常邮件，横坐标为计算出来的 $log{\frac{C}{\overline{C}}}$  值，中间的红线代表阈值。</p>
-<p><img src="/images/nlp/nlp-bayes-07.jpg" style="width:500px; height:250px;"> </p>
+<p><img src="/images/ml/bayes/bayes-07.jpg" style="width:500px; height:250px;"> </p>
 <blockquote>
 <p>k 的选取，需要你自己判断。可以通过交叉验证来判断。</p>
 </blockquote>
@@ -335,6 +335,7 @@ var _hmt = _hmt || [];
 </script>
 <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
 </script>
+
       
      <!-- by blair add this if sentence at 20160725 -->
       <br>
