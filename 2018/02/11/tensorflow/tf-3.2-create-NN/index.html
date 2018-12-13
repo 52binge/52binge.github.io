@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>例子3 建造神经网络 - Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="这次提到了怎样建造一个完整的神经网络, 包括添加 神经层, 计算误差, 训练步骤, 判断是否在学习.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="例子3 建造神经网络">
+<meta property="og:url" content="http://iequa.com/2018/02/11/tensorflow/tf-3.2-create-NN/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="这次提到了怎样建造一个完整的神经网络, 包括添加 神经层, 计算误差, 训练步骤, 判断是否在学习.">
+<meta property="og:updated_time" content="2018-12-13T08:53:47.959Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="例子3 建造神经网络">
+<meta name="twitter:description" content="这次提到了怎样建造一个完整的神经网络, 包括添加 神经层, 计算误差, 训练步骤, 判断是否在学习.">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-tensorflow/tf-3.2-create-NN" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      例子3 建造神经网络
+      <small class=article-detail-date-index>&nbsp; 2018-02-11</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/02/11/tensorflow/tf-3.2-create-NN/" class="article-date">
+  <time datetime="2018-02-11T06:37:21.000Z" itemprop="datePublished">2018-02-11</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/tensorflow/">tensorflow</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/02/11/tensorflow/tf-3.2-create-NN/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>这次提到了怎样建造一个完整的神经网络, 包括添加 <strong>神经层</strong>, <strong>计算误差</strong>, <strong>训练步骤</strong>, 判断是否在学习.</p>
+<a id="more"></a>
+<h2 id="1-add-layer-功能"><a href="#1-add-layer-功能" class="headerlink" title="1. add_layer 功能"></a>1. add_layer 功能</h2><p>首先，我们导入本次所需的模块</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构造添加一个神经层的函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_layer</span><span class="params">(inputs, in_size, out_size, activation_function=None)</span>:</span></span><br><span class="line"></span><br><span class="line">    Weights = tf.Variable(tf.random_normal([in_size, out_size]))</span><br><span class="line">    biases = tf.Variable(tf.zeros([<span class="number">1</span>, out_size]) + <span class="number">0.1</span>)</span><br><span class="line"></span><br><span class="line">    Wx_plus_b = tf.matmul(inputs, Weights) + biases</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> activation_function <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">        outputs = Wx_plus_b</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        outputs = activation_function(Wx_plus_b)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> outputs</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a href="https://www.w3cschool.cn/tensorflow_python/tensorflow_python-n7hl2gmf.html" target="_blank" rel="external">TensorFlow随机值: tf.random_normal函数：</a> 将返回一个指定形状的张量，通过随机的正常值填充</p>
+<p>tf.random_normal(shape, mean=0.0, stddev=1.0, dtype=tf.float32, seed=None, name=None)</p>
+</blockquote>
+<h2 id="2-导入数据"><a href="#2-导入数据" class="headerlink" title="2. 导入数据"></a>2. 导入数据</h2><p>构建所需的数据。 </p>
+<p>这里的 <code>x_data</code> 和 <code>y_data</code> 并不是严格的一元二次函数的关系，因为我们多加了一个 <code>noise</code>, 这样看起来会更像真实情况</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x_data = np.linspace(<span class="number">-1</span>,<span class="number">1</span>,<span class="number">300</span>, dtype=np.float32)[:, np.newaxis]</span><br><span class="line"><span class="comment"># numpy.linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None)</span></span><br><span class="line"><span class="comment"># 得到 300 个大小的一维数组， 通过 [:, np.newaxis] 行变列，变为 300 行，1 列 的二维 数组</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># numpy.random.normal(loc=0.0 均值, scale=1.0 标准差, size=None 形状)</span></span><br><span class="line">noise = np.random.normal(<span class="number">0</span>, <span class="number">0.05</span>, x_data.shape).astype(np.float32)</span><br><span class="line"></span><br><span class="line">y_data = np.square(x_data) - <span class="number">0.5</span> + noise</span><br><span class="line"></span><br><span class="line"><span class="comment"># 利用占位符定义我们所需的神经网络的输入。 `tf.placeholder()` 就是代表占位符</span></span><br><span class="line"><span class="comment"># 这里的 `None` 代表无论输入有多少都可以，因为输入只有一个特征，所以这里是 `1`。</span></span><br><span class="line"></span><br><span class="line">xs = tf.placeholder(tf.float32, [<span class="keyword">None</span>, <span class="number">1</span>])</span><br><span class="line">ys = tf.placeholder(tf.float32, [<span class="keyword">None</span>, <span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+<p>接下来，我们就可以开始定义神经层了。 通常神经层都包括 <strong>input</strong>输入层、<strong>hide</strong>隐藏层 和 <strong>output</strong>输出层。这里的输入层只有一个属性， 所以我们就只有一个输入；隐藏层我们可以自己假设，这里我们假设隐藏层有<strong>10</strong>个神经元； 输出层和输入层的结构是一样的，所以我们的输出层也是只有一层。 所以，我们构建的是——输入层1个、隐藏层10个、输出层1个的神经网络。</p>
+<h2 id="3-搭建网络"><a href="#3-搭建网络" class="headerlink" title="3. 搭建网络"></a>3. 搭建网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义 hide隐藏层， 利用之前的 `add_layer()` 函数，这里使用 Tensorflow 自带的激励函数 `tf.nn.relu`。</span></span><br><span class="line">l1 = add_layer(xs, <span class="number">1</span>, <span class="number">10</span>, activation_function=tf.nn.relu)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接着，定义输出层。此时的输入就是隐藏层的输出 —— `l1`，输入有 10 层（隐藏层的输出层），输出有 1 层。</span></span><br><span class="line">prediction = add_layer(l1, <span class="number">10</span>, <span class="number">1</span>, activation_function=<span class="keyword">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算预测值 `prediction` 和 真实值的误差，对二者差的平方求和再取平均。</span></span><br><span class="line">loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction),</span><br><span class="line">                     reduction_indices=[<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接下来，是很关键的一步，如何让机器学习提升它的准确率。</span></span><br><span class="line"><span class="comment"># `tf.train.GradientDescentOptimizer()` 中的值通常都小于 `1`，这里取的是 `0.1`，代表以 `0.1` 的效率来最小化误差 `loss`。</span></span><br><span class="line"></span><br><span class="line">train_step = tf.train.GradientDescentOptimizer(<span class="number">0.1</span>).minimize(loss)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用变量时，都要对它进行初始化，这是必不可少的。</span></span><br><span class="line">init = tf.global_variables_initializer()  <span class="comment"># 替换成这样就好</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义 `Session`，并用 `Session` 来执行 `init` 初始化步骤。 </span></span><br><span class="line"><span class="comment">#（注意：在 `tensorflow` 中，只有session.run()才会执行我们定义的运算。）</span></span><br><span class="line">sess = tf.Session()</span><br><span class="line">sess.run(init)</span><br></pre></td></tr></table></figure>
+<h2 id="4-训练"><a href="#4-训练" class="headerlink" title="4. 训练"></a>4. 训练</h2><p>下面，让机器开始学习。</p>
+<p>比如这里，我们让机器学习1000次。机器学习的内容是 <code>train_step</code>, 用 <code>Session</code> 来 <code>run</code> 每一次 training 的数据，逐步提升神经网络的预测准确性。 (注意：当运算要用到 <code>placeholder</code> 时，就需要 <code>feed_dict</code> 这个字典来指定输入。)</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1000</span>):</span><br><span class="line">    <span class="comment"># training</span></span><br><span class="line">    sess.run(train_step, feed_dict=&#123;xs: x_data, ys: y_data&#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 每 50 步 我们输出一下机器学习的误差。</span></span><br><span class="line">    <span class="keyword">if</span> i % <span class="number">50</span> == <span class="number">0</span>:</span><br><span class="line">        print(sess.run(loss, feed_dict=&#123;xs: x_data, ys: y_data&#125;))</span><br></pre></td></tr></table></figure>
+<p>在电脑上运行本次代码的结果为：</p>
+<p>0.0587868<br>0.00416427<br>0.00312624<br>0.00291327<br>0.00282026<br>0.0027577<br>0.00270546<br>0.00266943<br>0.00265278<br>0.00263559</p>
+<p>通过上图可以看出，误差在逐渐减小，这说明机器学习是有积极的效果的</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://www.tensorflow.org/" target="_blank" rel="external">tensorflow.org</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/" target="_blank" rel="external">莫烦Python</a></li>
+<li><a href="https://www.tensorflow.org/api_guides/python/nn" target="_blank" rel="external">Tensorflow 提供的一些 激励函数</a></li>
+<li><a href="http://www.ben-do.github.io/2016/09/15/change-shape-of-matrix-by-numpy/" target="_blank" rel="external">利用numpy的newaxis轉變矩陣的形狀</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/tech-logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/2017/11/05/support-pay-blog/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/2017/11/05/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  原创文章，转载请注明： 转载自<a href="http://www.iequa.com"> Blair Chan's Blog</a>，作者：
+  <a href="http://www.iequa.com/about">Blair Chan</a> <br>
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-add-layer-功能"><span class="toc-number"></span> <span class="toc-text">1. add_layer 功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-导入数据"><span class="toc-number"></span> <span class="toc-text">2. 导入数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-搭建网络"><span class="toc-number"></span> <span class="toc-text">3. 搭建网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-训练"><span class="toc-number"></span> <span class="toc-text">4. 训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/tensorflow/">tensorflow</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/tensorflow/">tensorflow</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/02/12/tensorflow/tf-3.3-A-speed-up-learning/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          加速神经网络训练 (Speed Up Training)
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/02/09/tensorflow/tf-3.1-add-layer/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">例子3 添加层 def add_layer()&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2018 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/02/11/tensorflow/tf-3.2-create-NN/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
