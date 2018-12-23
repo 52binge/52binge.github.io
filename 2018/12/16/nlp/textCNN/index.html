@@ -19,7 +19,12 @@
 <meta property="og:image" content="http://iequa.com/images/nlp/conv1d-channel.svg">
 <meta property="og:image" content="http://iequa.com/images/nlp/conv1d-2d.svg">
 <meta property="og:image" content="http://iequa.com/images/nlp/conv_multi_in.svg">
-<meta property="og:updated_time" content="2018-12-23T13:35:03.247Z">
+<meta property="og:image" content="http://iequa.com/images/nlp/conv_1x1.svg">
+<meta property="og:image" content="http://iequa.com/images/nlp/conv_textcnn.svg">
+<meta property="og:image" content="http://iequa.com/images/nlp/textcnn-1.webp">
+<meta property="og:image" content="http://iequa.com/images/nlp/textcnn-2.webp">
+<meta property="og:image" content="http://iequa.com/images/nlp/textcnn-3.webp">
+<meta property="og:updated_time" content="2018-12-23T15:01:20.663Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="TextCNN 文本情感分类的卷积神经网络">
 <meta name="twitter:description" content="textCNN 是 2014年 提出的用来做文本分类的卷积神经网络，结构简单、效果好.
@@ -137,14 +142,52 @@ var _hmt = _hmt || [];
 <p><img src="/images/nlp/conv1d-channel.svg" width="650" img=""></p>
 <blockquote>
 <p>含3个输入通道的一维互相关运算。阴影部分为第一个输出元素及其计算所使用的输入和核数组元素：</p>
-<p>$$0×1+1×2+1×3+2×4+2×(−1)+3×(−3)=2$$。</p>
+<p>$$0×1+1×2+1×3+2×4+2×(−1)+3×(−3)=2$$</p>
 </blockquote>
 <h3 id="1-3-单输入通道-二维互相关"><a href="#1-3-单输入通道-二维互相关" class="headerlink" title="1.3 单输入通道 * 二维互相关"></a>1.3 单输入通道 * 二维互相关</h3><p><img src="/images/nlp/conv1d-2d.svg" width="650" img=""></p>
 <blockquote>
-<p>结论 ： <strong>多输入通道**</strong>一维互相关<strong> &lt;=&gt; </strong>单输入通道<strong>**二维互相关</strong></p>
+<p>$$2×(−1)+3×(−3)+1×3+2×4+0×1+1×2=2$$</p>
+<p>结论 ： <strong>多输入通道</strong> <strong>一维互相关</strong> &lt;=&gt; <strong>单输入通道</strong> <strong>二维互相关</strong></p>
 </blockquote>
-<h3 id="1-4-多输入通道"><a href="#1-4-多输入通道" class="headerlink" title="1.4 多输入通道"></a>1.4 多输入通道</h3><p><img src="/images/nlp/conv_multi_in.svg" width="650" img=""></p>
-<h2 id="2-时序最大池化层"><a href="#2-时序最大池化层" class="headerlink" title="2. 时序最大池化层"></a>2. 时序最大池化层</h2><h2 id="3-TextCNN-模型"><a href="#3-TextCNN-模型" class="headerlink" title="3. TextCNN 模型"></a>3. TextCNN 模型</h2><h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ul>
+<h3 id="1-4-多输入通道-二维互相关"><a href="#1-4-多输入通道-二维互相关" class="headerlink" title="1.4 多输入通道 * 二维互相关"></a>1.4 多输入通道 * 二维互相关</h3><p><img src="/images/nlp/conv_multi_in.svg" width="650" img=""></p>
+<blockquote>
+<p>$$<br>(1×1+2×2+4×3+5×4)+(0×0+1×1+3×2+4×3)=56<br>$$</p>
+</blockquote>
+<h3 id="1-5-多输出通道-1×1-卷积层"><a href="#1-5-多输出通道-1×1-卷积层" class="headerlink" title="1.5 多输出通道 1×1 卷积层"></a>1.5 多输出通道 1×1 卷积层</h3><p>当输入通道有多个时，由于我们对各个通道的结果做了累加，所以不论输入通道数是多少，输出通道数总是为 1</p>
+<p><img src="/images/nlp/conv_1x1.svg" width="650" img=""></p>
+<h3 id="1-6-小结"><a href="#1-6-小结" class="headerlink" title="1.6 小结"></a>1.6 小结</h3><ul>
+<li>使用多通道可以拓展卷积层的模型参数.</li>
+<li>假设将通道维当做是特征维，将高和宽维度上的元素当成数据样本，那么 1×1 卷积层的作用与全连接层等价.</li>
+<li>1×1 卷积层通常用来调整网络层之间的通道数，并控制模型复杂度.</li>
+</ul>
+<h2 id="2-时序最大池化层"><a href="#2-时序最大池化层" class="headerlink" title="2. 时序最大池化层"></a>2. 时序最大池化层</h2><p>类似地，我们有一维池化层。TextCNN 中使用的时序最大池化层（max-over-time pooling）实际上对应一维全局最大池化层：假设输入包含多个通道，各通道由不同时间步上的数值组成，各通道的输出即该通道所有时间步中最大的数值。因此，时序最大池化层的输入在各个通道上的时间步数可以不同。</p>
+<blockquote>
+<p>为提升计算性能，我们常常将不同长度的时序样本组成一个小<strong>Batch</strong>，并通过在较短序列后附加<strong>特殊字符（例如 0）</strong>令批量中各时序样本长度相同。这些人为添加的特殊字符当然是无意义的。由于时序最大池化的主要目的是抓取时序中最重要的特征，它通常能使模型不受人为添加字符的影响。</p>
+</blockquote>
+<h2 id="3-TextCNN-模型"><a href="#3-TextCNN-模型" class="headerlink" title="3. TextCNN 模型"></a>3. TextCNN 模型</h2><p>TextCNN 主要使用了一维卷积层和时序最大池化层。假设输入的文本序列由 n 个词组成，每个词用 d 维的词向量表示。那么输入样本的宽为 n，高为 1，输入通道数为 d。</p>
+<p>textCNN 的计算主要分为以下几步：</p>
+<blockquote>
+<p>(1). <strong>卷积层</strong>： 定义多个一维卷积核，并使用这些卷积核对输入分别做卷积计算。宽度不同的卷积核可能会捕捉到不同个数的相邻词的相关性。</p>
+<p>(2). <strong>池化层</strong>： 对输出的所有通道分别做时序最大池化，再将这些通道的池化输出值连结为向量。</p>
+<p>(3). <strong>全连层</strong>： 通过全连接层将连结后的向量变换为有关各类别的输出。这一步可以使用丢弃层应对过拟合。</p>
+</blockquote>
+<p><img src="/images/nlp/conv_textcnn.svg" width="700" img=""></p>
+<p>用一个例子解释了 textCNN 的设计。这里的输入是一个有 11 个词的句子，每个词用 6 维词向量表示。因此输入序列的宽为 11，输入通道数为 6。给定 2 个一维卷积核，核宽分别为 2 和 4，输出通道数分别设为 4 和 5。因此，一维卷积计算后，4 个输出通道的宽为 11−2+1=10，而其他 5 个通道的宽为 11−4+1=8。尽管每个通道的宽不同，我们依然可以对各个通道做时序最大池化，并将 9 个通道的池化输出连结成一个 9 维向量。最终，我们使用全连接将 9 维向量变换为 2 维输出：正面情感和负面情感的预测。</p>
+<h2 id="4-CNN-的特点"><a href="#4-CNN-的特点" class="headerlink" title="4. CNN 的特点"></a>4. CNN 的特点</h2><p>CNN的三个优点：</p>
+<ol>
+<li>sparse interaction(稀疏的交互)</li>
+<li>parameter sharing(参数共享)</li>
+<li>equivalent respresentation(等价表示)。</li>
+</ol>
+<p>经典的简化卷积公式表示如下：</p>
+<p><img src="/images/nlp/textcnn-1.webp" width="700" img=""></p>
+<p>假设每个词用三维向量表示，左边是4个词，右边是卷积矩阵，那么得到输出为：</p>
+<p><img src="/images/nlp/textcnn-2.webp" width="700" img=""></p>
+<p>如果基于这个结果做1-MaxPool池化(最大值池化)，那么就取卷积层结果 o 中的最大值，即提取最显著的特征。</p>
+<p>针对海量的文本多分类数据，也可以尝试一下浅层的深度学习模型FastText模型，该模型的分类效率更高。</p>
+<p><img src="/images/nlp/textcnn-3.webp" width="700" img=""></p>
+<p>整个模型由四部分构成： <strong>输入层</strong>、<strong>卷积层</strong>、<strong>池化层</strong>、<strong>全连接层</strong>。</p>
+<h2 id="5-小结"><a href="#5-小结" class="headerlink" title="5. 小结"></a>5. 小结</h2><ul>
 <li>我们可以使用一维卷积来处理和分析时序数据。</li>
 <li>多输入通道的一维互相关运算可以看作是单输入通道的二维互相关运算。</li>
 <li>时序最大池化层的输入在各个通道上的时间步数可以不同。</li>
@@ -155,6 +198,7 @@ var _hmt = _hmt || [];
 <li><a href="http://www.52nlp.cn/tag/textcnn" target="_blank" rel="external">我爱自然语言处理</a></li>
 <li><a href="https://www.jianshu.com/p/f69e8a306862" target="_blank" rel="external">吾爱NLP(4)—基于Text-CNN模型的中文文本分类实战</a></li>
 <li><a href="https://www.cnblogs.com/DjangoBlog/p/7511979.html" target="_blank" rel="external">fastText、TextCNN、TextRNN……这里有一套NLP文本分类深度学习方法库供你选择</a></li>
+<li><a href="https://blog.csdn.net/u012762419/article/details/79561441" target="_blank" rel="external">大规模文本分类网络TextCNN介绍</a></li>
 </ul>
 
       
@@ -211,7 +255,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-一维卷积层"><span class="toc-number"></span> <span class="toc-text">1. 一维卷积层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-多输入通道-一维互相关"><span class="toc-number"></span> <span class="toc-text">1.1 多输入通道 * 一维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-多输入通道-一维互相关"><span class="toc-number"></span> <span class="toc-text">1.2 多输入通道 * 一维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-单输入通道-二维互相关"><span class="toc-number"></span> <span class="toc-text">1.3 单输入通道 * 二维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-多输入通道"><span class="toc-number"></span> <span class="toc-text">1.4 多输入通道</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-时序最大池化层"><span class="toc-number"></span> <span class="toc-text">2. 时序最大池化层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-TextCNN-模型"><span class="toc-number"></span> <span class="toc-text">3. TextCNN 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number"></span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-一维卷积层"><span class="toc-number"></span> <span class="toc-text">1. 一维卷积层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-多输入通道-一维互相关"><span class="toc-number"></span> <span class="toc-text">1.1 多输入通道 * 一维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-多输入通道-一维互相关"><span class="toc-number"></span> <span class="toc-text">1.2 多输入通道 * 一维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-单输入通道-二维互相关"><span class="toc-number"></span> <span class="toc-text">1.3 单输入通道 * 二维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-多输入通道-二维互相关"><span class="toc-number"></span> <span class="toc-text">1.4 多输入通道 * 二维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-多输出通道-1×1-卷积层"><span class="toc-number"></span> <span class="toc-text">1.5 多输出通道 1×1 卷积层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-小结"><span class="toc-number"></span> <span class="toc-text">1.6 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-时序最大池化层"><span class="toc-number"></span> <span class="toc-text">2. 时序最大池化层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-TextCNN-模型"><span class="toc-number"></span> <span class="toc-text">3. TextCNN 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-CNN-的特点"><span class="toc-number"></span> <span class="toc-text">4. CNN 的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-小结"><span class="toc-number"></span> <span class="toc-text">5. 小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
