@@ -6,30 +6,24 @@
   <title>Home</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="细粒度用户评论情感分析有20个粒度的评价指标，每个粒度又有4种情感状态，从官方baseline来看，分别训练了20个（4标签）分类器。
-要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐
+1. fastText baseline要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐
 
-skift：scikit-learn wrappers for Python fastText.
-
-默认">
+skift：scikit-learn wrappers for">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Home">
 <meta property="og:url" content="http://iequa.com/ai2018/index.html">
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="细粒度用户评论情感分析有20个粒度的评价指标，每个粒度又有4种情感状态，从官方baseline来看，分别训练了20个（4标签）分类器。
-要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐
+1. fastText baseline要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐
 
-skift：scikit-learn wrappers for Python fastText.
-
-默认">
-<meta property="og:updated_time" content="2019-01-03T09:27:28.866Z">
+skift：scikit-learn wrappers for">
+<meta property="og:updated_time" content="2019-01-05T02:45:04.734Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="细粒度用户评论情感分析有20个粒度的评价指标，每个粒度又有4种情感状态，从官方baseline来看，分别训练了20个（4标签）分类器。
-要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐
+1. fastText baseline要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐
 
-skift：scikit-learn wrappers for Python fastText.
-
-默认">
+skift：scikit-learn wrappers for">
   
   
     <link rel="icon" href="/favicon.png">
@@ -106,7 +100,7 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <h2 id="细粒度用户评论情感分析"><a href="#细粒度用户评论情感分析" class="headerlink" title="细粒度用户评论情感分析"></a>细粒度用户评论情感分析</h2><p>有20个粒度的评价指标，每个粒度又有4种情感状态，从官方baseline来看，分别训练了20个（4标签）分类器。</p>
-<p>要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐</p>
+<h2 id="1-fastText-baseline"><a href="#1-fastText-baseline" class="headerlink" title="1. fastText baseline"></a>1. fastText baseline</h2><p>要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐</p>
 <blockquote>
 <p>skift：scikit-learn wrappers for Python fastText.</p>
 </blockquote>
@@ -119,13 +113,26 @@ var _hmt = _hmt || [];
 <p>这个结果看起来还不错，我们可以基于这个fasttext多分类模型进行测试集的预测：</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">python main_predict.py -mn fasttext_wn2_model.pkl</span><br></pre></td></tr></table></figure>
 <p>大约运行不到3分钟，预测结果就出炉了，可以在 test_data_predict_output_path 找到这个预测输出文件: testa_predict.csv ，然后就可以去官网提交了，在线提交的结果和验证集F1值大致相差0.01~0.02。这里还可以做一些事情来优化结果，譬如去停用词，不过我试了去停用词和去一些标点符号，结果还有一些降低；<strong>调参，learning_rate的影响是比较直接的</strong>，min_count设置为2貌似也有一些负向影响，有兴趣的同学可以多试试，寻找一个最优组合。</p>
-<h2 id="Seq2Seq"><a href="#Seq2Seq" class="headerlink" title="Seq2Seq"></a>Seq2Seq</h2><ul>
-<li>􏰶􏰐􏰹􏰱􏰨􏰠􏰄􏰶􏰐􏰃􏰗􏰑􏰎􏰙􏰂􏰉􏰮􏰜􏰱􏰌􏰟jieba 分词</li>
+<h2 id="2-Seq2Seq-Attention"><a href="#2-Seq2Seq-Attention" class="headerlink" title="2. Seq2Seq Attention"></a>2. Seq2Seq Attention</h2><ul>
+<li>jieba 分词</li>
 <li>建立词典时，过滤掉出现次数小于 5 的词</li>
 <li>训练集、验证集 以及 测试集A组成的语料，词典大小为 66347</li>
 <li>预测和训练时，词典没有出现的词 用 <code>&lt;UNK&gt;</code> 代替</li>
 </ul>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<blockquote>
+<p>模型：Attention-RCNN、Attention-RNN</p>
+</blockquote>
+<p>直接使用的是char模型，不需要分词，用到的停用词也不多。粗暴但实测效果比 word level 好。</p>
+<h3 id="2-1-预处理数据-data"><a href="#2-1-预处理数据-data" class="headerlink" title="2.1 预处理数据 data"></a>2.1 预处理数据 data</h3><ul>
+<li>trainsets lines：  501132， 合法例子 ： 105000</li>
+<li>validationset lines：  70935, 合法例子 ： 15000</li>
+<li>testsets lines：  72028， 合法例子 ： 15000</li>
+</ul>
+<p><strong>word2vec：</strong> 维度 100， 窗口 10， 过滤掉次数小于 1 的词</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">3.1M chars.vector</span><br></pre></td></tr></table></figure>
+<p>数据预处理，在 preprocess 文件夹下生成了 train_char.csv、test_char.csv、test_char.csv 三个文件。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-rw-r--r--  1 blair 10:36 <span class="built_in">test</span>_char.csv</span><br><span class="line">-rw-r--r--  1 blair 10:09 train_char.csv</span><br><span class="line">-rw-r--r--  1 blair 10:32 validation_char.csv</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-Attention-Model"><a href="#2-2-Attention-Model" class="headerlink" title="2.2 Attention Model"></a>2.2 Attention Model</h3><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://challenger.ai/competition/fsauor2018" target="_blank" rel="external">比赛官网 https://challenger.ai</a></li>
 <li><a href="https://challenger.ai/competition/fsauor2018" target="_blank" rel="external">AI-Challenger Baseline 细粒度用户评论情感分析 (0.70201) 前篇</a></li>
 </ul>
@@ -136,7 +143,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#细粒度用户评论情感分析"><span class="toc-number"></span> <span class="toc-text">细粒度用户评论情感分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Seq2Seq"><span class="toc-number"></span> <span class="toc-text">Seq2Seq</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#细粒度用户评论情感分析"><span class="toc-number"></span> <span class="toc-text">细粒度用户评论情感分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-fastText-baseline"><span class="toc-number"></span> <span class="toc-text">1. fastText baseline</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Seq2Seq-Attention"><span class="toc-number"></span> <span class="toc-text">2. Seq2Seq Attention</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-预处理数据-data"><span class="toc-number"></span> <span class="toc-text">2.1 预处理数据 data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Attention-Model"><span class="toc-number"></span> <span class="toc-text">2.2 Attention Model</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
