@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="第一部分
+1. 数据预处理2. 定义模型3. 设置模型参数tf.app.flags.DEFINE_integer(&apos;rnn_size&apos;, 1024, &apos;Number of hidden units in each layer&apos;)tf.app.flags.DEFINE_integer(&apos;num_layers&apos;, 2, &apos;Number of layers in each encoder and dec">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Home">
+<meta property="og:url" content="http://iequa.com/chatbot_project/index.html">
+<meta property="og:site_name" content="Home">
+<meta property="og:description" content="第一部分
+1. 数据预处理2. 定义模型3. 设置模型参数tf.app.flags.DEFINE_integer(&apos;rnn_size&apos;, 1024, &apos;Number of hidden units in each layer&apos;)tf.app.flags.DEFINE_integer(&apos;num_layers&apos;, 2, &apos;Number of layers in each encoder and dec">
+<meta property="og:updated_time" content="2019-01-09T11:28:51.496Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Home">
+<meta name="twitter:description" content="第一部分
+1. 数据预处理2. 定义模型3. 设置模型参数tf.app.flags.DEFINE_integer(&apos;rnn_size&apos;, 1024, &apos;Number of hidden units in each layer&apos;)tf.app.flags.DEFINE_integer(&apos;num_layers&apos;, 2, &apos;Number of layers in each encoder and dec">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/chatbot">Bot</a>
+        
+          <a class="main-nav-link" href="/tensorflow">PyTorch</a>
+        
+          <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="page-undefined" class="article article-type-page" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+    <div class="article-meta">
+      <!--<a href="/chatbot_project/index.html" class="article-date">
+  <time datetime="2019-01-09T11:28:51.515Z" itemprop="datePublished">2019-01-09</time>
+</a>-->
+      <!-- 
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/chatbot_project/index.html#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>第一部分</p>
+<h3 id="1-数据预处理"><a href="#1-数据预处理" class="headerlink" title="1. 数据预处理"></a>1. 数据预处理</h3><h3 id="2-定义模型"><a href="#2-定义模型" class="headerlink" title="2. 定义模型"></a>2. 定义模型</h3><h3 id="3-设置模型参数"><a href="#3-设置模型参数" class="headerlink" title="3. 设置模型参数"></a>3. 设置模型参数</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'rnn_size'</span>, <span class="number">1024</span>, <span class="string">'Number of hidden units in each layer'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'num_layers'</span>, <span class="number">2</span>, <span class="string">'Number of layers in each encoder and decoder'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'embedding_size'</span>, <span class="number">1024</span>, <span class="string">'Embedding dimensions of encoder and decoder inputs'</span>)</span><br><span class="line"></span><br><span class="line">tf.app.flags.DEFINE_float(<span class="string">'learning_rate'</span>, <span class="number">0.0001</span>, <span class="string">'Learning rate'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'batch_size'</span>, <span class="number">128</span>, <span class="string">'Batch size'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'numEpochs'</span>, <span class="number">30</span>, <span class="string">'Maximum # of training epochs'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'steps_per_checkpoint'</span>, <span class="number">100</span>, <span class="string">'Save model checkpoint every this iteration'</span>)</span><br><span class="line">tf.app.flags.DEFINE_string(<span class="string">'model_dir'</span>, <span class="string">'model/'</span>, <span class="string">'Path to save model checkpoints'</span>)</span><br><span class="line">tf.app.flags.DEFINE_string(<span class="string">'model_name'</span>, <span class="string">'chatbot.ckpt'</span>, <span class="string">'File name used for model checkpoints'</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="4-构建-batch"><a href="#4-构建-batch" class="headerlink" title="4. 构建 batch"></a>4. 构建 batch</h3><p>padToken, goToken, eosToken, unknownToken = 0, 1, 2, 3</p>
+<p>每个epoch之前都要进行样本的shuffle</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">max_source_length = max(batch.encoder_inputs_length)</span><br><span class="line">max_target_length = max(batch.decoder_targets_length)</span><br></pre></td></tr></table></figure>
+<p>将source进行反序并PAD值本batch的最大长度</p>
+<p>样本的shuffle</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Batch</span>:</span></span><br><span class="line">    <span class="comment"># batch类，里面包含了encoder输入，decoder输入，各自最大长度</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.encoder_inputs = []</span><br><span class="line">        self.encoder_inputs_length = []</span><br><span class="line">        self.decoder_targets = []</span><br><span class="line">        self.decoder_targets_length = []</span><br></pre></td></tr></table></figure>
+<p>self.encoder_inputs = [[source1], [source2], [source3], …, [source_n]]</p>
+<p>self.decoder_targets = [[target1], [target2], [target3], …, [target_n]]</p>
+<blockquote>
+<p>source 是 pad + reversed(source) 的结果<br>target 是 target + pad</p>
+</blockquote>
+<h3 id="5-model"><a href="#5-model" class="headerlink" title="5. model"></a>5. model</h3><p>rnn_size’, 1024, (隐藏单元的个数)</p>
+<p>max_gradient_norm=5.0</p>
+<h4 id="5-1-encoder"><a href="#5-1-encoder" class="headerlink" title="5.1 encoder"></a>5.1 encoder</h4><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">'encoder'</span>):</span><br><span class="line">    <span class="comment"># 创建LSTMCell，两层+dropout</span></span><br><span class="line">    encoder_cell = self._create_rnn_cell()</span><br><span class="line">    <span class="comment"># 构建embedding矩阵,encoder和decoder公用该词向量矩阵</span></span><br><span class="line">    embedding = tf.get_variable(<span class="string">'embedding'</span>, [self.vocab_size, self.embedding_size])</span><br><span class="line">    encoder_inputs_embedded = tf.nn.embedding_lookup(embedding, self.encoder_inputs)</span><br><span class="line">    <span class="comment"># 使用dynamic_rnn构建LSTM模型，将输入编码成隐层向量。</span></span><br><span class="line">    <span class="comment"># encoder_outputs 用于 attention，batch_size*encoder_inputs_length*rnn_size,</span></span><br><span class="line">    <span class="comment"># encoder_state   用于 decoder 的初始化状态，batch_size*rnn_szie</span></span><br><span class="line">    encoder_outputs, encoder_state = tf.nn.dynamic_rnn(encoder_cell, encoder_inputs_embedded,</span><br><span class="line">                                                       sequence_length=self.encoder_inputs_length,</span><br><span class="line">                                                       dtype=tf.float32)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a href="https://blog.csdn.net/John_xyz/article/details/60882535" target="_blank" rel="external">tf.nn.embedding_lookup()的用法</a></li>
+</ul>
+<h3 id="5-2-decode"><a href="#5-2-decode" class="headerlink" title="5.2 decode"></a>5.2 decode</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention...</span><br><span class="line"></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义decoder阶段的初始化状态，直接使用encoder阶段的最后一个隐层状态进行赋值</span></span><br><span class="line">decoder_initial_state = decoder_cell.zero_state(batch_size=batch_size, dtype=tf.float32).clone(cell_state=encoder_state)</span><br><span class="line"></span><br><span class="line">output_layer = tf.layers.Dense(self.vocab_size, ...</span><br></pre></td></tr></table></figure>
+<p><a href="https://github.com/blair101/seq2seq_chatbot/blob/master/new_seq2seq_chatbot/model.py" target="_blank" rel="external">decode self.mode == ‘train’</a></p>
+<h3 id="6-train"><a href="#6-train" class="headerlink" title="6. train"></a>6. train</h3><p>perplexity = math.exp(float(loss)) if loss &lt; 300 else float(‘inf’)</p>
+
+      
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-数据预处理"><span class="toc-number"></span> <span class="toc-text">1. 数据预处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-定义模型"><span class="toc-number"></span> <span class="toc-text">2. 定义模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-设置模型参数"><span class="toc-number"></span> <span class="toc-text">3. 设置模型参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-构建-batch"><span class="toc-number"></span> <span class="toc-text">4. 构建 batch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-model"><span class="toc-number"></span> <span class="toc-text">5. model</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-1-encoder"><span class="toc-number"></span> <span class="toc-text">5.1 encoder</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-decode"><span class="toc-number"></span> <span class="toc-text">5.2 decode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-train"><span class="toc-number"></span> <span class="toc-text">6. train</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+
+      </footer>
+    
+  </div>
+  
+    
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Libin Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/chatbot_project/index.html';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
