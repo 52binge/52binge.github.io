@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="第一部分
 1. 数据预处理2. 定义模型3. 设置模型参数tf.app.flags.DEFINE_integer(&apos;rnn_size&apos;, 1024, &apos;Number of hidden units in each layer&apos;)tf.app.flags.DEFINE_integer(&apos;num_layers&apos;, 2, &apos;Number of layers in each encoder and dec">
-<meta property="og:updated_time" content="2019-01-11T06:58:53.051Z">
+<meta property="og:updated_time" content="2019-01-14T03:22:39.865Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="第一部分
@@ -79,7 +79,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/chatbot_project/index.html" class="article-date">
-  <time datetime="2019-01-11T06:58:53.062Z" itemprop="datePublished">2019-01-11</time>
+  <time datetime="2019-01-14T03:22:39.876Z" itemprop="datePublished">2019-01-14</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -111,6 +111,7 @@ var _hmt = _hmt || [];
 <h4 id="5-1-encoder"><a href="#5-1-encoder" class="headerlink" title="5.1 encoder"></a>5.1 encoder</h4><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">'encoder'</span>):</span><br><span class="line">    <span class="comment"># 创建LSTMCell，两层+dropout</span></span><br><span class="line">    encoder_cell = self._create_rnn_cell()</span><br><span class="line">    <span class="comment"># 构建embedding矩阵,encoder和decoder公用该词向量矩阵</span></span><br><span class="line">    embedding = tf.get_variable(<span class="string">'embedding'</span>, [self.vocab_size, self.embedding_size])</span><br><span class="line">    encoder_inputs_embedded = tf.nn.embedding_lookup(embedding, self.encoder_inputs)</span><br><span class="line">    <span class="comment"># 使用dynamic_rnn构建LSTM模型，将输入编码成隐层向量。</span></span><br><span class="line">    <span class="comment"># encoder_outputs 用于 attention，batch_size*encoder_inputs_length*rnn_size,</span></span><br><span class="line">    <span class="comment"># encoder_state   用于 decoder 的初始化状态，batch_size*rnn_szie</span></span><br><span class="line">    encoder_outputs, encoder_state = tf.nn.dynamic_rnn(encoder_cell, encoder_inputs_embedded,</span><br><span class="line">                                                       sequence_length=self.encoder_inputs_length,</span><br><span class="line">                                                       dtype=tf.float32)</span><br></pre></td></tr></table></figure>
 <ul>
 <li><a href="https://blog.csdn.net/John_xyz/article/details/60882535" target="_blank" rel="external">tf.nn.embedding_lookup()的用法</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/43041436" target="_blank" rel="external">tf.nn.dynamic_rnn 详解</a></li>
 </ul>
 <h3 id="5-2-decode"><a href="#5-2-decode" class="headerlink" title="5.2 decode"></a>5.2 decode</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention...</span><br><span class="line"></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义decoder阶段的初始化状态，直接使用encoder阶段的最后一个隐层状态进行赋值</span></span><br><span class="line">decoder_initial_state = decoder_cell.zero_state(batch_size=batch_size, dtype=tf.float32).clone(cell_state=encoder_state)</span><br><span class="line"></span><br><span class="line">output_layer = tf.layers.Dense(self.vocab_size, ...</span><br></pre></td></tr></table></figure>
 <p><a href="https://github.com/blair101/seq2seq_chatbot/blob/master/new_seq2seq_chatbot/model.py" target="_blank" rel="external">decode self.mode == ‘train’</a></p>
