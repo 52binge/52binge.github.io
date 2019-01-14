@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="第一部分
 1. 数据预处理2. 定义模型3. 设置模型参数tf.app.flags.DEFINE_integer(&apos;rnn_size&apos;, 1024, &apos;Number of hidden units in each layer&apos;)tf.app.flags.DEFINE_integer(&apos;num_layers&apos;, 2, &apos;Number of layers in each encoder and dec">
-<meta property="og:updated_time" content="2019-01-14T09:25:43.407Z">
+<meta property="og:updated_time" content="2019-01-14T09:29:21.516Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="第一部分
@@ -79,7 +79,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/chatbot_project/index.html" class="article-date">
-  <time datetime="2019-01-14T09:25:43.429Z" itemprop="datePublished">2019-01-14</time>
+  <time datetime="2019-01-14T09:29:21.527Z" itemprop="datePublished">2019-01-14</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -127,7 +127,10 @@ var _hmt = _hmt || [];
 <p>常人写可能就一个for循环，但是源码很复杂，为了保证健壮性.</p>
 </blockquote>
 <p><a href="https://github.com/blair101/seq2seq_chatbot/blob/master/new_seq2seq_chatbot/model.py" target="_blank" rel="external">decode self.mode == ‘train’</a></p>
-<h3 id="6-train"><a href="#6-train" class="headerlink" title="6. train"></a>6. train</h3><p>perplexity = math.exp(float(loss)) if loss &lt; 300 else float(‘inf’)</p>
+<h3 id="6-train"><a href="#6-train" class="headerlink" title="6. train"></a>6. train</h3><p>训练时，优化梯度求解计算</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">optimizer = tf.train.AdamOptimizer(self.learing_rate)</span><br><span class="line">trainable_params = tf.trainable_variables()</span><br><span class="line">gradients = tf.gradients(self.loss, trainable_params)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 其中 global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))</span></span><br><span class="line"><span class="comment"># global_norm 是所有梯度的平方和，如果 clip_norm &gt; global_norm ，就不进行截取</span></span><br><span class="line"><span class="comment"># clip_norm = self.max_gradient_norm</span></span><br><span class="line"><span class="comment"># t_list[i] * clip_norm / max(global_norm, clip_norm)</span></span><br><span class="line">clip_gradients, _ = tf.clip_by_global_norm(gradients, self.max_gradient_norm)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用梯度 apply_gradients</span></span><br><span class="line">self.train_op = optimizer.apply_gradients(zip(clip_gradients, trainable_params))</span><br></pre></td></tr></table></figure>
+<p>loss</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">perplexity = math.exp(float(loss)) <span class="keyword">if</span> loss &lt; <span class="number">300</span> <span class="keyword">else</span> float(<span class="string">'inf'</span>)</span><br></pre></td></tr></table></figure>
 
       
     
