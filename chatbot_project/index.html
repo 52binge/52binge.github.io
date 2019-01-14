@@ -13,7 +13,7 @@
 <meta property="og:site_name" content="Home">
 <meta property="og:description" content="第一部分
 1. 数据预处理2. 定义模型3. 设置模型参数tf.app.flags.DEFINE_integer(&apos;rnn_size&apos;, 1024, &apos;Number of hidden units in each layer&apos;)tf.app.flags.DEFINE_integer(&apos;num_layers&apos;, 2, &apos;Number of layers in each encoder and dec">
-<meta property="og:updated_time" content="2019-01-09T11:28:51.496Z">
+<meta property="og:updated_time" content="2019-01-11T06:58:53.051Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="第一部分
@@ -52,7 +52,7 @@ var _hmt = _hmt || [];
         
           <a class="main-nav-link" href="/chatbot">Bot</a>
         
-          <a class="main-nav-link" href="/tensorflow">PyTorch</a>
+          <a class="main-nav-link" href="/tensorflow">TF</a>
         
           <a class="main-nav-link" href="/deeplearning">Deep Learning</a>
         
@@ -79,7 +79,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/chatbot_project/index.html" class="article-date">
-  <time datetime="2019-01-09T11:28:51.515Z" itemprop="datePublished">2019-01-09</time>
+  <time datetime="2019-01-11T06:58:53.062Z" itemprop="datePublished">2019-01-11</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -114,6 +114,8 @@ var _hmt = _hmt || [];
 </ul>
 <h3 id="5-2-decode"><a href="#5-2-decode" class="headerlink" title="5.2 decode"></a>5.2 decode</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention...</span><br><span class="line"></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义decoder阶段的初始化状态，直接使用encoder阶段的最后一个隐层状态进行赋值</span></span><br><span class="line">decoder_initial_state = decoder_cell.zero_state(batch_size=batch_size, dtype=tf.float32).clone(cell_state=encoder_state)</span><br><span class="line"></span><br><span class="line">output_layer = tf.layers.Dense(self.vocab_size, ...</span><br></pre></td></tr></table></figure>
 <p><a href="https://github.com/blair101/seq2seq_chatbot/blob/master/new_seq2seq_chatbot/model.py" target="_blank" rel="external">decode self.mode == ‘train’</a></p>
+<p>使用 TrainingHelper+BasicDecoder 的组合</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=decoder_inputs_embedded, sequence_length=self.decoder_targets_length,time_major=<span class="keyword">False</span>, name=<span class="string">'training_helper'</span>)</span><br><span class="line"></span><br><span class="line">training_decoder = tf.contrib.seq2seq.BasicDecoder(cell=decoder_cell, helper=training_helper, initial_state=decoder_initial_state,output_layer=output_layer)</span><br></pre></td></tr></table></figure>
 <h3 id="6-train"><a href="#6-train" class="headerlink" title="6. train"></a>6. train</h3><p>perplexity = math.exp(float(loss)) if loss &lt; 300 else float(‘inf’)</p>
 
       
