@@ -23,7 +23,7 @@ L1 L2 Dropout、梯度爆炸和梯度弥散、Weight init、Gradient checking
 mini-batch、指数加权平均-偏差修正、Momentum、RMSprop、Adam、α decay、局部优
 
 word2vec (Negative Sampling、 Hierarchical Softmax、 fastText 联系)">
-<meta property="og:updated_time" content="2019-01-20T01:01:42.749Z">
+<meta property="og:updated_time" content="2019-01-24T11:52:06.486Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="1. deep learning请点击链接
@@ -143,7 +143,99 @@ var _hmt = _hmt || [];
 <li>Attention机制的计算细节和公式是怎样的，然后我就介绍了一下公式的计算方法，然后说了一下改进的方案等。</li>
 <li>MMI模型第一个改进目标函数中P(T)是如何计算的？ 我说每个词的联合概率分布乘积，当时他面露疑问，我还没反应过来是什么意思，到后面有说到这个问题才明白，原来他的意思是P(T)应该是单纯语言模型学习出来的结果，而按照我的说法，P(T)是在输入的基础上进行计算的</li>
 </ol>
-<h2 id="4-细粒度情感分类-project"><a href="#4-细粒度情感分类-project" class="headerlink" title="4. 细粒度情感分类 project"></a>4. 细粒度情感分类 project</h2><h2 id="5-信用评分-project"><a href="#5-信用评分-project" class="headerlink" title="5. 信用评分 project"></a>5. 信用评分 project</h2><h2 id="6-其他-help"><a href="#6-其他-help" class="headerlink" title="6. 其他 help"></a>6. 其他 help</h2><h3 id="Seq2Seq"><a href="#Seq2Seq" class="headerlink" title="Seq2Seq"></a>Seq2Seq</h3><ol>
+<h3 id="3-1-数据预处理"><a href="#3-1-数据预处理" class="headerlink" title="3.1 数据预处理"></a>3.1 数据预处理</h3><h3 id="3-2-定义模型"><a href="#3-2-定义模型" class="headerlink" title="3.2 定义模型"></a>3.2 定义模型</h3><h3 id="3-3-设置模型参数"><a href="#3-3-设置模型参数" class="headerlink" title="3.3 设置模型参数"></a>3.3 设置模型参数</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'rnn_size'</span>, <span class="number">1024</span>, <span class="string">'Number of hidden units in each layer'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'num_layers'</span>, <span class="number">2</span>, <span class="string">'Number of layers in each encoder and decoder'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'embedding_size'</span>, <span class="number">1024</span>, <span class="string">'Embedding dimensions of encoder and decoder inputs'</span>)</span><br><span class="line"></span><br><span class="line">tf.app.flags.DEFINE_float(<span class="string">'learning_rate'</span>, <span class="number">0.0001</span>, <span class="string">'Learning rate'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'batch_size'</span>, <span class="number">128</span>, <span class="string">'Batch size'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'numEpochs'</span>, <span class="number">30</span>, <span class="string">'Maximum # of training epochs'</span>)</span><br><span class="line">tf.app.flags.DEFINE_integer(<span class="string">'steps_per_checkpoint'</span>, <span class="number">100</span>, <span class="string">'Save model checkpoint every this iteration'</span>)</span><br><span class="line">tf.app.flags.DEFINE_string(<span class="string">'model_dir'</span>, <span class="string">'model/'</span>, <span class="string">'Path to save model checkpoints'</span>)</span><br><span class="line">tf.app.flags.DEFINE_string(<span class="string">'model_name'</span>, <span class="string">'chatbot.ckpt'</span>, <span class="string">'File name used for model checkpoints'</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-4-构建-batch"><a href="#3-4-构建-batch" class="headerlink" title="3.4 构建 batch"></a>3.4 构建 batch</h3><p>padToken, goToken, eosToken, unknownToken = 0, 1, 2, 3</p>
+<p>每个epoch之前都要进行样本的shuffle</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">max_source_length = max(batch.encoder_inputs_length)</span><br><span class="line">max_target_length = max(batch.decoder_targets_length)</span><br></pre></td></tr></table></figure>
+<p>将source进行反序并PAD值本batch的最大长度</p>
+<p>样本的shuffle</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Batch</span>:</span></span><br><span class="line">    <span class="comment"># batch类，里面包含了encoder输入，decoder输入，各自最大长度</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.encoder_inputs = []</span><br><span class="line">        self.encoder_inputs_length = []</span><br><span class="line">        self.decoder_targets = []</span><br><span class="line">        self.decoder_targets_length = []</span><br></pre></td></tr></table></figure>
+<p>self.encoder_inputs = [[source1], [source2], [source3], …, [source_n]]</p>
+<p>self.decoder_targets = [[target1], [target2], [target3], …, [target_n]]</p>
+<blockquote>
+<p>source 是 pad + reversed(source) 的结果<br>target 是 target + pad</p>
+</blockquote>
+<h3 id="3-5-model"><a href="#3-5-model" class="headerlink" title="3.5 model"></a>3.5 model</h3><p>rnn_size’, 1024, (隐藏单元的个数)</p>
+<p>max_gradient_norm=5.0</p>
+<h4 id="3-5-1-encoder"><a href="#3-5-1-encoder" class="headerlink" title="3.5.1 encoder"></a>3.5.1 encoder</h4><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">'encoder'</span>):</span><br><span class="line">    <span class="comment"># 创建LSTMCell，两层+dropout</span></span><br><span class="line">    encoder_cell = self._create_rnn_cell()</span><br><span class="line">    <span class="comment"># 构建embedding矩阵,encoder和decoder公用该词向量矩阵</span></span><br><span class="line">    embedding = tf.get_variable(<span class="string">'embedding'</span>, [self.vocab_size, self.embedding_size])</span><br><span class="line">    encoder_inputs_embedded = tf.nn.embedding_lookup(embedding, self.encoder_inputs)</span><br><span class="line">    <span class="comment"># 使用dynamic_rnn构建LSTM模型，将输入编码成隐层向量。</span></span><br><span class="line">    <span class="comment"># encoder_outputs 用于 attention，batch_size*encoder_inputs_length*rnn_size,</span></span><br><span class="line">    <span class="comment"># encoder_state   用于 decoder 的初始化状态，batch_size*rnn_szie</span></span><br><span class="line">    encoder_outputs, encoder_state = tf.nn.dynamic_rnn(encoder_cell, encoder_inputs_embedded,</span><br><span class="line">                                                       sequence_length=self.encoder_inputs_length,</span><br><span class="line">                                                       dtype=tf.float32)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a href="https://blog.csdn.net/John_xyz/article/details/60882535" target="_blank" rel="external">tf.nn.embedding_lookup()的用法</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/43041436" target="_blank" rel="external">tf.nn.dynamic_rnn 详解</a></li>
+</ul>
+<h4 id="3-5-2-decode"><a href="#3-5-2-decode" class="headerlink" title="3.5.2 decode"></a>3.5.2 decode</h4><figure class="highlight py"><table><tr><td class="code"><pre><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention...</span><br><span class="line"></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper...</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义decoder阶段的初始化状态，直接使用encoder阶段的最后一个隐层状态进行赋值</span></span><br><span class="line">decoder_initial_state = decoder_cell.zero_state(batch_size=batch_size, dtype=tf.float32).clone(cell_state=encoder_state)</span><br><span class="line"></span><br><span class="line">output_layer = tf.layers.Dense(self.vocab_size, ...</span><br></pre></td></tr></table></figure>
+<p>训练阶段， 使用 TrainingHelper+BasicDecoder 的组合：</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=decoder_inputs_embedded, sequence_length=self.decoder_targets_length,time_major=<span class="keyword">False</span>, name=<span class="string">'training_helper'</span>)</span><br><span class="line"></span><br><span class="line">training_decoder = tf.contrib.seq2seq.BasicDecoder(cell=decoder_cell, helper=training_helper, initial_state=decoder_initial_state,output_layer=output_layer)</span><br></pre></td></tr></table></figure>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> self.mode == <span class="string">'train'</span>:</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 定义decoder阶段的输入，其实就是在decoder的target开始处添加一个&lt;go&gt;,并删除结尾处的&lt;end&gt;,并进行embedding。</span></span><br><span class="line">    <span class="comment"># decoder_inputs_embedded的shape为[batch_size, decoder_targets_length, embedding_size]</span></span><br><span class="line">    ending = tf.strided_slice(self.decoder_targets, [<span class="number">0</span>, <span class="number">0</span>], [self.batch_size, <span class="number">-1</span>], [<span class="number">1</span>, <span class="number">1</span>])</span><br><span class="line">    decoder_input = tf.concat([tf.fill([self.batch_size, <span class="number">1</span>], self.word_to_idx[<span class="string">'&lt;go&gt;'</span>]), ending], <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    decoder_inputs_embedded = tf.nn.embedding_lookup(embedding, decoder_input)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 训练阶段，使用TrainingHelper+BasicDecoder的组合，这一般是固定的，当然也可以自己定义Helper类，实现自己的功能</span></span><br><span class="line">    training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=decoder_inputs_embedded,</span><br><span class="line">                                                        sequence_length=self.decoder_targets_length,</span><br><span class="line">                                                        time_major=<span class="keyword">False</span>, name=<span class="string">'training_helper'</span>)</span><br><span class="line"></span><br><span class="line">    training_decoder = tf.contrib.seq2seq.BasicDecoder(cell=decoder_cell, helper=training_helper,</span><br><span class="line">                                                       initial_state=decoder_initial_state,</span><br><span class="line">                                                       output_layer=output_layer)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 调用dynamic_decode进行解码，decoder_outputs是一个namedtuple，里面包含两项(rnn_outputs, sample_id)</span></span><br><span class="line">    <span class="comment"># rnn_output: [batch_size, decoder_targets_length, vocab_size]，保存decode每个时刻每个单词的概率，可以用来计算loss</span></span><br><span class="line">    <span class="comment"># sample_id: [batch_size], tf.int32，保存最终的编码结果。可以表示最后的答案</span></span><br><span class="line">    </span><br><span class="line">    decoder_outputs, _, _ = tf.contrib.seq2seq.dynamic_decode(decoder=training_decoder,</span><br><span class="line">                                                              impute_finished=<span class="keyword">True</span>,</span><br><span class="line">                                                              maximum_iterations=self.max_target_sequence_length)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>其实简单来讲dynamic_decode就是</p>
+<ol>
+<li>执行decoder的初始化函数</li>
+<li>对解码时刻的state等变量进行初始化</li>
+<li>循环执行 decoder 的 step函数 进行多轮解码</li>
+</ol>
+<p>常人写可能就一个for循环，但是源码很复杂，为了保证健壮性.</p>
+</blockquote>
+<p><a href="https://github.com/blair101/seq2seq_chatbot/blob/master/new_seq2seq_chatbot/model.py" target="_blank" rel="external">decode self.mode == ‘train’</a></p>
+<h3 id="3-6-train"><a href="#3-6-train" class="headerlink" title="3.6 train"></a>3.6 train</h3><p>训练时，优化梯度求解计算</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">optimizer = tf.train.AdamOptimizer(self.learing_rate)</span><br><span class="line">trainable_params = tf.trainable_variables()</span><br><span class="line">gradients = tf.gradients(self.loss, trainable_params)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 其中 global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))</span></span><br><span class="line"><span class="comment"># global_norm 是所有梯度的平方和，如果 clip_norm &gt; global_norm ，就不进行截取</span></span><br><span class="line"><span class="comment"># clip_norm = self.max_gradient_norm</span></span><br><span class="line"><span class="comment"># t_list[i] * clip_norm / max(global_norm, clip_norm)</span></span><br><span class="line">clip_gradients, _ = tf.clip_by_global_norm(gradients, self.max_gradient_norm)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用梯度 apply_gradients</span></span><br><span class="line">self.train_op = optimizer.apply_gradients(zip(clip_gradients, trainable_params))</span><br></pre></td></tr></table></figure>
+<p>loss</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">perplexity = math.exp(float(loss)) <span class="keyword">if</span> loss &lt; <span class="number">300</span> <span class="keyword">else</span> float(<span class="string">'inf'</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="4-文本分类"><a href="#4-文本分类" class="headerlink" title="4. 文本分类"></a>4. 文本分类</h2><ol>
+<li>fasttext</li>
+<li>调参数</li>
+<li>优化</li>
+<li>RCNN</li>
+<li>seq2seq</li>
+<li>TextCNN，TextRNN的模型</li>
+</ol>
+<blockquote>
+<p>fasttext TextCNN RCNN HAN DMN EntityNetwork charCNN charRNN）。需要在总结一下各个模型的优缺点<br>fasttext、CNN、RNN的优缺点各是什么等等<br>为什么fasttext速度很快，然后问了下如果现在在做会采用什么样的方案；<br>说一说 RNN 和 LSTM 的区别和原理</p>
+</blockquote>
+<h2 id="5-细粒度用户评论情感分析"><a href="#5-细粒度用户评论情感分析" class="headerlink" title="5. 细粒度用户评论情感分析"></a>5. 细粒度用户评论情感分析</h2><p>有20个粒度的评价指标，每个粒度又有4种情感状态，从官方baseline来看，分别训练了20个（4标签）分类器。</p>
+<h3 id="5-1-fastText-baseline"><a href="#5-1-fastText-baseline" class="headerlink" title="5.1 fastText baseline"></a>5.1 fastText baseline</h3><p>要用facebook官方的 fastText 以及自带的 Python fastText 工具包做这件事并不容易，或者说对于20个多标签分类器来说这事很繁琐</p>
+<blockquote>
+<p>skift：scikit-learn wrappers for Python fastText.</p>
+</blockquote>
+<p>默认配置参数训练fasttext多模型，直接运行“python main_train.py” 即可。这样大概跑了不到10分钟，内存峰值占用不到8G，在验证集上得到一个f1均值约为0.5451的fasttext多分类模型(20个），模型存储位置在 model_path 下：fasttext_model.pkl，大概1.8G，在验证集上详细的F1值大致如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">location_traffic_convenience:0.5175700387941342</span><br><span class="line">location_distance_from_business_district:0.427891674259875</span><br><span class="line">location_easy_to_find:0.570805555583767</span><br><span class="line">service_<span class="built_in">wait</span>_time:0.5052181634999748</span><br><span class="line">service_waiters_attitude:0.6766570408968818</span><br><span class="line">service_parking_convenience:0.5814636947460745</span><br><span class="line">service_serving_speed:0.5701241141533907</span><br><span class="line">price_level:0.6161258412096242</span><br><span class="line">price_cost_effective:0.5679586399625348</span><br><span class="line">price_discount:0.5763345656700684</span><br><span class="line">environment_decoration:0.5554146717297597</span><br><span class="line">environment_noise:0.563452055291662</span><br><span class="line">environment_space:0.5288336794721515</span><br><span class="line">environment_cleaness:0.5511776910510577</span><br><span class="line">dish_portion:0.5527095496220675</span><br><span class="line">dish_taste:0.6114994440656155</span><br><span class="line">dish_look:0.43750894239614163</span><br><span class="line">dish_recommendation:0.41756941548558957</span><br><span class="line">others_overall_experience:0.5322283082904627</span><br><span class="line">others_willing_to_consume_again:0.5404900044311536</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">2018-10-02 14:32:18,927 [INFO]  (MainThread) f1_score: 0.5450516545305993</span><br></pre></td></tr></table></figure>
+<p>调参：</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">python main_train.py -mn fasttext_wn2_model.pkl -wn <span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>这次大约跑了15分钟，内存峰值最大到37G，存储的模型大约在17G，验证集F1值结果如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">location_traffic_convenience:0.5482785384602362</span><br><span class="line">location_distance_from_business_district:0.4310319720574882</span><br><span class="line">location_easy_to_find:0.6140713866422334</span><br><span class="line">service_<span class="built_in">wait</span>_time:0.5247890022873511</span><br><span class="line">service_waiters_attitude:0.6881098513108542</span><br><span class="line">service_parking_convenience:0.5828935095474249</span><br><span class="line">service_serving_speed:0.6168828054420539</span><br><span class="line">price_level:0.6615100420842464</span><br><span class="line">price_cost_effective:0.5954569043369508</span><br><span class="line">price_discount:0.5744529736585073</span><br><span class="line">environment_decoration:0.5743996877298929</span><br><span class="line">environment_noise:0.6186211367923496</span><br><span class="line">environment_space:0.5981761036053918</span><br><span class="line">environment_cleaness:0.6002515744280692</span><br><span class="line">dish_portion:0.5733503000134572</span><br><span class="line">dish_taste:0.6075507493398153</span><br><span class="line">dish_look:0.4424685719881029</span><br><span class="line">dish_recommendation:0.5936671419596734</span><br><span class="line">others_overall_experience:0.5325664419580063</span><br><span class="line">others_willing_to_consume_again:0.5875683298630815</span><br><span class="line"></span><br><span class="line">2018-10-02 14:53:00,701 [INFO]  (MainThread) f1_score: 0.5783048511752592</span><br></pre></td></tr></table></figure>
+<p>这个结果看起来还不错，我们可以基于这个fasttext多分类模型进行测试集的预测：</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">python main_predict.py -mn fasttext_wn2_model.pkl</span><br></pre></td></tr></table></figure>
+<p>大约运行不到3分钟，预测结果就出炉了，可以在 test_data_predict_output_path 找到这个预测输出文件: testa_predict.csv ，然后就可以去官网提交了，在线提交的结果和验证集F1值大致相差0.01~0.02。这里还可以做一些事情来优化结果，譬如去停用词，不过我试了去停用词和去一些标点符号，结果还有一些降低；<strong>调参，learning_rate的影响是比较直接的</strong>，min_count设置为2貌似也有一些负向影响，有兴趣的同学可以多试试，寻找一个最优组合。</p>
+<h3 id="5-2-Seq2Seq-Attention"><a href="#5-2-Seq2Seq-Attention" class="headerlink" title="5.2 Seq2Seq Attention"></a>5.2 Seq2Seq Attention</h3><ul>
+<li>jieba 分词</li>
+<li>建立词典时，过滤掉出现次数小于 5 的词</li>
+<li>训练集、验证集 以及 测试集A组成的语料，词典大小为 66347</li>
+<li>预测和训练时，词典没有出现的词 用 <code>&lt;UNK&gt;</code> 代替</li>
+</ul>
+<blockquote>
+<p>模型：Attention-RCNN、Attention-RNN</p>
+</blockquote>
+<p>直接使用的是char模型，不需要分词，用到的停用词也不多。粗暴但实测效果比 word level 好。</p>
+<h3 id="5-3-预处理数据-data"><a href="#5-3-预处理数据-data" class="headerlink" title="5.3 预处理数据 data"></a>5.3 预处理数据 data</h3><ul>
+<li>trainsets lines：  501132， 合法例子 ： 105000</li>
+<li>validationset lines：  70935, 合法例子 ： 15000</li>
+<li>testsets lines：  72028， 合法例子 ： 15000</li>
+</ul>
+<p><strong>word2vec：</strong> 维度 100， 窗口 10， 过滤掉次数小于 1 的词</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">3.1M chars.vector</span><br></pre></td></tr></table></figure>
+<p>数据预处理，在 preprocess 文件夹下生成了 train_char.csv、test_char.csv、test_char.csv 三个文件。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-rw-r--r--  1 blair 10:36 <span class="built_in">test</span>_char.csv</span><br><span class="line">-rw-r--r--  1 blair 10:09 train_char.csv</span><br><span class="line">-rw-r--r--  1 blair 10:32 validation_char.csv</span><br></pre></td></tr></table></figure>
+<h3 id="5-4-Attention-Model"><a href="#5-4-Attention-Model" class="headerlink" title="5.4 Attention Model"></a>5.4 Attention Model</h3><ul>
+<li>参考自 Kaggle 的 <a href="https://www.kaggle.com/qqgeogor/keras-lstm-attention-glove840b-lb-0-043" target="_blank" rel="external">Attention Model</a></li>
+</ul>
+<h2 id="6-写代码"><a href="#6-写代码" class="headerlink" title="6. 写代码"></a>6. 写代码</h2><ol>
+<li>剑指offer</li>
+<li>现场写tf代码 简单的</li>
+<li>用tensorflow实现一个</li>
+</ol>
+<blockquote>
+<p>个人定位： 是深度学习与NLP， 不断地展现自己在深度学习上的造诣</p>
+</blockquote>
+<h2 id="7-信用评分-project"><a href="#7-信用评分-project" class="headerlink" title="7. 信用评分 project"></a>7. 信用评分 project</h2><h2 id="8-其他-help"><a href="#8-其他-help" class="headerlink" title="8. 其他 help"></a>8. 其他 help</h2><h3 id="8-1-Seq2Seq"><a href="#8-1-Seq2Seq" class="headerlink" title="8.1 Seq2Seq"></a>8.1 Seq2Seq</h3><ol>
 <li>seq2seq模型，seq2seq的缺点, attention机制</li>
 <li>attention的公式，怎样计算得分和权重</li>
 <li>soft attention 和 hard attention的区别</li>
@@ -155,10 +247,11 @@ var _hmt = _hmt || [];
 <li><a href="https://www.jianshu.com/p/c0c5f1bdbb88" target="_blank" rel="external">Tensorflow动态seq2seq使用总结</a></li>
 <li><a href="https://www.cnblogs.com/zhouyang209117/p/8338193.html" target="_blank" rel="external">荷楠仁 tensorflow sequence_loss</a></li>
 </ul>
-<h3 id="多标签分类"><a href="#多标签分类" class="headerlink" title="多标签分类"></a>多标签分类</h3><ol>
+<h3 id="8-2-多标签分类"><a href="#8-2-多标签分类" class="headerlink" title="8.2 多标签分类"></a>8.2 多标签分类</h3><ol>
 <li>都用过那些模型实现文本分类？</li>
 <li>现在文本分类中还有哪些没有解决的问题，我想了会说样本不平衡问题？</li>
 <li>多标签的分类问题，以及损失函数等。</li>
+<li>FastText，CNN，RNN的区别？</li>
 </ol>
 <p>在文本分类任务中，有哪些论文中很少提及却对性能有重要影响的tricks？</p>
 <blockquote>
@@ -173,15 +266,7 @@ var _hmt = _hmt || [];
 <li>之前还见别人在文本领域用过数据增强的方法，就是对文本进行随机的shuffle和drop等操作来增加数据量</li>
 </ol>
 </blockquote>
-<h3 id="deep"><a href="#deep" class="headerlink" title="deep"></a>deep</h3><ol>
-<li>FastText，CNN，RNN的区别？</li>
-</ol>
-<blockquote>
-<p>对话 与 多标签分类 是重中之重</p>
-</blockquote>
-<h3 id="临时突击"><a href="#临时突击" class="headerlink" title="临时突击"></a>临时突击</h3><p>无外乎是一些正则化、dropout、BN、LR推导、交叉熵损失函数、softmax求导、BP反向传播、过拟合、BPTT反向传播、梯度爆炸和梯度弥散、ReLu、激活函数、文本分类、对话系统评价指标、word2vec、attention、seq2seq、优化算法、GBDT、Bagging、Boosting等等等等</p>
-<p>但是我感觉临时突击这些东西价值不大，主要还是看面试的一个整体效果</p>
-<h3 id="深度学习的坑"><a href="#深度学习的坑" class="headerlink" title="深度学习的坑"></a>深度学习的坑</h3><ul>
+<h3 id="8-3-深度学习的坑"><a href="#8-3-深度学习的坑" class="headerlink" title="8.3 深度学习的坑"></a>8.3 深度学习的坑</h3><ul>
 <li><p><a href="https://www.cnblogs.com/rocketfan/p/7482786.html" target="_blank" rel="external">深度学习的坑</a></p>
 </li>
 <li><p><a href="https://www.zhihu.com/question/24059517" target="_blank" rel="external">如何理解互信息公式的含义?</a></p>
@@ -190,12 +275,17 @@ var _hmt = _hmt || [];
 </li>
 </ul>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://zhuanlan.zhihu.com/p/46999592" target="_blank" rel="external">2019 11家互联网公司，NLP面经回馈</a></li>
+<li><a href="/2018/11/08/tensorflow/tf-google-8-rnn-1/">2019 11家互联网公司，NLP面经回馈</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/36387348" target="_blank" rel="external">暑期实习NLP算法岗面经总结</a></li>
 <li><a href="https://www.zhihu.com/question/265357659" target="_blank" rel="external">在文本分类任务中，有哪些论文中很少提及却对性能有重要影响的tricks？</a></li>
 <li><a href="https://blog.csdn.net/liuchonge/article/details/77140719" target="_blank" rel="external">深度学习与文本分类总结第一篇–常用模型总结</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/25928551" target="_blank" rel="external">用深度学习（CNN RNN Attention）解决大规模文本分类问题 - 综述和实践</a></li>
 <li><a href="https://www.zhihu.com/question/59236897" target="_blank" rel="external">严重数据倾斜文本分类，比如正反比1:20～100，适合什么model</a></li>
+<li><a href="https://challenger.ai/competition/fsauor2018" target="_blank" rel="external">比赛官网 https://challenger.ai</a></li>
+<li><a href="https://challenger.ai/competition/fsauor2018" target="_blank" rel="external">AI-Challenger Baseline 细粒度用户评论情感分析 (0.70201) 前篇</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/46999592" target="_blank" rel="external">2019 11家互联网公司，NLP面经回馈</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/36387348" target="_blank" rel="external">暑期实习NLP算法岗面经总结</a></li>
+<li><a href="https://www.zhihu.com/people/liu-he-he-44/posts" target="_blank" rel="external">呜呜哈做一个有思想的码农</a></li>
 </ul>
 
       
@@ -204,7 +294,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-deep-learning"><span class="toc-number"></span> <span class="toc-text">1. deep learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-machine-learning"><span class="toc-number"></span> <span class="toc-text">2. machine learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-chatbot-project"><span class="toc-number"></span> <span class="toc-text">3. chatbot project</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-细粒度情感分类-project"><span class="toc-number"></span> <span class="toc-text">4. 细粒度情感分类 project</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-信用评分-project"><span class="toc-number"></span> <span class="toc-text">5. 信用评分 project</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-其他-help"><span class="toc-number"></span> <span class="toc-text">6. 其他 help</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Seq2Seq"><span class="toc-number"></span> <span class="toc-text">Seq2Seq</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#多标签分类"><span class="toc-number"></span> <span class="toc-text">多标签分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#deep"><span class="toc-number"></span> <span class="toc-text">deep</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#临时突击"><span class="toc-number"></span> <span class="toc-text">临时突击</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#深度学习的坑"><span class="toc-number"></span> <span class="toc-text">深度学习的坑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-deep-learning"><span class="toc-number"></span> <span class="toc-text">1. deep learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-machine-learning"><span class="toc-number"></span> <span class="toc-text">2. machine learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-chatbot-project"><span class="toc-number"></span> <span class="toc-text">3. chatbot project</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-数据预处理"><span class="toc-number"></span> <span class="toc-text">3.1 数据预处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-定义模型"><span class="toc-number"></span> <span class="toc-text">3.2 定义模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-设置模型参数"><span class="toc-number"></span> <span class="toc-text">3.3 设置模型参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-构建-batch"><span class="toc-number"></span> <span class="toc-text">3.4 构建 batch</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-model"><span class="toc-number"></span> <span class="toc-text">3.5 model</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-1-encoder"><span class="toc-number"></span> <span class="toc-text">3.5.1 encoder</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-5-2-decode"><span class="toc-number"></span> <span class="toc-text">3.5.2 decode</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-train"><span class="toc-number"></span> <span class="toc-text">3.6 train</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-文本分类"><span class="toc-number"></span> <span class="toc-text">4. 文本分类</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-细粒度用户评论情感分析"><span class="toc-number"></span> <span class="toc-text">5. 细粒度用户评论情感分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-fastText-baseline"><span class="toc-number"></span> <span class="toc-text">5.1 fastText baseline</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Seq2Seq-Attention"><span class="toc-number"></span> <span class="toc-text">5.2 Seq2Seq Attention</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-预处理数据-data"><span class="toc-number"></span> <span class="toc-text">5.3 预处理数据 data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-Attention-Model"><span class="toc-number"></span> <span class="toc-text">5.4 Attention Model</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-写代码"><span class="toc-number"></span> <span class="toc-text">6. 写代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-信用评分-project"><span class="toc-number"></span> <span class="toc-text">7. 信用评分 project</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-其他-help"><span class="toc-number"></span> <span class="toc-text">8. 其他 help</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-Seq2Seq"><span class="toc-number"></span> <span class="toc-text">8.1 Seq2Seq</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-多标签分类"><span class="toc-number"></span> <span class="toc-text">8.2 多标签分类</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-深度学习的坑"><span class="toc-number"></span> <span class="toc-text">8.3 深度学习的坑</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
