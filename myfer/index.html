@@ -41,7 +41,8 @@ Cornell Movie-Dialogs Corpus 困惑度降到了二十多
 小黄鸡-多语言
 
 从产品完">
-<meta property="og:updated_time" content="2019-01-30T07:59:22.689Z">
+<meta property="og:image" content="http://iequa.com/images/nlp/seq2seq-attention.jpg">
+<meta property="og:updated_time" content="2019-01-31T08:37:39.073Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="1. chatbot
@@ -60,6 +61,7 @@ Cornell Movie-Dialogs Corpus 困惑度降到了二十多
 小黄鸡-多语言
 
 从产品完">
+<meta name="twitter:image" content="http://iequa.com/images/nlp/seq2seq-attention.jpg">
   
   
     <link rel="icon" href="/favicon.png">
@@ -190,15 +192,23 @@ var _hmt = _hmt || [];
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=decoder_inputs_embedded, sequence_length=self.decoder_targets_length,time_major=<span class="keyword">False</span>, name=<span class="string">'training_helper'</span>)</span><br><span class="line"></span><br><span class="line">training_decoder = tf.contrib.seq2seq.BasicDecoder(cell=decoder_cell, helper=training_helper, initial_state=decoder_initial_state,output_layer=output_layer)</span><br></pre></td></tr></table></figure>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> self.mode == <span class="string">'train'</span>:</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 定义decoder阶段的输入，其实就是在decoder的target开始处添加一个&lt;go&gt;,并删除结尾处的&lt;end&gt;,并进行embedding。</span></span><br><span class="line">    <span class="comment"># decoder_inputs_embedded的shape为[batch_size, decoder_targets_length, embedding_size]</span></span><br><span class="line">    ending = tf.strided_slice(self.decoder_targets, [<span class="number">0</span>, <span class="number">0</span>], [self.batch_size, <span class="number">-1</span>], [<span class="number">1</span>, <span class="number">1</span>])</span><br><span class="line">    decoder_input = tf.concat([tf.fill([self.batch_size, <span class="number">1</span>], self.word_to_idx[<span class="string">'&lt;go&gt;'</span>]), ending], <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    decoder_inputs_embedded = tf.nn.embedding_lookup(embedding, decoder_input)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 训练阶段，使用TrainingHelper+BasicDecoder的组合，这一般是固定的，当然也可以自己定义Helper类，实现自己的功能</span></span><br><span class="line">    training_helper = tf.contrib.seq2seq.TrainingHelper(inputs=decoder_inputs_embedded,</span><br><span class="line">                                                        sequence_length=self.decoder_targets_length,</span><br><span class="line">                                                        time_major=<span class="keyword">False</span>, name=<span class="string">'training_helper'</span>)</span><br><span class="line"></span><br><span class="line">    training_decoder = tf.contrib.seq2seq.BasicDecoder(cell=decoder_cell, helper=training_helper,</span><br><span class="line">                                                       initial_state=decoder_initial_state,</span><br><span class="line">                                                       output_layer=output_layer)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 调用dynamic_decode进行解码，decoder_outputs是一个namedtuple，里面包含两项(rnn_outputs, sample_id)</span></span><br><span class="line">    <span class="comment"># rnn_output: [batch_size, decoder_targets_length, vocab_size]，保存decode每个时刻每个单词的概率，可以用来计算loss</span></span><br><span class="line">    <span class="comment"># sample_id: [batch_size], tf.int32，保存最终的编码结果。可以表示最后的答案</span></span><br><span class="line">    </span><br><span class="line">    decoder_outputs, _, _ = tf.contrib.seq2seq.dynamic_decode(decoder=training_decoder,</span><br><span class="line">                                                              impute_finished=<span class="keyword">True</span>,</span><br><span class="line">                                                              maximum_iterations=self.max_target_sequence_length)</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>其实简单来讲dynamic_decode就是</p>
+<p>上面 train 阶段，Teacher Forcing 上面是默认使用了，可以阻断错误积累，斧正模型训练，加快参数收敛.</p>
+<p>但是，有个最大的问题：模型训练好了，到了测试test阶段，你是不能用 Teacher Forcing 的，因为测试阶段你是看不到期望的输出序列的，所以必须乖乖等着上一时刻输出一个单词，下一时刻才能确定该输入什么。不能提前把整个 decoder 的输入序列准备好，也就不能用 dynamic_rnn 函数了</p>
+</blockquote>
+<p>dynamic_decode 函数类似于 dynamic_rnn，帮你自动执行 rnn 的循环，返回完整的输出序列:</p>
+<blockquote>
+<p>其实简单来讲 dynamic_decode 就是</p>
 <ol>
-<li>执行decoder的初始化函数</li>
-<li>对解码时刻的state等变量进行初始化</li>
+<li>执行 decoder 的初始化函数</li>
+<li>对解码时刻的 state 等变量进行初始化</li>
 <li>循环执行 decoder 的 step函数 进行多轮解码</li>
 </ol>
 <p>常人写可能就一个for循环，但是源码很复杂，为了保证健壮性.</p>
 </blockquote>
+<p>心得： helper 的作用，就是可以控制数据流，比如：是否要 Teacher Forcing </p>
+<p>从这里也可以看到训练时使用 Teacher Forcing 可以提升训练速度与质量，但是也会产生一些过拟合的副作用等等，这里不多说了</p>
 <p><a href="https://github.com/blair101/seq2seq_chatbot/blob/master/new_seq2seq_chatbot/model.py" target="_blank" rel="external">decode self.mode == ‘train’</a></p>
+<p><img src="/images/nlp/seq2seq-attention.jpg" width="900"></p>
 <h3 id="1-6-train"><a href="#1-6-train" class="headerlink" title="1.6 train"></a>1.6 train</h3><p>训练时，优化梯度求解计算</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">optimizer = tf.train.AdamOptimizer(self.learing_rate)</span><br><span class="line">trainable_params = tf.trainable_variables()</span><br><span class="line">gradients = tf.gradients(self.loss, trainable_params)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 其中 global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))</span></span><br><span class="line"><span class="comment"># global_norm 是所有梯度的平方和，如果 clip_norm &gt; global_norm ，就不进行截取</span></span><br><span class="line"><span class="comment"># clip_norm = self.max_gradient_norm</span></span><br><span class="line"><span class="comment"># t_list[i] * clip_norm / max(global_norm, clip_norm)</span></span><br><span class="line">clip_gradients, _ = tf.clip_by_global_norm(gradients, self.max_gradient_norm)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 应用梯度 apply_gradients</span></span><br><span class="line">self.train_op = optimizer.apply_gradients(zip(clip_gradients, trainable_params))</span><br></pre></td></tr></table></figure>
 <p>loss</p>
