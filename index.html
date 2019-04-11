@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=L%3D-%5Bylog%5C+%5Chat+y%2B%281-y%29log%5C+%281-%5Chat+y%29%5D">
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=g%28s%29%3D%5Cfrac%7B1%7D%7B1%2Be%5E%7B-s%7D%7D">
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=L%3D-%5Bylog%5C+%5Chat+y%2B%281-y%29log%5C+%281-%5Chat+y%29%5D">
-<meta property="og:updated_time" content="2019-04-11T03:16:18.017Z">
+<meta property="og:updated_time" content="2019-04-11T03:30:12.245Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="一、AI算法基础1. 防止 overfiting 的 8 条迭代方向
@@ -84,7 +84,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/sggo_ai/index.html" class="article-date">
-  <time datetime="2019-04-11T03:16:18.032Z" itemprop="datePublished">2019-04-11</time>
+  <time datetime="2019-04-11T03:30:12.254Z" itemprop="datePublished">2019-04-11</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -137,17 +137,35 @@ var _hmt = _hmt || [];
 <p>MLE 中 <strong>采样</strong> 需满足一个重要的假设，就是所有的采样都是 <strong>独立同分布</strong> 的.</p>
 <p>一句话总结：概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。</p>
 </blockquote>
-<p><strong>3.</strong> SVM 和 LR 的区别与联系？</p>
+<p><strong>4.</strong> SVM 和 LR 的区别与联系？</p>
 <blockquote>
 <p>1). 对非线性表达上，LR 只能通过人工的特征组合来实现，而 SVM 可以很容易引入非线性核函数来实现非线性表达，当然也可以通过特征组合。</p>
 <p>2). LR 产出的是概率值，而SVM只能产出是正类还是负类，不能产出概率。LR 的损失函数是 log loss，而 SVM 使用的是 hinge loss。</p>
 <p>3). SVM 不直接依赖数据分布，而LR则依赖, SVM 主要关注的是“支持向量”，也就是和分类最相关的少数点，即关注局部关键信息；而 LR 是在全局进行优化的。这导致 SVM 天然比 LR 有<strong>更好的泛化能力</strong>，防止过拟合。</p>
 <p>4). 损失函数的优化方法不同，LR 是使用 GD 来求解 <strong>对数似然函数</strong> 的最优解；SVM 使用 (Sequnential Minimal Optimal) 顺序最小优化，来求解条件约束损失函数的对偶形式。</p>
+<hr>
+<p>一般用线性核和高斯核，也就是Linear核与RBF核需要注意的是需要对 <strong>数据归一化处理</strong>.</p>
+<p>一般情况下RBF效果是不会差于Linear但是时间上RBF会耗费更多</p>
 </blockquote>
-<p><strong>4.</strong> GBDT vs Xgboost</p>
-<p><strong>5.</strong> 评估指标 F1 和 auc 的区别是哪些?</p>
-<p><strong>6.</strong> sigmoid 用作激活函数时，分类为什么要用 crossentry loss，而不用均方损失？</p>
-<p><strong>7.</strong> 神经网络中的激活函数的对比？</p>
+<p><strong>Andrew Ng 的见解：</strong></p>
+<blockquote>
+<ol>
+<li>如果Feature的数量很大，跟样本数量差不多，这时候选用LR或者是Linear Kernel的SVM</li>
+<li>如果Feature的数量比较小，样本数量一般，不算大也不算小，选用SVM+Gaussian Kernel</li>
+<li>如果Feature的数量比较小，而样本数量很多，需要手工添加一些feature变成第一种情况</li>
+</ol>
+</blockquote>
+<p><strong>如何量化 feature number 和 sample number：</strong></p>
+<blockquote>
+<p>n 是feature的数量, m是样本数   </p>
+<p>1). feature number &gt;&gt; sample number，则使用LR算法或者不带核函数的SVM（线性分类）<br>  &nbsp;&nbsp;&nbsp;&nbsp; feature number = 1W， sample number = 1K</p>
+<p>2). <strong>fn</strong> 小， sample number <strong>一般</strong>1W，使用带有 <strong>kernel函数</strong> 的 SVM算法.  </p>
+<p>3). <strong>fn</strong> 小， sample number <strong>很大</strong>5W+（n=1-1000，m=50000+）<br>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; 增加更多的 feature 然后使用LR 算法或者 not have kernel 的 SVM</p>
+</blockquote>
+<p><strong>5.</strong> GBDT vs Xgboost</p>
+<p><strong>6.</strong> 评估指标 F1 和 auc 的区别是哪些?</p>
+<p><strong>7.</strong> sigmoid 用作激活函数时，分类为什么要用 crossentry loss，而不用均方损失？</p>
+<p><strong>8.</strong> 神经网络中的激活函数的对比？</p>
 <h2 id="二、NLP高频问题"><a href="#二、NLP高频问题" class="headerlink" title="二、NLP高频问题"></a>二、NLP高频问题</h2><p>1、word2vec和tf-idf 相似度计算时的区别？<br>2、word2vec和NNLM对比有什么区别？（word2vec vs NNLM）<br>3、 word2vec负采样有什么作用？<br>4、word2vec和fastText对比有什么区别？（word2vec vs fastText）<br>5、glove和word2vec、 LSA对比有什么区别？（word2vec vs glove vs LSA）<br>6、 elmo、GPT、bert三者之间有什么区别？（elmo vs GPT vs bert）<br>7、LSTM和GRU的区别？</p>
 <h2 id="三、其他算法问题"><a href="#三、其他算法问题" class="headerlink" title="三、其他算法问题"></a>三、其他算法问题</h2><p>1、怎么进行单个样本的学习？<br>2、 决策树 bagging boosting adaboost 区别？RF的特征随机目的是什么？<br>3、transformer各部分怎么用？Q K V怎么计算；Attention怎么用？<br>4、HMM 假设是什么？CRF解决了什么问题？CRF做过特征工程吗？HMM中的矩阵意义？5、说以一下空洞卷积？膨胀卷积怎么理解？什么是Piece-CNN？<br>6、怎么解决beam-search局部最优问题？global embedding 怎么做？<br>7、数学题：什么是半正定矩阵？机器学习中有什么应用？<br>8、卷积的物理意义是什么？傅里叶变换懂吗？<br>9、说一下Bert？<br>10、推导word2vec？<br>11、怎么理解传统的统计语言模型？现在的神经网络语言模型有什么不同？<br>12、神经网络优化的难点是什么？这个问题要展开来谈。<br>13、attention你知道哪些？<br>14、自动文章摘要抽取时，怎么对一篇文章进行分割？（从序列标注、无监督等角度思考）<br>15、在做NER任务时，lstm后面可以不用加CRF吗？<br>16、通过画图描述TextRank？<br>17、LDA和pLSA有什么区别？<br>18、Transformer在实际应用中都会有哪些做法？<br>19、讲出过拟合的解决方案？<br>20、说一下transforemr、LSTM、CNN间的区别？从多个角度进行讲解？<br>21、梯度消失的原因和解决办法有哪些？<br>22、数学题：贝叶斯计算概率？<br>23、数学题：25只兔子赛跑问题，共5个赛道，最少几次比赛可以选出前5名？<br>24、数学题：100盏灯问题？</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
