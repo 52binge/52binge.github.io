@@ -23,7 +23,7 @@
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-4713a5b63da71ef5afba3fcd3a65299d_hd.jpg">
 <meta property="og:image" content="https://pic3.zhimg.com/80/v2-a384924b89b1bdd581cef7d75b56e226_hd.jpg">
 <meta property="og:image" content="https://pic4.zhimg.com/80/v2-aca3644ddd56abe1e47c0f45601587c3_hd.jpg">
-<meta property="og:updated_time" content="2019-04-11T15:17:00.659Z">
+<meta property="og:updated_time" content="2019-04-11T23:22:21.083Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="一、AI算法基础1. 防止 overfiting 的 8 条迭代方向
@@ -62,11 +62,11 @@ var _hmt = _hmt || [];
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
-          <a class="main-nav-link" href="/chatbot">Chatbot</a>
+          <a class="main-nav-link" href="/chatbot">SPO</a>
         
           <a class="main-nav-link" href="/deeplearning">DeepLearning</a>
         
-          <a class="main-nav-link" href="/tensorflow">Tensorflow</a>
+          <a class="main-nav-link" href="/archives">Archives</a>
         
           <a class="main-nav-link" href="/categories">Categories</a>
         
@@ -89,7 +89,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/sggo_ai/index.html" class="article-date">
-  <time datetime="2019-04-11T15:17:00.690Z" itemprop="datePublished">2019-04-11</time>
+  <time datetime="2019-04-11T23:22:21.108Z" itemprop="datePublished">2019-04-12</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -168,9 +168,17 @@ var _hmt = _hmt || [];
 <p>3). <strong>fn</strong> 小， sample number <strong>很大</strong>5W+（n=1-1000，m=50000+）<br>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; 增加更多的 feature 然后使用LR 算法或者 not have kernel 的 SVM</p>
 </blockquote>
 <p><strong>5. ERM / SRM</strong></p>
+<p>Supervised Learning Obj</p>
+<p>$$<br>w^*=argmin_w\sum_iL(y_i,f(x_i;w))+\lambda\Omega(w)<br>$$</p>
 <blockquote>
+<ol>
+<li>第一项对应模型的训练损失函数 (Square Loss、Hinge loss、Exp loss、Log loss)</li>
+<li>第二项对应模型的正则化项 （模型参数向量的范数）</li>
+</ol>
 <p>经验风险最小化 empirical risk minimization, 结构风险最小化 structural risk minimization</p>
+</blockquote>
 <p>李沐曾经说过：</p>
+<blockquote>
 <p>model是用离散特征还是连续特征，其实是“<strong>海量离散特征+简单模型</strong>” 同 “<strong>少量连续特征+复杂模型</strong>”的权衡。</p>
 <p>既可以离散化用线性模型，也可以用连续特征加深度学习。就看是喜欢折腾 <strong>feature</strong> 还是折腾 <strong>model</strong> 了。通常来说，前者容易，而且可以n个人一起并行做，有成功经验；后者目前看很赞，能走多远还须拭目以待。</p>
 </blockquote>
@@ -220,6 +228,15 @@ var _hmt = _hmt || [];
 </blockquote>
 <p><strong>10. GBDT vs Xgboost</strong></p>
 <p>Xgboost相比于GBDT来说，更加有效应用了数值优化，最重要是<strong>对损失函数</strong>（预测值和真实值的误差）<strong>变得更复杂</strong>。目标函数依然是所有树的预测值相加等于预测值。</p>
+<blockquote>
+<ol>
+<li>二阶泰勒展开，同时用到了一阶和二阶导数</li>
+<li>xgboost在代价函数里加入了正则项，用于控制模型的复杂度</li>
+<li>Shrinkage（缩减），相当于学习速率（xgboost中的eta）</li>
+<li>列抽样（column subsampling）。xgboost借鉴RF做法，支持列抽样（即每次的输入特征不是全部特征)</li>
+<li>并行化处理： 预先对每个特征内部进行了排序找出候选切割点.各个<strong>feature</strong>的增益计算就可以开多线程进行.</li>
+</ol>
+</blockquote>
 <a href="!--![](https://pic2.zhimg.com/80/v2-1c0706e463f78b6036b3923048ac9149_hd.jpg)--">!--![](https://pic2.zhimg.com/80/v2-1c0706e463f78b6036b3923048ac9149_hd.jpg)--</a>
 <blockquote>
 <p>好的模型需要具备两个基本要素：</p>
@@ -239,10 +256,10 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>1). accuracy (正反比例严重失衡，则没意义，存在 accuracy paradox 现象)</p>
 <p>2). precision (TPR, 80% = 你一共预测了100个正例，80个是对的正例)</p>
-<p>3). recall</p>
+<p>3). recall (样本中的正例有多少被预测正确 R = TP/(TP+FN))</p>
 <p>4). F1-score （precision 和 recall 的 metric）</p>
-<p>5). ROC curve</p>
-<p>6). AUC</p>
+<p>5). ROC curve （TPR 纵轴，FPR 横轴，TP（真正率）和 FP（假正率），设一个阈值）</p>
+<p>6). AUC  (AUC = 0.5，跟随机猜测一样， ROC 纵轴 TPR 越大， 横轴 FPR 越小 模型越好）</p>
 </blockquote>
 <p><strong>12.</strong> sigmoid 用作激活函数时，分类为什么要用 crossentry loss，而不用均方损失？</p>
 <p><strong>13.</strong> 神经网络中的激活函数的对比？</p>
