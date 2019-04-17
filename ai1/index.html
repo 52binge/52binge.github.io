@@ -27,7 +27,8 @@
 <meta property="og:image" content="https://pic3.zhimg.com/80/v2-947f270aaae4164a14c9093859cf0cce_hd.jpg">
 <meta property="og:image" content="https://pic4.zhimg.com/50/v2-296b158ebb205a2b90d05f5d2074bbe9_hd.gif">
 <meta property="og:image" content="https://charlesliuyx.github.io/2017/09/12/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%88%86%E7%B1%BB%E5%99%A8%E6%80%A7%E8%83%BD%E6%8C%87%E6%A0%87%E8%AF%A6%E8%A7%A3/BV-Tradeoff.png">
-<meta property="og:updated_time" content="2019-04-15T09:28:06.272Z">
+<meta property="og:image" content="https://pic1.zhimg.com/80/v2-004df09bcc2f085c72cc0938c08b1910_hd.jpg">
+<meta property="og:updated_time" content="2019-04-17T09:17:09.161Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Home">
 <meta name="twitter:description" content="一、AI算法基础1.1 防止 overfiting 的 8 条
@@ -92,7 +93,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/ai1/index.html" class="article-date">
-  <time datetime="2019-04-15T09:28:06.287Z" itemprop="datePublished">2019-04-15</time>
+  <time datetime="2019-04-17T09:17:09.179Z" itemprop="datePublished">2019-04-17</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -332,33 +333,61 @@ var _hmt = _hmt || [];
 <li>Square error loss function 与 Cross Entropy Error Function 分别适合什么景？</li>
 </ol>
 </blockquote>
-<h2 id="二、NLP高频问题"><a href="#二、NLP高频问题" class="headerlink" title="二、NLP高频问题"></a>二、NLP高频问题</h2><p><strong>1. word2vec 和 tf-idf 相似度计算时的区别？</strong></p>
-<blockquote>
-<p><strong>word2vec:</strong> </p>
-<p>1). 稠密的 低维度的 </p>
-<p>2). 表达出相似度； </p>
-<p>3). 表达能力强；</p>
-<p>4). 泛化能力强；</p>
+<h2 id="二、NLP高频问题"><a href="#二、NLP高频问题" class="headerlink" title="二、NLP高频问题"></a>二、NLP高频问题</h2><h3 id="2-1-word2vec-vs-NNLM"><a href="#2-1-word2vec-vs-NNLM" class="headerlink" title="2.1 word2vec vs NNLM"></a>2.1 word2vec vs NNLM</h3><blockquote>
+<p>1）其本质都可以看作是 Language Model；</p>
+<p>2）词向量只不过 NNLM 一个产物， word2vec 虽然其本质也是 Language Model，但是其专注于<strong>词向量本身</strong>，因此做了许多优化来提高计算效率：</p>
+<p>与 NNLM 相比，词向量直接sum，不再拼接，并舍弃隐层；<br>考虑到 sofmax归一化 需要遍历整个词汇表，采用 hierarchical softmax 和 negative sampling 进行优化</p>
+<ol>
+<li>hierarchical softmax 实质上生成一颗带权路径最小的哈夫曼树，让高频词搜索路劲变小；</li>
+<li>negative sampling 更为直接，实质上对每一个样本中每一个词都进行负例采样；</li>
+</ol>
 </blockquote>
+<h3 id="2-2-word2vec-negative-sampling"><a href="#2-2-word2vec-negative-sampling" class="headerlink" title="2.2 word2vec negative sampling"></a>2.2 word2vec negative sampling</h3><p>负采样这个点引入 word2vec 非常巧妙，两个作用，</p>
+<blockquote>
 <ol>
-<li><p>word2vec和NNLM对比有什么区别？（word2vec vs NNLM）</p>
-</li>
-<li><p>word2vec负采样有什么作用？</p>
-</li>
-<li><p>word2vec和fastText对比有什么区别？（word2vec vs fastText）</p>
-</li>
+<li>加速了模型计算</li>
+<li>保证了模型训练的效果，一个是模型每次只需要更新采样的词的权重，不用更新所有的权重，那样会很慢，第二，中心词其实只跟它周围的词有关系，位置离着很远的词没有关系，也没必要同时训练更新，作者这点非常聪明.</li>
 </ol>
-<p>1）都可以无监督学习词向量， fastText训练词向量时会考虑subword；</p>
-<p>2）fastText还可以进行有监督学习进行文本分类，其主要特点：</p>
-<p>结构与CBOW类似，但学习目标是人工标注的分类结果；<br>采用hierarchical softmax对输出的分类标签建立哈夫曼树，样本中标签多的类别被分配短的搜寻路径；<br>引入N-gram，考虑词序特征；<br>引入subword来处理长词，处理未登陆词问题；</p>
+</blockquote>
+<h3 id="2-3-word2vec-vs-fastText"><a href="#2-3-word2vec-vs-fastText" class="headerlink" title="2.3 word2vec vs fastText"></a>2.3 word2vec vs fastText</h3><blockquote>
 <ol>
-<li><p>glove和word2vec、 LSA对比有什么区别？（word2vec vs glove vs LSA）</p>
-</li>
-<li><p>elmo、GPT、bert三者之间有什么区别？（elmo vs GPT vs bert）</p>
-</li>
-<li><p>RNN 和 LSTM 和 GRU 的区别？</p>
-</li>
+<li>都可以无监督学习词向量， fastText 训练词向量时会考虑 subword；</li>
+<li>fastText 还可以进行有监督学习进行文本分类，其主要特点：</li>
 </ol>
+<ul>
+<li>结构与CBOW类似，但学习目标是人工标注的分类结果；</li>
+<li>采用 hierarchical softmax 对输出的分类标签建立哈夫曼树，样本中标签多的类别被分配短的搜寻路径；</li>
+<li>引入 N-gram，考虑词序特征；</li>
+<li>引入 subword 来处理长词，处理未登陆词问题；</li>
+</ul>
+</blockquote>
+<h3 id="2-4-word2vec-vs-glove"><a href="#2-4-word2vec-vs-glove" class="headerlink" title="2.4 word2vec vs glove"></a>2.4 word2vec vs glove</h3><blockquote>
+<ul>
+<li>word2vec 是局部语料库训练的，其特征提取是基于滑窗的；而glove的滑窗是为了构建co-occurance matrix，是基于全局语料的，可见glove需要事先统计共现概率；因此，word2vec可以进行在线学习，glove则需要统计固定语料信息。</li>
+</ul>
+<ul>
+<li>word2vec 是无监督学习，同样由于不需要人工标注；glove通常被认为是无监督学习，但实际上glove还是有label的，即共现次数log(X_{ij})。</li>
+</ul>
+<ul>
+<li>word2vec 损失函数实质上是带权重的交叉熵，权重固定；glove的损失函数是最小平方损失函数，权重可以做映射变换。</li>
+</ul>
+<ul>
+<li>总体来看，glove 可以被看作是更换了目标函数和权重函数的全局 word2vec。</li>
+</ul>
+</blockquote>
+<h3 id="2-5-ELMO-vs-GPT-vs-BERT"><a href="#2-5-ELMO-vs-GPT-vs-BERT" class="headerlink" title="2.5 ELMO vs GPT vs BERT"></a>2.5 ELMO vs GPT vs BERT</h3><p><img src="https://pic1.zhimg.com/80/v2-004df09bcc2f085c72cc0938c08b1910_hd.jpg" alt=""></p>
+<p>之前介绍词向量均是静态的词向量，无法解决一次多义等问题。下面介绍三种elmo、GPT、bert词向量，它们都是基于语言模型的动态词向量。下面从几个方面对这三者进行对比：</p>
+<p>（1）<strong>特征提取器</strong>：elmo采用LSTM进行提取，GPT和bert则采用Transformer进行提取。很多任务表明Transformer特征提取能力强于LSTM，elmo采用1层静态向量+2层LSTM，多层提取能力有限，而GPT和bert中的Transformer可采用多层，并行计算能力强。</p>
+<p>（2）<strong>单/双向语言模型</strong>：</p>
+<p>GPT采用单向语言模型，elmo和bert采用双向语言模型。但是elmo实际上是两个单向语言模型（方向相反）的拼接，这种融合特征的能力比bert一体化融合特征方式弱。<br>GPT和bert都采用Transformer，Transformer是encoder-decoder结构，GPT的单向语言模型采用decoder部分，decoder的部分见到的都是不完整的句子；bert的双向语言模型则采用encoder部分，采用了完整句子。</p>
+<h3 id="2-6-RNN-vs-LSTM-vs-GRU"><a href="#2-6-RNN-vs-LSTM-vs-GRU" class="headerlink" title="2.6 RNN vs LSTM vs GRU"></a>2.6 RNN vs LSTM vs GRU</h3><ul>
+<li><p>GRU和LSTM的性能在很多任务上不分伯仲。</p>
+</li>
+<li><p>GRU 参数更少因此更容易收敛，但是数据集很大的情况下，LSTM表达性能更好。</p>
+</li>
+<li><p>从结构上来说，GRU只有两个门（update和reset），LSTM有三个门（forget，input，output），GRU直接将hidden state 传给下一个单元，而LSTM则用memory cell 把hidden state 包装起来。</p>
+</li>
+</ul>
 <h2 id="三、其他算法问题"><a href="#三、其他算法问题" class="headerlink" title="三、其他算法问题"></a>三、其他算法问题</h2><p>1、怎么进行单个样本的学习？<br>2、 决策树 bagging boosting adaboost 区别？RF的特征随机目的是什么？<br>3、transformer各部分怎么用？Q K V怎么计算；Attention怎么用？<br>4、HMM 假设是什么？CRF解决了什么问题？CRF做过特征工程吗？HMM中的矩阵意义？5、说以一下空洞卷积？膨胀卷积怎么理解？什么是Piece-CNN？<br>6、怎么解决beam-search局部最优问题？global embedding 怎么做？<br>7、数学题：什么是半正定矩阵？机器学习中有什么应用？<br>8、卷积的物理意义是什么？傅里叶变换懂吗？<br>9、说一下Bert？<br>10、推导word2vec？<br>11、怎么理解传统的统计语言模型？现在的神经网络语言模型有什么不同？<br>12、神经网络优化的难点是什么？这个问题要展开来谈。<br>13、attention你知道哪些？<br>14、自动文章摘要抽取时，怎么对一篇文章进行分割？（从序列标注、无监督等角度思考）<br>15、在做NER任务时，lstm后面可以不用加CRF吗？<br>16、通过画图描述TextRank？<br>17、LDA和pLSA有什么区别？<br>18、Transformer在实际应用中都会有哪些做法？<br>19、讲出过拟合的解决方案？<br>20、说一下transforemr、LSTM、CNN间的区别？从多个角度进行讲解？<br>21、梯度消失的原因和解决办法有哪些？<br>22、数学题：贝叶斯计算概率？<br>23、数学题：25只兔子赛跑问题，共5个赛道，最少几次比赛可以选出前5名？<br>24、数学题：100盏灯问题？</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://zhuanlan.zhihu.com/p/57153934" target="_blank" rel="external">【NLP/AI算法面试必备-2】NLP/AI面试全记录（持续更新）</a></li>
@@ -372,7 +401,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、AI算法基础"><span class="toc-number"></span> <span class="toc-text">一、AI算法基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-防止-overfiting-的-8-条"><span class="toc-number"></span> <span class="toc-text">1.1 防止 overfiting 的 8 条</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-机器学习之类别不平衡问题"><span class="toc-number"></span> <span class="toc-text">1.2 机器学习之类别不平衡问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-CrossEntropy-与-最大似然？"><span class="toc-number"></span> <span class="toc-text">1.3 CrossEntropy 与 最大似然？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-SVM-和-LR-的区别与联系？"><span class="toc-number"></span> <span class="toc-text">1.4 SVM 和 LR 的区别与联系？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-ERM-SRM"><span class="toc-number"></span> <span class="toc-text">1.5 ERM / SRM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-Linear-classifier-Nonlinear-classifier-区别优劣"><span class="toc-number"></span> <span class="toc-text">1.6 Linear classifier / Nonlinear classifier 区别优劣?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-Random-Forest"><span class="toc-number"></span> <span class="toc-text">1.7 Random Forest</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-8-GBDT"><span class="toc-number"></span> <span class="toc-text">1.8 GBDT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-9-RF-vs-GBDT-区别"><span class="toc-number"></span> <span class="toc-text">1.9 RF vs GBDT 区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-10-GBDT-vs-Xgboost"><span class="toc-number"></span> <span class="toc-text">1.10 GBDT vs Xgboost</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-11-Evaluation-Metric-对比"><span class="toc-number"></span> <span class="toc-text">1.11 Evaluation Metric 对比 ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-12-Bias-Variance-Tradeoff"><span class="toc-number"></span> <span class="toc-text">1.12 Bias-Variance Tradeoff</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-13-激活函数的对比？"><span class="toc-number"></span> <span class="toc-text">1.13 激活函数的对比？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-14-sigmoid-用作激活函数时，分类为什么要用-crossentry-loss，而不用均方损失？"><span class="toc-number"></span> <span class="toc-text">1.14 sigmoid 用作激活函数时，分类为什么要用 crossentry loss，而不用均方损失？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、NLP高频问题"><span class="toc-number"></span> <span class="toc-text">二、NLP高频问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、其他算法问题"><span class="toc-number"></span> <span class="toc-text">三、其他算法问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#一、AI算法基础"><span class="toc-number"></span> <span class="toc-text">一、AI算法基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-防止-overfiting-的-8-条"><span class="toc-number"></span> <span class="toc-text">1.1 防止 overfiting 的 8 条</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-机器学习之类别不平衡问题"><span class="toc-number"></span> <span class="toc-text">1.2 机器学习之类别不平衡问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-CrossEntropy-与-最大似然？"><span class="toc-number"></span> <span class="toc-text">1.3 CrossEntropy 与 最大似然？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-SVM-和-LR-的区别与联系？"><span class="toc-number"></span> <span class="toc-text">1.4 SVM 和 LR 的区别与联系？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-ERM-SRM"><span class="toc-number"></span> <span class="toc-text">1.5 ERM / SRM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-Linear-classifier-Nonlinear-classifier-区别优劣"><span class="toc-number"></span> <span class="toc-text">1.6 Linear classifier / Nonlinear classifier 区别优劣?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-Random-Forest"><span class="toc-number"></span> <span class="toc-text">1.7 Random Forest</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-8-GBDT"><span class="toc-number"></span> <span class="toc-text">1.8 GBDT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-9-RF-vs-GBDT-区别"><span class="toc-number"></span> <span class="toc-text">1.9 RF vs GBDT 区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-10-GBDT-vs-Xgboost"><span class="toc-number"></span> <span class="toc-text">1.10 GBDT vs Xgboost</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-11-Evaluation-Metric-对比"><span class="toc-number"></span> <span class="toc-text">1.11 Evaluation Metric 对比 ?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-12-Bias-Variance-Tradeoff"><span class="toc-number"></span> <span class="toc-text">1.12 Bias-Variance Tradeoff</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-13-激活函数的对比？"><span class="toc-number"></span> <span class="toc-text">1.13 激活函数的对比？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-14-sigmoid-用作激活函数时，分类为什么要用-crossentry-loss，而不用均方损失？"><span class="toc-number"></span> <span class="toc-text">1.14 sigmoid 用作激活函数时，分类为什么要用 crossentry loss，而不用均方损失？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#二、NLP高频问题"><span class="toc-number"></span> <span class="toc-text">二、NLP高频问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-word2vec-vs-NNLM"><span class="toc-number"></span> <span class="toc-text">2.1 word2vec vs NNLM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-word2vec-negative-sampling"><span class="toc-number"></span> <span class="toc-text">2.2 word2vec negative sampling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-word2vec-vs-fastText"><span class="toc-number"></span> <span class="toc-text">2.3 word2vec vs fastText</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-word2vec-vs-glove"><span class="toc-number"></span> <span class="toc-text">2.4 word2vec vs glove</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-ELMO-vs-GPT-vs-BERT"><span class="toc-number"></span> <span class="toc-text">2.5 ELMO vs GPT vs BERT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-RNN-vs-LSTM-vs-GRU"><span class="toc-number"></span> <span class="toc-text">2.6 RNN vs LSTM vs GRU</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#三、其他算法问题"><span class="toc-number"></span> <span class="toc-text">三、其他算法问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
