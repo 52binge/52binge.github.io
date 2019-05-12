@@ -8,20 +8,20 @@
   <meta name="description">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Dimensionality Reduction： PCA">
-<meta property="og:url" content="http://iequa.com/2019/04/21/ml/10-dimensionality-reduction/index.html">
+<meta property="og:url" content="http://shopee.ai/2019/04/21/ml/10-dimensionality-reduction/index.html">
 <meta property="og:site_name" content="Shopee Singapore">
 <meta property="og:description">
-<meta property="og:image" content="http://iequa.com/images/logo/pca-lg1.png">
-<meta property="og:image" content="http://iequa.com/images/ml/dimensionality-reduction/dr-1.png">
-<meta property="og:image" content="http://iequa.com/images/ml/dimensionality-reduction/dr-2.png">
-<meta property="og:image" content="http://iequa.com/images/ml/dimensionality-reduction/dr-3.png">
-<meta property="og:image" content="http://iequa.com/images/ml/dimensionality-reduction/dr-4.png">
-<meta property="og:image" content="http://iequa.com/images/ml/dimensionality-reduction/dr-5.png">
-<meta property="og:updated_time" content="2019-04-23T12:08:28.582Z">
+<meta property="og:image" content="http://shopee.ai/images/logo/pca-lg1.png">
+<meta property="og:image" content="http://shopee.ai/images/ml/dimensionality-reduction/dr-1.png">
+<meta property="og:image" content="http://shopee.ai/images/ml/dimensionality-reduction/dr-2.png">
+<meta property="og:image" content="http://shopee.ai/images/ml/dimensionality-reduction/dr-3.png">
+<meta property="og:image" content="http://shopee.ai/images/ml/dimensionality-reduction/dr-4.png">
+<meta property="og:image" content="http://shopee.ai/images/ml/dimensionality-reduction/dr-5.png">
+<meta property="og:updated_time" content="2019-05-12T06:14:23.654Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Dimensionality Reduction： PCA">
 <meta name="twitter:description">
-<meta name="twitter:image" content="http://iequa.com/images/logo/pca-lg1.png">
+<meta name="twitter:image" content="http://shopee.ai/images/logo/pca-lg1.png">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -69,7 +69,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
         </div>
       </nav>
     </div>
@@ -108,7 +108,7 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2019/04/21/ml/10-dimensionality-reduction/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://shopee.ai/2019/04/21/ml/10-dimensionality-reduction/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -131,8 +131,8 @@ var _hmt = _hmt || [];
 <h3 id="2-1-Problem-formulation"><a href="#2-1-Problem-formulation" class="headerlink" title="2.1 Problem formulation"></a>2.1 Problem formulation</h3><p>首先我们思考如下问题，对于正交属性空间(对2维空间即为直角坐标系)中的样本点，如何用一个超平面(直线/平面的高维推广)对所有样本进行恰当的表达？</p>
 <p>事实上，若存在这样的超平面，那么它大概应具有这样的性质：</p>
 <ul>
-<li><strong>最近重构性</strong> : 样本点到这个超平面的距离都足够近；</li>
-<li><strong>最大可分性</strong>：样本点在这个超平面上的投影能尽可能分开。</li>
+<li><code>最近重构性</code> : 样本点到这个超平面的距离都足够近；</li>
+<li><code>最大可分性</code> : 样本点在这个超平面上的投影能尽可能分开。</li>
 </ul>
 <p><img src="/images/ml/dimensionality-reduction/dr-4.png" alt="样本在3维正交空间的分布"></p>
 <blockquote>
@@ -140,8 +140,28 @@ var _hmt = _hmt || [];
 </blockquote>
 <p><img src="/images/ml/dimensionality-reduction/dr-5.png" alt="样本投影在2维平面后的结果"></p>
 <blockquote>
-<p>对当前样本而言，s1平面比s2平面的最大可分性要好(样本点更分散)。</p>
+<p>对当前样本而言，s1平面(左边) 比s2平面的最大可分性要好(样本点更分散)。</p>
 <p>总结: 让上面的例子也说明了 <strong>最近重构性</strong> 和 <strong>最大可分性</strong> 可以同时满足。分别以最近重构性和最大可分性为目标，能够得到 <strong>PCA 的两种等价推导</strong>。</p>
+</blockquote>
+<p><strong>丢失信息对比：</strong></p>
+<blockquote>
+<p>s2平面 进行投影降维，我们会丢失更多（相当多）的特征量信息，因为它的投影结果甚至可以在转化为1维。</p>
+<p>而 s1平面 上的投影包含更多的信息(丢失的更少)。</p>
+</blockquote>
+<p><strong>将特征量从n维降到k维：</strong></p>
+<blockquote>
+<ol>
+<li><p>以最近重构性为目标，PCA的目标是找到k个向量，将所有样本投影到这k个向量构成的超平面，使得<strong>投影的距离最小</strong>（或者说投影误差projection error最小）。</p>
+</li>
+<li><p>以最大可分性为目标，PCA的目标是找到k个向量，将所有样本投影到这k个向量构成的超平面，使得<strong>样本点的投影能够尽可能的分开</strong>，也就是使投影后的<strong>样本点方差最大化</strong>。</p>
+</li>
+</ol>
+</blockquote>
+<p>摘要：</p>
+<blockquote>
+<p>PCA 与 线性回归 有一点相似，但是他们是2种不同的算法.</p>
+<p><a href="https://blog.csdn.net/u014665013/article/details/78669835" target="_blank" rel="external">good CSDN 主成分分析PCA之协方差矩阵的理解</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/37609917" target="_blank" rel="external">知乎: 如何直观地理解「协方差矩阵」？</a></p>
 </blockquote>
 <h3 id="2-2-PCA-Algorithm"><a href="#2-2-PCA-Algorithm" class="headerlink" title="2.2 PCA Algorithm"></a>2.2 PCA Algorithm</h3><p>基于上一节给出的结论，下面给出PCA算法。</p>
 <h3 id="2-3-Choosing-the-Number-of-Principal-Components"><a href="#2-3-Choosing-the-Number-of-Principal-Components" class="headerlink" title="2.3 Choosing the Number of Principal Components"></a>2.3 Choosing the Number of Principal Components</h3><p>如何选择k（又称为主成分的个数）的值？</p>
@@ -261,7 +281,7 @@ var _hmt = _hmt || [];
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Libin Chan&nbsp;
+      &copy; 2019 Blair Chan&nbsp;
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
     </div>
   </div>
@@ -285,7 +305,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2019/04/21/ml/10-dimensionality-reduction/';
+  var disqus_url = 'http://shopee.ai/2019/04/21/ml/10-dimensionality-reduction/';
   
   (function(){
     var dsq = document.createElement('script');
