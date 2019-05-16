@@ -3,21 +3,21 @@
 <head>
   <meta charset="utf-8">
   
-  <title>学习笔记(八) - Boosting - Shopee Singapore</title>
+  <title>K-means - Shopee Singapore</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="我们需要对多个模型进行融合以提高效果时，常常会用到 Bagging，Boosting，Stacking 等这几个框架算法.
-Boosting 有很多种，比如 Adaptive Boosting、Gradient Boosting等，这里以AdaBoost，Gradient Boosting 为典型.">
+  <meta name="description">
 <meta property="og:type" content="article">
-<meta property="og:title" content="学习笔记(八) - Boosting">
-<meta property="og:url" content="http://shopee.ai/2018/06/29/ml/8-gradient-boosting-part1/index.html">
+<meta property="og:title" content="K-means">
+<meta property="og:url" content="http://shopee.ai/2019/04/20/ml/11-kmeans/index.html">
 <meta property="og:site_name" content="Shopee Singapore">
-<meta property="og:description" content="我们需要对多个模型进行融合以提高效果时，常常会用到 Bagging，Boosting，Stacking 等这几个框架算法.
-Boosting 有很多种，比如 Adaptive Boosting、Gradient Boosting等，这里以AdaBoost，Gradient Boosting 为典型.">
-<meta property="og:updated_time" content="2019-01-20T01:01:36.464Z">
+<meta property="og:description">
+<meta property="og:image" content="https://coolshell.cn/wp-content/uploads/2012/06/K-Means.gif">
+<meta property="og:image" content="https://coolshell.cn/wp-content/uploads/2012/06/K-Means.jpg">
+<meta property="og:updated_time" content="2019-05-16T08:01:32.807Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="学习笔记(八) - Boosting">
-<meta name="twitter:description" content="我们需要对多个模型进行融合以提高效果时，常常会用到 Bagging，Boosting，Stacking 等这几个框架算法.
-Boosting 有很多种，比如 Adaptive Boosting、Gradient Boosting等，这里以AdaBoost，Gradient Boosting 为典型.">
+<meta name="twitter:title" content="K-means">
+<meta name="twitter:description">
+<meta name="twitter:image" content="https://coolshell.cn/wp-content/uploads/2012/06/K-Means.gif">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -73,7 +73,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-ml/8-gradient-boosting-part1" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-ml/11-kmeans" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -81,8 +81,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      学习笔记(八) - Boosting
-      <small class=article-detail-date-index>&nbsp; 2018-06-29</small>
+      K-means
+      <small class=article-detail-date-index>&nbsp; 2019-04-20</small>
     </h1>
   
 
@@ -92,8 +92,8 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2018/06/29/ml/8-gradient-boosting-part1/" class="article-date">
-  <time datetime="2018-06-29T09:43:21.000Z" itemprop="datePublished">2018-06-29</time>
+      <!--<a href="/2019/04/20/ml/11-kmeans/" class="article-date">
+  <time datetime="2019-04-20T09:01:21.000Z" itemprop="datePublished">2019-04-20</time>
 </a>-->
       <!-- 
   <div class="article-category">
@@ -104,45 +104,24 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://shopee.ai/2018/06/29/ml/8-gradient-boosting-part1/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://shopee.ai/2019/04/20/ml/11-kmeans/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>我们需要对多个模型进行融合以提高效果时，常常会用到 Bagging，Boosting，Stacking 等这几个框架算法.</p>
-<p>Boosting 有很多种，比如 Adaptive Boosting、Gradient Boosting等，这里以AdaBoost，Gradient Boosting 为典型.</p>
-<a id="more"></a>
-<blockquote>
-<p>在分类问题中，Boosting通过改变训练样本的权重，学习多个分类器，并将这些分类器进行线性组合，提高分类的性能。</p>
-</blockquote>
-<p><strong>三个臭皮匠，顶个诸葛亮</strong></p>
-<blockquote>
-<p>🌰🌰🌰 :</p>
-<p>关于boosting，机器学习技法一课中开头举的一个小学生认苹果的例子比较传神，假设给定一堆水果，让一群小学生来识别其中的苹果，逐个的询问小学生根据什么样的规则来认为一个水果是苹果，比如学生A认为形状为圆的是苹果，第二个学生认为颜色为红的为苹果等等，逐一询问学生的过程中，每问一个学生之后，按照他的规则对当前水果分类，记录其中的错分的水果然后让下一个同学重点根据这些被错分的水果来找找规则，这样一步一步的最后全班同学得到一个较为完备的规则来判定出苹果.</p>
-<p>🌰🌰🌰 总结 :</p>
-<p>这个过程中单个学生扮演的较色就是基分类器，比如常用的决策树桩，类似某一维的的感知机，在该维度将空间一分为二的划分样本，而教师的角色则是在这一过程中不断引导学生关注被上一个学生错分的样本来做出判定规则，并最终得出一个较为完备的输出结果</p>
-</blockquote>
-<p><strong>Boosting试图解决这么一个问题</strong>：</p>
-<blockquote>
-<p>由于发现弱学习算法通常比发现强学习算法容易，所以Boosting试图解决这么一个问题：“如果已经发现了‘弱学习算法’，那么能否将它提升为‘强学习算法’？”</p>
-<p><strong>提升方法</strong>就是从弱学习算法出发，反复学习(改变训练数据的权值分布)，得到一系列弱分类器，然后组合这些弱分类器，构成一个强分类器；</p>
-</blockquote>
-<p><strong>提升方法需要解决的两个问题</strong>：</p>
-<blockquote>
-<ul>
-<li>在每一轮训练中，如何改变训练数据的权值/概率分布？</li>
-<li>在得到一系列弱分类器后，如何将弱分类器组合成一个强分类器？</li>
-</ul>
-</blockquote>
-<h2 id="1-AdaBoost-Adaptive-Boosting"><a href="#1-AdaBoost-Adaptive-Boosting" class="headerlink" title="1. AdaBoost: Adaptive Boosting"></a>1. AdaBoost: Adaptive Boosting</h2><h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
-<li><a href="http://www.cnblogs.com/fengfenggirl/p/classsify_decision_tree.html" target="_blank" rel="external">逗比算法工程师</a></li>
-<li><a href="http://www.52caml.com/" target="_blank" rel="external">算法杂货铺</a></li>
-<li><a href="http://www.cnblogs.com/leoo2sk/archive/2010/09/19/decision-tree.html" target="_blank" rel="external">52caml</a></li>
-<li>《机器学习导论》</li>
-<li>《统计学习方法》</li>
-<li><a href="http://izhaoyi.top/2017/06/19/Decision-Tree" target="_blank" rel="external">懒死骆驼</a></li>
+        <p><img src="https://coolshell.cn/wp-content/uploads/2012/06/K-Means.gif" width="550"></p>
+<p><a id="more"></a><br></p>
+<p>在数据挖掘中， k-Means 算法是一种 cluster analysis 的算法，其主要是来计算数据聚集的算法，主要通过不断地取离种子点最近均值的算法。</p>
+<h2 id="1-问题"><a href="#1-问题" class="headerlink" title="1. 问题"></a>1. 问题</h2><p>K-Means算法主要解决的问题如下图所示。我们可以看到，在图的左边有一些点，我们用肉眼可以看出来有四个点群，但是我们怎么通过计算机程序找出这几个点群来呢？于是就出现了我们的K-Means算法</p>
+<h2 id="2-算法概要"><a href="#2-算法概要" class="headerlink" title="2. 算法概要"></a>2. 算法概要</h2><p>这个算法其实很简单，如下图所示：</p>
+<p><img src="https://coolshell.cn/wp-content/uploads/2012/06/K-Means.jpg" alt="K-Means 算法概要"></p>
+<p>从上图中，我们可以看到，A, B, C, D, E 是五个在图中点。而灰色的点是我们的种子点，也就是我们用来找点群的点。有两个种子点，所以K=2。</p>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li>百面机器学习</li>
+<li><a href="https://coolshell.cn/articles/7779.html" target="_blank" rel="external">COOLSHELL K-MEANS 算法</a></li>
+<li><a href="https://study.163.com/course/courseLearn.htm?courseId=1004570029#/learn/video?lessonId=1052320898&amp;courseId=1004570029" target="_blank" rel="external">网易云课堂</a></li>
 </ul>
 
       
@@ -187,7 +166,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-AdaBoost-Adaptive-Boosting"><span class="toc-number"></span> <span class="toc-text">1. AdaBoost: Adaptive Boosting</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-问题"><span class="toc-number"></span> <span class="toc-text">1. 问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-算法概要"><span class="toc-number"></span> <span class="toc-text">2. 算法概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-number"></span> <span class="toc-text">Reference article</span></a></li></ol>
       </div>
     
     
@@ -204,7 +183,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/LR/">LR</a>
+    <a class="article-tag-link" href="/tags/Kmeans/">Kmeans</a>
   </div>
 
 
@@ -215,17 +194,17 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2018/07/03/ml/9-ensumble-part1/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/04/21/ml/10-dimensionality-reduction/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          Ensumble 集成学习小记
+          Dimensionality Reduction： PCA
         
       </div>
     </a>
   
   
-    <a href="/2018/06/27/ml/5-decisionTree-part2/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">学习笔记(五) - Decision Tree&nbsp;<span>&gt;</span></div>
+    <a href="/2018/12/19/nlp/fastText/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">FastText 用于高效文本分类的技巧&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -268,7 +247,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://shopee.ai/2018/06/29/ml/8-gradient-boosting-part1/';
+  var disqus_url = 'http://shopee.ai/2019/04/20/ml/11-kmeans/';
   
   (function(){
     var dsq = document.createElement('script');
