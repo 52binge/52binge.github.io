@@ -442,15 +442,60 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <blockquote>
 <p>线性回归假设因变量 y 服从高斯分布:  真实值y与拟合值Y之间的差值是不是符合正态分布。</p>
 </blockquote>
-<h2 id="2-LR-Hypothesis-function"><a href="#2-LR-Hypothesis-function" class="headerlink" title="2. LR Hypothesis function"></a>2. LR Hypothesis function</h2><p><img src="/images/ml/lr/LR-3.svg" width="180"></p>
+<h2 id="2-LR-Hypothesis-function"><a href="#2-LR-Hypothesis-function" class="headerlink" title="2. LR Hypothesis function"></a>2. LR Hypothesis function</h2><p><img src="/images/ml/lr/LR-3.svg" width="150"></p>
 <p>其函数曲线如下：</p>
 <p><img src="/images/ml/lr/LR-2.png" width="280" alt="取值在[0, 1]之间，在远离0的地方函数的值会很快接近0或者1。它的这个特性对于解决二分类问题十分重要."></p>
 <p>Logistic Regression 假设函数形式如下：</p>
-<p><img src="/images/ml/lr/LR-4.svg" width="300"></p>
+<p><img src="/images/ml/lr/LR-4.svg" width="270"></p>
 <p>所以：</p>
 <p><img src="/images/ml/lr/LR-5.svg" width="170"></p>
 <p>一个机器学习的模型，实际上是把决策函数限定在某一组条件下，这组限定条件就决定了模型的假设空间。当然，我们还希望这组限定条件简单而合理。而逻辑回归模型所做的假设是：</p>
-<p><img src="/images/ml/lr/LR-6.svg" width="280"></p>
+<p><img src="/images/ml/lr/LR-6.svg" width="300" alt="这个函数的意思就是在给定 x 和 0 的条件下 y=1 的概率"></p>
+<h2 id="3-Cost-Function"><a href="#3-Cost-Function" class="headerlink" title="3. Cost Function"></a>3. Cost Function</h2><p>all samples ：</p>
+<p><img src="/images/ml/lr/LR-7.svg" width="470"></p>
+<p>single simple：</p>
+<p><img src="/images/ml/lr/LR-8.svg" width="400"></p>
+<p>上面的方程等价于：</p>
+<p><img src="/images/ml/lr/LR-9.svg" width="570"></p>
+<p><img src="/images/ml/lr/LR-10.png" width="370"></p>
+<blockquote>
+<ul>
+<li>选择代价函数时，最好挑选对参数 $\theta$ 可微的函数（全微分存在，偏导数一定存在）</li>
+<li>对于每种算法来说，代价函数不是唯一的；</li>
+<li>代价函数是参数 $\theta$ 的函数；</li>
+<li>$J(\theta)$ 是一个标量</li>
+</ul>
+</blockquote>
+<p>LR 中，代价函数是交叉熵 (<strong>Cross Entropy</strong>)，交叉熵是一个常见的代价函数:</p>
+<p><a href="https://zhuanlan.zhihu.com/p/38241764" target="_blank" rel="external">good 简单的交叉熵损失函数，你真的懂了吗？</a></p>
+<h2 id="4-Cross-Entropy"><a href="#4-Cross-Entropy" class="headerlink" title="4. Cross Entropy"></a>4. Cross Entropy</h2><blockquote>
+<p>1）CrossEntropy lossFunction <img src="https://www.zhihu.com/equation?tex=L%3D-%5Bylog%5C+%5Chat+y%2B%281-y%29log%5C+%281-%5Chat+y%29%5D" alt=""></p>
+<p>二分类: <img src="https://www.zhihu.com/equation?tex=g%28s%29%3D%5Cfrac%7B1%7D%7B1%2Be%5E%7B-s%7D%7D" alt=""></p>
+<p>意义：能表征 真实样本标签 和 预测概率 之间的差值</p>
+<p>2）最小化交叉熵的本质就是对数似然函数的最大化；</p>
+<p>3）对数似然函数的本质就是衡量在某个参数下，整体的估计和真实情况一样的概率，越大代表越相近；</p>
+<p>4）损失函数的本质就是衡量预测值和真实值之间的差距，越大代表越不相近。</p>
+</blockquote>
+<h3 id="4-1-Log-设计理念"><a href="#4-1-Log-设计理念" class="headerlink" title="4.1 Log 设计理念"></a>4.1 Log 设计理念</h3><p>预测输出与 y 差得越多，L 的值越大，也就是说对当前模型的 “ 惩罚 ” 越大，而且是非线性增大，是一种类似指数增长的级别。这是由 log 函数本身的特性所决定的。这样的好处是 模型会倾向于让预测输出更接近真实样本标签 y。</p>
+<blockquote>
+<p>我们希望 log P(y|x) 越大越好，反过来，只要 log P(y|x) 的负值 -log P(y|x) 越小就行了。那我们就可以引入损失函数，且令 Loss = -log P(y|x)即可。则得到损失函数为：</p>
+<p><img src="https://www.zhihu.com/equation?tex=L%3D-%5Bylog%5C+%5Chat+y%2B%281-y%29log%5C+%281-%5Chat+y%29%5D" alt=""></p>
+<p>图可以帮助我们对 CrossEntropy lossFunction 有更直观的理解。无论真实样本标签 y 是 0 还是 1，L 都表征了预测输出与 y 的差距。</p>
+</blockquote>
+<h3 id="4-2-MLE-最大似然"><a href="#4-2-MLE-最大似然" class="headerlink" title="4.2 MLE 最大似然"></a>4.2 MLE 最大似然</h3><p>就是利用已知的样本结果信息，反推最具有可能（最大概率）导致这些样本结果出现的 <font color="#c7254e"><strong>模型参数值</strong>！</font></p>
+<blockquote>
+<p>输入有两个：$x$ 表示某一个具体的数据；$θ$ 表示模型的参数。</p>
+</blockquote>
+<p><strong>probability function：</strong></p>
+<p>对于这个函数： $P(x|θ)$, 如果 $θ$ 是已知确定的，$x$ 是变量，这个函数叫做概率函数 (probability function)，它描述对于不同的样本点 $x$，其出现概率是多少。</p>
+<p><strong>likelihood function：</strong></p>
+<p>如果 $x$ 是已知确定的，$θ$ 是变量，这个函数叫做似然函数(likelihood function), 它描述对于不同的模型参数，出现 $x$ 这个样本点的概率是多少。</p>
+<blockquote>
+<p>MLE 提供了一种 <strong>给定观察数据来评估模型参数</strong> 的方法，即：“模型已定，参数未知”。</p>
+<p>MLE 中 <strong>采样</strong> 需满足一个重要的假设，就是所有的采样都是 <strong>独立同分布</strong> 的.</p>
+<p>一句话总结：概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。</p>
+</blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/26614750" target="_blank" rel="external">知乎：一文搞懂极大似然估计</a><br><a href="https://blog.csdn.net/u011508640/article/details/72815981" target="_blank" rel="external">CSDN：详解最大似然估计（MLE）、最大后验概率估计（MAP），以及贝叶斯公式的理解</a></p>
 <h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
 <li><a href="https://zhuanlan.zhihu.com/p/28408516" target="_blank" rel="external">逻辑回归（Logistic Regression）（一）</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/22876460" target="_blank" rel="external">广义线性模型（Generalized Linear Model）</a></li>
@@ -4528,6 +4573,41 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     </entry>
     
     <entry>
+      <title><![CDATA[Boosting - Xgboost (not finish)]]></title>
+      <url>http://shopee.ai/2018/07/03/ml/8-xgboost/</url>
+      <content type="html"><![CDATA[<p>Github上和机器学习工具包（如sklearn）中有很多优秀的开源boosting实现。在这里重点介绍<a href="https://weibo.com/u/2397265244?is_all=1" target="_blank" rel="external">@陈天奇怪</a>同学的 <a href="https://github.com/dmlc/xgboost.git" target="_blank" rel="external">Xgboost</a>.</p>
+<p>Kaggle上的许多数据挖掘竞赛，Boosting 类方法都帮助参赛者取得了好成绩. 其中很多优秀战果都是用的 <a href="https://github.com/dmlc/xgboost.git" target="_blank" rel="external">Xgboost</a>神器</p>
+<a id="more"></a>
+<p>Xgboost 提供了Graident Boosting算法的框架，给出了GBDT，GBRT，GBM具体实现。提供了多语言接口（C++, Python, Java, R等），供大家方便使用。</p>
+<p>最新版本的xgboost是基于分布式通信协议rabit开发的，可部署在分布式资源调度系统上（如yarn，s3等）。我们完全可以利用最新版的xgboost在分布式环境下解决分类、预估等场景问题。</p>
+<blockquote>
+<p>XGBoost是DMLC（即分布式机器学习社区）下面的一个子项目，由@陈天奇怪，@李沐等机器学习大神发起。<br>Rabit是一个为分布式机器学习提供Allreduce和Broadcast编程范式和容错功能的开源库（也是@陈天奇同学的又一神器）。它主要是解决MPI系统机器之间无容错功能的问题，并且主要针对Allreduce和Broadcast接口提供可容错功能。</p>
+</blockquote>
+<h3 id="1-Overfitting-过拟合"><a href="#1-Overfitting-过拟合" class="headerlink" title="1. Overfitting 过拟合"></a>1. Overfitting 过拟合</h3><p>XGBoost里可以使用两种方式防止 Overfitting</p>
+<p>直接控制模型复杂度</p>
+<ul>
+<li><strong>max_depth</strong>,基学习器的深度，增加该值会使基学习器变得更加复杂，荣易过拟合，设为0表示不设限制，对于<code>depth-wise</code>的基学习器学习方法需要控制深度</li>
+<li><strong>min_child_weight</strong>，子节点所需的样本权重和(hessian)的最小阈值，若是基学习器切分后得到的叶节点中样本权重和低于该阈值则不会进一步切分，在线性模型中该值就对应每个节点的最小样本数，该值越大模型的学习约保守，同样用于防止模型过拟合</li>
+<li><strong>gamma</strong>，叶节点进一步切分的最小损失下降的阈值(超过该值才进一步切分)，越大则模型学习越保守，用来控制基学习器的复杂度(有点LightGBM里的leaf-wise切分的意味)</li>
+</ul>
+<p>给模型训练增加随机性使其对噪声数据更加鲁棒</p>
+<ul>
+<li>行采样：subsample</li>
+<li>列采样：colsample_bytree</li>
+<li>步长：eta即shrinkage</li>
+</ul>
+<h3 id="2-数据类别分布不均"><a href="#2-数据类别分布不均" class="headerlink" title="2. 数据类别分布不均"></a>2. 数据类别分布不均</h3><h3 id="3-调参"><a href="#3-调参" class="headerlink" title="3. 调参"></a>3. 调参</h3><h3 id="4-一般参数"><a href="#4-一般参数" class="headerlink" title="4. 一般参数"></a>4. 一般参数</h3><h3 id="5-基学习器参数"><a href="#5-基学习器参数" class="headerlink" title="5. 基学习器参数"></a>5. 基学习器参数</h3><h3 id="6-任务参数"><a href="#6-任务参数" class="headerlink" title="6. 任务参数"></a>6. 任务参数</h3><h3 id="7-命令行参数"><a href="#7-命令行参数" class="headerlink" title="7. 命令行参数"></a>7. 命令行参数</h3><h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li><a href="http://www.cnblogs.com/fengfenggirl/p/classsify_decision_tree.html" target="_blank" rel="external">逗比算法工程师</a></li>
+<li><a href="http://www.52caml.com/" target="_blank" rel="external">算法杂货铺</a></li>
+<li><a href="http://www.cnblogs.com/leoo2sk/archive/2010/09/19/decision-tree.html" target="_blank" rel="external">52caml</a></li>
+<li>《机器学习导论》</li>
+<li>《统计学习方法》</li>
+<li><a href="http://izhaoyi.top/2017/06/19/Decision-Tree" target="_blank" rel="external">懒死骆驼</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Ensumble 集成学习小记]]></title>
       <url>http://shopee.ai/2018/07/03/ml/9-ensumble-part1/</url>
       <content type="html"><![CDATA[<p>本文主要基于周志华《机器学习》一书第八章 集成学习内容做的整理笔记，此外查阅了网上的一些博客和问答网站</p>
@@ -4711,41 +4791,6 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <li><a href="https://zhuanlan.zhihu.com/p/27424282" target="_blank" rel="external">分分钟带你杀入Kaggle Top 1%</a></li>
 <li><a href="http://izhaoyi.top/2017/07/03/ensemble/" target="_blank" rel="external">懒死骆驼</a></li>
 <li>机器学习技法</li>
-</ul>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Boosting - Xgboost (not finish)]]></title>
-      <url>http://shopee.ai/2018/07/03/ml/8-xgboost/</url>
-      <content type="html"><![CDATA[<p>Github上和机器学习工具包（如sklearn）中有很多优秀的开源boosting实现。在这里重点介绍<a href="https://weibo.com/u/2397265244?is_all=1" target="_blank" rel="external">@陈天奇怪</a>同学的 <a href="https://github.com/dmlc/xgboost.git" target="_blank" rel="external">Xgboost</a>.</p>
-<p>Kaggle上的许多数据挖掘竞赛，Boosting 类方法都帮助参赛者取得了好成绩. 其中很多优秀战果都是用的 <a href="https://github.com/dmlc/xgboost.git" target="_blank" rel="external">Xgboost</a>神器</p>
-<a id="more"></a>
-<p>Xgboost 提供了Graident Boosting算法的框架，给出了GBDT，GBRT，GBM具体实现。提供了多语言接口（C++, Python, Java, R等），供大家方便使用。</p>
-<p>最新版本的xgboost是基于分布式通信协议rabit开发的，可部署在分布式资源调度系统上（如yarn，s3等）。我们完全可以利用最新版的xgboost在分布式环境下解决分类、预估等场景问题。</p>
-<blockquote>
-<p>XGBoost是DMLC（即分布式机器学习社区）下面的一个子项目，由@陈天奇怪，@李沐等机器学习大神发起。<br>Rabit是一个为分布式机器学习提供Allreduce和Broadcast编程范式和容错功能的开源库（也是@陈天奇同学的又一神器）。它主要是解决MPI系统机器之间无容错功能的问题，并且主要针对Allreduce和Broadcast接口提供可容错功能。</p>
-</blockquote>
-<h3 id="1-Overfitting-过拟合"><a href="#1-Overfitting-过拟合" class="headerlink" title="1. Overfitting 过拟合"></a>1. Overfitting 过拟合</h3><p>XGBoost里可以使用两种方式防止 Overfitting</p>
-<p>直接控制模型复杂度</p>
-<ul>
-<li><strong>max_depth</strong>,基学习器的深度，增加该值会使基学习器变得更加复杂，荣易过拟合，设为0表示不设限制，对于<code>depth-wise</code>的基学习器学习方法需要控制深度</li>
-<li><strong>min_child_weight</strong>，子节点所需的样本权重和(hessian)的最小阈值，若是基学习器切分后得到的叶节点中样本权重和低于该阈值则不会进一步切分，在线性模型中该值就对应每个节点的最小样本数，该值越大模型的学习约保守，同样用于防止模型过拟合</li>
-<li><strong>gamma</strong>，叶节点进一步切分的最小损失下降的阈值(超过该值才进一步切分)，越大则模型学习越保守，用来控制基学习器的复杂度(有点LightGBM里的leaf-wise切分的意味)</li>
-</ul>
-<p>给模型训练增加随机性使其对噪声数据更加鲁棒</p>
-<ul>
-<li>行采样：subsample</li>
-<li>列采样：colsample_bytree</li>
-<li>步长：eta即shrinkage</li>
-</ul>
-<h3 id="2-数据类别分布不均"><a href="#2-数据类别分布不均" class="headerlink" title="2. 数据类别分布不均"></a>2. 数据类别分布不均</h3><h3 id="3-调参"><a href="#3-调参" class="headerlink" title="3. 调参"></a>3. 调参</h3><h3 id="4-一般参数"><a href="#4-一般参数" class="headerlink" title="4. 一般参数"></a>4. 一般参数</h3><h3 id="5-基学习器参数"><a href="#5-基学习器参数" class="headerlink" title="5. 基学习器参数"></a>5. 基学习器参数</h3><h3 id="6-任务参数"><a href="#6-任务参数" class="headerlink" title="6. 任务参数"></a>6. 任务参数</h3><h3 id="7-命令行参数"><a href="#7-命令行参数" class="headerlink" title="7. 命令行参数"></a>7. 命令行参数</h3><h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
-<li><a href="http://www.cnblogs.com/fengfenggirl/p/classsify_decision_tree.html" target="_blank" rel="external">逗比算法工程师</a></li>
-<li><a href="http://www.52caml.com/" target="_blank" rel="external">算法杂货铺</a></li>
-<li><a href="http://www.cnblogs.com/leoo2sk/archive/2010/09/19/decision-tree.html" target="_blank" rel="external">52caml</a></li>
-<li>《机器学习导论》</li>
-<li>《统计学习方法》</li>
-<li><a href="http://izhaoyi.top/2017/06/19/Decision-Tree" target="_blank" rel="external">懒死骆驼</a></li>
 </ul>
 ]]></content>
     </entry>
@@ -13902,30 +13947,6 @@ trainer end!
     </entry>
     
     <entry>
-      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
-      <url>http://shopee.ai/2016/09/12/ml/reading-beauty-of-mathematics-19&20-entropy/</url>
-      <content type="html"><![CDATA[<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
-<a id="more"></a>
-<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
-<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
-</blockquote>
-<p>吴军博士的总结</p>
-<ol>
-<li>一个正确的数学模型应当在形式上是简单的</li>
-<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
-<li>大量准确的数据对研发很重要</li>
-<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
-</ol>
-<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
-<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
-<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
-<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
-<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
-<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Entropy 介绍]]></title>
       <url>http://shopee.ai/2016/09/12/ml/entropy-base/</url>
       <content type="html"><![CDATA[<p>Entropy 熵的基本概念及含义</p>
@@ -13954,6 +13975,30 @@ trainer end!
 <blockquote>
 <p>$$<br>info(c) = -1 \cdot log(1) = 0；<br>$$<br>此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
 </blockquote>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[数学之美 19 数学模型的重要性 & 20 最大熵模型]]></title>
+      <url>http://shopee.ai/2016/09/12/ml/reading-beauty-of-mathematics-19&20-entropy/</url>
+      <content type="html"><![CDATA[<p>《数学之美》 19 数学模型的重要性 &amp; 20 最大熵模型 Reading Notes</p>
+<a id="more"></a>
+<h2 id="1-数学模型的重要性"><a href="#1-数学模型的重要性" class="headerlink" title="1. 数学模型的重要性"></a>1. 数学模型的重要性</h2><blockquote>
+<p>伟大的天文学家托勒密<br>哥白尼、伽利略、牛顿</p>
+</blockquote>
+<p>吴军博士的总结</p>
+<ol>
+<li>一个正确的数学模型应当在形式上是简单的</li>
+<li>一个正确的模型一开始可能还不如一个精雕细琢过的错误模型准确，但如认定大方向是对的，就应该坚持下去</li>
+<li>大量准确的数据对研发很重要</li>
+<li>正确的模型也可能受 噪声 干扰，而显得不准确；这时应该找到噪声的根源，这也许能通往重大的发现。</li>
+</ol>
+<h2 id="2-不把所有鸡蛋放到一个篮子里"><a href="#2-不把所有鸡蛋放到一个篮子里" class="headerlink" title="2. 不把所有鸡蛋放到一个篮子里"></a>2. 不把所有鸡蛋放到一个篮子里</h2><p>人们常说不要把所有的鸡蛋放在一个篮子里，可以降低风险。在信息处理中，这个原理同样适用。数学上这个原理称为 - The Maximum Entropy Principle.</p>
+<p>Wang XiaoBo 是 王小波 or 王晓波， 需要根据 <code>上下文</code></p>
+<p>数学上解决该问题最漂亮的方法就是 ： Maximum Entropy，它相当于 行星运动的椭圆模型。</p>
+<p>Maximum Entropy 的原理很简单，就是保留 全部的不确定性，将风险降到最小。</p>
+<h3 id="2-1-Maximum-Entropy"><a href="#2-1-Maximum-Entropy" class="headerlink" title="2.1 Maximum Entropy"></a>2.1 Maximum Entropy</h3><p> 对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况<code>不要做任何主观假设</code>。</p>
+<p>匈牙利数学家，信息论最高奖香农奖得主 希萨 Csiszar 证明 : 对任一组不自相矛盾的信息，这个最大熵模型存在，且唯一。</p>
 ]]></content>
     </entry>
     
@@ -17437,18 +17482,6 @@ JDK 1.5 之后 {
     </entry>
     
     <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://shopee.ai/2011/10/27/acm/mst/</url>
-      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
-<a id="more"></a>
-<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Six Kinds of Sort algorithms]]></title>
       <url>http://shopee.ai/2011/10/27/acm/six-sort/</url>
       <content type="html"><![CDATA[<p>input ： 8, 5, 4, 9, 2, 3, 6</p>
@@ -17460,6 +17493,18 @@ JDK 1.5 之后 {
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://shopee.ai/2011/10/27/acm/mst/</url>
+      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
+<a id="more"></a>
+<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
