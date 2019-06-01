@@ -4,9 +4,9 @@
   $('.article-entry').each(function(i){
     $(this).find('img').each(function(){
 
-      if (index === 0) {
-        $(this).removeClass('fancybox'); // blair add this 3 line @2019-06-01
-      }
+//      if (index === 0) {
+//        $(this).removeClass('fancybox'); // blair add this 3 line @2019-06-01
+//      }
       if ($(this).parent().hasClass('fancybox')) return;
 
       var alt = this.alt;
