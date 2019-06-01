@@ -4,211 +4,8 @@
   
     
     <entry>
-      <title><![CDATA[Rondom Forest vs GBDT]]></title>
-      <url>http://shopee.ai/2019/06/02/ml/Random_Forest_and_GBDT/</url>
-      <content type="html"><![CDATA[<!--<img class="img-fancy" src="/images/ml/ensumble/ensumble-1.png" width="600" border="0" alt="台湾 vs 大陆"/>-->
-<p><a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:332px; width:600px;"></a></p>
-<a id="more"></a>
-<h2 id="1-Random-Forest"><a href="#1-Random-Forest" class="headerlink" title="1. Random Forest"></a>1. Random Forest</h2><p>Rondom Forest 是一个典型的多个决策树的组合分类器.</p>
-<p>Rondom Forest, 的 Random 体现在 2 个方面：</p>
-<blockquote>
-<ol>
-<li>data random</li>
-<li>feature random</li>
-</ol>
-</blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/34534004" target="_blank" rel="external">RF、bagging、boosting、GBDT、xgboost算法总结</a></p>
-<p>Sample data Random： </p>
-<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-2.jpg" width="600" border="0"></p>
-<p>Feature Random：</p>
-<blockquote>
-<p>与数据集的随机选取类似，随机森林中的子树的每一个分裂过程并未用到所有的待选特征，而是从所有的待选特征中随机选取一定的特征，之后再在随机选取的特征中选取最优的特征。这样能够使得随机森林中的决策树都能够彼此不同，提升系统的多样性，从而提升分类性能。</p>
-</blockquote>
-<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-3.jpg" width="600" border="0"></p>
-<h2 id="2-GBDT"><a href="#2-GBDT" class="headerlink" title="2. GBDT"></a>2. GBDT</h2><p>GBDT 是以决策树（CART）为基学习器的 GB算法，是迭代树，而不是分类树。</p>
-<p>一般 Boosting 算法都是一个迭代的过程，每一次新的训练都是为了改进上一次的结果。</p>
-<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-4.jpg" width="600"></p>
-<p>GBDT 的核心就在于：<strong>每一棵树学的是之前所有树结论和的残差</strong>，这个残差就是一个加预测值后能得真实值的累加量。</p>
-<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-5.jpg" width="850"></p>
-<h2 id="3-RF-vs-GBDT"><a href="#3-RF-vs-GBDT" class="headerlink" title="3. RF vs GBDT"></a>3. RF vs GBDT</h2><blockquote>
-<ol>
-<li>组成 RF 的树可以是分类树，也可以是回归树；而GBDT只由回归树组成 </li>
-<li>组成 RF 的树可以并行生成；而 GBDT 只能是串行生成. </li>
-<li>对于最终的输出结果而言，随机森林采用多数投票等；而 GBDT 则是将所有结果累加起来，或者加权累加起来. </li>
-<li>RF 对异常值不敏感，GBDT 对异常值非常敏感.</li>
-<li>RF 对训练集一视同仁，GBDT 是基于权值的弱分类器的集成. </li>
-<li>RF 是通过减少模型方差提高性能，GBDT是通过减少模型偏差提高性能.</li>
-</ol>
-</blockquote>
-<h2 id="4-Xgboost-vs-GBDT"><a href="#4-Xgboost-vs-GBDT" class="headerlink" title="4. Xgboost vs GBDT"></a>4. Xgboost vs GBDT</h2><p>Xgboost相比于GBDT来说，更加有效应用了数值优化，最重要是<strong>对损失函数</strong>（预测值和真实值的误差）<strong>变得更复杂</strong>。目标函数依然是所有树的预测值相加等于预测值。</p>
-<blockquote>
-<ol>
-<li>二阶泰勒展开，同时用到了一阶和二阶导数</li>
-<li>xgboost在代价函数里加入了正则项，用于控制模型的复杂度</li>
-<li>Shrinkage（缩减），相当于学习速率（xgboost中的eta）</li>
-<li>列抽样（column subsampling）。xgboost借鉴RF做法，支持列抽样（即每次的输入特征不是全部特征)</li>
-<li>并行化处理： 预先对每个特征内部进行了排序找出候选切割点.各个<strong>feature</strong>的增益计算就可以开多线程进行.</li>
-</ol>
-</blockquote>
-<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-6.jpg" width="600"></p>
-<blockquote>
-<p>好的模型需要具备两个基本要素：</p>
-<ol>
-<li>是要有好的精度（即好的拟合程度）</li>
-<li>是模型要尽可能的简单（复杂的模型容易出现过拟合，并且更加不稳定）</li>
-</ol>
-<p>因此，我们构建的目标函数右边第一项是模型的误差项，第二项是正则化项（也就是模型复杂度的惩罚项）</p>
-<p>常用的误差项有平方误差和逻辑斯蒂误差，常见的惩罚项有l1，l2正则，l1正则是将模型各个元素进行求和，l2正则是对元素求平方。</p>
-<p><a href="https://zhuanlan.zhihu.com/p/34534004" target="_blank" rel="external">ID3、C4.5、CART、随机森林、bagging、boosting、Adaboost、GBDT、xgboost算法总结</a></p>
-</blockquote>
-<h2 id="5-Bagging-vs-Boosting"><a href="#5-Bagging-vs-Boosting" class="headerlink" title="5. Bagging vs Boosting"></a>5. Bagging vs Boosting</h2><p>两种方法的采样和处理方式都不同，主要代表算法便是： Rondom Forest、 GBDT.</p>
-<h3 id="5-1-Bagging"><a href="#5-1-Bagging" class="headerlink" title="5.1 Bagging"></a>5.1 Bagging</h3><p>Bagging 的思想比较简单，即每一次从原始数据中根据 <strong>均匀概率分布有放回的抽取和原始数据大小相同的样本集合</strong>，样本点可能出现重复，然后对每一次产生的训练集构造一个分类器，再对分类器进行组合。</p>
-<h3 id="5-2-Boosting"><a href="#5-2-Boosting" class="headerlink" title="5.2 Boosting"></a>5.2 Boosting</h3><p>Boosting 的每一次抽样的 <strong>样本分布都是不一样</strong> 的。每一次迭代，都根据上一次迭代的结果，<strong>增加被错误分类的样本的权重</strong>，使得模型能在之后的迭代中更加注意到 <strong>难以分类的样本</strong>，这是一个 <strong>不断学习的过程，也是一个不断提升</strong> 的过程，这也就是boosting思想的本质所在。 迭代之后，将每次迭代的基分类器进行集成。那么如何进行样本权重的调整和分类器的集成是我们需要考虑的关键问题。</p>
-<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-7.jpg" width="600"></p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Decision Tree]]></title>
-      <url>http://shopee.ai/2019/06/01/ml/Decision_Tree_part1/</url>
-      <content type="html"><![CDATA[<!--<img src="/images/ml/decision-tree/decision_tree-1.png" width="870" />
--->
-<p><a href="/2019/06/01/ml/Decision_Tree_part1/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/decision-tree/decision_tree-3.png') no-repeat 0 0 / contain; height:198px; width:700px;"></a></p>
-<a id="more"></a>
-<!--<center><font size=3.5>-->
-<p>这便是中国特色相亲故事，故事中的女孩做决定的过程就是一个典型的决策树分类:<br><!--</font></center>--></p>
-<blockquote>
-<p>通过年龄、长相、工资、是否会编程等属性对男生进行了两个类别的分类：见或不见</p>
-</blockquote>
-<h2 id="1"><a href="#1" class="headerlink" title="1."></a>1.</h2><h2 id="2"><a href="#2" class="headerlink" title="2."></a>2.</h2><h2 id="3"><a href="#3" class="headerlink" title="3."></a>3.</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Logistic Regression]]></title>
-      <url>http://shopee.ai/2019/05/31/ml/Logistic_Regression/</url>
-      <content type="html"><![CDATA[<!--<img src="/images/ml/lr/LR-1.png" width="580" />
--->
-<p><a href="/2019/05/31/ml/Logistic_Regression/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/lr/LR-1.png') no-repeat 0 0 / contain; height:290px; width:580px;"></a></p>
-<a id="more"></a>
-<!--<center><font size=3.5>-->
-<p>Logistic Regression 是一种用于解决二分类（0 or 1）问题的机器学习方法.<br><!--</font></center>--><br>举个🌰 :</p>
-<blockquote>
-<p>(1). 用户购买某商品的可能性</p>
-<p>(2). 某病人患有某种疾病的可能性</p>
-<p>(3). 某广告被用户点击的可能性等</p>
-</blockquote>
-<h2 id="1-Logistic-vs-Linear-Regression"><a href="#1-Logistic-vs-Linear-Regression" class="headerlink" title="1. Logistic vs Linear Regression"></a>1. Logistic vs Linear Regression</h2><p>Logistic Regression 和 Linear Regression 都是一种广义线性模型（generalized linear model）。</p>
-<p>逻辑回归假设因变量 y 服从伯努利分布，而线性回归假设因变量 y 服从高斯分布。 因此与线性回归有很多相同之处，去除 Sigmoid 映射函数的话，逻辑回归算法就是一个线性回归。可以说，逻辑回归是以线性回归为理论支持的，但是逻辑回归通过 Sigmoid函数 引入了非线性因素，因此可以轻松处理 0/1 分类问题。</p>
-<h3 id="1-1-Linear-Regression"><a href="#1-1-Linear-Regression" class="headerlink" title="1.1 Linear Regression"></a>1.1 Linear Regression</h3><p>$$<br>z={\theta_{0}}+{\theta_{1}x_{1}}+{\theta_{2}x_{2}+{\theta_{3}x_{3}}…+{\theta_{n}x_{n}}}=\theta^Tx<br>$$</p>
-<blockquote>
-<p>使用最小二乘法求解 Linear Regression 时，我们认为因变量 y 服从正态分布。</p>
-<p>线性回归假设因变量 y 服从高斯分布:  真实值y与拟合值Y之间的差值是不是符合正态分布。</p>
-</blockquote>
-<h3 id="1-2-Logistic-Regression"><a href="#1-2-Logistic-Regression" class="headerlink" title="1.2 Logistic Regression"></a>1.2 Logistic Regression</h3><p>$$<br>h_{\theta}(x)=\frac{1}{1+e^{-z}}=\frac{1}{1+e^{-\theta^Tx}}<br>$$</p>
-<p><img src="/images/ml/lr/LR-2.png" width="280" alt="Logistic Regression 将线性函数的结果映射到了 sigmoid 函数 中. 取值在 [0, 1] 之间."></p>
-<p>$$<br>log\frac{p}{1-p} = \theta^Tx<br>$$</p>
-<blockquote>
-<p>一件事发生的几率 $odds = \frac{p}{1-p}$， $p = P(y=1|x)$</p>
-<p>Logistic Regression 可以看作是对于 “y=1|x” 这一事件的对数几率的线性回归.</p>
-</blockquote>
-<p>逻辑回归通过对似然函数 $<br>L(\theta)=\prod_{i=1}^{N}P(y_i|x_i;\theta)=\prod_{i=1}^{N}(\pi(x_i))^{y_i}(1-\pi(x_i))^{1-y_i} $ 的学习，得到最佳参数 θ.</p>
-<blockquote>
-<p>Logistic 与 Linear Regression 二者都使用了极大似然估计来对训练样本进行建模</p>
-</blockquote>
-<p><a href="http://www.iterate.site/2019/03/30/12-逻辑回归/" target="_blank" rel="external">迭代自己 Logistic Regression</a></p>
-<h2 id="2-LR-Hypothesis-function"><a href="#2-LR-Hypothesis-function" class="headerlink" title="2. LR Hypothesis function"></a>2. LR Hypothesis function</h2><p><img src="/images/ml/lr/LR-3.svg" width="150"></p>
-<p>其函数曲线如下：</p>
-<p><img src="/images/ml/lr/LR-2.png" width="280" alt="取值在[0, 1]之间，在远离0的地方函数的值会很快接近0或者1。它的这个特性对于解决二分类问题十分重要."></p>
-<p>Logistic Regression 假设函数形式如下：</p>
-<p><img src="/images/ml/lr/LR-4.svg" width="270"></p>
-<p>所以：</p>
-<p><img src="/images/ml/lr/LR-5.svg" width="170"></p>
-<p>一个机器学习的模型，实际上是把决策函数限定在某一组条件下，这组限定条件就决定了模型的假设空间。当然，我们还希望这组限定条件简单而合理。而逻辑回归模型所做的假设是：</p>
-<p><img src="/images/ml/lr/LR-6.svg" width="300" alt="这个函数的意思就是在给定 x 和 0 的条件下 y=1 的概率"></p>
-<h2 id="3-Cost-Function"><a href="#3-Cost-Function" class="headerlink" title="3. Cost Function"></a>3. Cost Function</h2><p>Cost Function：</p>
-<p><img src="/images/ml/lr/LR-7.svg" width="470"></p>
-<p>Loss Function：</p>
-<p><img src="/images/ml/lr/LR-8.svg" width="400"></p>
-<p>上面的方程等价于：</p>
-<p><img src="/images/ml/lr/LR-9.svg" width="570"></p>
-<p><img src="/images/ml/lr/LR-10.png" width="370"></p>
-<blockquote>
-<ul>
-<li>选择 Cost_Function 时，最好挑选对参数 $\theta$ 可微的函数（全微分存在，偏导数一定存在）</li>
-<li>对于每种算法来说，Cost_Function 不是唯一的； Cost_Function 是参数 $\theta$ 的函数；</li>
-<li>Cost Function 是对所有样本而言, Loss Function 是对单一样本而言.</li>
-<li>$J(\theta)$ 是一个标量, 我们需要 min 最小化它.</li>
-</ul>
-</blockquote>
-<p>LR 中，代价函数是交叉熵 (<strong>Cross Entropy</strong>)，交叉熵是一个常见的代价函数:</p>
-<p><a href="https://zhuanlan.zhihu.com/p/38241764" target="_blank" rel="external">good 简单的交叉熵损失函数，你真的懂了吗？</a></p>
-<h2 id="4-Cross-Entropy"><a href="#4-Cross-Entropy" class="headerlink" title="4. Cross Entropy"></a>4. Cross Entropy</h2><p>Cross Entropy 是信息论中的一个概念，要想了解交叉熵的本质，需要先从最基本的概念讲起。</p>
-<blockquote>
-<p>信息量、熵、相对熵（KL散度）、交叉熵</p>
-<p>同一个随机变量 x 有两个单独的概率分布 P(x) 和 Q(x)， 用 KL散度 来衡量这两个分布的差异。</p>
-<p>$D_{KL}(p||q)=\sum_{i=1}^np(x_i)log(\frac{p(x_i)}{q(x_i)}) \tag{3.1}$</p>
-<p>$$\begin{eqnarray}<br>D_{KL}(p||q) &amp;=&amp; \sum_{i=1}^np(x_i)log(p(x_i))-\sum_{i=1}^np(x_i)log(q(x_i))\end{eqnarray}$$</p>
-<p>等式的前一部分恰巧就是p的熵，等式的后一部分，就是交叉熵：</p>
-<p>$$\begin{eqnarray}<br>=&amp; -H(p(x))+[-\sum_{i=1}^np(x_i)log(q(x_i))]<br>\end{eqnarray}$$</p>
-<p>在机器学习中，我们需要评估label和predicts之间的差距，使用KL散度刚刚好，即 $D_{KL}(y||\hat{y})$ .</p>
-<p>由于KL散度中的前一部分 $-H(y)$ 不变，故在优化过程中，只需要关注 Cross Entropy 就可以了。</p>
-<p>所以一般在机器学习中直接用用 Cross Entropy Loss，评估模型。</p>
-<p>$D_{KL}$ 的值越小，表示 q分布 和 p分布 越接近.</p>
-</blockquote>
-<p><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="external">一文搞懂交叉熵在机器学习中的使用</a></p>
-<p><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="external">交叉熵在多分类问题中的使用, sigmoid</a></p>
-<blockquote>
-<p>1）CrossEntropy lossFunction </p>
-<p><img src="/images/ml/lr/LR-11.svg" width="300"></p>
-<p>二分类: </p>
-<p><img src="/images/ml/lr/LR-12.svg" width="150"></p>
-<p>意义：能表征 真实样本标签 和 预测概率 之间的差值</p>
-<p>2）最小化交叉熵的本质就是对数似然函数的最大化；</p>
-<p>3）对数似然函数的本质就是衡量在某个参数下，整体的估计和真实情况一样的概率，越大代表越相近；</p>
-<p>4）损失函数的本质就是衡量预测值和真实值之间的差距，越大代表越不相近。</p>
-</blockquote>
-<h3 id="4-1-Log-设计理念"><a href="#4-1-Log-设计理念" class="headerlink" title="4.1 Log 设计理念"></a>4.1 Log 设计理念</h3><p>预测输出与 y 差得越多，L 的值越大，也就是说对当前模型的 “ 惩罚 ” 越大，而且是非线性增大，是一种类似指数增长的级别。这是由 log 函数本身的特性所决定的。这样的好处是 模型会倾向于让预测输出更接近真实样本标签 y。</p>
-<blockquote>
-<p>我们希望 log P(y|x) 越大越好，反过来，只要 log P(y|x) 的负值 -log P(y|x) 越小就行了。那我们就可以引入损失函数，且令 Loss = -log P(y|x)即可。则得到损失函数为：</p>
-<p><img src="/images/ml/lr/LR-11.svg" width="300"></p>
-<p>图可以帮助我们对 CrossEntropy lossFunction 有更直观的理解。无论真实样本标签 y 是 0 还是 1，L 都表征了预测输出与 y 的差距。</p>
-</blockquote>
-<h3 id="4-2-MLE-最大似然"><a href="#4-2-MLE-最大似然" class="headerlink" title="4.2 MLE 最大似然"></a>4.2 MLE 最大似然</h3><p>就是利用已知的样本结果信息，反推最具有可能（最大概率）导致这些样本结果出现的 <font color="#c7254e"><strong>模型参数值</strong>！</font></p>
-<blockquote>
-<p>输入有两个：$x$ 表示某一个具体的数据；$θ$ 表示模型的参数。</p>
-</blockquote>
-<p>Probability Function：</p>
-<blockquote>
-<p>对于这个函数： $P(x|θ)$ ， 如果 $θ$ 是已知确定的，$x$ 是变量，这个函数叫做概率函数 (probability function)，它描述对于不同的样本点 $x$，其出现概率是多少。</p>
-</blockquote>
-<p>Likelihood Function：</p>
-<blockquote>
-<p>如果 $x$ 是已知确定的，$θ$ 是变量，这个函数叫做似然函数(likelihood function), 它描述对于不同的模型参数，出现 $x$ 这个样本点的概率是多少。</p>
-<p>MLE 提供了一种 <strong>给定观察数据来评估模型参数</strong> 的方法，即：“模型已定，参数未知”。</p>
-<p>MLE 中 <strong>采样</strong> 需满足一个重要的假设，就是所有的采样都是 <strong>独立同分布</strong> 的.</p>
-<p>一句话总结：概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。</p>
-</blockquote>
-<h2 id="5-最小二乘法-vs-最大似然估计"><a href="#5-最小二乘法-vs-最大似然估计" class="headerlink" title="5. 最小二乘法 vs 最大似然估计"></a>5. 最小二乘法 vs 最大似然估计</h2><p>总结一句话：</p>
-<ul>
-<li>最小二乘法的核心是权衡，因为你要在很多条线中间选择，选择出距离所有的点之和最短的；</li>
-<li>而极大似然的核心是自恋，要相信自己是天选之子，自己看到的，就是冥冥之中最接近真相的。^_^</li>
-</ul>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://zhuanlan.zhihu.com/p/28408516" target="_blank" rel="external">逻辑回归（Logistic Regression）（一）</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/22876460" target="_blank" rel="external">广义线性模型（Generalized Linear Model）</a></li>
-<li><a href="https://blog.csdn.net/Cdd2xd/article/details/75635688" target="_blank" rel="external">GLM(广义线性模型) 与 LR(逻辑回归) 详解</a></li>
-<li><a href="https://www.zhihu.com/question/56891433" target="_blank" rel="external">怎样用通俗易懂的文字解释正态分布及其意义？</a></li>
-<li><a href="https://www.zhihu.com/question/20447622" target="_blank" rel="external">最大似然估计和最小二乘法怎么理解？</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/26614750" target="_blank" rel="external">知乎：一文搞懂极大似然估计</a></li>
-<li><a href="https://blog.csdn.net/u011508640/article/details/72815981" target="_blank" rel="external">CSDN：详解最大似然估计（MLE）、最大后验概率估计（MAP），以及贝叶斯公式的理解</a></li>
-<li><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="external">一文搞懂交叉熵在机器学习中的使用，透彻理解交叉熵背后的直觉</a></li>
-</ul>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[BERT 完全指南]]></title>
-      <url>http://shopee.ai/2019/04/30/nlp/BERT/</url>
+      <url>http://shopee.ai/2019/06/30/nlp/BERT/</url>
       <content type="html"><![CDATA[<div class="mygallery justified-gallery"><br><img src="/images/nlp/Bert-Ernie-logo.jpg" width="550" alt="Bert-Ernie"><br></div>
 
 <a id="more"></a>
@@ -441,6 +238,209 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <li><a href="https://zhuanlan.zhihu.com/p/53099098" target="_blank" rel="external">自然语言处理中的Transformer和BERT</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/36331888" target="_blank" rel="external">RNN和LSTM弱！爆！了！注意力模型才是王道</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/46997268" target="_blank" rel="external">NLP突破性成果 BERT 模型详细解读</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Rondom Forest vs GBDT]]></title>
+      <url>http://shopee.ai/2019/06/02/ml/Random_Forest_and_GBDT/</url>
+      <content type="html"><![CDATA[<!--<img class="img-fancy" src="/images/ml/ensumble/ensumble-1.png" width="600" border="0" alt="台湾 vs 大陆"/>-->
+<p><a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:332px; width:600px;"></a></p>
+<a id="more"></a>
+<h2 id="1-Random-Forest"><a href="#1-Random-Forest" class="headerlink" title="1. Random Forest"></a>1. Random Forest</h2><p>Rondom Forest 是一个典型的多个决策树的组合分类器.</p>
+<p>Rondom Forest, 的 Random 体现在 2 个方面：</p>
+<blockquote>
+<ol>
+<li>data random</li>
+<li>feature random</li>
+</ol>
+</blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/34534004" target="_blank" rel="external">RF、bagging、boosting、GBDT、xgboost算法总结</a></p>
+<p>Sample data Random： </p>
+<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-2.jpg" width="600" border="0"></p>
+<p>Feature Random：</p>
+<blockquote>
+<p>与数据集的随机选取类似，随机森林中的子树的每一个分裂过程并未用到所有的待选特征，而是从所有的待选特征中随机选取一定的特征，之后再在随机选取的特征中选取最优的特征。这样能够使得随机森林中的决策树都能够彼此不同，提升系统的多样性，从而提升分类性能。</p>
+</blockquote>
+<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-3.jpg" width="600" border="0"></p>
+<h2 id="2-GBDT"><a href="#2-GBDT" class="headerlink" title="2. GBDT"></a>2. GBDT</h2><p>GBDT 是以决策树（CART）为基学习器的 GB算法，是迭代树，而不是分类树。</p>
+<p>一般 Boosting 算法都是一个迭代的过程，每一次新的训练都是为了改进上一次的结果。</p>
+<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-4.jpg" width="600"></p>
+<p>GBDT 的核心就在于：<strong>每一棵树学的是之前所有树结论和的残差</strong>，这个残差就是一个加预测值后能得真实值的累加量。</p>
+<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-5.jpg" width="850"></p>
+<h2 id="3-RF-vs-GBDT"><a href="#3-RF-vs-GBDT" class="headerlink" title="3. RF vs GBDT"></a>3. RF vs GBDT</h2><blockquote>
+<ol>
+<li>组成 RF 的树可以是分类树，也可以是回归树；而GBDT只由回归树组成 </li>
+<li>组成 RF 的树可以并行生成；而 GBDT 只能是串行生成. </li>
+<li>对于最终的输出结果而言，随机森林采用多数投票等；而 GBDT 则是将所有结果累加起来，或者加权累加起来. </li>
+<li>RF 对异常值不敏感，GBDT 对异常值非常敏感.</li>
+<li>RF 对训练集一视同仁，GBDT 是基于权值的弱分类器的集成. </li>
+<li>RF 是通过减少模型方差提高性能，GBDT是通过减少模型偏差提高性能.</li>
+</ol>
+</blockquote>
+<h2 id="4-Xgboost-vs-GBDT"><a href="#4-Xgboost-vs-GBDT" class="headerlink" title="4. Xgboost vs GBDT"></a>4. Xgboost vs GBDT</h2><p>Xgboost相比于GBDT来说，更加有效应用了数值优化，最重要是<strong>对损失函数</strong>（预测值和真实值的误差）<strong>变得更复杂</strong>。目标函数依然是所有树的预测值相加等于预测值。</p>
+<blockquote>
+<ol>
+<li>二阶泰勒展开，同时用到了一阶和二阶导数</li>
+<li>xgboost在代价函数里加入了正则项，用于控制模型的复杂度</li>
+<li>Shrinkage（缩减），相当于学习速率（xgboost中的eta）</li>
+<li>列抽样（column subsampling）。xgboost借鉴RF做法，支持列抽样（即每次的输入特征不是全部特征)</li>
+<li>并行化处理： 预先对每个特征内部进行了排序找出候选切割点.各个<strong>feature</strong>的增益计算就可以开多线程进行.</li>
+</ol>
+</blockquote>
+<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-6.jpg" width="600"></p>
+<blockquote>
+<p>好的模型需要具备两个基本要素：</p>
+<ol>
+<li>是要有好的精度（即好的拟合程度）</li>
+<li>是模型要尽可能的简单（复杂的模型容易出现过拟合，并且更加不稳定）</li>
+</ol>
+<p>因此，我们构建的目标函数右边第一项是模型的误差项，第二项是正则化项（也就是模型复杂度的惩罚项）</p>
+<p>常用的误差项有平方误差和逻辑斯蒂误差，常见的惩罚项有l1，l2正则，l1正则是将模型各个元素进行求和，l2正则是对元素求平方。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/34534004" target="_blank" rel="external">ID3、C4.5、CART、随机森林、bagging、boosting、Adaboost、GBDT、xgboost算法总结</a></p>
+</blockquote>
+<h2 id="5-Bagging-vs-Boosting"><a href="#5-Bagging-vs-Boosting" class="headerlink" title="5. Bagging vs Boosting"></a>5. Bagging vs Boosting</h2><p>两种方法的采样和处理方式都不同，主要代表算法便是： Rondom Forest、 GBDT.</p>
+<h3 id="5-1-Bagging"><a href="#5-1-Bagging" class="headerlink" title="5.1 Bagging"></a>5.1 Bagging</h3><p>Bagging 的思想比较简单，即每一次从原始数据中根据 <strong>均匀概率分布有放回的抽取和原始数据大小相同的样本集合</strong>，样本点可能出现重复，然后对每一次产生的训练集构造一个分类器，再对分类器进行组合。</p>
+<h3 id="5-2-Boosting"><a href="#5-2-Boosting" class="headerlink" title="5.2 Boosting"></a>5.2 Boosting</h3><p>Boosting 的每一次抽样的 <strong>样本分布都是不一样</strong> 的。每一次迭代，都根据上一次迭代的结果，<strong>增加被错误分类的样本的权重</strong>，使得模型能在之后的迭代中更加注意到 <strong>难以分类的样本</strong>，这是一个 <strong>不断学习的过程，也是一个不断提升</strong> 的过程，这也就是boosting思想的本质所在。 迭代之后，将每次迭代的基分类器进行集成。那么如何进行样本权重的调整和分类器的集成是我们需要考虑的关键问题。</p>
+<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-7.jpg" width="600"></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Decision Tree]]></title>
+      <url>http://shopee.ai/2019/06/01/ml/Decision_Tree_part1/</url>
+      <content type="html"><![CDATA[<!--<img src="/images/ml/decision-tree/decision_tree-1.png" width="870" />
+-->
+<p><a href="/2019/06/01/ml/Decision_Tree_part1/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/decision-tree/decision_tree-3.png') no-repeat 0 0 / contain; height:198px; width:700px;"></a></p>
+<a id="more"></a>
+<!--<center><font size=3.5>-->
+<p>这便是中国特色相亲故事，故事中的女孩做决定的过程就是一个典型的决策树分类:<br><!--</font></center>--></p>
+<blockquote>
+<p>通过年龄、长相、工资、是否会编程等属性对男生进行了两个类别的分类：见或不见</p>
+</blockquote>
+<h2 id="1"><a href="#1" class="headerlink" title="1."></a>1.</h2><h2 id="2"><a href="#2" class="headerlink" title="2."></a>2.</h2><h2 id="3"><a href="#3" class="headerlink" title="3."></a>3.</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Logistic Regression]]></title>
+      <url>http://shopee.ai/2019/05/31/ml/Logistic_Regression/</url>
+      <content type="html"><![CDATA[<!--<img src="/images/ml/lr/LR-1.png" width="580" />
+-->
+<p><a href="/2019/05/31/ml/Logistic_Regression/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/lr/LR-1.png') no-repeat 0 0 / contain; height:290px; width:580px;"></a></p>
+<a id="more"></a>
+<!--<center><font size=3.5>-->
+<p>Logistic Regression 是一种用于解决二分类（0 or 1）问题的机器学习方法.<br><!--</font></center>--><br>举个🌰 :</p>
+<blockquote>
+<p>(1). 用户购买某商品的可能性</p>
+<p>(2). 某病人患有某种疾病的可能性</p>
+<p>(3). 某广告被用户点击的可能性等</p>
+</blockquote>
+<h2 id="1-Logistic-vs-Linear-Regression"><a href="#1-Logistic-vs-Linear-Regression" class="headerlink" title="1. Logistic vs Linear Regression"></a>1. Logistic vs Linear Regression</h2><p>Logistic Regression 和 Linear Regression 都是一种广义线性模型（generalized linear model）。</p>
+<p>逻辑回归假设因变量 y 服从伯努利分布，而线性回归假设因变量 y 服从高斯分布。 因此与线性回归有很多相同之处，去除 Sigmoid 映射函数的话，逻辑回归算法就是一个线性回归。可以说，逻辑回归是以线性回归为理论支持的，但是逻辑回归通过 Sigmoid函数 引入了非线性因素，因此可以轻松处理 0/1 分类问题。</p>
+<h3 id="1-1-Linear-Regression"><a href="#1-1-Linear-Regression" class="headerlink" title="1.1 Linear Regression"></a>1.1 Linear Regression</h3><p>$$<br>z={\theta_{0}}+{\theta_{1}x_{1}}+{\theta_{2}x_{2}+{\theta_{3}x_{3}}…+{\theta_{n}x_{n}}}=\theta^Tx<br>$$</p>
+<blockquote>
+<p>使用最小二乘法求解 Linear Regression 时，我们认为因变量 y 服从正态分布。</p>
+<p>线性回归假设因变量 y 服从高斯分布:  真实值y与拟合值Y之间的差值是不是符合正态分布。</p>
+</blockquote>
+<h3 id="1-2-Logistic-Regression"><a href="#1-2-Logistic-Regression" class="headerlink" title="1.2 Logistic Regression"></a>1.2 Logistic Regression</h3><p>$$<br>h_{\theta}(x)=\frac{1}{1+e^{-z}}=\frac{1}{1+e^{-\theta^Tx}}<br>$$</p>
+<p><img src="/images/ml/lr/LR-2.png" width="280" alt="Logistic Regression 将线性函数的结果映射到了 sigmoid 函数 中. 取值在 [0, 1] 之间."></p>
+<p>$$<br>log\frac{p}{1-p} = \theta^Tx<br>$$</p>
+<blockquote>
+<p>一件事发生的几率 $odds = \frac{p}{1-p}$， $p = P(y=1|x)$</p>
+<p>Logistic Regression 可以看作是对于 “y=1|x” 这一事件的对数几率的线性回归.</p>
+</blockquote>
+<p>逻辑回归通过对似然函数 $<br>L(\theta)=\prod_{i=1}^{N}P(y_i|x_i;\theta)=\prod_{i=1}^{N}(\pi(x_i))^{y_i}(1-\pi(x_i))^{1-y_i} $ 的学习，得到最佳参数 θ.</p>
+<blockquote>
+<p>Logistic 与 Linear Regression 二者都使用了极大似然估计来对训练样本进行建模</p>
+</blockquote>
+<p><a href="http://www.iterate.site/2019/03/30/12-逻辑回归/" target="_blank" rel="external">迭代自己 Logistic Regression</a></p>
+<h2 id="2-LR-Hypothesis-function"><a href="#2-LR-Hypothesis-function" class="headerlink" title="2. LR Hypothesis function"></a>2. LR Hypothesis function</h2><p><img src="/images/ml/lr/LR-3.svg" width="150"></p>
+<p>其函数曲线如下：</p>
+<p><img src="/images/ml/lr/LR-2.png" width="280" alt="取值在[0, 1]之间，在远离0的地方函数的值会很快接近0或者1。它的这个特性对于解决二分类问题十分重要."></p>
+<p>Logistic Regression 假设函数形式如下：</p>
+<p><img src="/images/ml/lr/LR-4.svg" width="270"></p>
+<p>所以：</p>
+<p><img src="/images/ml/lr/LR-5.svg" width="170"></p>
+<p>一个机器学习的模型，实际上是把决策函数限定在某一组条件下，这组限定条件就决定了模型的假设空间。当然，我们还希望这组限定条件简单而合理。而逻辑回归模型所做的假设是：</p>
+<p><img src="/images/ml/lr/LR-6.svg" width="300" alt="这个函数的意思就是在给定 x 和 0 的条件下 y=1 的概率"></p>
+<h2 id="3-Cost-Function"><a href="#3-Cost-Function" class="headerlink" title="3. Cost Function"></a>3. Cost Function</h2><p>Cost Function：</p>
+<p><img src="/images/ml/lr/LR-7.svg" width="470"></p>
+<p>Loss Function：</p>
+<p><img src="/images/ml/lr/LR-8.svg" width="400"></p>
+<p>上面的方程等价于：</p>
+<p><img src="/images/ml/lr/LR-9.svg" width="570"></p>
+<p><img src="/images/ml/lr/LR-10.png" width="370"></p>
+<blockquote>
+<ul>
+<li>选择 Cost_Function 时，最好挑选对参数 $\theta$ 可微的函数（全微分存在，偏导数一定存在）</li>
+<li>对于每种算法来说，Cost_Function 不是唯一的； Cost_Function 是参数 $\theta$ 的函数；</li>
+<li>Cost Function 是对所有样本而言, Loss Function 是对单一样本而言.</li>
+<li>$J(\theta)$ 是一个标量, 我们需要 min 最小化它.</li>
+</ul>
+</blockquote>
+<p>LR 中，代价函数是交叉熵 (<strong>Cross Entropy</strong>)，交叉熵是一个常见的代价函数:</p>
+<p><a href="https://zhuanlan.zhihu.com/p/38241764" target="_blank" rel="external">good 简单的交叉熵损失函数，你真的懂了吗？</a></p>
+<h2 id="4-Cross-Entropy"><a href="#4-Cross-Entropy" class="headerlink" title="4. Cross Entropy"></a>4. Cross Entropy</h2><p>Cross Entropy 是信息论中的一个概念，要想了解交叉熵的本质，需要先从最基本的概念讲起。</p>
+<blockquote>
+<p>信息量、熵、相对熵（KL散度）、交叉熵</p>
+<p>同一个随机变量 x 有两个单独的概率分布 P(x) 和 Q(x)， 用 KL散度 来衡量这两个分布的差异。</p>
+<p>$D_{KL}(p||q)=\sum_{i=1}^np(x_i)log(\frac{p(x_i)}{q(x_i)}) \tag{3.1}$</p>
+<p>$$\begin{eqnarray}<br>D_{KL}(p||q) &amp;=&amp; \sum_{i=1}^np(x_i)log(p(x_i))-\sum_{i=1}^np(x_i)log(q(x_i))\end{eqnarray}$$</p>
+<p>等式的前一部分恰巧就是p的熵，等式的后一部分，就是交叉熵：</p>
+<p>$$\begin{eqnarray}<br>=&amp; -H(p(x))+[-\sum_{i=1}^np(x_i)log(q(x_i))]<br>\end{eqnarray}$$</p>
+<p>在机器学习中，我们需要评估label和predicts之间的差距，使用KL散度刚刚好，即 $D_{KL}(y||\hat{y})$ .</p>
+<p>由于KL散度中的前一部分 $-H(y)$ 不变，故在优化过程中，只需要关注 Cross Entropy 就可以了。</p>
+<p>所以一般在机器学习中直接用用 Cross Entropy Loss，评估模型。</p>
+<p>$D_{KL}$ 的值越小，表示 q分布 和 p分布 越接近.</p>
+</blockquote>
+<p><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="external">一文搞懂交叉熵在机器学习中的使用</a></p>
+<p><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="external">交叉熵在多分类问题中的使用, sigmoid</a></p>
+<blockquote>
+<p>1）CrossEntropy lossFunction </p>
+<p><img src="/images/ml/lr/LR-11.svg" width="300"></p>
+<p>二分类: </p>
+<p><img src="/images/ml/lr/LR-12.svg" width="150"></p>
+<p>意义：能表征 真实样本标签 和 预测概率 之间的差值</p>
+<p>2）最小化交叉熵的本质就是对数似然函数的最大化；</p>
+<p>3）对数似然函数的本质就是衡量在某个参数下，整体的估计和真实情况一样的概率，越大代表越相近；</p>
+<p>4）损失函数的本质就是衡量预测值和真实值之间的差距，越大代表越不相近。</p>
+</blockquote>
+<h3 id="4-1-Log-设计理念"><a href="#4-1-Log-设计理念" class="headerlink" title="4.1 Log 设计理念"></a>4.1 Log 设计理念</h3><p>预测输出与 y 差得越多，L 的值越大，也就是说对当前模型的 “ 惩罚 ” 越大，而且是非线性增大，是一种类似指数增长的级别。这是由 log 函数本身的特性所决定的。这样的好处是 模型会倾向于让预测输出更接近真实样本标签 y。</p>
+<blockquote>
+<p>我们希望 log P(y|x) 越大越好，反过来，只要 log P(y|x) 的负值 -log P(y|x) 越小就行了。那我们就可以引入损失函数，且令 Loss = -log P(y|x)即可。则得到损失函数为：</p>
+<p><img src="/images/ml/lr/LR-11.svg" width="300"></p>
+<p>图可以帮助我们对 CrossEntropy lossFunction 有更直观的理解。无论真实样本标签 y 是 0 还是 1，L 都表征了预测输出与 y 的差距。</p>
+</blockquote>
+<h3 id="4-2-MLE-最大似然"><a href="#4-2-MLE-最大似然" class="headerlink" title="4.2 MLE 最大似然"></a>4.2 MLE 最大似然</h3><p>就是利用已知的样本结果信息，反推最具有可能（最大概率）导致这些样本结果出现的 <font color="#c7254e"><strong>模型参数值</strong>！</font></p>
+<blockquote>
+<p>输入有两个：$x$ 表示某一个具体的数据；$θ$ 表示模型的参数。</p>
+</blockquote>
+<p>Probability Function：</p>
+<blockquote>
+<p>对于这个函数： $P(x|θ)$ ， 如果 $θ$ 是已知确定的，$x$ 是变量，这个函数叫做概率函数 (probability function)，它描述对于不同的样本点 $x$，其出现概率是多少。</p>
+</blockquote>
+<p>Likelihood Function：</p>
+<blockquote>
+<p>如果 $x$ 是已知确定的，$θ$ 是变量，这个函数叫做似然函数(likelihood function), 它描述对于不同的模型参数，出现 $x$ 这个样本点的概率是多少。</p>
+<p>MLE 提供了一种 <strong>给定观察数据来评估模型参数</strong> 的方法，即：“模型已定，参数未知”。</p>
+<p>MLE 中 <strong>采样</strong> 需满足一个重要的假设，就是所有的采样都是 <strong>独立同分布</strong> 的.</p>
+<p>一句话总结：概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。</p>
+</blockquote>
+<h2 id="5-最小二乘法-vs-最大似然估计"><a href="#5-最小二乘法-vs-最大似然估计" class="headerlink" title="5. 最小二乘法 vs 最大似然估计"></a>5. 最小二乘法 vs 最大似然估计</h2><p>总结一句话：</p>
+<ul>
+<li>最小二乘法的核心是权衡，因为你要在很多条线中间选择，选择出距离所有的点之和最短的；</li>
+<li>而极大似然的核心是自恋，要相信自己是天选之子，自己看到的，就是冥冥之中最接近真相的。^_^</li>
+</ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://zhuanlan.zhihu.com/p/28408516" target="_blank" rel="external">逻辑回归（Logistic Regression）（一）</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/22876460" target="_blank" rel="external">广义线性模型（Generalized Linear Model）</a></li>
+<li><a href="https://blog.csdn.net/Cdd2xd/article/details/75635688" target="_blank" rel="external">GLM(广义线性模型) 与 LR(逻辑回归) 详解</a></li>
+<li><a href="https://www.zhihu.com/question/56891433" target="_blank" rel="external">怎样用通俗易懂的文字解释正态分布及其意义？</a></li>
+<li><a href="https://www.zhihu.com/question/20447622" target="_blank" rel="external">最大似然估计和最小二乘法怎么理解？</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/26614750" target="_blank" rel="external">知乎：一文搞懂极大似然估计</a></li>
+<li><a href="https://blog.csdn.net/u011508640/article/details/72815981" target="_blank" rel="external">CSDN：详解最大似然估计（MLE）、最大后验概率估计（MAP），以及贝叶斯公式的理解</a></li>
+<li><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="external">一文搞懂交叉熵在机器学习中的使用，透彻理解交叉熵背后的直觉</a></li>
 </ul>
 ]]></content>
     </entry>
@@ -15005,105 +15005,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Elasticsearch installation plugins]]></title>
-      <url>http://shopee.ai/2016/05/17/elasticsearch/es-install-plugins/</url>
-      <content type="html"><![CDATA[<p> Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
-<a id="more"></a>
-<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
-<p><strong>Install es</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Config es</strong></p>
-<p>$ES_HOME/config/elasticsearch.yml</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
-<p><strong>Startup</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>运行之后，会产生 data 和 logs 目录</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
-<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
-<p>ES-Head的主要作用</p>
-<ul>
-<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
-<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
-<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
-</ul>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
-<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
-<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
-<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
-<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
-<p>service log 在 logs/service.log 中。</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
-<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
-</blockquote>
-<hr>
-<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
-<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
-<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
-<p><strong>Install-Verify</strong></p>
-<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
-<p><strong>Config http-basic param</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
-<p><strong>./bin/plugin –list</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
-<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
-<p>download and add mysql-driver</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
-<p>停止river</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
-<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
-<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>XPUT data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p><strong>XGET data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p>output</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
-<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
-<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
-<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
-<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
-<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
-<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
-</ol>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Elasticsearch * 入门]]></title>
       <url>http://shopee.ai/2016/05/17/elasticsearch/es-indoor/</url>
       <content type="html"><![CDATA[<p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎 、 实时分布式搜索 和 分析引擎。</p>
@@ -15255,6 +15156,105 @@ img {
 <li>将集群中任意一个节点上的请求路由到相应数据所在的节点。</li>
 <li>无论是增加节点，还是移除节点，分片都可以做到无缝的扩展和迁移。</li>
 </ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Elasticsearch installation plugins]]></title>
+      <url>http://shopee.ai/2016/05/17/elasticsearch/es-install-plugins/</url>
+      <content type="html"><![CDATA[<p> Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
+<a id="more"></a>
+<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
+<p><strong>Install es</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Config es</strong></p>
+<p>$ES_HOME/config/elasticsearch.yml</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
+<p><strong>Startup</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行之后，会产生 data 和 logs 目录</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
+<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
+<p>ES-Head的主要作用</p>
+<ul>
+<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
+<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
+<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
+</ul>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
+<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
+<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
+<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
+<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
+<p>service log 在 logs/service.log 中。</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
+<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
+</blockquote>
+<hr>
+<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
+<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
+<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
+<p><strong>Install-Verify</strong></p>
+<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
+<p><strong>Config http-basic param</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
+<p><strong>./bin/plugin –list</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
+<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
+<p>download and add mysql-driver</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
+<p>停止river</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
+<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
+<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>XPUT data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p><strong>XGET data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p>output</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
+<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
+<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
+<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
+<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
+<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
+<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
+</ol>
 ]]></content>
     </entry>
     
