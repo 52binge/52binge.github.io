@@ -18,7 +18,7 @@
 <meta property="og:image" content="http://shopee.ai/images/ml/ensumble/ensumble-5.jpg">
 <meta property="og:image" content="http://shopee.ai/images/ml/ensumble/ensumble-6.jpg">
 <meta property="og:image" content="http://shopee.ai/images/ml/ensumble/ensumble-7.jpg">
-<meta property="og:updated_time" content="2019-06-01T13:33:12.000Z">
+<meta property="og:updated_time" content="2019-06-03T02:04:04.129Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Rondom Forest vs GBDT">
 <meta name="twitter:description">
@@ -146,9 +146,9 @@ var _hmt = _hmt || [];
 <li>组成 RF 的树可以是分类树，也可以是回归树；而GBDT只由回归树组成 </li>
 <li>组成 RF 的树可以并行生成；而 GBDT 只能是串行生成. </li>
 <li>对于最终的输出结果而言，随机森林采用多数投票等；而 GBDT 则是将所有结果累加起来，或者加权累加起来. </li>
-<li>RF 对异常值不敏感，GBDT 对异常值非常敏感.</li>
+<li>RF 对异常值不敏感，GBDT 对<code>异常值非常敏感</code>.</li>
 <li>RF 对训练集一视同仁，GBDT 是基于权值的弱分类器的集成. </li>
-<li>RF 是通过减少模型方差提高性能，GBDT是通过减少模型偏差提高性能.</li>
+<li>RF 是通过减少模型<code>方差</code>提高性能，GBDT是通过减少模型<code>偏差</code>提高性能.</li>
 </ol>
 </blockquote>
 <h2 id="4-Xgboost-vs-GBDT"><a href="#4-Xgboost-vs-GBDT" class="headerlink" title="4. Xgboost vs GBDT"></a>4. Xgboost vs GBDT</h2><p>Xgboost相比于GBDT来说，更加有效应用了数值优化，最重要是<strong>对损失函数</strong>（预测值和真实值的误差）<strong>变得更复杂</strong>。目标函数依然是所有树的预测值相加等于预测值。</p>
@@ -175,8 +175,23 @@ var _hmt = _hmt || [];
 <h2 id="5-Bagging-vs-Boosting"><a href="#5-Bagging-vs-Boosting" class="headerlink" title="5. Bagging vs Boosting"></a>5. Bagging vs Boosting</h2><p>两种方法的采样和处理方式都不同，主要代表算法便是： Rondom Forest、 GBDT.</p>
 <h3 id="5-1-Bagging"><a href="#5-1-Bagging" class="headerlink" title="5.1 Bagging"></a>5.1 Bagging</h3><p>Bagging 的思想比较简单，即每一次从原始数据中根据 <strong>均匀概率分布有放回的抽取和原始数据大小相同的样本集合</strong>，样本点可能出现重复，然后对每一次产生的训练集构造一个分类器，再对分类器进行组合。</p>
 <h3 id="5-2-Boosting"><a href="#5-2-Boosting" class="headerlink" title="5.2 Boosting"></a>5.2 Boosting</h3><p>Boosting 的每一次抽样的 <strong>样本分布都是不一样</strong> 的。每一次迭代，都根据上一次迭代的结果，<strong>增加被错误分类的样本的权重</strong>，使得模型能在之后的迭代中更加注意到 <strong>难以分类的样本</strong>，这是一个 <strong>不断学习的过程，也是一个不断提升</strong> 的过程，这也就是boosting思想的本质所在。 迭代之后，将每次迭代的基分类器进行集成。那么如何进行样本权重的调整和分类器的集成是我们需要考虑的关键问题。</p>
-<p><img class="img-fancy" src="/images/ml/ensumble/ensumble-7.jpg" width="600"></p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>
+<p><img src="/images/ml/ensumble/ensumble-7.jpg" width="600" alt=""></p>
+<h2 id="6-特征重要度"><a href="#6-特征重要度" class="headerlink" title="6. 特征重要度"></a>6. 特征重要度</h2><h3 id="6-1-RF-特征度量"><a href="#6-1-RF-特征度量" class="headerlink" title="6.1 RF 特征度量"></a>6.1 RF 特征度量</h3><p>(1）对每一颗决策树，选择相应的袋外数据（out of bag，OOB）​计算袋外数据误差，记为errOOB1.</p>
+<blockquote>
+<p>所谓袋外数据是指，每次建立决策树时，通过重复抽样得到一个数据用于训练​决策树，这时还有大约1/3的数据没有被利用，没有参与决策树的建立。这部分数据可以用于对决策树的性能进行评估，计算模型的预测错误率，称为袋外数据误差。</p>
+<p>​这已经经过证明是无偏估计的,所以在随机森林算法中不需要再进行交叉验证或者单独的测试集来获取测试集误差的无偏估计。</p>
+</blockquote>
+<p>​(2）随机对袋外数据OOB所有样本的特征$X$加入噪声干扰（可以随机改变样本在特征X处的值），再次计算袋外数据误差，记为errOOB2。</p>
+<p>(3）​假设森林中有N棵树，则特征X的重要性=∑（errOOB2-errOOB1）/N。这个数值之所以能够说明特征的重要性是因为，如果加入随机噪声后，袋外数据准确率大幅度下降（即errOOB2上升），说明这个特征对于样本的预测结果有很大影响，进而说明重要程度比较高。</p>
+<h3 id="6-2-GBDT-特征度量"><a href="#6-2-GBDT-特征度量" class="headerlink" title="6.2 GBDT 特征度量"></a>6.2 GBDT 特征度量</h3><p>主要是通过计算特征i在单棵树中重要度的平均值，计算公式如下：</p>
+<p>其中，M是树的数量。特征i在单棵树的重要度主要是通过计算按这个特征i分裂之后损失的减少值.</p>
+<p>其中，L是叶子节点的数量，L-1就是非叶子结点的数量。</p>
+<h3 id="6-3-Xgboost"><a href="#6-3-Xgboost" class="headerlink" title="6.3 Xgboost"></a>6.3 Xgboost</h3><p>XGboost是通过该特征每棵树中分裂次数的和去计算的，比如这个特征在第一棵树分裂1次，第二棵树2次……，那么这个特征的得分就是(1+2+…)。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://blog.csdn.net/m0_37770941/article/details/78330795" target="_blank" rel="external">随机森林进行特征重要性度量的详细说明</a></li>
+<li><a href="https://www.zhihu.com/question/22983179" target="_blank" rel="external">什么是无偏估计？</a></li>
+</ul>
+
       
      <!-- by blair add this if sentence at 20160725 -->
       <br>
@@ -219,7 +234,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Random-Forest"><span class="toc-number"></span> <span class="toc-text">1. Random Forest</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-GBDT"><span class="toc-number"></span> <span class="toc-text">2. GBDT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-RF-vs-GBDT"><span class="toc-number"></span> <span class="toc-text">3. RF vs GBDT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Xgboost-vs-GBDT"><span class="toc-number"></span> <span class="toc-text">4. Xgboost vs GBDT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Bagging-vs-Boosting"><span class="toc-number"></span> <span class="toc-text">5. Bagging vs Boosting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-Bagging"><span class="toc-number"></span> <span class="toc-text">5.1 Bagging</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Boosting"><span class="toc-number"></span> <span class="toc-text">5.2 Boosting</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Random-Forest"><span class="toc-number"></span> <span class="toc-text">1. Random Forest</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-GBDT"><span class="toc-number"></span> <span class="toc-text">2. GBDT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-RF-vs-GBDT"><span class="toc-number"></span> <span class="toc-text">3. RF vs GBDT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Xgboost-vs-GBDT"><span class="toc-number"></span> <span class="toc-text">4. Xgboost vs GBDT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Bagging-vs-Boosting"><span class="toc-number"></span> <span class="toc-text">5. Bagging vs Boosting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-Bagging"><span class="toc-number"></span> <span class="toc-text">5.1 Bagging</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Boosting"><span class="toc-number"></span> <span class="toc-text">5.2 Boosting</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-特征重要度"><span class="toc-number"></span> <span class="toc-text">6. 特征重要度</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-RF-特征度量"><span class="toc-number"></span> <span class="toc-text">6.1 RF 特征度量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-GBDT-特征度量"><span class="toc-number"></span> <span class="toc-text">6.2 GBDT 特征度量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-Xgboost"><span class="toc-number"></span> <span class="toc-text">6.3 Xgboost</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -247,10 +262,10 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2019/06/30/nlp/BERT/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2019/06/03/ml/Evaluation_Metric/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          BERT 完全指南
+          Evaluation Metric
         
       </div>
     </a>
