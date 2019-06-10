@@ -341,7 +341,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     
     <entry>
       <title><![CDATA[SVM 和 LR 的区别与联系？]]></title>
-      <url>http://shopee.ai/2019/06/10/ml/SVM-LR/</url>
+      <url>http://shopee.ai/2019/06/10/ml/SVM-vs-LR/</url>
       <content type="html"><![CDATA[<p><img class="img-fancy" src="/images/ml/svm/svm-01.jpg" width="600" border="0" alt="Claude Shannon"></p>
 <!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
 -->
@@ -369,8 +369,62 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <p>2). <strong>fn</strong> 小， sample number <strong>一般</strong>1W，使用带有 <strong>kernel函数</strong> 的 SVM算法.  </p>
 <p>3). <strong>fn</strong> 小， sample number <strong>很大</strong>5W+（n=1-1000，m=50000+）<br>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; 增加更多的 feature 然后使用LR 算法或者 not have kernel 的 SVM</p>
 </blockquote>
+<h3 id="LR-和-SVM-都是线性分类算法"><a href="#LR-和-SVM-都是线性分类算法" class="headerlink" title="LR 和 SVM 都是线性分类算法"></a>LR 和 SVM 都是线性分类算法</h3><blockquote>
+<p>如果不考虑核函数，LR和SVM都是线性分类算法，也就是说他们的分类决策面都是线性</p>
+<p>这里要先说明一点，那就是LR也是可以用核函数的，至于为什么通常在SVM中运用核函数而不在LR中运用，后面讲到他们之间区别的时候会重点分析。总之，原始的LR和SVM都是线性分类器，这也是为什么通常没人问你决策树和LR什么区别，决策树和SVM什么区别，你说一个非线性分类器和一个线性分类器有什么区别？</p>
+<p><strong>discriminative model</strong> 判别模型不关心数据是怎么生成的，关心信号之间的差别，后用差别来对给定的一个信号进行分类<br>常见的判别模型有：KNN、SVM、LR</p>
+</blockquote>
+<h2 id="2-LR-和-SVM-的-不同"><a href="#2-LR-和-SVM-的-不同" class="headerlink" title="2. LR 和 SVM 的 不同"></a>2. LR 和 SVM 的 不同</h2><ol>
+<li>Linear SVM 和 LR 都是线性分类器</li>
+<li>Linear SVM 不直接依赖数据分布，分类平面不受一部分样本点影响；LR则受所有数据点的影响，如果数据不同类别strongly unbalance一般需要先对数据做balancing。</li>
+<li>Linear SVM 依赖数据表达的距离测度，所以需要对数据先做normalization；LR不受其影响</li>
+<li>Linear SVM 依赖penalty的系数，实验中需要做validation</li>
+<li>Linear SVM 和 LR 的 performance 都会收到outlier的影响，其敏感程度而言，谁更好很难下明确结论.</li>
+</ol>
+<h2 id="3-SVM-和-LR-的比较"><a href="#3-SVM-和-LR-的比较" class="headerlink" title="3. SVM 和 LR 的比较"></a>3. SVM 和 LR 的比较</h2><p>两种方法都是常见的分类算法，从目标函数来看，区别在于逻辑回归采用的是logistical loss，svm采用的是hinge loss。这两个损失函数的目的都是<strong>增加对分类影响较大的数据点的权重，减少与分类关系较小的数据点的权重</strong>。</p>
+<p>SVM 的处理方法是只考虑support vectors，也就是和分类最相关的少数点，去学习分类器。而LR通过非线性映射，大大减小了离分类平面较远的点的权重，相对提升了与分类最相关的数据点的权重。两者的根本目的都是一样的。此外，根据需要，两个方法都可以增加不同的正则化项，如l1,l2等等。所以在很多实验中，两种算法的结果是很接近的。</p>
+<p>LR 相对来说模型更简单，好理解，实现起来，特别是大规模线性分类时比较方便。而SVM的理解和优化相对来说复杂一些。但是SVM的理论基础更加牢固，有一套结构化风险最小化的理论基础，虽然一般使用的人不太会去关注。还有很重要的一点，SVM转化为对偶问题后，分类只需要计算与少数几个支持向量的距离，这个在进行复杂核函数计算时优势很明显，能够大大简化模型和计算量。</p>
+<h3 id="LR-amp-SVM-不同点"><a href="#LR-amp-SVM-不同点" class="headerlink" title="LR &amp; SVM 不同点"></a>LR &amp; SVM 不同点</h3><blockquote>
+<p>要说有什么本质区别，那就是两个模型对数据和参数的敏感程度不同</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">model</th>
+<th style="text-align:center">desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>Linear SVM</strong></td>
+<td style="text-align:center">比较依赖 penalty的系数 和 数据表达空间的测度</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>LR(自带正则项)</strong></td>
+<td style="text-align:center">比较依赖对参数做 L1 regularization 的系数</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>但是由于他们或多或少都是线性分类器，所以实际上对低维度数据overfitting的能力都比较有限，相比之下对高维度数据，LR的表现会更加稳定，为什么呢？</p>
+<p>因为Linear SVM在计算margin有多“宽”的时候是依赖数据表达上的距离测度的，换句话说如果这个测度不好（badly scaled，这种情况在高维数据尤为显著），所求得的所谓Large margin就没有意义了，这个问题即使换用kernel trick（比如用Gaussian kernel）也无法完全避免。</p>
+<p>所以使用<strong>Linear SVM</strong>都需要先对数据做<strong>normalization</strong>，而求解LR（without regularization）时则不需要或者结果不敏感。</p>
+<p>注：不带正则化的LR，其做normalization的目的是为了方便选择优化过程的起始值，不代表最后的解的performance会跟normalization相关，而其线性约束是可以被放缩的（等式两边可同时乘以一个系数），所以做normalization只是为了求解优化模型过程中更容易选择初始值。</p>
+</blockquote>
+<h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><blockquote>
+<p>具体到 loss function 上来看， LR 用的是 <code>log-loss</code>, SVM 用的是 <code>hinge-loss</code>, 两者的相似之处在于 loss 在错误分类的时候都很大，但是对于正确分类的点，hinge-loss 就不管了，而 log-loss 还要考虑进去。此外因为 log-loss 在 mis-classified 的点上是指数级增长的，而 hinge-loss 是线性增长，所以 <strong>LR 在偶尔出现 mis-label 的情况下的表现会比较糟糕</strong>。</p>
+<p>另外 regularization 在这里没有区别，L1/L2 两个都能用，效果也差不多。Class imbalance 的话 SVM 一般用 weight 解决，LR 因为可以预测概率，所以也可以直接对最后的结果进行调整，取不同的阈值来达到理想的效果。</p>
+<p>实践中 LR 的速度明显更快，维度小的时候 bias 小 也不容易 overfit. 相反 Kernel SVM 在大规模数据集的情况下基本不实用，但是如果数据集本身比较小而且维度高的的话一般 SVM 表现更好。</p>
+</blockquote>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://www.cnblogs.com/zhizhan/p/5038747.html" target="_blank" rel="external">LR 与 SVM的异同</a></li>
+<li><a href="http://izhaoyi.top/2017/06/02/Note-StatisticalML/" target="_blank" rel="external">懒死骆驼 - 统计学习方法笔记(一)</a></li>
+<li><a href="https://www.zhihu.com/question/24900876" target="_blank" rel="external">知乎 : 最小二乘、极大似然、梯度下降有何区别？</a></li>
+<li><a href="https://www.zhihu.com/question/26768865/answer/139613835" target="_blank" rel="external">知乎 : Linear SVM 和 LR 有什么异同？</a></li>
+<li><a href="http://www.cnblogs.com/peizhe123/p/5674730.html" target="_blank" rel="external">白开水加糖 SVM与LR的比较</a></li>
+<li><a href="http://izhaoyi.top/2017/09/03/model-pre/" target="_blank" rel="external">懒死骆驼 - 口述模型整理</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/53944720" target="_blank" rel="external">支持向量机(SVM)硬核入门-基础篇</a></li>
+<li><a href="https://www.cnblogs.com/pinard/p/6035872.html" target="_blank" rel="external">scikit-learn 逻辑回归类库使用小结</a></li>
 </ul>
 ]]></content>
     </entry>
@@ -454,6 +508,37 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <blockquote>
 <p>典型的判别式模型包括： LR、NN、SVM、CRF、CART</p>
 </blockquote>
+<h3 id="3-3-generative-vs-discriminative"><a href="#3-3-generative-vs-discriminative" class="headerlink" title="3.3 generative vs discriminative"></a>3.3 generative vs discriminative</h3><table>
+<thead>
+<tr>
+<th style="text-align:center">vs</th>
+<th style="text-align:center">generative approach</th>
+<th style="text-align:center">discriminative approach</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">定义</td>
+<td style="text-align:center">由数据学习联合概率分布$P(X,Y)$ 然后,<br>求出在$X$情况下，$P(Y)$作为预测的模型</td>
+<td style="text-align:center">决策函数$f(x)$或条件概率分布$P(X)$作为预测模型</td>
+</tr>
+<tr>
+<td style="text-align:center">特点</td>
+<td style="text-align:center">1. 可还原出$P(X,Y)$；<br> 2. 学习收敛速度更快；<br> 3. 存在隐变量时仍可用</td>
+<td style="text-align:center">1. 直接面对预测，准确率更高些; <br> 2. 便于数据抽象，特征定义使用;</td>
+</tr>
+<tr>
+<td style="text-align:center">模型</td>
+<td style="text-align:center">native bayes、hidden markov</td>
+<td style="text-align:center">Logistic Regression、SVM、Gradient Boosting、CRF.. </td>
+</tr>
+<tr>
+<td style="text-align:center">Note</td>
+<td style="text-align:center">给定输入 $X$ 产生输出 $Y$ 的生成关系</td>
+<td style="text-align:center">对给定的输入 $X$，应预测什么样的输出 $Y$</td>
+</tr>
+</tbody>
+</table>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://xiaosheng.me/2017/04/09/article50/" target="_blank" rel="external">产生式模型与判别式模型</a></li>
 <li><a href="http://www.iterate.site/2019/04/05/12-概率图表示/" target="_blank" rel="external">迭代自己 概率图表示</a></li>
@@ -462,7 +547,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     </entry>
     
     <entry>
-      <title><![CDATA[信息的度量与作用]]></title>
+      <title><![CDATA[Information Entropy]]></title>
       <url>http://shopee.ai/2019/06/07/ml/Entropy/</url>
       <content type="html"><![CDATA[<p><img class="img-fancy" src="/images/ml/info/entropy-1.png" width="700" border="0" alt="Claude Shannon"></p>
 <!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
@@ -5181,7 +5266,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     
     <entry>
       <title><![CDATA[Ensumble 集成学习小记]]></title>
-      <url>http://shopee.ai/2018/07/03/ml/9-ensumble-part1/</url>
+      <url>http://shopee.ai/2018/07/03/ml/ensumble-part1/</url>
       <content type="html"><![CDATA[<p>本文主要基于周志华《机器学习》一书第八章 集成学习内容做的整理笔记，此外查阅了网上的一些博客和问答网站</p>
 <a id="more"></a>
 <h2 id="1-Ensumble-概念"><a href="#1-Ensumble-概念" class="headerlink" title="1. Ensumble 概念"></a>1. Ensumble 概念</h2><p>Ensumble 是通过构建并结合多个<code>学习器</code>来完成学习任务。</p>
@@ -5368,7 +5453,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     </entry>
     
     <entry>
-      <title><![CDATA[学习笔记(五) - Decision Tree]]></title>
+      <title><![CDATA[Decision Tree part2]]></title>
       <url>http://shopee.ai/2018/06/27/ml/decisionTree-part2/</url>
       <content type="html"><![CDATA[<p><img src="/images/ml/decision-tree/decision-tree-2.png" width="330" img=""></p>
 <a id="more"></a>
@@ -5869,119 +5954,8 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     </entry>
     
     <entry>
-      <title><![CDATA[LR 与 SVM 的异同]]></title>
-      <url>http://shopee.ai/2018/06/23/ml/model-lr-vs-svm/</url>
-      <content type="html"><![CDATA[<p>LR 和 SVM 之间的相同点和不同点, 查询了网络上的一些资料，特整理汇总如下 : 😄</p>
-<a id="more"></a>
-<ol>
-<li>LR 和 SVM 放在一起来进行比较, why？</li>
-<li>LR 和 SVM 的 相同点和不同点?</li>
-</ol>
-<!-- more -->
-<h2 id="1-为什么将LR和SVM放在一起来进行比较？"><a href="#1-为什么将LR和SVM放在一起来进行比较？" class="headerlink" title="1. 为什么将LR和SVM放在一起来进行比较？"></a>1. 为什么将LR和SVM放在一起来进行比较？</h2><p>回答这个问题其实就是回答LR和SVM有什么相同点</p>
-<h3 id="LR-和-SVM-都是分类算法"><a href="#LR-和-SVM-都是分类算法" class="headerlink" title="LR 和 SVM 都是分类算法"></a>LR 和 SVM 都是分类算法</h3><blockquote>
-<p>判断一个算法是分类还是回归算法的唯一标准就是样本label的类型，如果label是离散的，就是分类算法，如果label是连续的，就是回归算法。很明显，LR的训练数据的label是“0或者1”，当然是分类算法.</p>
-</blockquote>
-<h3 id="LR-和-SVM-都是线性分类算法"><a href="#LR-和-SVM-都是线性分类算法" class="headerlink" title="LR 和 SVM 都是线性分类算法"></a>LR 和 SVM 都是线性分类算法</h3><blockquote>
-<p>如果不考虑核函数，LR和SVM都是线性分类算法，也就是说他们的分类决策面都是线性</p>
-<p>这里要先说明一点，那就是LR也是可以用核函数的，至于为什么通常在SVM中运用核函数而不在LR中运用，后面讲到他们之间区别的时候会重点分析。总之，原始的LR和SVM都是线性分类器，这也是为什么通常没人问你决策树和LR什么区别，决策树和SVM什么区别，你说一个非线性分类器和一个线性分类器有什么区别？</p>
-</blockquote>
-<h3 id="LR-和-SVM-都是判别模型"><a href="#LR-和-SVM-都是判别模型" class="headerlink" title="LR 和 SVM 都是判别模型"></a>LR 和 SVM 都是判别模型</h3><table>
-<thead>
-<tr>
-<th>-</th>
-<th style="text-align:center">generative approach</th>
-<th style="text-align:center">discriminative approach</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>定义</td>
-<td style="text-align:center">由数据学习联合概率分布$P(X,Y)$ 然后,<br>求出在$X$情况下，$P(Y)$作为预测的模型</td>
-<td style="text-align:center">决策函数$f(x)$或条件概率分布$P(X)$作为预测模型</td>
-</tr>
-<tr>
-<td>特点</td>
-<td style="text-align:center">1. 可还原出$P(X,Y)$；<br> 2. 学习收敛速度更快；<br> 3. 存在隐变量时仍可用</td>
-<td style="text-align:center">1. 直接面对预测，准确率更高些; <br> 2. 便于数据抽象，特征定义使用;</td>
-</tr>
-<tr>
-<td>模型</td>
-<td style="text-align:center">native bayes、hidden markov</td>
-<td style="text-align:center">Logistic Regression、SVM、Gradient Boosting、CRF.. </td>
-</tr>
-<tr>
-<td>Note</td>
-<td style="text-align:center">给定输入$X$产生输出$Y$的生成关系</td>
-<td style="text-align:center">对给定的输入$X$，应预测什么样的输出$Y$</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><strong>discriminative model</strong> 判别模型不关心数据是怎么生成的，关心信号之间的差别，后用差别来对给定的一个信号进行分类<br>常见的判别模型有：KNN、SVM、LR</p>
-</blockquote>
-<h2 id="2-LR-和-SVM-的-不同"><a href="#2-LR-和-SVM-的-不同" class="headerlink" title="2. LR 和 SVM 的 不同"></a>2. LR 和 SVM 的 不同</h2><ol>
-<li>Linear SVM 和 LR 都是线性分类器</li>
-<li>Linear SVM 不直接依赖数据分布，分类平面不受一部分样本点影响；LR则受所有数据点的影响，如果数据不同类别strongly unbalance一般需要先对数据做balancing。</li>
-<li>Linear SVM 依赖数据表达的距离测度，所以需要对数据先做normalization；LR不受其影响</li>
-<li>Linear SVM 依赖penalty的系数，实验中需要做validation</li>
-<li>Linear SVM 和 LR 的 performance 都会收到outlier的影响，其敏感程度而言，谁更好很难下明确结论.</li>
-</ol>
-<h2 id="3-SVM-和-LR-的比较"><a href="#3-SVM-和-LR-的比较" class="headerlink" title="3. SVM 和 LR 的比较"></a>3. SVM 和 LR 的比较</h2><p>两种方法都是常见的分类算法，从目标函数来看，区别在于逻辑回归采用的是logistical loss，svm采用的是hinge loss。这两个损失函数的目的都是<strong>增加对分类影响较大的数据点的权重，减少与分类关系较小的数据点的权重</strong>。</p>
-<p>SVM 的处理方法是只考虑support vectors，也就是和分类最相关的少数点，去学习分类器。而LR通过非线性映射，大大减小了离分类平面较远的点的权重，相对提升了与分类最相关的数据点的权重。两者的根本目的都是一样的。此外，根据需要，两个方法都可以增加不同的正则化项，如l1,l2等等。所以在很多实验中，两种算法的结果是很接近的。</p>
-<p>LR 相对来说模型更简单，好理解，实现起来，特别是大规模线性分类时比较方便。而SVM的理解和优化相对来说复杂一些。但是SVM的理论基础更加牢固，有一套结构化风险最小化的理论基础，虽然一般使用的人不太会去关注。还有很重要的一点，SVM转化为对偶问题后，分类只需要计算与少数几个支持向量的距离，这个在进行复杂核函数计算时优势很明显，能够大大简化模型和计算量。</p>
-<h3 id="LR-amp-SVM-不同点"><a href="#LR-amp-SVM-不同点" class="headerlink" title="LR &amp; SVM 不同点"></a>LR &amp; SVM 不同点</h3><blockquote>
-<p>要说有什么本质区别，那就是两个模型对数据和参数的敏感程度不同</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">model</th>
-<th style="text-align:center">desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center"><strong>Linear SVM</strong></td>
-<td style="text-align:center">比较依赖 penalty的系数 和 数据表达空间的测度</td>
-</tr>
-<tr>
-<td style="text-align:center"><strong>LR(自带正则项)</strong></td>
-<td style="text-align:center">比较依赖对参数做 L1 regularization 的系数</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>但是由于他们或多或少都是线性分类器，所以实际上对低维度数据overfitting的能力都比较有限，相比之下对高维度数据，LR的表现会更加稳定，为什么呢？</p>
-<p>因为Linear SVM在计算margin有多“宽”的时候是依赖数据表达上的距离测度的，换句话说如果这个测度不好（badly scaled，这种情况在高维数据尤为显著），所求得的所谓Large margin就没有意义了，这个问题即使换用kernel trick（比如用Gaussian kernel）也无法完全避免。</p>
-<p>所以使用<strong>Linear SVM</strong>都需要先对数据做<strong>normalization</strong>，而求解LR（without regularization）时则不需要或者结果不敏感。</p>
-<p>注：不带正则化的LR，其做normalization的目的是为了方便选择优化过程的起始值，不代表最后的解的performance会跟normalization相关，而其线性约束是可以被放缩的（等式两边可同时乘以一个系数），所以做normalization只是为了求解优化模型过程中更容易选择初始值。</p>
-</blockquote>
-<h3 id="loss-function"><a href="#loss-function" class="headerlink" title="loss function"></a>loss function</h3><blockquote>
-<p>具体到 loss function 上来看， LR 用的是 <code>log-loss</code>, SVM 用的是 <code>hinge-loss</code>, 两者的相似之处在于 loss 在错误分类的时候都很大，但是对于正确分类的点，hinge-loss 就不管了，而 log-loss 还要考虑进去。此外因为 log-loss 在 mis-classified 的点上是指数级增长的，而 hinge-loss 是线性增长，所以 <strong>LR 在偶尔出现 mis-label 的情况下的表现会比较糟糕</strong>。</p>
-<p>另外 regularization 在这里没有区别，L1/L2 两个都能用，效果也差不多。Class imbalance 的话 SVM 一般用 weight 解决，LR 因为可以预测概率，所以也可以直接对最后的结果进行调整，取不同的阈值来达到理想的效果。</p>
-<p>实践中 LR 的速度明显更快，维度小的时候 bias 小 也不容易 overfit. 相反 Kernel SVM 在大规模数据集的情况下基本不实用，但是如果数据集本身比较小而且维度高的的话一般 SVM 表现更好。</p>
-</blockquote>
-<h2 id="4-LR-amp-SVM-选型"><a href="#4-LR-amp-SVM-选型" class="headerlink" title="4. LR &amp; SVM 选型"></a>4. LR &amp; SVM 选型</h2><p>在Andrew NG的课里讲到过：</p>
-<ol>
-<li>如果Feature的数量很大，跟样本数量差不多，这时候选用LR或者是Linear Kernel的SVM</li>
-<li>如果Feature的数量比较小，样本数量一般，不算大也不算小，选用SVM+Gaussian Kernel</li>
-<li>如果Feature的数量比较小，而样本数量很多，需要手工添加一些feature变成第一种情况</li>
-</ol>
-<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
-<li><a href="https://www.cnblogs.com/zhizhan/p/5038747.html" target="_blank" rel="external">LR 与 SVM的异同</a></li>
-<li><a href="http://izhaoyi.top/2017/06/02/Note-StatisticalML/" target="_blank" rel="external">懒死骆驼 - 统计学习方法笔记(一)</a></li>
-<li><a href="https://www.zhihu.com/question/24900876" target="_blank" rel="external">知乎 : 最小二乘、极大似然、梯度下降有何区别？</a></li>
-<li><a href="https://www.zhihu.com/question/26768865/answer/139613835" target="_blank" rel="external">知乎 : Linear SVM 和 LR 有什么异同？</a></li>
-<li><a href="http://www.cnblogs.com/peizhe123/p/5674730.html" target="_blank" rel="external">白开水加糖 SVM与LR的比较</a></li>
-<li><a href="http://izhaoyi.top/2017/09/03/model-pre/" target="_blank" rel="external">懒死骆驼 - 口述模型整理</a></li>
-</ul>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Support Vecor Machine (六部曲)]]></title>
-      <url>http://shopee.ai/2018/06/20/ml/svm-1/</url>
+      <url>http://shopee.ai/2018/06/20/ml/svm-hanxiaoyang/</url>
       <content type="html"><![CDATA[<p>Support Vecor Machine, 自一诞生便由于它良好的分类性能席卷了机器学习领域，并牢牢压制了神经网络领域好多年。 如果不考虑集成学习的算法，不考虑特定的训练数据集，在分类算法中的表现SVM说是排第一估计是没有什么异议的.</p>
 <a id="more"></a>
 <h2 id="1-SVM-间隔-Margin"><a href="#1-SVM-间隔-Margin" class="headerlink" title="1. SVM 间隔 Margin"></a>1. SVM 间隔 Margin</h2><ol>
@@ -6288,7 +6262,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     
     <entry>
       <title><![CDATA[Ensemble Learning (part2)]]></title>
-      <url>http://shopee.ai/2018/04/11/ml/9-ensumble-boosting-2/</url>
+      <url>http://shopee.ai/2018/04/11/ml/ensumble-boosting-2/</url>
       <content type="html"><![CDATA[<p>提升（boosting）方法是一类应用广泛且非常有效的统计学习方法。</p>
 <ul>
 <li>Boosting 概念</li>
@@ -6413,7 +6387,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     
     <entry>
       <title><![CDATA[Ensemble Learning (part1)]]></title>
-      <url>http://shopee.ai/2018/04/07/ml/9-ensumble-boosting-1/</url>
+      <url>http://shopee.ai/2018/04/07/ml/ensumble-boosting-1/</url>
       <content type="html"><![CDATA[<p>Ensemble learning（集成学习）：是目前机器学习的一大热门方向，所谓集成学习简单理解就是指采用多个分类器对数据集进行预测，从而提高整体分类器的泛化能力。</p>
 <a id="more"></a>
 <ol>
@@ -14218,7 +14192,7 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Decision Tree Part1]]></title>
+      <title><![CDATA[Decision Tree part1]]></title>
       <url>http://shopee.ai/2016/08/16/ml/decisionTree-part1/</url>
       <content type="html"><![CDATA[<p>决策树（decision tree）是一个树结构（可以是二叉树或非二叉树）。其每个非叶节点表示一个特征属性上的测试，每个分支代表这个特征属性在某个值。</p>
 <a id="more"></a>
@@ -14704,6 +14678,105 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Elasticsearch installation plugins]]></title>
+      <url>http://shopee.ai/2016/05/17/elasticsearch/es-install-plugins/</url>
+      <content type="html"><![CDATA[<p> Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
+<a id="more"></a>
+<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
+<p><strong>Install es</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Config es</strong></p>
+<p>$ES_HOME/config/elasticsearch.yml</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
+<p><strong>Startup</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行之后，会产生 data 和 logs 目录</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
+<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
+<p>ES-Head的主要作用</p>
+<ul>
+<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
+<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
+<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
+</ul>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
+<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
+<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
+<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
+<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
+<p>service log 在 logs/service.log 中。</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
+<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
+</blockquote>
+<hr>
+<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
+<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
+<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
+<p><strong>Install-Verify</strong></p>
+<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
+<p><strong>Config http-basic param</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
+<p><strong>./bin/plugin –list</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
+<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
+<p>download and add mysql-driver</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
+<p>停止river</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
+<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
+<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>XPUT data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p><strong>XGET data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p>output</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
+<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
+<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
+<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
+<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
+<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
+<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
+</ol>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Elasticsearch * 入门]]></title>
       <url>http://shopee.ai/2016/05/17/elasticsearch/es-indoor/</url>
       <content type="html"><![CDATA[<p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎 、 实时分布式搜索 和 分析引擎。</p>
@@ -14859,106 +14932,7 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Elasticsearch installation plugins]]></title>
-      <url>http://shopee.ai/2016/05/17/elasticsearch/es-install-plugins/</url>
-      <content type="html"><![CDATA[<p> Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
-<a id="more"></a>
-<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
-<p><strong>Install es</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Config es</strong></p>
-<p>$ES_HOME/config/elasticsearch.yml</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
-<p><strong>Startup</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>运行之后，会产生 data 和 logs 目录</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
-<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
-<p>ES-Head的主要作用</p>
-<ul>
-<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
-<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
-<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
-</ul>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
-<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
-<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
-<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
-<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
-<p>service log 在 logs/service.log 中。</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
-<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
-</blockquote>
-<hr>
-<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
-<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
-<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
-<p><strong>Install-Verify</strong></p>
-<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
-<p><strong>Config http-basic param</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
-<p><strong>./bin/plugin –list</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
-<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
-<p>download and add mysql-driver</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
-<p>停止river</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
-<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
-<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>XPUT data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p><strong>XGET data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p>output</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
-<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
-<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
-<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
-<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
-<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
-<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
-</ol>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[点到平面的距离公式]]></title>
+      <title><![CDATA[Point to Plane]]></title>
       <url>http://shopee.ai/2016/05/17/ml/math-distance-formula-of-point-to-plain/</url>
       <content type="html"><![CDATA[<p>平面的一般式方程, 向量的模（长度）, 向量的数量积, 点到平面的距离</p>
 <a id="more"></a>
@@ -17363,18 +17337,6 @@ JDK 1.5 之后 {
     </entry>
     
     <entry>
-      <title><![CDATA[Minimum Spanning Tree]]></title>
-      <url>http://shopee.ai/2011/10/27/acm/mst/</url>
-      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
-<a id="more"></a>
-<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
-<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
-</blockquote>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Six Kinds of Sort algorithms]]></title>
       <url>http://shopee.ai/2011/10/27/acm/six-sort/</url>
       <content type="html"><![CDATA[<p>input ： 8, 5, 4, 9, 2, 3, 6</p>
@@ -17386,6 +17348,18 @@ JDK 1.5 之后 {
 <h2 id="5-bubbleSort"><a href="#5-bubbleSort" class="headerlink" title="5. bubbleSort"></a>5. bubbleSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bubbleSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; len; i++) &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; len-i; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(a[j] &gt; a[j+<span class="number">1</span>]) swap(a[j], a[j+<span class="number">1</span>]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="6-selectSort"><a href="#6-selectSort" class="headerlink" title="6. selectSort"></a>6. selectSort</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">selectSort</span><span class="params">(<span class="keyword">int</span> a[], <span class="keyword">int</span> len)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i, j, k;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; len<span class="number">-1</span>; i++) &#123;  </span><br><span class="line">        k = i;  </span><br><span class="line">        <span class="keyword">for</span>(j = i+<span class="number">1</span>; j &lt; len; j++) &#123;  </span><br><span class="line">            <span class="keyword">if</span>(a[j] &lt; a[k]) k = j;  </span><br><span class="line">        &#125;  </span><br><span class="line">        swap(a[i], a[k]);  <span class="comment">// 将第i位小的数放入i位置  </span></span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 ]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Minimum Spanning Tree]]></title>
+      <url>http://shopee.ai/2011/10/27/acm/mst/</url>
+      <content type="html"><![CDATA[<p>data structure - minimal spanning tree</p>
+<a id="more"></a>
+<h2 id="1-prim"><a href="#1-prim" class="headerlink" title="1. prim"></a>1. prim</h2><blockquote>
+<p><a href="http://acm.hdu.edu.cn/showproblem.php?pid=1233" target="_blank" rel="external">http://acm.hdu.edu.cn/showproblem.php?pid=1233</a></p>
+</blockquote>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstdio&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;cstring&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> INF = <span class="number">0x7fffffff</span>; <span class="comment">// max int value</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> N = <span class="number">101</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> <span class="built_in">map</span>[N][N];</span><br><span class="line"><span class="keyword">int</span> dis[N];</span><br><span class="line"><span class="keyword">bool</span> vis[N];</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">memset</span>(vis, <span class="literal">false</span>, <span class="keyword">sizeof</span>(vis));</span><br><span class="line">    <span class="built_in">memset</span>(dis, <span class="number">0</span>, <span class="keyword">sizeof</span>(dis));</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">map</span>[<span class="number">1</span>][i] != <span class="number">-1</span>) &#123;</span><br><span class="line">            dis[i] = <span class="built_in">map</span>[<span class="number">1</span>][i];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span> dis[i] = INF;</span><br><span class="line">    &#125;</span><br><span class="line">    vis[<span class="number">1</span>] = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">1</span>; i &lt;= n<span class="number">-1</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">int</span> minv = INF, c = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; dis[j] &lt; minv) &#123;</span><br><span class="line">                minv = dis[j];</span><br><span class="line">                c = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        vis[c] = <span class="literal">true</span>;</span><br><span class="line">        sum += minv;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">1</span>; j &lt;= n; j++) &#123;</span><br><span class="line">            <span class="keyword">if</span>(!vis[j] &amp;&amp; <span class="built_in">map</span>[c][j] != <span class="number">-1</span> &amp;&amp;  <span class="built_in">map</span>[c][j] &lt; dis[j]) &#123;</span><br><span class="line">                dis[j] = <span class="built_in">map</span>[c][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> sum;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">int</span> n, m;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span> == <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;n) &amp;&amp; n != <span class="number">0</span>) &#123;</span><br><span class="line">        <span class="built_in">memset</span>(<span class="built_in">map</span>, <span class="number">255</span>, <span class="keyword">sizeof</span>(<span class="built_in">map</span>));</span><br><span class="line">        <span class="keyword">int</span> a, b, c;</span><br><span class="line">        m = (n * (n<span class="number">-1</span>)) / <span class="number">2</span>;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; m; i++) &#123;</span><br><span class="line">            <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;a, &amp;b, &amp;c);</span><br><span class="line">            <span class="built_in">map</span>[a][b] = <span class="built_in">map</span>[b][a] = c;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim(n));</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-kruskal"><a href="#2-kruskal" class="headerlink" title="2. kruskal"></a>2. kruskal</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> pre[N];</span><br><span class="line"><span class="keyword">int</span> n, m;</span><br><span class="line"><span class="keyword">struct</span> Edge &#123;</span><br><span class="line">    <span class="keyword">int</span> u, v;</span><br><span class="line">    <span class="keyword">int</span> w;</span><br><span class="line">&#125;e[N];</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">cmp</span><span class="params">(<span class="keyword">const</span> Edge a, <span class="keyword">const</span> Edge b)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> a.w &lt; b.w;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">make_set</span><span class="params">(<span class="keyword">int</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt;= n; i++)</span><br><span class="line">        pre[i] = i;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">find_set</span><span class="params">(<span class="keyword">int</span> a)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(pre[a] == a) <span class="keyword">return</span> a;</span><br><span class="line">    <span class="keyword">return</span> pre[a] = find_set(pre[a]);</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">kruskal</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> sum = <span class="number">0</span>;</span><br><span class="line">    sort(e, e + m, cmp);</span><br><span class="line">    make_set(n);</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>, fu, fv, cnt_e; i &lt; m; i++) &#123;</span><br><span class="line">        fu = find_set(e[i].u);</span><br><span class="line">        fv = find_set(e[i].v);</span><br><span class="line">        <span class="keyword">if</span> (fu != fv) &#123;</span><br><span class="line">            sum += e[i].w;</span><br><span class="line">            cnt_e++;</span><br><span class="line">            <span class="keyword">if</span> (cnt_e == n<span class="number">-1</span>) <span class="keyword">break</span>;</span><br><span class="line">            pre[fv] = fu;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; sum &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
     </entry>
     
     <entry>
