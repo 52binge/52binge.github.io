@@ -12,7 +12,11 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description">
 <meta property="og:image" content="http://shopee.ai/images/nn/ANN-01.png">
-<meta property="og:updated_time" content="2019-06-09T01:58:15.292Z">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C1W3-8_1.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C1W3-9_1.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C1W3-16_1.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C1W3-17_1.png">
+<meta property="og:updated_time" content="2019-06-12T03:35:12.281Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Deep Feedforward Networks">
 <meta name="twitter:description">
@@ -110,6 +114,53 @@ var _hmt = _hmt || [];
       
         <p><img src="/images/nn/ANN-01.png" width="500"></p>
 <a id="more"></a>
+<p><strong>更多基础知识系列详情参见 : <a href="/deeplearning/">Deep Learning Notes</a>
+</strong></p>
+<blockquote>
+<p>Feedforward Networks 是一种最简单的神经网络，各神经元分层排列。每个神经元只与前一层的神经元相连。接收前一层的输出，并输出给下一层．各层间没有反馈。</p>
+</blockquote>
+<p>Feedforward Networks 是一类网络的统称: MLP、Autoencoder、RBM、CNN 等都属于这类.</p>
+<blockquote>
+<p>对于中间层来说, 往往是 ReLU 的效果最好.<br>虽然 z &lt; 0, 的时候，斜率为0， 但在实践中，有足够多的隐藏单元 令 z &gt; 0, 对大多数训练样本来说是很快的.</p>
+<p>so the one place you might use as linear activation function others usually in the output layer.</p>
+</blockquote>
+<h2 id="1-Neural-Networks-Basics"><a href="#1-Neural-Networks-Basics" class="headerlink" title="1. Neural Networks Basics"></a>1. Neural Networks Basics</h2><p><img src="/images/deeplearning/C1W3-8_1.png" width="700"></p>
+<h2 id="2-Activation-functions"><a href="#2-Activation-functions" class="headerlink" title="2. Activation functions"></a>2. Activation functions</h2><p>四种常用的激活函数: Sigmoid, Tanh, ReLU, Leaky ReLU.</p>
+<p>其中 sigmoid 我们已经见过了, 它的输出可看成一个概率值, 往往用在输出层. <strong>对于中间层来说, 往往<code>ReLU</code>效果最好.</strong></p>
+<blockquote>
+<p>Tanh 数据平均值为 0，具有数据中心化的效果，几乎在任何场合都优于 Sigmoid</p>
+</blockquote>
+<p><img src="/images/deeplearning/C1W3-9_1.png" width="700"></p>
+<p>为什么需要激活函数? 如果没有激活函数, 那么不论多少层的神经网络都只相当于一个LR:</p>
+<blockquote>
+<p>it turns out that if you use a linear activation function or alternatively if you don’t have an activation function, then no matter how many layers your neural network has, always doing just computing a linear activation function, so you might as well not have any hidden layers.</p>
+<p>so unless you throw a non-linearity in there, then you’re not computing more interesting functions</p>
+</blockquote>
+<p>ReLU (rectified linear unit 矫正线性单元)</p>
+<blockquote>
+<p>tanh 和 sigmoid 都有一个缺点，就是 z 非常大或者非常小，函数的斜率(导数梯度)就会非常小, 梯度下降很慢.</p>
+<p>the slope of the function you know ends up being close to zero, and so this can slow down gradient descent</p>
+<p>ReLU (rectified linear unit) is well, z = 0 的时候，你可以给导数赋值为 0 or 1，虽然这个点是不可微的. 但实现没有影响.</p>
+<p>虽然 z &lt; 0, 的时候，斜率为0， 但在实践中，有足够多的隐藏单元 令 z &gt; 0, 对大多数训练样本来说是很快的.</p>
+</blockquote>
+<h2 id="3-Initialization-weights"><a href="#3-Initialization-weights" class="headerlink" title="3. Initialization weights"></a>3. Initialization weights</h2><p>在 LR 中我们的参数 $w$ 初始化为 0, 如果在神经网络中也是用相同的初始化, 那么一个隐藏层的每个节点都是相同的, 不论迭代多少次. 这显然是不合理的, 所以我们应该<font color="red"> <strong>随机地初始化</strong></font> $w$ 从而解决这个 sysmmetry breaking problem. 破坏对称问题</p>
+<p><img src="/images/deeplearning/C1W3-16_1.png" width="700"></p>
+<blockquote>
+<p>具体初始化代码可参见下图, 其中 <strong>乘以 0.01</strong> 是为了让参数 $w$ 较小, 加速梯度下降 </p>
+<p>如激活函数为 tanh 时, 若参数较大则 $z$ 也较大, 此时的梯度接近于 0, 更新缓慢. 如不是 tanh or sigmoid 则问题不大.</p>
+<p>this is a relatively shallow neural network without too many hidden layers, so 0.01 maybe work ok.</p>
+<p>finally it turns out that sometimes there can be better constants than 0.01.</p>
+</blockquote>
+<p><img src="/images/deeplearning/C1W3-17_1.png" width="700"></p>
+<h2 id="4-Improving-DNN"><a href="#4-Improving-DNN" class="headerlink" title="4. Improving DNN"></a>4. Improving DNN</h2><p>深度学习的实用层面 ：</p>
+<blockquote>
+<ul>
+<li>能够高效地使用神经网络<strong>通用</strong>的技巧，包括 <code>初始化、L2和dropout正则化、Batch归一化、梯度检验</code>。</li>
+<li>能够实现并应用各种<strong>优化</strong>算法，例如 <code>Mini-batch、Momentum、RMSprop、Adam，并检查它们的收敛程度</code>。</li>
+<li>理解深度学习时代关于如何 <strong>构建训练/开发/测试集</strong> 以及 <strong>偏差/方差分析</strong> 最新最有效的方法.</li>
+<li>能够用TensorFlow实现一个神经网络</li>
+</ul>
+</blockquote>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2>
       
      <!-- by blair add this if sentence at 20160725 -->
@@ -153,7 +204,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Neural-Networks-Basics"><span class="toc-number"></span> <span class="toc-text">1. Neural Networks Basics</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Activation-functions"><span class="toc-number"></span> <span class="toc-text">2. Activation functions</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Initialization-weights"><span class="toc-number"></span> <span class="toc-text">3. Initialization weights</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Improving-DNN"><span class="toc-number"></span> <span class="toc-text">4. Improving DNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
