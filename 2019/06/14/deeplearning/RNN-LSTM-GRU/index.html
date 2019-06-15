@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W1-46_1.png">
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W1-47_1.png">
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W1-48_1.png">
-<meta property="og:updated_time" content="2019-06-15T07:55:56.215Z">
+<meta property="og:updated_time" content="2019-06-15T09:33:20.319Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Recurrent Neural Networks">
 <meta name="twitter:description">
@@ -269,24 +269,40 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>注意，完整公式中多出了一个 $\Gamma_r$, 这个符号的作用是控制 $\tilde{c}^{&lt;{t}&gt;}$ 和 $c^{&lt;{t}&gt;}$ 之间联系的强弱.</p>
 </blockquote>
-<h2 id="5-LSTM-Long-Short-Term"><a href="#5-LSTM-Long-Short-Term" class="headerlink" title="5. LSTM - Long Short Term"></a>5. LSTM - Long Short Term</h2><p>介绍完 GRU 后，再介绍 LSTM 会更加容易理解。下图是二者公式对比：</p>
-<p>GRU 只有两个门，而 LSTM 有三个门，分别是更新门 $\Gamma_u$ (是否需要更新为 $\tilde{c}^{&lt;{t}&gt;}$，遗忘门 $\Gamma_f$ (是否需要丢弃上一个时刻的值)，输出门 $\Gamma_o$ (是否需要输出本时刻的值)</p>
+<h2 id="5-LSTM-Long-Short-Term"><a href="#5-LSTM-Long-Short-Term" class="headerlink" title="5. LSTM - Long Short Term"></a>5. LSTM - Long Short Term</h2><p>介绍完 GRU 后，再介绍 LSTM 会更加容易理解。</p>
+<h3 id="5-1-GRU-and-LSTM"><a href="#5-1-GRU-and-LSTM" class="headerlink" title="5.1 GRU and LSTM"></a>5.1 GRU and LSTM</h3><p>GRU 只有两个门，而 LSTM 有三个门，分别是更新门 $\Gamma_u$ (是否需要更新为 $\tilde{c}^{&lt;{t}&gt;}$)，遗忘门 $\Gamma_f$ (是否需要丢弃上一个时刻的值)，输出门 $\Gamma_o$ (是否需要输出本时刻的值)</p>
 <p><img src="/images/deeplearning/C5W1-42_1.png" width="650"></p>
 <p><img src="/images/deeplearning/C5W1-43_1.png" width="650"></p>
 <p>下图是 LSTM 的结构示意图：</p>
 <p><img src="/images/deeplearning/C5W1-44_1.png" width="700"></p>
-<p><img src="/images/deeplearning/RNN-03.png" width="700" alt="1997年, Sepp Hochreiter 和 Jürgen Schmidhuber"></p>
-<p>LSTM 仍是 $x_t$ 和 $h_{t−1}$ 来计算 $h_t$，只不过对内部的结构进行了更加精心的设计，加入 <strong>3 Gate</strong> 和 <strong>1 memory_cell</strong>.</p>
+<h3 id="5-2-LSTM-Structure"><a href="#5-2-LSTM-Structure" class="headerlink" title="5.2 LSTM Structure"></a>5.2 LSTM Structure</h3><p><img src="/images/deeplearning/RNN-03.png" width="700" alt="1997年, Sepp Hochreiter 和 Jürgen Schmidhuber"></p>
+<p>LSTM 仍是 $x_t$ 和 $h_{t−1}$ 来计算 $h_t$，但对内部的结构进行了更加精心的设计，加入 <strong>3 Gate</strong> 和 <strong>1 memory_cell</strong>.</p>
 <blockquote>
 <ul>
-<li>input gate <strong>$i_t$</strong> ，</li>
-<li>forget gate <strong>$f_t$</strong> ，  ($\Gamma_f$ 是否需要丢弃上一个时刻的值)</li>
-<li>output gate <strong>$o_t$</strong> ，  ($\Gamma_o$ 是否需要输出本时刻的值)</li>
-<li>memory cell $c_t, $ </li>
+<li><p>输入门 $\Gamma_u$： 控制 <strong>当前计算的新状态</strong> 以多大程度更新到记忆单元中 （也叫更新门）;</p>
+</li>
+<li><p>遗忘门 $\Gamma_f$： 控制 <strong>前一步记忆单元</strong> 中的信息有多大程度被遗忘掉;</p>
+</li>
+<li><p>输出门 $\Gamma_o$： 控制当前的输出有多大程度上取决于 <strong>当前的记忆单元</strong>;</p>
+</li>
+<li><p>记忆单元 memory cell $c_t$.<br>$$ h_{t}=o_{t} \odot \operatorname{Tanh}\left(c_{t}\right) $$ </p>
+</li>
 </ul>
-<p>总而言之，LSTM 经历了 20 年的发展，其核心思想一脉相承，但各个组件都发生了很多演化。</p>
-<p>结合问题选择最佳的 LSTM 模块，灵活地思考，并知其所以然，而不是死背各种网络的结构和公式。</p>
 </blockquote>
+<h3 id="5-3-Activation-function"><a href="#5-3-Activation-function" class="headerlink" title="5.3 Activation function"></a>5.3 Activation function</h3><p>在 LSTM 中, 关于 activation function 的选取：</p>
+<ul>
+<li>$\Gamma_f$、$\Gamma_i{u}$ 和 $\Gamma_o$ 使用 Sigmoid 函数作为激活函数；</li>
+<li>在生成候选记忆时，使用 Tanh 作为激活函数。</li>
+</ul>
+<blockquote>
+<p><strong>注</strong>： 这两个激活函数都是饱和的，也就是说在输入达到一定值的情况下，输出就不会发生明显变化了。如果是用非饱和的激活函数，例如 ReLU，那么将难以实现门控的效果。</p>
+</blockquote>
+<p>使用这个激活函数的原因如下：</p>
+<blockquote>
+<p>(1). Sigmoid 输出在 0～1 之间。且当输入较大或较小时，其输出会非常接近1或0，从而保证该门开或关。</p>
+<p>(2). 在生成候选记忆时，使用 Tanh 函数，是因为其输出在 −1~1 之间，这与大多数场景下特征分布是 0 中心的吻合。此外，Tanh 函数在输入为 0 附近相比 Sigmoid 函数有更大的梯度，通常使模型收敛更快。</p>
+</blockquote>
+<p>总而言之，LSTM 经历了 20 年的发展，其核心思想一脉相承，但各个组件都发生了很多演化。</p>
 <p><strong>GRU vs LSTM</strong></p>
 <ul>
 <li>GRU 和 LSTM 的效果在很多任务上不分伯仲。</li>
@@ -325,6 +341,7 @@ var _hmt = _hmt || [];
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://book.douban.com/subject/30285146/" target="_blank" rel="external">《百面机器学习》</a></li>
 <li><a href="http://www.iterate.site/2019/04/14/01-循环神经网络和卷积神经网络/" target="_blank" rel="external">RNN and CNN</a></li>
+<li><a href="http://www.iterate.site/2019/04/19/04-长短期记忆网络/" target="_blank" rel="external">LSTM 长短期记忆网络</a></li>
 </ul>
 
       
@@ -369,7 +386,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-RNN-Basic"><span class="toc-number"></span> <span class="toc-text">1. RNN Basic</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-TensorFlow-RNN"><span class="toc-number"></span> <span class="toc-text">1.1 TensorFlow RNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Forward-Propagation"><span class="toc-number"></span> <span class="toc-text">1.2 Forward Propagation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-RNN-vs-CNN"><span class="toc-number"></span> <span class="toc-text">1.3 RNN vs CNN</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Language-model"><span class="toc-number"></span> <span class="toc-text">2. Language model</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-RNN-Language-Model"><span class="toc-number"></span> <span class="toc-text">2.1 RNN Language Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Language-Model-Example"><span class="toc-number"></span> <span class="toc-text">2.2 Language Model Example</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Vanishing-gradients-with-RNNs"><span class="toc-number"></span> <span class="toc-text">3. Vanishing gradients with RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-GRU-Gated-Recurrent-Unit"><span class="toc-number"></span> <span class="toc-text">4. GRU - Gated Recurrent Unit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-回顾-RNN"><span class="toc-number"></span> <span class="toc-text">4.1 回顾 RNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-GRU结构"><span class="toc-number"></span> <span class="toc-text">4.2 GRU结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-完整版-GRU"><span class="toc-number"></span> <span class="toc-text">4.3 完整版 GRU</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-LSTM-Long-Short-Term"><span class="toc-number"></span> <span class="toc-text">5. LSTM - Long Short Term</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Bidirectional-RNN"><span class="toc-number"></span> <span class="toc-text">6. Bidirectional RNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Deep-RNNs"><span class="toc-number"></span> <span class="toc-text">7. Deep RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-RNN-Basic"><span class="toc-number"></span> <span class="toc-text">1. RNN Basic</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-TensorFlow-RNN"><span class="toc-number"></span> <span class="toc-text">1.1 TensorFlow RNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-Forward-Propagation"><span class="toc-number"></span> <span class="toc-text">1.2 Forward Propagation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-RNN-vs-CNN"><span class="toc-number"></span> <span class="toc-text">1.3 RNN vs CNN</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Language-model"><span class="toc-number"></span> <span class="toc-text">2. Language model</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-RNN-Language-Model"><span class="toc-number"></span> <span class="toc-text">2.1 RNN Language Model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Language-Model-Example"><span class="toc-number"></span> <span class="toc-text">2.2 Language Model Example</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Vanishing-gradients-with-RNNs"><span class="toc-number"></span> <span class="toc-text">3. Vanishing gradients with RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-GRU-Gated-Recurrent-Unit"><span class="toc-number"></span> <span class="toc-text">4. GRU - Gated Recurrent Unit</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-回顾-RNN"><span class="toc-number"></span> <span class="toc-text">4.1 回顾 RNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-GRU结构"><span class="toc-number"></span> <span class="toc-text">4.2 GRU结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-完整版-GRU"><span class="toc-number"></span> <span class="toc-text">4.3 完整版 GRU</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-LSTM-Long-Short-Term"><span class="toc-number"></span> <span class="toc-text">5. LSTM - Long Short Term</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-GRU-and-LSTM"><span class="toc-number"></span> <span class="toc-text">5.1 GRU and LSTM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-LSTM-Structure"><span class="toc-number"></span> <span class="toc-text">5.2 LSTM Structure</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-Activation-function"><span class="toc-number"></span> <span class="toc-text">5.3 Activation function</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Bidirectional-RNN"><span class="toc-number"></span> <span class="toc-text">6. Bidirectional RNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Deep-RNNs"><span class="toc-number"></span> <span class="toc-text">7. Deep RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
