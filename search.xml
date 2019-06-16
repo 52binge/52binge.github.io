@@ -251,8 +251,8 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
     </entry>
     
     <entry>
-      <title><![CDATA[Language Model 、 PPL]]></title>
-      <url>http://shopee.ai/2019/06/16/nlp/LM_and_PPL/</url>
+      <title><![CDATA[Language Model and Perplexity]]></title>
+      <url>http://shopee.ai/2019/06/16/nlp/Language-Model-and-Word-Embedding/</url>
       <content type="html"><![CDATA[<p><img src="/images/nlp/LM-01.jpg" width="550" alt="2001 NNLM, @Yoshua bengio"></p>
 <a id="more"></a>
 <p>计算机很多事情比人类做得好，那么机器是否能懂 Natural Language?</p>
@@ -284,11 +284,33 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <h3 id="1-2-n-gram-n-2"><a href="#1-2-n-gram-n-2" class="headerlink" title="1.2 n-gram, n=2"></a>1.2 n-gram, n=2</h3><p>$$<br>P(S) = P(w_1)P(w_2|w_1)P(w_3|w_2)…P(w_i|w_{i-1})…<br>$$</p>
 <p>接下来如何估计 $P (w_i|w_{i-1})$。只要机器数一数这对词 $(w_i{-1}, w_i)$ 在统计的文本中出现了多少次，以及 $w_{i-1}$ 本身在同样的文本中前后相邻出现了多少次，然后用两个数一除就可以了,</p>
 <p>$$<br>P(w_i|w_{i-1}) = \frac {P(w_{i-1}, w_i)} {P(w_{i-1})}<br>$$</p>
-<h2 id="2-NNLM"><a href="#2-NNLM" class="headerlink" title="2. NNLM"></a>2. NNLM</h2><p>NNLM,直接从语言模型出发，将模型最优化过程转化为求词向量表示的过程。<br>既然离散的表示有辣么多缺点，于是有小伙伴就尝试着用模型最优化的过程去转换词向量了</p>
+<h2 id="2-Perplexity-PPL"><a href="#2-Perplexity-PPL" class="headerlink" title="2. Perplexity, PPL"></a>2. Perplexity, PPL</h2><p>语言模型效果的常用指标 perplexity， 在测试集上 perplexity 越低，说明建模效果越好. </p>
+<p>计算perplexity的公式如下：</p>
+<p><img src="/images/tensorflow/tf-google-9.1.2_1-equation.svg" width="600"></p>
+<p><strong>perplexity</strong> 刻画的是语言模型预测一个语言样本的能力. 比如已经知道 (w1,w2,w3,…,wm) 这句话会出现在语料库之中，那么通过语言模型计算得到的这句话的概率越高，说明语言模型对这个语料库拟合得越好。</p>
+<p><strong>perplexity</strong> 实际是计算每一个单词得到的概率倒数的几何平均，因此 perplexity 可以理解为平均分支系数（average branching factor），即模型预测下一个词时的平均可选择数量。</p>
+<blockquote>
+<p>例如，考虑一个由0~9这10个数字随机组成的长度为m的序列，由于这10个数字出现的概率是随机的，所以每个数字出现的概率是 。因此，在任意时刻，模型都有10个等概率的候选答案可以选择，于是perplexity就是10（有10个合理的答案）。</p>
+<p>perplexity的计算过程如下：</p>
+<p><img src="/images/tensorflow/tf-google-9.1.2_3-ppl.jpg" width="800"></p>
+</blockquote>
+<p>在语言模型的训练中，通常采用 perplexity 的对数表达形式：</p>
+<p><img src="/images/tensorflow/tf-google-9.1.2_2-equation.svg" width="600"></p>
+<blockquote>
+<p>相比较乘积求平方根的方式，加法的形式可加速计算，同时避免概率乘积数值过小而导致浮点数向下溢出的问题.</p>
+<p>在数学上，log perplexity 可以看作真实分布与预测分布之间的交叉熵 Cross Entropy, 交叉熵描述了两个概率分布之间的一种距离. log perplexity 和 Cross Entropy 是等价的</p>
+</blockquote>
+<p>在神经网络模型中，$P(w_i | w_{1}, , …, w_{i-1})$ 分布通常是由一个 softmax层 产生的，TensorFlow 中提供了两个方便计算交叉熵的函数，可以将 logits 结果直接放入输入，来帮助计算 softmax 然后再进行计算 Cross Entropy.</p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels = y, logits = y)</span><br><span class="line">cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels = y, logits = y)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><a href="https://www.zhihu.com/people/xi-xiang-yu-20/posts" target="_blank" rel="external">知乎_习翔宇</a></li>
+</ul>
+<h2 id="3-NNLM"><a href="#3-NNLM" class="headerlink" title="3. NNLM"></a>3. NNLM</h2><p>NNLM,直接从语言模型出发，将模型最优化过程转化为求词向量表示的过程.</p>
+<p>既然离散的表示有辣么多缺点，于是有小伙伴就尝试着用模型最优化的过程去转换词向量了.</p>
 <p><img src="/images/nlp/word2vec-nnlm.png" width="600"></p>
 <p>计算复杂度： ($N * D + N * D * H + H * V$) 相当之高, 于是有了 CBOW 和 Skip-Gram .</p>
-<p>这一节中主要讲了词嵌矩阵的shape，如果词嵌（词性特征的总量）是300，独热编码的长度是10000，那么词嵌矩阵的的shape就是 <code>300 * 10000</code> 。所以就有了下面的式子：</p>
 <blockquote>
+<p>NN 训练 语言模型， 会顺带产生一个 Word Embedding 矩阵.</p>
 <p>词嵌矩阵 * 单词的独热编码 = 单词的词嵌</p>
 <p>(300, 10000) * (10000, 1) = (300, 1)</p>
 </blockquote>
@@ -296,7 +318,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <p>下图展示了预测单词的方法，即给出缺少一个单词的句子：</p>
 <p>“<strong>I want a glass of orange ___</strong>”</p>
 <blockquote>
-<p>计算方法是将已知单词的特征向量都作为输入数据送到神经网络中去，然后经过一系列计算到达 Softmax分类层，在该例中输出节点数为10000个。经过计算juice概率最高，所以预测为</p>
+<p>计算方法是将已知单词的特征向量都作为输入数据送到神经网络中去，然后经过一系列计算到达 Softmax分类层，在该例中输出节点数为 10000个。经过计算 juice 概率最高，所以预测为</p>
 <p>“I want a glass of orange <code>juice</code>”</p>
 </blockquote>
 <p><img src="/images/deeplearning/C5W2-5_1.png" width="750"></p>
@@ -306,7 +328,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <p>如果任务是预测 $W$，最佳方案是使用 $W$ 前面 $n$ 个单词构建语境。</p>
 <p>如果任务是训练 $E$，除了使用 $W$ 前全部单词还可以通过：前后各4个单词、前面单独的一个词、前面语境中随机的一个词（这个方式也叫做 Skip Gram 算法），这些方法都能提供很好的结果。</p>
 </blockquote>
-<h3 id="2-1-Word-Representation"><a href="#2-1-Word-Representation" class="headerlink" title="2.1 Word Representation"></a>2.1 Word Representation</h3><p>单词与单词之间是有很多共性的，或在某一特性上相近，比如“苹果”和“橙子”都是水果；或者在某一特性上相反，比如“父亲”在性别上是男性，“母亲”在性别上是女性，通过构建他们其中的联系可以将在一个单词学习到的内容应用到其他的单词上来提高模型的学习的效率，这里用一个简化的表格说明:</p>
+<h3 id="3-1-Word-Representation"><a href="#3-1-Word-Representation" class="headerlink" title="3.1 Word Representation"></a>3.1 Word Representation</h3><p>单词与单词之间是有很多共性的，或在某一特性上相近，比如“苹果”和“橙子”都是水果；或者在某一特性上相反，比如“父亲”在性别上是男性，“母亲”在性别上是女性，通过构建他们其中的联系可以将在一个单词学习到的内容应用到其他的单词上来提高模型的学习的效率，这里用一个简化的表格说明:</p>
 <table>
 <thead>
 <tr>
@@ -357,8 +379,8 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <blockquote>
 <p>上图通过聚类将词性相类似的单词在二维空间聚为一类.</p>
 </blockquote>
-<h3 id="2-2-Word-Embeddings"><a href="#2-2-Word-Embeddings" class="headerlink" title="2.2 Word Embeddings"></a>2.2 Word Embeddings</h3><p>先下一个非正规定义 “词嵌 - 描述了词性特征的总量，也是在高维词性空间中嵌入的位置，拥有越多共性的词，词嵌离得越近，反之则越远”。值得注意的是，表达这个“位置”，需要使用所有设定的词性特征，假如有 300 个特征（性别，颜色，…），那么词嵌的空间维度就是 300.</p>
-<h3 id="2-3-使用词嵌三步"><a href="#2-3-使用词嵌三步" class="headerlink" title="2.3 使用词嵌三步"></a>2.3 使用词嵌三步</h3><ol>
+<h3 id="3-2-Word-Embeddings"><a href="#3-2-Word-Embeddings" class="headerlink" title="3.2 Word Embeddings"></a>3.2 Word Embeddings</h3><p>先下一个非正规定义 “词嵌 - 描述了词性特征的总量，也是在高维词性空间中嵌入的位置，拥有越多共性的词，词嵌离得越近，反之则越远”。值得注意的是，表达这个“位置”，需要使用所有设定的词性特征，假如有 300 个特征（性别，颜色，…），那么词嵌的空间维度就是 300.</p>
+<h3 id="3-3-使用词嵌三步"><a href="#3-3-使用词嵌三步" class="headerlink" title="3.3 使用词嵌三步"></a>3.3 使用词嵌三步</h3><ol>
 <li>获得词嵌：获得的方式可以通过训练大的文本集或者下载很多开源的词嵌库</li>
 <li>应用词嵌：将获得的词嵌应用在我们的训练任务中</li>
 <li>可选：通过我们的训练任务更新词嵌库（如果训练量很小就不要更新了）</li>
@@ -405,7 +427,7 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <li>(可选) 这一步骤就是对新的数据进行 fine-tune。</li>
 </ol>
 </blockquote>
-<h2 id="3-word2vec"><a href="#3-word2vec" class="headerlink" title="3. word2vec"></a>3. word2vec</h2><p>word2vec 并不是一个模型， 而是一个 2013年 google 发表的工具. 该工具包含2个模型： Skip-Gram 和 CBOW. 及两种高效训练方法： negative sampling 和 hierarchicam softmax.</p>
+<h2 id="4-word2vec"><a href="#4-word2vec" class="headerlink" title="4. word2vec"></a>4. word2vec</h2><p>word2vec 并不是一个模型， 而是一个 2013年 google 发表的工具. 该工具包含2个模型： Skip-Gram 和 CBOW. 及两种高效训练方法： negative sampling 和 hierarchicam softmax.</p>
 <blockquote>
 <ol>
 <li>CBOW  Continous Bag of Words Model</li>
@@ -414,12 +436,12 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <p>词向量（词的特征向量）既能够降低维度，又能够capture到当前词在本句子中上下文的信息.</p>
 </blockquote>
 <p><a href="https://blog.csdn.net/u012052268/article/details/77170517/#63个人对word-embedding的理解" target="_blank" rel="external">Word2Vec</a><br><a href="https://blog.csdn.net/sinat_33761963/article/details/54631367" target="_blank" rel="external">Word2Vec词嵌入矩阵</a></p>
-<h3 id="3-1-CBOW"><a href="#3-1-CBOW" class="headerlink" title="3.1 CBOW"></a>3.1 CBOW</h3><p><img src="/images/nlp/word2vec-CBOW_1.png" width="600"></p>
+<h3 id="4-1-CBOW"><a href="#4-1-CBOW" class="headerlink" title="4.1 CBOW"></a>4.1 CBOW</h3><p><img src="/images/nlp/word2vec-CBOW_1.png" width="600"></p>
 <blockquote>
 <p>纠错 : 上图”目标函数“的第一个公式，应该是 连乘 公式，不是 连加 运算。</p>
 <p>理解 : 背景词向量与 中心词向量 内积 等部分，你可考虑 softmax $w * x+b$ 中 $x$ 和 $w$ 的关系来理解.</p>
 </blockquote>
-<h3 id="3-2-Skip-Gram"><a href="#3-2-Skip-Gram" class="headerlink" title="3.2 Skip-Gram"></a>3.2 Skip-Gram</h3><p>跳字模型假设基于某个词来生成它在文本序列周围的词。举个例子，假设文本序列是“the”“man”“loves”“his”“son”。以“loves”作为中心词，设背景窗口大小为2。如图10.1所示，跳字模型所关心的是，给定中心词“loves”，生成与它距离不超过2个词的背景词“the”“man”“his”“son”的条件概率，即</p>
+<h3 id="4-2-Skip-Gram"><a href="#4-2-Skip-Gram" class="headerlink" title="4.2 Skip-Gram"></a>4.2 Skip-Gram</h3><p>跳字模型假设基于某个词来生成它在文本序列周围的词。举个例子，假设文本序列是“the”“man”“loves”“his”“son”。以“loves”作为中心词，设背景窗口大小为2。如图10.1所示，跳字模型所关心的是，给定中心词“loves”，生成与它距离不超过2个词的背景词“the”“man”“his”“son”的条件概率，即</p>
 <p>$$<br>P(\textrm{the},\textrm{man},\textrm{his},\textrm{son}\mid\textrm{loves}).<br>$$</p>
 <p>假设给定中心词的情况下，背景词的生成是相互独立的，那么上式可以改写成</p>
 <p>$$<br>P(\textrm{the}\mid\textrm{loves})\cdot P(\textrm{man}\mid\textrm{loves})\cdot P(\textrm{his}\mid\textrm{loves})\cdot P(\textrm{son}\mid\textrm{loves}).<br>$$</p>
@@ -442,21 +464,9 @@ BERT 就是用了一个已有的模型结构，提出了一整套的 pre-trainin
 <li>描述概率函数，该函数的自变量是词向量（u和v），词向量也是模型参数</li>
 <li>对第二步中每一项求梯度。有了梯度就可以优化第二步中的损失函数，从而迭代学习到模型参数，也就是词向量。</li>
 </ol>
-<h3 id="3-3-高效近似训练"><a href="#3-3-高效近似训练" class="headerlink" title="3.3 高效近似训练"></a>3.3 高效近似训练</h3><ul>
+<h3 id="4-3-高效近似训练"><a href="#4-3-高效近似训练" class="headerlink" title="4.3 高效近似训练"></a>4.3 高效近似训练</h3><ul>
 <li>hierarchicam softmax</li>
 <li>negative sampling</li>
-</ul>
-<h2 id="4-PPL-perplexity"><a href="#4-PPL-perplexity" class="headerlink" title="4. PPL, perplexity"></a>4. PPL, perplexity</h2><p>常用指标 perplexity， perplexity 越低，说明建模效果越好. </p>
-<p>计算perplexity的公式如下：</p>
-<p><img src="/images/tensorflow/tf-google-9.1.2_1-equation.svg" width="600"></p>
-<p>简单来说，perplexity刻画的是语言模型预测一个语言样本的能力.</p>
-<p>在语言模型的训练中，通常采用perplexity的对数表达形式：</p>
-<p><img src="/images/tensorflow/tf-google-9.1.2_2-equation.svg" width="600"></p>
-<p>相比较乘积求平方根的方式，采用加法的形式可以加速计算，同时避免概率乘积数值过小而导致浮点数向下溢出的问题。在数学上，log perplexity 可以看作真实分布与预测分布之间的交叉熵 Cross Entropy, 交叉熵描述了两个概率分布之间的一种距离. log perplexity和交叉熵是等价的</p>
-<p>在神经网络模型中，$P(w_i | w_{1}, , …, w_{i-1})$ 分布通常是由一个softmax层产生的，TensorFlow中提供了两个方便计算交叉熵的函数，可以将logits结果直接放入输入，来帮助计算softmax然后再进行计算交叉熵，在后面我们会详细介绍</p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels = y, logits = y)</span><br><span class="line">cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels = y, logits = y)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><a href="https://www.zhihu.com/people/xi-xiang-yu-20/posts" target="_blank" rel="external">知乎_习翔宇</a></li>
 </ul>
 <h2 id="5-fastText"><a href="#5-fastText" class="headerlink" title="5. fastText"></a>5. fastText</h2><p>FastText是一个快速文本分类算法，在使用标准多核CPU的情况下，在10分钟内可以对超过10亿个单词进行训练。 不需要使用预先训练好的词向量，因为FastText会自己训练词向量。</p>
 <p>文本分类：</p>
@@ -17228,6 +17238,78 @@ public final class Boolean
     </entry>
     
     <entry>
+      <title><![CDATA[Java SE Introduce]]></title>
+      <url>http://shopee.ai/2013/02/02/java/java-se-1-introduce/</url>
+      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
+<a id="more"></a>
+<ul>
+<li>Java data type</li>
+<li>OO</li>
+<li>Exception</li>
+<li>Java Array  </li>
+<li>Java 常用类 </li>
+<li>Java 容器类</li>
+<li>Collection / Generic</li>
+<li>Java I/O Stream</li>
+<li>Java Thread</li>
+<li>Java TCP/UDP, socket</li>
+</ul>
+<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
+<li>Java 运行机制</li>
+<li>JDK &amp; JRE</li>
+<li>Java env install</li>
+<li>Java Basic Content</li>
+</ul>
+<blockquote>
+<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
+</blockquote>
+<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
+<li>一种 OO 语言  </li>
+<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
+<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
+</ul>
+<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
+<ul>
+<li>Java Virtual Machine</li>
+<li>Garbage collection</li>
+</ul>
+<blockquote>
+<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
+<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
+<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
+</blockquote>
+<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
+<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
+<li>Java Runtime Environment  用户只需 JRE  </li>
+</ul>
+<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
+</blockquote>
+<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
+<li>类名首字母大写  </li>
+<li>变量名和方法名的首字母小写  </li>
+<li>运用驼峰标识   </li>
+</ol>
+<p>HelloWorld.java</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
+</blockquote>
+<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
+</blockquote>
+<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
       <url>http://shopee.ai/2013/02/02/java/java-se-2.5-notes-all/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
@@ -17633,78 +17715,6 @@ JDK 1.5 之后 {
     * Externalizable 接口  extends  Serializable   
 }  
 </code></pre><p>}  </p>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Java SE Introduce]]></title>
-      <url>http://shopee.ai/2013/02/02/java/java-se-1-introduce/</url>
-      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
-<a id="more"></a>
-<ul>
-<li>Java data type</li>
-<li>OO</li>
-<li>Exception</li>
-<li>Java Array  </li>
-<li>Java 常用类 </li>
-<li>Java 容器类</li>
-<li>Collection / Generic</li>
-<li>Java I/O Stream</li>
-<li>Java Thread</li>
-<li>Java TCP/UDP, socket</li>
-</ul>
-<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
-<li>Java 运行机制</li>
-<li>JDK &amp; JRE</li>
-<li>Java env install</li>
-<li>Java Basic Content</li>
-</ul>
-<blockquote>
-<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
-</blockquote>
-<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
-<li>一种 OO 语言  </li>
-<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
-<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
-</ul>
-<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
-<ul>
-<li>Java Virtual Machine</li>
-<li>Garbage collection</li>
-</ul>
-<blockquote>
-<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
-<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
-<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
-</blockquote>
-<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
-<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
-<li>Java Runtime Environment  用户只需 JRE  </li>
-</ul>
-<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
-</blockquote>
-<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
-<li>类名首字母大写  </li>
-<li>变量名和方法名的首字母小写  </li>
-<li>运用驼峰标识   </li>
-</ol>
-<p>HelloWorld.java</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
-</blockquote>
-<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
-<hr>
-<blockquote>
-<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
-</blockquote>
-<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
 ]]></content>
     </entry>
     
