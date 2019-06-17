@@ -22,7 +22,7 @@
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-3.jpg">
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-4.jpg">
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-7.jpeg">
-<meta property="og:updated_time" content="2019-06-17T03:43:55.190Z">
+<meta property="og:updated_time" content="2019-06-17T08:45:24.234Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Seq2Seq and Attention">
 <meta name="twitter:description">
@@ -136,14 +136,17 @@ var _hmt = _hmt || [];
 <p>(1). 如果Source是中文句子，Target是英文句子，那么这就是解决机器翻译问题；<br>(2). 如果Source是一篇文章，Target是概括性的几句描述语句，那么这是文本摘要；<br>(3). 如果Source是一句问句，Target是一句回答，那么这是问答系统。</p>
 <p>Encoder-Decoder框架 不仅仅在文本领域广泛使用，在语音识别、图像处理等领域也经常使用.</p>
 </blockquote>
-<h3 id="1-1-Encoder"><a href="#1-1-Encoder" class="headerlink" title="1.1 Encoder"></a>1.1 Encoder</h3><p>让我们考虑批量大小为 1 的时序数据样本。假设输入序列是 $x_1,\ldots,x_T$, 例如 $x_i$ 是输入句子中的第 $i$ 个词。在时间步 $t$，循环神经网络将输入 $x_t$ 的特征向量 $x_t$ 和上个时间步的隐藏状态 $\boldsymbol{h}_{t-1}$ 变换为当前时间步的隐藏状态 $h_t$。我们可以用函数 $f$ 表达 RNN 隐藏层的变换：</p>
+<h3 id="1-1-Encoder"><a href="#1-1-Encoder" class="headerlink" title="1.1 Encoder"></a>1.1 Encoder</h3><p>用函数 $f$ 表达 RNN 隐藏层的变换：</p>
 <p>$$<br>\boldsymbol{h}_t = f(\boldsymbol{x}_t, \boldsymbol{h}_{t-1}).<br>$$</p>
-<p>接下来编码器通过自定义函数 $q$ 将各个时间步的隐藏状态变换为背景变量</p>
+<p>然后 Encoder 通过自定义函数 $q$ 将各个时间步的隐藏状态变换为背景变量</p>
 <p>$$<br>\boldsymbol{c} =  q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T).<br>$$</p>
 <p>例如，当选择 $q(\boldsymbol{h}_1, \ldots, \boldsymbol{h}_T) = \boldsymbol{h}_T$ 时，背景变量是输入序列最终时间步的隐藏状态 $\boldsymbol{h}_T$。</p>
-<p>以上描述的编码器是一个单向的 RNN，每个时间步的隐藏状态只取决于该时间步及之前的输入子序列。我们也可以使用 Bi-RNN 构造编码器。这种情况下，编码器每个时间步的隐藏状态同时取决于该时间步之前和之后的子序列（包括当前时间步的输入），并编码了整个序列的信息。</p>
-<p><img src="/images/chatbot/seq2seq-5.jpeg" width="800"></p>
-<h3 id="1-2-Decoder"><a href="#1-2-Decoder" class="headerlink" title="1.2 Decoder"></a>1.2 Decoder</h3><p>Encode 编码器输出的背景变量 $c$ 编码了整个输入序列 $x_1, \ldots, x_T$ 的信息。给定训练样本中的输出序列 $y_1, y_2, \ldots, y_{T’}$，对每个时间步 $t’$（符号与输入序列或编码器的时间步 $t$ 有区别）， 解码器输出 $y_{t’}$ 的条件概率将基于之前的输出序列 $y_1,\ldots,y_{t’-1}$ 和背景变量 $c$，<strong>即</strong> $\mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, \boldsymbol{c})$。</p>
+<blockquote>
+<p>以上描述的编码器是一个单向的 RNN，每个时间步的隐藏状态只取决于该时间步及之前的输入子序列。我们也可以使用 Bi-RNN 构造编码器。 这种情况下，编码器每个时间步的隐藏状态同时取决于该时间步之前和之后的子序列（包括当前时间步的输入），并编码了整个序列的信息。</p>
+</blockquote>
+<p><img src="/images/chatbot/seq2seq-5.jpeg" width="700"></p>
+<h3 id="1-2-Decoder"><a href="#1-2-Decoder" class="headerlink" title="1.2 Decoder"></a>1.2 Decoder</h3><p>Encode 编码器输出的背景变量 $c$ 编码了整个输入序列 $x_1, \ldots, x_T$ 的信息。</p>
+<p>给定训练样本中的输出序列 $y_1, y_2, \ldots, y_{T’}$，对每个时间步 $t’$（符号与输入序列或编码器的时间步 $t$ 有区别）， 解码器输出 $y_{t’}$ 的条件概率将基于之前的输出序列 $y_1,\ldots,y_{t’-1}$ 和背景变量 $c$，<strong>即</strong> $\mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, \boldsymbol{c})$。</p>
 <p>为此，我们可以使用<code>另一个RNN</code>作为解码器。 在输出序列的时间步 $t^\prime$，解码器将上一时间步的输出 $y_{t^\prime-1}$ 以及背景变量 $c$ 作为输入，并将它们与上一时间步的隐藏状态 $\boldsymbol{h}_{t^\prime-1}$ 变换为当前时间步的隐藏状态 $\boldsymbol{h}_{t^\prime}$。因此，我们可以用函数 $g$ 表达解码器隐藏层的变换：</p>
 <p>$$<br>\boldsymbol{h}_{t^\prime} = g(y_{t^\prime-1}, \boldsymbol{c}, \boldsymbol{h}_{t^\prime-1}).<br>$$</p>
 <p>有了decode的隐藏状态后，我们可以使用自定义的输出层和 softmax 运算来计算 $\mathbb{P}(y_{t^\prime} \mid y_1, \ldots, y_{t^\prime-1}, \boldsymbol{c})$，例如基于当前时间步的解码器隐藏状态 $\boldsymbol{h}_{t^\prime}$、上一时间步的输出 $y_{t^\prime-1}$ 以及背景变量 $c$ 来计算当前时间步输出 $y_{t^\prime}$ 的概率分布。</p>
