@@ -22,10 +22,8 @@ Machine Learning and Logic Programming
 逻辑编程是什么 （X + 2 = 5 询问 X 的值，回答： X=3）类比 forward pass + back propagation
 ML框架 其实是一种 程序语言 : differe">
 <meta property="og:image" content="http://shopee.ai/images/ai/nlp-1.jpg">
-<meta property="og:image" content="http://shopee.ai/images/tensorflow/tf-google-9.1.2_1-equation.svg">
-<meta property="og:image" content="http://shopee.ai/images/tensorflow/tf-google-9.1.2_2-equation.svg">
 <meta property="og:image" content="https://pic1.zhimg.com/80/v2-004df09bcc2f085c72cc0938c08b1910_hd.jpg">
-<meta property="og:updated_time" content="2019-06-15T06:02:06.772Z">
+<meta property="og:updated_time" content="2019-06-18T02:45:54.381Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Auckland New Zealand">
 <meta name="twitter:description" content="你可能想不到，Machine Learning and Logic Programming 有一种奇妙的关系，她们就像亲姐妹.
@@ -94,7 +92,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/ai1/index.html" class="article-date">
-  <time datetime="2019-06-15T06:02:06.792Z" itemprop="datePublished">2019-06-15</time>
+  <time datetime="2019-06-18T02:45:54.382Z" itemprop="datePublished">2019-06-18</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -212,48 +210,6 @@ var _hmt = _hmt || [];
 </li>
 <li><p>2018 - Pretrained language models</p>
 </li>
-</ol>
-</blockquote>
-<h3 id="2-0-language-model-amp-PPL"><a href="#2-0-language-model-amp-PPL" class="headerlink" title="2.0 language model &amp; PPL"></a>2.0 language model &amp; PPL</h3><p>如果 S 表示一连串特定顺序排列的词 $w_1$， $w_2$，…， $w_n$ ，换句话说，S 表示的是一个有意义的句子。机器对语言的识别从某种角度来说，就是想知道S在文本中出现的可能性，也就是数学上所说的S 的概率用 P(S) 来表示。利用条件概率的公式，S 这个序列出现的概率等于每一个词出现的概率相乘，于是P(S) 可展开为：</p>
-<p>$$<br>P(S) = P(w_1)P(w_2|w_1)P(w_3| w_1 w_2)…P(w_n|w_1 w_2…w_{n-1})<br>$$</p>
-<p>马尔可夫假设</p>
-<p>$$<br>P(S) = P(w_1)P(w_2|w_1)P(w_3|w_2)…P(w_i|w_{i-1})…<br>$$</p>
-<p>接下来如何估计 $P (w_i|w_{i-1})$。只要机器数一数这对词 $(w_{i-1}, w_i)$ 在统计的文本中出现了多少次，以及 $w_{i-1}$ 本身在同样的文本中前后相邻出现了多少次，然后用两个数一除就可以了,</p>
-<p>$$<br>P(w_i|w_{i-1}) = \frac {P(w_{i-1}, w_i)} {P(w_{i-1})}<br>$$</p>
-<p>因此，</p>
-<p>$$<br>P(w_{i}|w_{1}, w_{2}, …, w_{i-1}) = P(w_i | w_{i-N+1}, w_{i-N+2}, …, w_{i-1})<br>$$</p>
-<blockquote>
-<p>N元模型， N=2 时，为二元模型。 在实际中应用最多的是 N=3 的三元模型</p>
-</blockquote>
-<p><a href="/2017/07/12/nlp/word2vector-basic/#3-4-语言模型-词组合出现的概率">word2vec language model</a></p>
-<p>常用指标 perplexity， perplexity 越低，说明建模效果越好. </p>
-<p>计算perplexity的公式如下：</p>
-<p><img src="/images/tensorflow/tf-google-9.1.2_1-equation.svg" width="600"></p>
-<p>简单来说，perplexity刻画的是语言模型预测一个语言样本的能力.</p>
-<p>在语言模型的训练中，通常采用perplexity的对数表达形式：</p>
-<p><img src="/images/tensorflow/tf-google-9.1.2_2-equation.svg" width="600"></p>
-<p>相比较乘积求平方根的方式，采用加法的形式可以加速计算，同时避免概率乘积数值过小而导致浮点数向下溢出的问题。在数学上，log perplexity 可以看作真实分布与预测分布之间的交叉熵 Cross Entropy, 交叉熵描述了两个概率分布之间的一种距离. log perplexity和交叉熵是等价的</p>
-<p>在神经网络模型中，$P(w_i | w_{1}, , …, w_{i-1})$ 分布通常是由一个softmax层产生的，TensorFlow中提供了两个方便计算交叉熵的函数，可以将logits结果直接放入输入，来帮助计算softmax然后再进行计算交叉熵，在后面我们会详细介绍</p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">cross_entropy = tf.nn.softmax_cross_entropy_with_logits(labels = y, logits = y)</span><br><span class="line">cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(labels = y, logits = y)</span><br></pre></td></tr></table></figure>
-<ul>
-<li><a href="https://www.zhihu.com/people/xi-xiang-yu-20/posts" target="_blank" rel="external">知乎_习翔宇</a></li>
-</ul>
-<h3 id="2-1-word2vec-vs-NNLM"><a href="#2-1-word2vec-vs-NNLM" class="headerlink" title="2.1 word2vec vs NNLM"></a>2.1 word2vec vs NNLM</h3><ul>
-<li><a href="https://zdkswd.github.io/2019/04/17/word2vec/#" target="_blank" rel="external">百面 word2vec</a></li>
-</ul>
-<p>word2vec 并不是一个模型， 而是一个 2013年 google 发表的工具. </p>
-<p>该工具包含了2个模型： </p>
-<blockquote>
-<ol>
-<li>Skip-Gram </li>
-<li>CBOW</li>
-</ol>
-</blockquote>
-<p>两种高效的训练方法： </p>
-<blockquote>
-<ol>
-<li>negative sampling </li>
-<li>hierarchicam softmax. </li>
 </ol>
 </blockquote>
 <p><a href="https://zhuanlan.zhihu.com/p/29488930" target="_blank" rel="external">Word2Vec介绍: 为什么使用负采样（negtive sample）？</a></p>
@@ -393,7 +349,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-AI-算法基础"><span class="toc-number"></span> <span class="toc-text">1. AI 算法基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-防止-overfiting-的-8-条"><span class="toc-number"></span> <span class="toc-text">1.1 防止 overfiting 的 8 条</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-机器学习之类别不平衡问题"><span class="toc-number"></span> <span class="toc-text">1.2 机器学习之类别不平衡问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-Linear-vs-Nonlinear-classifier"><span class="toc-number"></span> <span class="toc-text">1.6 Linear vs Nonlinear classifier</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NLP高频问题"><span class="toc-number"></span> <span class="toc-text">2. NLP高频问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-0-language-model-amp-PPL"><span class="toc-number"></span> <span class="toc-text">2.0 language model & PPL</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-word2vec-vs-NNLM"><span class="toc-number"></span> <span class="toc-text">2.1 word2vec vs NNLM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-negative-sampling"><span class="toc-number"></span> <span class="toc-text">2.2 negative sampling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-word2vec-vs-fastText"><span class="toc-number"></span> <span class="toc-text">2.3 word2vec vs fastText</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-word2vec-vs-glove"><span class="toc-number"></span> <span class="toc-text">2.4 word2vec vs glove</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-ELMO-vs-GPT-vs-BERT"><span class="toc-number"></span> <span class="toc-text">2.5 ELMO vs GPT vs BERT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-Attention"><span class="toc-number"></span> <span class="toc-text">2.8 Attention</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-9-文本分类任务-tricks"><span class="toc-number"></span> <span class="toc-text">2.9 文本分类任务 tricks</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-其他算法问题"><span class="toc-number"></span> <span class="toc-text">3. 其他算法问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-AI-算法基础"><span class="toc-number"></span> <span class="toc-text">1. AI 算法基础</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-防止-overfiting-的-8-条"><span class="toc-number"></span> <span class="toc-text">1.1 防止 overfiting 的 8 条</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-机器学习之类别不平衡问题"><span class="toc-number"></span> <span class="toc-text">1.2 机器学习之类别不平衡问题</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-Linear-vs-Nonlinear-classifier"><span class="toc-number"></span> <span class="toc-text">1.6 Linear vs Nonlinear classifier</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NLP高频问题"><span class="toc-number"></span> <span class="toc-text">2. NLP高频问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-negative-sampling"><span class="toc-number"></span> <span class="toc-text">2.2 negative sampling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-word2vec-vs-fastText"><span class="toc-number"></span> <span class="toc-text">2.3 word2vec vs fastText</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-word2vec-vs-glove"><span class="toc-number"></span> <span class="toc-text">2.4 word2vec vs glove</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-ELMO-vs-GPT-vs-BERT"><span class="toc-number"></span> <span class="toc-text">2.5 ELMO vs GPT vs BERT</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-Attention"><span class="toc-number"></span> <span class="toc-text">2.8 Attention</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-9-文本分类任务-tricks"><span class="toc-number"></span> <span class="toc-text">2.9 文本分类任务 tricks</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-其他算法问题"><span class="toc-number"></span> <span class="toc-text">3. 其他算法问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
