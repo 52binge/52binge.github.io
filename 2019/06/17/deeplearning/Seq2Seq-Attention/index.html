@@ -17,12 +17,17 @@
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/Seq2Seq-03.jpg">
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-5.jpeg">
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W3-5.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W3-6_1.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W3-7_1.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W3-8_1.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W3-10_1.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/C5W3-11_1.png">
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-6.png">
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-2.jpg">
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-3.jpg">
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-4.jpg">
 <meta property="og:image" content="http://shopee.ai/images/chatbot/seq2seq-7.jpeg">
-<meta property="og:updated_time" content="2019-06-18T03:48:15.708Z">
+<meta property="og:updated_time" content="2019-06-18T08:56:46.383Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Seq2Seq and Attention">
 <meta name="twitter:description">
@@ -182,17 +187,74 @@ var _hmt = _hmt || [];
 <p><img src="/images/deeplearning/C5W3-5.png" width="600"></p>
 <p>所以 Greedy Search 的缺点是局部最优并不代表全局最优. Greedy Search 更加短视，看的不长远。</p>
 </blockquote>
-<h3 id="1-4-decoder-beam-search"><a href="#1-4-decoder-beam-search" class="headerlink" title="1.4 decoder beam search"></a>1.4 decoder beam search</h3><h3 id="1-5-train-模型训练"><a href="#1-5-train-模型训练" class="headerlink" title="1.5 train 模型训练"></a>1.5 train 模型训练</h3><p><strong>train 模型训练</strong></p>
-<p>根据最大似然估计，我们可以最大化输出序列基于输入序列的条件概率</p>
-<p>$$<br>\begin{split}\begin{aligned}<br>\mathbb{P}(y_1, \ldots, y_{T’} \mid x_1, \ldots, x_T)<br>&amp;= \prod_{t’=1}^{T’} \mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, x_1, \ldots, x_T)\\<br>&amp;= \prod_{t’=1}^{T’} \mathbb{P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, \boldsymbol{c}),<br>\end{aligned}\end{split}<br>$$</p>
+<h3 id="1-4-decoder-beam-search"><a href="#1-4-decoder-beam-search" class="headerlink" title="1.4 decoder beam search"></a>1.4 decoder beam search</h3><p>Beam Search 是 greedy search 的加强版本，首先要预设一个值 beam width，这里等于 <code>3</code> (如果等于 1 就是 greedy search)。然后在每一步保存最佳的 3 个结果进行下一步的选择，以此直到遇到句子的终结符.</p>
+<h4 id="1-4-1-step-1"><a href="#1-4-1-step-1" class="headerlink" title="1.4.1 step 1"></a>1.4.1 step 1</h4><p>如下图示，因为beam width=3，所以根据输入的需要翻译的句子选出 3 个 $y^{<1>}$最可能的输出值。</1></p>
+<p>即选出 $P(y^{<1>}|x)$ 最大的前3个值。 假设分别是 <strong>“in”, “jane”, “september”</strong></1></p>
+<p><img src="/images/deeplearning/C5W3-6_1.png" width="650"></p>
+<h4 id="1-4-2-step-2"><a href="#1-4-2-step-2" class="headerlink" title="1.4.2 step 2"></a>1.4.2 step 2</h4><p>以”<strong>in</strong>“为例进行说明，其他同理.</p>
+<p>如下图示，在给定被翻译句子 $x$ 和确定 $y^{<1>}$ = “<strong>in</strong>“ 的条件下，下一个输出值的条件概率是 $P(y^{<2>}|x,”in”)$。</2></1></p>
+<p>此时需要从 10000 种可能中找出条件概率最高的前 3 个.</p>
+<p>又由公式:</p>
+<p>$$<br>P(y^{<1>},y^{<2>}|x)=P(y^{<1>}|x) P(y^{<2>}|x, y^{<1>})<br>$$</1></2></1></2></1></p>
+<p>我们此时已经得到了给定输入数据，前两个输出值的输出概率比较大的组合了.</p>
+<p><img src="/images/deeplearning/C5W3-7_1.png" width="650"></p>
+<p>另外 2 个单词也做同样的计算</p>
+<p><img src="/images/deeplearning/C5W3-8_1.png" width="650"></p>
+<p>此时我们得到了 9 组 $P(y^{<1>},y^{<2>}|x)$, 此时我们再从这 9组 中选出概率值最高的前 3 个。</2></1></p>
+<p>如下图示，假设是这3个：</p>
+<blockquote>
+<ul>
+<li>“in september”</li>
+<li>“jane is”</li>
+<li>“jane visits”</li>
+</ul>
+</blockquote>
+<h4 id="1-4-3-step-3"><a href="#1-4-3-step-3" class="headerlink" title="1.4.3 step 3"></a>1.4.3 step 3</h4><p>继续 step 2 的过程，根据 $P(y^{<3>}|x,y^{<1>},y^{<2>})$ 选出 $P(y^{<1>},y^{<2>},y^{<3>}|x)$ 最大的前3个组合.</3></2></1></2></1></3></p>
+<p>后面重复上述步骤得出结果.</p>
+<h4 id="1-4-4-summary"><a href="#1-4-4-summary" class="headerlink" title="1.4.4 summary"></a>1.4.4 summary</h4><p>总结一下上面的步骤就是：</p>
+<blockquote>
+<ul>
+<li><p>(1). 经过 encoder 以后，decoder 给出最有可能的三个开头词依次为 “in”, “jane”, “september”<br>$$P(y^{<1>}|x)$$</1></p>
+</li>
+<li><p>(2). 经 step 1 得到的值输入到 step 2 中，最可能的三个翻译为 “in september”, “jane is”, “jane visits” </p>
+</li>
+</ul>
+<p>$$P(y^{<2>}|x,y^{<1>})$$</1></2></p>
+<p>(这里，september开头的句子由于概率没有其他的可能性大，已经失去了作为开头词资格)</p>
+<ul>
+<li>(3). 继续这个过程… </li>
+</ul>
+<p>$$P(y^{<3>}|x,y^{<1>},y^{<2>})$$</2></1></3></p>
+</blockquote>
+<p><img src="/images/deeplearning/C5W3-10_1.png" width="750"></p>
+<h3 id="1-5-refinements-to-beam-search"><a href="#1-5-refinements-to-beam-search" class="headerlink" title="1.5 refinements to beam search"></a>1.5 refinements to beam search</h3><p>$$<br>P(y^{<1>},….,P(y^{T_y})|x)=P(y^{<1>}|x)P(y^{<2>}|x,y^{<1>})…P(y^{&lt;{T_y}&gt;}|x,y^{<1>},…y^{&lt;{T_y-1}&gt;})<br>$$</1></1></2></1></1></p>
+<p>所以要满足 $argmax P(y^{<1>},….,P(y^{T_y})|x)$, 也就等同于要满足</1></p>
+<p>$$<br>argmax \prod_{t=1}^{T_y}P(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
+<p>但是上面的公式存在一个问题，因为概率都是小于1的，累乘之后会越来越小，可能小到计算机无法精确存储，所以可以将其转变成 log 形式（因为 log 是单调递增的，所以对最终结果不会有影响），其公式如下：</p>
+<p>$$<br>argmax \sum_{t=1}^{T_y}logP(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
+<blockquote>
+<p>But！！！上述公式仍然存在bug，观察可以知道，概率值都是小于1的，那么log之后都是负数，所以为了使得最后的值最大，那么只要保证翻译的句子越短，那么值就越大，所以如果使用这个公式，那么最后翻译的句子通常都是比较短的句子，这显然不行。</p>
+</blockquote>
+<p>所以我们可以通过归一化的方式来纠正，即保证平均到每个单词都能得到最大值。其公式如下：</p>
+<p>$$<br>argmax \frac{1}{T_y}\sum_{t=1}^{T_y}logP(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
+<p>归一化的确能很好的解决上述问题，但是在实际运用中，会额外添加一个参数 $α$, 其大小介于 0 和 1 之间</p>
+<p>$$<br>argmax \frac{1}{T_y^α}\sum_{t=1}^{T_y}logP(y^{&lt;{t}&gt;}|x,y^{<1>},…y^{&lt;{t-1}&gt;})<br>$$</1></p>
+<p><img src="/images/deeplearning/C5W3-11_1.png" width="700"></p>
+<blockquote>
+<p>$T_y$ 为输出句子中单词的个数，$α$ 是一个超参数 (可以设置为 0.7)</p>
+<p>$α$ == 1. 则代表 完全用句子长度归一化<br>$α$ == 0. 则代表 没有归一化<br>$α$ == 0~1. 则代表 在 句子长度归一化 与 没有归一化 之间的折中程度.</p>
+<p>beam width = B = 3~<strong>10</strong>~100 是会有一个明显的增长，但是 B 从 1000 ~ 3000 是并没有一个明显增长的.</p>
+</blockquote>
+<h3 id="1-6-train-seq2seq-model"><a href="#1-6-train-seq2seq-model" class="headerlink" title="1.6 train seq2seq model"></a>1.6 train seq2seq model</h3><p>根据最大似然估计，我们可以最大化输出序列基于输入序列的条件概率</p>
+<p>$$<br>\begin{split}\begin{aligned}<br>{P}(y_1, \ldots, y_{T’} \mid x_1, \ldots, x_T)<br>&amp;= \prod_{t’=1}^{T’} {P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, x_1, \ldots, x_T)\\<br>&amp;= \prod_{t’=1}^{T’} {P}(y_{t’} \mid y_1, \ldots, y_{t’-1}, \boldsymbol{c}),<br>\end{aligned}\end{split}<br>$$</p>
 <p>并得到该输出序列的损失</p>
-<p>$$ - \log\mathbb{P}(y_1, \ldots, y_{T’} \mid x_1, \ldots, x_T) = -\sum_{t’=1}^{T’} \log \mathbb{P}(y_{t’} \mid y_1,  \ldots, y_{t’-1}, \boldsymbol{c}),<br>$$</p>
+<p>$$ - \log{P}(y_1, \ldots, y_{T’} \mid x_1, \ldots, x_T) = -\sum_{t’=1}^{T’} \log {P}(y_{t’} \mid y_1,  \ldots, y_{t’-1}, \boldsymbol{c}),<br>$$</p>
 <p><img src="/images/chatbot/seq2seq-6.png" width="800"></p>
 <p>在模型训练中，所有输出序列损失的均值通常作为需要最小化的损失函数。在图中所描述的模型预测中，我们需要将decode在上一个时间步的输出作为当前时间步的输入。与此不同，在训练中我们也可以将标签序列在上一个时间步的标签作为decode在当前时间步的输入。这叫做强制教学（teacher forcing）。</p>
-<h3 id="1-4-小结"><a href="#1-4-小结" class="headerlink" title="1.4 小结"></a>1.4 小结</h3><ul>
+<h3 id="1-7-summary"><a href="#1-7-summary" class="headerlink" title="1.7 summary"></a>1.7 summary</h3><ul>
 <li>编码器 - 解码器（seq2seq）可以输入并输出不定长的序列。</li>
 <li>编码器—解码器使用了两个 RNN。</li>
-<li>在编码器—解码器的训练中，我们可以采用 teacher forcing。</li>
+<li>在编码器—解码器的训练中，我们可以采用 teacher forcing。(这也是 Seq2Seq 2 的内容)</li>
 </ul>
 <h2 id="2-Seq2Seq-框架2"><a href="#2-Seq2Seq-框架2" class="headerlink" title="2. Seq2Seq 框架2"></a>2. Seq2Seq 框架2</h2><p>Seq2Seq model 来自于 “<a href="https://arxiv.org/pdf/1409.3215.pdf" target="_blank" rel="external">Sequence to Sequence Learning with Neural Networks</a>”</p>
 <p>其模型结构图如下所示：</p>
@@ -237,7 +299,6 @@ var _hmt = _hmt || [];
 <li>Attention机制可以采用更为高效的矢量化计算。</li>
 </ul>
 <h2 id="4-Seq2Seq-Attention各种变形"><a href="#4-Seq2Seq-Attention各种变形" class="headerlink" title="4. Seq2Seq Attention各种变形"></a>4. Seq2Seq Attention各种变形</h2><p>第四个Seq-to-Seq模型，来自于论文 <a href="http://link.zhihu.com/?target=http%3A//aclweb.org/anthology/D15-1166" target="_blank" rel="external">Effective Approaches to Attention-based Neural Machine Translation</a> 这篇论文提出了两种 Seq2Seq模型 分别是global Attention 和 local Attention。</p>
-<h2 id="5-Seq2Seq-with-Beam-Search"><a href="#5-Seq2Seq-with-Beam-Search" class="headerlink" title="5. Seq2Seq with Beam-Search"></a>5. Seq2Seq with Beam-Search</h2><p>上面讲的几种Seq2Seq模型都是从模型结构上进行的改进，也就说为了从训练的层面上改善模型的效果，但这里要介绍的beam-search是在测试的时候才用到的技术。</p>
 <h2 id="Attention"><a href="#Attention" class="headerlink" title="Attention"></a>Attention</h2><p>除此之外模型为了取得比较好的效果还是用了下面三个小技巧来改善性能：</p>
 <blockquote>
 <p>深层次的LSTM：作者使用了4层LSTM作为encoder和decoder模型，并且表示深层次的模型比shallow的模型效果要好（单层，神经元个数多）。</p>
@@ -299,7 +360,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Encoder-Decoder"><span class="toc-number"></span> <span class="toc-text">1. Encoder-Decoder</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-encoder"><span class="toc-number"></span> <span class="toc-text">1.1 encoder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-decoder"><span class="toc-number"></span> <span class="toc-text">1.2 decoder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-decoder-greedy-search"><span class="toc-number"></span> <span class="toc-text">1.3 decoder greedy search</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-decoder-beam-search"><span class="toc-number"></span> <span class="toc-text">1.4 decoder beam search</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-train-模型训练"><span class="toc-number"></span> <span class="toc-text">1.5 train 模型训练</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-小结"><span class="toc-number"></span> <span class="toc-text">1.4 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Seq2Seq-框架2"><span class="toc-number"></span> <span class="toc-text">2. Seq2Seq 框架2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Seq2Seq-Attention"><span class="toc-number"></span> <span class="toc-text">3. Seq2Seq Attention</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-计算背景变量-c"><span class="toc-number"></span> <span class="toc-text">3.1 计算背景变量 c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-更新隐藏状态"><span class="toc-number"></span> <span class="toc-text">3.2 更新隐藏状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-小结"><span class="toc-number"></span> <span class="toc-text">3.3 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Seq2Seq-Attention各种变形"><span class="toc-number"></span> <span class="toc-text">4. Seq2Seq Attention各种变形</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Seq2Seq-with-Beam-Search"><span class="toc-number"></span> <span class="toc-text">5. Seq2Seq with Beam-Search</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Attention"><span class="toc-number"></span> <span class="toc-text">Attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Encoder-Decoder"><span class="toc-number"></span> <span class="toc-text">1. Encoder-Decoder</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-encoder"><span class="toc-number"></span> <span class="toc-text">1.1 encoder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-decoder"><span class="toc-number"></span> <span class="toc-text">1.2 decoder</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-decoder-greedy-search"><span class="toc-number"></span> <span class="toc-text">1.3 decoder greedy search</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-decoder-beam-search"><span class="toc-number"></span> <span class="toc-text">1.4 decoder beam search</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-1-step-1"><span class="toc-number"></span> <span class="toc-text">1.4.1 step 1</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-2-step-2"><span class="toc-number"></span> <span class="toc-text">1.4.2 step 2</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-3-step-3"><span class="toc-number"></span> <span class="toc-text">1.4.3 step 3</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-4-4-summary"><span class="toc-number"></span> <span class="toc-text">1.4.4 summary</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-refinements-to-beam-search"><span class="toc-number"></span> <span class="toc-text">1.5 refinements to beam search</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-train-seq2seq-model"><span class="toc-number"></span> <span class="toc-text">1.6 train seq2seq model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-7-summary"><span class="toc-number"></span> <span class="toc-text">1.7 summary</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Seq2Seq-框架2"><span class="toc-number"></span> <span class="toc-text">2. Seq2Seq 框架2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Seq2Seq-Attention"><span class="toc-number"></span> <span class="toc-text">3. Seq2Seq Attention</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-计算背景变量-c"><span class="toc-number"></span> <span class="toc-text">3.1 计算背景变量 c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-更新隐藏状态"><span class="toc-number"></span> <span class="toc-text">3.2 更新隐藏状态</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-小结"><span class="toc-number"></span> <span class="toc-text">3.3 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Seq2Seq-Attention各种变形"><span class="toc-number"></span> <span class="toc-text">4. Seq2Seq Attention各种变形</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Attention"><span class="toc-number"></span> <span class="toc-text">Attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
