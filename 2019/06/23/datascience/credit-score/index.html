@@ -12,13 +12,19 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description">
 <meta property="og:image" content="http://shopee.ai/images/datascience/credit-score-02.jpg">
-<meta property="og:image" content="https://pic2.zhimg.com/80/v2-f9641d365b592361e541b4d5458ebf2d_hd.jpg">
+<meta property="og:image" content="http://shopee.ai/images/datascience/credit-score-01.jpeg">
+<meta property="og:image" content="http://shopee.ai/images/datascience/credit-score-03.png">
+<meta property="og:image" content="http://shopee.ai/images/datascience/credit-score-04.svg">
+<meta property="og:image" content="http://shopee.ai/images/datascience/credit-score-05.svg">
+<meta property="og:image" content="http://shopee.ai/images/datascience/credit-score-06.jpg">
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=IV_i+%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+log+%28%5Cfrac%7B%5C%23B_i%2F%5C%23B_T%7D%7B%5C%23G_i%2F%5C%23G_T%7D%29%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+WOE_i+%5C%5C">
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=IV+%3D+%5Csum%5Climits_i%5En+IV_i+%5C%5C">
+<meta property="og:image" content="http://shopee.ai/images/datascience/credit-score-07.svg">
+<meta property="og:image" content="http://shopee.ai/images/datascience/credit-score-08.jpg">
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%3D+%5Ctheta%5ETx+%5C%5C">
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=Score+%3D+A+-B+%5Ctimes+%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%5C%5C">
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-fec98ff9de65d835a5be217f01f678a5_hd.jpg">
-<meta property="og:updated_time" content="2019-06-21T03:41:59.114Z">
+<meta property="og:updated_time" content="2019-06-21T09:55:48.678Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="User Credit Score">
 <meta name="twitter:description">
@@ -123,7 +129,7 @@ var _hmt = _hmt || [];
 <li>贷中： Behavior score card， 又称为B卡</li>
 <li>贷后： Collection score card， 又称为C卡</li>
 </ul>
-<p>申请评分卡要求最为严格，也最为重要，可解释性也要求最强，一般用 LR</p>
+<p>申请评分卡要求最为严格，也最为重要，可解释性也要求最强，一般主流模型为 LR.</p>
 <blockquote>
 <p>如需了解更多关于 互联网金融风控 的相关背景知识，请参阅：</p>
 <ul>
@@ -164,17 +170,14 @@ var _hmt = _hmt || [];
 <p>好坏比是 34:1 是非常难以处理的样本了.</p>
 </blockquote>
 <h3 id="3-1-数据清洗"><a href="#3-1-数据清洗" class="headerlink" title="3.1 数据清洗"></a>3.1 数据清洗</h3><p>缺失值太多</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 处理对象类型的缺失，unique</span></span><br><span class="line">df.select_dtypes(include=[<span class="string">'O'</span>]).describe().T.\</span><br><span class="line">assign(missing_pct=df.apply(<span class="keyword">lambda</span> x : (len(x)-x.count())/float(len(x))))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 缺失值特别高的可以删除掉</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 处理对象类型的缺失，unique</span></span><br><span class="line">df.select_dtypes(include=[<span class="string">'O'</span>]).describe().T.\</span><br><span class="line">assign(missing_pct=df.apply(<span class="keyword">lambda</span> x : (len(x)-x.count())/float(len(x))))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 缺失值特别高的可以删除掉</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 我们可以对 非数值型 变量，做一个循环，发现 zip_code 有 873 个 unique 的值，那么先不处理</span></span><br><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> df.select_dtypes(include=[<span class="string">'object'</span>]).columns:</span><br><span class="line">    <span class="keyword">print</span> (<span class="string">"Column &#123;&#125; has &#123;&#125; unique instances"</span>.format( col, len(df[col].unique())) )</span><br></pre></td></tr></table></figure>
 <h3 id="3-2-变量分箱"><a href="#3-2-变量分箱" class="headerlink" title="3.2 变量分箱"></a>3.2 变量分箱</h3><ul>
 <li>对连续变量进行分段离散化；</li>
 <li>将多状态的离散变量进行合并，减少离散变量的状态数。</li>
 </ul>
-<blockquote>
-<p>分箱方法很多，最常见的方法之一： Merge分箱中的 Chimerge 分箱.</p>
-</blockquote>
 <p>先可以粗分箱，之后在合并。 比如 年龄取值数有 30个，那么分为 30 箱，最后合为 5 箱。<br>其他变量可能粗分箱为 100 箱，之后合并.</p>
 <blockquote>
-<p><strong>Merge 分箱</strong></p>
+<p>分箱方法很多，最常见的方法之一： Merge分箱中的 Chimerge 分箱.</p>
 <p>Chimerge 其基本思想是如果两个相邻的区间具有类似的类分布，则这两个区间合并；<br>否则，它们应保持分开。Chimerge通常采用<strong>卡方值</strong>来衡量两相邻区间的类分布情况。</p>
 <ul>
 <li>连续值按升序排列，离散值先转化为坏客户的比率，然后再按升序排列；</li>
@@ -182,27 +185,9 @@ var _hmt = _hmt || [];
 <li>若有缺失值，则缺失值单独作为一个分箱。</li>
 </ul>
 </blockquote>
-<p><strong>卡方值的意义：</strong></p>
+<p><strong>分箱的最大区间数 &amp; 分箱初始化</strong></p>
 <blockquote>
-<p>卡方值仅仅只是一个中间过程，通过卡方值计算出p值，p值才是我们最重要需要的。p小于0.05意味着存在显著差异。</p>
-<p>卡方值是非参数检验中的一个统计量，主要用于非参数统计分析中。它的作用是检验数据的相关性。如果卡方值的显著性（即SIG.）小于0.05，说明两个变量是显著相关的。</p>
-<p>上一步：数据预处理——缺失值、异常值、重复值处理</p>
-<p>下一步：变量显著性检验——计算 WOE、IV</p>
-</blockquote>
-<p>举个例子：</p>
-<blockquote>
-<p>A箱<br>(26.2-19)*(26.2-19) / 26.2  -&gt; <strong>(26.2 是 正类的期望频数， 19 是真实频数)</strong></p>
-<p>(16.8-24)*(16.8-24) / 16.8 (16.8 是 负类的期望频数)</p>
-<p>B箱<br>(26.8-34)*(26.8-34) / 26.8 (26.8 是 正类的期望频数)<br>(17.2-10)*(17.2-10) / 17.2 (17.2 是 负类的期望频数)</p>
-<p>先建立原假设：A、B两种疗法没有区别。根据卡方值的计算公式，计算：卡方值=10.01。</p>
-<p>方差: 来描述变量与均值的偏离程度</p>
-</blockquote>
-<p><strong>分箱的最大区间数：</strong></p>
-<blockquote>
-<p>n = 5</p>
-</blockquote>
-<p><strong>分箱初始化：</strong></p>
-<blockquote>
+<p>这里我取： n = 5</p>
 <ol>
 <li>连续值按升序排列，离散值先转化为坏客户的比率，然后再按升序排列；</li>
 <li>为了减少计算量，对于状态数大于某一阈值 (建议为100) 的变量，利用等频分箱进行粗分箱。</li>
@@ -223,13 +208,6 @@ var _hmt = _hmt || [];
 <li>检查缺失分箱的坏客户比例是否和非缺失分箱相等，如果相等，进行合并。</li>
 </ol>
 </blockquote>
-<p><strong>分箱的好处：</strong></p>
-<blockquote>
-<p>列表内容离散化后的特征对异常数据有很强的鲁棒性.</p>
-<p>离散化后可以进行特征交叉，由 M+N 个变量变为 M*N 个变量，进一步引入非线性，提升表达能力；</p>
-<p>列表内容特征离散化后，模型会更稳定，比如如果对用户年龄离散化，20-30作为一个区间，不会因为一个用户年龄长了一岁就变成一个完全不同的人。当然处于区间相邻处的样本会刚好相反，所以怎么划分区间是门学问；</p>
-<p>将所有变量变换到相似的尺度上。</p>
-</blockquote>
 <p><strong>总结一下特征分箱的优势</strong>：</p>
 <blockquote>
 <ol>
@@ -239,6 +217,7 @@ var _hmt = _hmt || [];
 <li>将所有特征统一变换为类别型变量。</li>
 <li>分箱后变量才可以使用标准的评分卡格式，即对不同的分段进行评分。</li>
 </ol>
+<p>列表内容特征离散化后，模型会更稳定，比如如果对用户年龄离散化，20-30作为一个区间，不会因为一个用户年龄长了一岁就变成一个完全不同的人。当然处于区间相邻处的样本会刚好相反，所以怎么划分区间是门学问；</p>
 </blockquote>
 <ul>
 <li><a href="https://zhuanlan.zhihu.com/p/52312186" target="_blank" rel="external">变量分箱实践</a></li>
@@ -246,16 +225,72 @@ var _hmt = _hmt || [];
 <li><a href="https://blog.csdn.net/zengxiantao1994/article/details/77855644" target="_blank" rel="external">方差、标准差和均方根误差的区别总结</a></li>
 <li><a href="https://www.cnblogs.com/wzdLY/p/9649101.html" target="_blank" rel="external">基于卡方分箱的评分卡建模</a></li>
 </ul>
+<hr>
+<p><a href="https://www.cnblogs.com/wzdLY/p/9649101.html" target="_blank" rel="external">good 基于卡方分箱的评分卡建模 , 卡方分布—chi-square distribution, χ2-distribution</a></p>
+<p><strong>卡方值的意义,举个例子：</strong></p>
+<p>某医院对某种病症的患者使用了 $A$，$B$ 两种不同的疗法，结果如表1，问两种疗法有无差别？</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">组别</th>
+<th style="text-align:center">有效</th>
+<th style="text-align:center">无效</th>
+<th style="text-align:center">合计</th>
+<th style="text-align:center">有效率（%）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">A组</td>
+<td style="text-align:center">19</td>
+<td style="text-align:center">24</td>
+<td style="text-align:center">43</td>
+<td style="text-align:center">44.2</td>
+</tr>
+<tr>
+<td style="text-align:center">B组</td>
+<td style="text-align:center">34</td>
+<td style="text-align:center">10</td>
+<td style="text-align:center">44</td>
+<td style="text-align:center">77.3</td>
+</tr>
+<tr>
+<td style="text-align:center">合计</td>
+<td style="text-align:center">53</td>
+<td style="text-align:center">34</td>
+<td style="text-align:center">87</td>
+<td style="text-align:center">60.9</td>
+</tr>
+</tbody>
+</table>
+<p>可以计算出各格内的期望频数：</p>
+<p>第1行1列： 43×53/87=26.2 , </p>
+<p>第1行2列： 43×34/87=16.8 , </p>
+<p>第2行1列： 44×53/87=26.8 , </p>
+<p>第2行2列： 44×34/87=17.2 </p>
+<p>A箱</p>
+<p>(26.2-19)*(26.2-19) / 26.2  -&gt; <strong>(26.2 是 正类的期望频数， 19 是真实频数)</strong></p>
+<p>(16.8-24)*(16.8-24) / 16.8 (16.8 是 负类的期望频数)</p>
+<p>B箱</p>
+<p>(26.8-34)*(26.8-34) / 26.8 (26.8 是 正类的期望频数)</p>
+<p>(17.2-10)*(17.2-10) / 17.2 (17.2 是 负类的期望频数)</p>
+<p>先建立原假设：A、B两种疗法没有区别。根据卡方值的计算公式，计算：卡方值=10.01。得到卡方值以后，接下来需要查询卡方分布表来判断p值，从而做出接受或拒绝原假设的决定。</p>
+<details><br>  <summary> 点击时的区域标题： 卡方分布—chi-square distribution, χ2-distribution </summary><br><br><strong>χ2-distribution:</strong><br><br><strong><br>若 $k$ 个独立的随机变量 $Z_1, Z_2, …, Z_k$ 满足标准正态分布 $N(0,1)$ , 则这 $k$ 个随机变量的平方和：<br><br><img src="/images/datascience/credit-score-01.jpeg" width="150" alt=""><br><br>卡方检验—χ2检验是以χ2分布为基础的一种假设检验方法，主要用于分类变量之间的独立性检验<br><br>思想是根据样本数据推断 <strong><code>总体分布与期望分布 是否有显著性差异</code></strong>，或者推断两个分类变量是否相关或者独立。<br><br>一般可以设原假设为 ：观察频数与期望频数没有差异，或者两个变量相互独立不相关。<br><br>实际应用中，我们先假设原假设成立，计算出卡方值，卡方表示观察值与理论值间的偏离程度。<br><br><img src="/images/datascience/credit-score-03.png" width="500" alt=""><br><br>卡方值只是一个中间过程，通过卡方值计算出p值，p值才是我们最重要需要的。p小于0.05意味着存在显著差异。<br><br>卡方值是非参数检验中的一个统计量，主要用于非参数统计分析中。它的作用是检验数据的相关性。如果卡方值的显著性（即SIG.）小于0.05，说明两个变量是显著相关的。<br></strong><br></details>
+
+<hr>
 <h3 id="3-3-WOE编码"><a href="#3-3-WOE编码" class="headerlink" title="3.3 WOE编码"></a>3.3 WOE编码</h3><blockquote>
-<p>WOE: weight of evidence</p>
+<p>WOE 称为证据权重(weight of evidence) , 将离散变量转化为连续变量。</p>
 </blockquote>
-<p>将离散变量转化为连续变量。WOE编码是评分卡模型常用的编码方式。</p>
+<p>WOE 将预测类别的集中度的属性作为编码的数值。对于自变量第 $i$ 箱的WOE值为：</p>
+<p><img src="/images/datascience/credit-score-04.svg" width="600" alt=""></p>
 <blockquote>
+<p>$p_{i1}$ 是第 $i$ 箱中坏客户占所有坏客户比例</p>
+<p>$p_{i0}$ 是第 $i$ 箱中好客户占所有好客户比例</p>
 <p>WOE也可以理解为当前分箱中坏客户和好客户的比值，和所有样本中这个比值的差异</p>
 <p>当分箱中坏客户和好客户的比例等于随机坏客户和好客户的比值时，说明这个分箱没有预测能力，即WOE=0。 (WOE为0，说明该箱出的特征对结果没有区分度)</p>
 </blockquote>
-<p>实际上WOE编码相当于把分箱后的特征<strong>从非线性可分映射到近似线性</strong>可分的空间内。</p>
-<p><img src="https://pic2.zhimg.com/80/v2-f9641d365b592361e541b4d5458ebf2d_hd.jpg" alt=""></p>
+<p>实际上WOE编码相当于把分箱后的特征从非线性可分映射到近似线性可分的空间内:</p>
+<p><img src="/images/datascience/credit-score-05.svg" width="600" alt=""></p>
 <p>总结一下WOE编码的优势：</p>
 <blockquote>
 <ol>
@@ -268,8 +303,6 @@ var _hmt = _hmt || [];
 </ol>
 </blockquote>
 <hr>
-<p><strong>评估指标ks：</strong></p>
-<p>等分 10 份，两条洛伦兹曲线， TPR 与 FPR 的差值. 好坏客户的区程度.</p>
 <h2 id="4-变量筛选"><a href="#4-变量筛选" class="headerlink" title="4. 变量筛选"></a>4. 变量筛选</h2><p>主要衡量标准: 变量的预测能力和变量的线性相关性。</p>
 <p>挑选入模变量:</p>
 <blockquote>
@@ -280,10 +313,15 @@ var _hmt = _hmt || [];
 </ol>
 </blockquote>
 <p>变量两两相关性分析，变量的多重共线性分析。</p>
-<h3 id="4-1-单变量筛选"><a href="#4-1-单变量筛选" class="headerlink" title="4.1 单变量筛选"></a>4.1 单变量筛选</h3><p>IV 称为信息价值(information value)，自变量的IV值越大，表示自变量的预测能力越强。</p>
+<h3 id="4-1-单变量筛选"><a href="#4-1-单变量筛选" class="headerlink" title="4.1 单变量筛选"></a>4.1 单变量筛选</h3><p>IV 信息价值(information value)，自变量的IV值越大，表示自变量的预测能力越强。 类似指标还有信息增益等。</p>
+<p><img src="/images/datascience/credit-score-06.jpg" width="850" alt=""></p>
 <p><img src="https://www.zhihu.com/equation?tex=IV_i+%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+log+%28%5Cfrac%7B%5C%23B_i%2F%5C%23B_T%7D%7B%5C%23G_i%2F%5C%23G_T%7D%29%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+WOE_i+%5C%5C" alt=""></p>
 <p>变量对应的IV值为所有分箱对应的 IV 值之和：</p>
 <p><img src="https://www.zhihu.com/equation?tex=IV+%3D+%5Csum%5Climits_i%5En+IV_i+%5C%5C" alt=""></p>
+<p>IV 值实际上式变量各个分箱的加权求和。且和决策树中的交叉熵有异曲同工之妙。以下为交叉熵公式：</p>
+<p><img src="/images/datascience/credit-score-07.svg" width="600" alt=""></p>
+<p>IV值的具体的计算流程如下：</p>
+<p><img src="/images/datascience/credit-score-08.jpg" width="800" alt=""></p>
 <p>IV排序后，选择IV&gt;0.02的变量，共58个变量IV&gt;0.02</p>
 <h3 id="4-2-多变量分析"><a href="#4-2-多变量分析" class="headerlink" title="4.2 多变量分析"></a>4.2 多变量分析</h3><p>保留相关性低于阈值0.6的变量，剩余27个变量</p>
 <p><strong>为什么要进行相关性分析？</strong></p>
@@ -321,6 +359,7 @@ var _hmt = _hmt || [];
 <li>该违约概率翻倍的评分（PDO）</li>
 </ul>
 <h2 id="6-KS-评估"><a href="#6-KS-评估" class="headerlink" title="6. KS 评估"></a>6. KS 评估</h2><p>KS 值表示了模型区分好坏客户的能力。</p>
+<p>等分 10 份，两条洛伦兹曲线， TPR 与 FPR 的差值. 好坏客户的区程度.</p>
 <p>其实质是 $TPR - FPR$ 随好坏客户阈值变化的最大值。KS 的取值范围在 0.5 ~ 1 之间，值越大，模型的预测准确性越好。一般，KS &gt; 0.4 即认为模型有比较好的预测性能。</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://zhuanlan.zhihu.com/p/34370741" target="_blank" rel="external">Python三大评分卡之行为评分卡</a></li>
