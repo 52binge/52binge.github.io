@@ -18,7 +18,7 @@
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%3D+%5Ctheta%5ETx+%5C%5C">
 <meta property="og:image" content="https://www.zhihu.com/equation?tex=Score+%3D+A+-B+%5Ctimes+%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%5C%5C">
 <meta property="og:image" content="https://pic2.zhimg.com/80/v2-fec98ff9de65d835a5be217f01f678a5_hd.jpg">
-<meta property="og:updated_time" content="2019-06-20T09:14:16.945Z">
+<meta property="og:updated_time" content="2019-06-21T03:41:59.114Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="User Credit Score">
 <meta name="twitter:description">
@@ -119,9 +119,9 @@ var _hmt = _hmt || [];
 <p>信用评分卡模型是最常见的金融风控手段之一，它是指根据客户的各种属性和行为数据，利用一定的信用评分模型，对客户进行信用评分，据此决定是否给予授信以及授信的额度和利率，从而识别和减少在金融交易中存在的交易风险。</p>
 <p>按照借贷用户的借贷时间，评分卡模型可以划分为以下三种：</p>
 <ul>
-<li>贷前：申请评分卡（Application score card），又称为A卡</li>
-<li>贷中：行为评分卡（Behavior score card），又称为B卡</li>
-<li>贷后：催收评分卡（Collection score card），又称为C卡</li>
+<li>贷前： Application score card， 又称为A卡</li>
+<li>贷中： Behavior score card， 又称为B卡</li>
+<li>贷后： Collection score card， 又称为C卡</li>
 </ul>
 <p>申请评分卡要求最为严格，也最为重要，可解释性也要求最强，一般用 LR</p>
 <blockquote>
@@ -149,9 +149,10 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>每个字段的缺失值情况、异常值情况、平均值、中位数、最大值、最小值、分布情况等</p>
 </blockquote>
-<h3 id="3-3-数据预处理"><a href="#3-3-数据预处理" class="headerlink" title="3.3 数据预处理"></a>3.3 数据预处理</h3><blockquote>
-<p>数据清洗，变量分箱和 WOE 编码三个步骤</p>
-</blockquote>
+<h2 id="3-数据预处理"><a href="#3-数据预处理" class="headerlink" title="3. 数据预处理"></a>3. 数据预处理</h2><p>(1). 数据清洗</p>
+<p>(2). 变量分箱</p>
+<p>(3). WOE 编码</p>
+<blockquote>
 <ol>
 <li>缺失值太多</li>
 <li>非数值变量多 (emp_title..)</li>
@@ -160,13 +161,11 @@ var _hmt = _hmt || [];
 <li>空值填充为 0</li>
 <li>带 % 的浮点，去掉 %</li>
 </ol>
-<blockquote>
-<p>好坏比是 34:1 是非常难以处理的样本了 </p>
+<p>好坏比是 34:1 是非常难以处理的样本了.</p>
 </blockquote>
-<h3 id="3-3-1-数据清洗"><a href="#3-3-1-数据清洗" class="headerlink" title="3.3.1 数据清洗"></a>3.3.1 数据清洗</h3><blockquote>
-<p>缺失值太多</p>
-</blockquote>
-<h3 id="3-3-2-变量分箱"><a href="#3-3-2-变量分箱" class="headerlink" title="3.3.2 变量分箱"></a>3.3.2 变量分箱</h3><ul>
+<h3 id="3-1-数据清洗"><a href="#3-1-数据清洗" class="headerlink" title="3.1 数据清洗"></a>3.1 数据清洗</h3><p>缺失值太多</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 处理对象类型的缺失，unique</span></span><br><span class="line">df.select_dtypes(include=[<span class="string">'O'</span>]).describe().T.\</span><br><span class="line">assign(missing_pct=df.apply(<span class="keyword">lambda</span> x : (len(x)-x.count())/float(len(x))))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 缺失值特别高的可以删除掉</span></span><br></pre></td></tr></table></figure>
+<h3 id="3-2-变量分箱"><a href="#3-2-变量分箱" class="headerlink" title="3.2 变量分箱"></a>3.2 变量分箱</h3><ul>
 <li>对连续变量进行分段离散化；</li>
 <li>将多状态的离散变量进行合并，减少离散变量的状态数。</li>
 </ul>
@@ -190,8 +189,7 @@ var _hmt = _hmt || [];
 <p>上一步：数据预处理——缺失值、异常值、重复值处理</p>
 <p>下一步：变量显著性检验——计算 WOE、IV</p>
 </blockquote>
-<p>在LR中，单变量离散化为N个哑变量后，每个哑变量有单独的权重，相当于为模型引入了非线性，能够提升模型表达能力，加大拟合；</p>
-<p><a href="https://zhuanlan.zhihu.com/p/52312186" target="_blank" rel="external">变量分箱实践</a><br><a href="http://www.jiehuozhe.com/article/3" target="_blank" rel="external">One-Hot编码与哑变量</a><br><a href="https://blog.csdn.net/zengxiantao1994/article/details/77855644" target="_blank" rel="external">方差、标准差和均方根误差的区别总结</a><br><a href="https://www.cnblogs.com/wzdLY/p/9649101.html" target="_blank" rel="external">基于卡方分箱的评分卡建模</a></p>
+<p>举个例子：</p>
 <blockquote>
 <p>A箱<br>(26.2-19)*(26.2-19) / 26.2  -&gt; <strong>(26.2 是 正类的期望频数， 19 是真实频数)</strong></p>
 <p>(16.8-24)*(16.8-24) / 16.8 (16.8 是 负类的期望频数)</p>
@@ -199,28 +197,6 @@ var _hmt = _hmt || [];
 <p>先建立原假设：A、B两种疗法没有区别。根据卡方值的计算公式，计算：卡方值=10.01。</p>
 <p>方差: 来描述变量与均值的偏离程度</p>
 </blockquote>
-<h3 id="3-3-3-WOE编码"><a href="#3-3-3-WOE编码" class="headerlink" title="3.3.3 WOE编码"></a>3.3.3 WOE编码</h3><blockquote>
-<p>WOE: weight of evidence</p>
-</blockquote>
-<p>将离散变量转化为连续变量。WOE编码是评分卡模型常用的编码方式。</p>
-<blockquote>
-<p>WOE也可以理解为当前分箱中坏客户和好客户的比值，和所有样本中这个比值的差异</p>
-<p>当分箱中坏客户和好客户的比例等于随机坏客户和好客户的比值时，说明这个分箱没有预测能力，即WOE=0。 (WOE为0，说明该箱出的特征对结果没有区分度)</p>
-</blockquote>
-<p>实际上WOE编码相当于把分箱后的特征<strong>从非线性可分映射到近似线性</strong>可分的空间内。</p>
-<p><img src="https://pic2.zhimg.com/80/v2-f9641d365b592361e541b4d5458ebf2d_hd.jpg" alt=""></p>
-<p>总结一下WOE编码的优势：</p>
-<blockquote>
-<ol>
-<li>可提升模型的预测效果</li>
-<li>将自变量规范到同一尺度上</li>
-<li>WOE能反映自变量取值的贡献情况</li>
-<li>有利于对变量的每个分箱进行评分</li>
-<li>转化为连续变量之后，便于分析变量与变量之间的相关性</li>
-<li>与独热向量编码相比，可以保证变量的完整性，同时避免稀疏矩阵和维度灾难</li>
-</ol>
-</blockquote>
-<hr>
 <p><strong>分箱的最大区间数：</strong></p>
 <blockquote>
 <p>n = 5</p>
@@ -265,24 +241,51 @@ var _hmt = _hmt || [];
 </ol>
 </blockquote>
 <ul>
-<li>LR 如何处理数据不平衡 ?   答： 好坏样本34：1， 有时候关注坏用本个数， 好样本欠采样等.</li>
-<li>LR 分析的变量 &amp; GBDT 分析的变量分别是多少？  26维，184维</li>
-<li>变量如何分箱？ IV 值的计算。 卡方分箱和woe编码进行转换</li>
+<li><a href="https://zhuanlan.zhihu.com/p/52312186" target="_blank" rel="external">变量分箱实践</a></li>
+<li><a href="http://www.jiehuozhe.com/article/3" target="_blank" rel="external">One-Hot编码与哑变量</a></li>
+<li><a href="https://blog.csdn.net/zengxiantao1994/article/details/77855644" target="_blank" rel="external">方差、标准差和均方根误差的区别总结</a></li>
+<li><a href="https://www.cnblogs.com/wzdLY/p/9649101.html" target="_blank" rel="external">基于卡方分箱的评分卡建模</a></li>
 </ul>
-<p>Reference</p>
-<blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/34370741" target="_blank" rel="external">Python三大评分卡之行为评分卡</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/36539125" target="_blank" rel="external">玩转逻辑回归之金融评分卡模型</a></p>
-<p><a href="http://www.sfinst.com/?p=1389" target="_blank" rel="external">拍拍贷教你如何用GBDT做评分卡</a></p>
+<h3 id="3-3-WOE编码"><a href="#3-3-WOE编码" class="headerlink" title="3.3 WOE编码"></a>3.3 WOE编码</h3><blockquote>
+<p>WOE: weight of evidence</p>
 </blockquote>
+<p>将离散变量转化为连续变量。WOE编码是评分卡模型常用的编码方式。</p>
+<blockquote>
+<p>WOE也可以理解为当前分箱中坏客户和好客户的比值，和所有样本中这个比值的差异</p>
+<p>当分箱中坏客户和好客户的比例等于随机坏客户和好客户的比值时，说明这个分箱没有预测能力，即WOE=0。 (WOE为0，说明该箱出的特征对结果没有区分度)</p>
+</blockquote>
+<p>实际上WOE编码相当于把分箱后的特征<strong>从非线性可分映射到近似线性</strong>可分的空间内。</p>
+<p><img src="https://pic2.zhimg.com/80/v2-f9641d365b592361e541b4d5458ebf2d_hd.jpg" alt=""></p>
+<p>总结一下WOE编码的优势：</p>
+<blockquote>
+<ol>
+<li>可提升模型的预测效果</li>
+<li>将自变量规范到同一尺度上</li>
+<li>WOE能反映自变量取值的贡献情况</li>
+<li>有利于对变量的每个分箱进行评分</li>
+<li>转化为连续变量之后，便于分析变量与变量之间的相关性</li>
+<li>与独热向量编码相比，可以保证变量的完整性，同时避免稀疏矩阵和维度灾难</li>
+</ol>
+</blockquote>
+<hr>
 <p><strong>评估指标ks：</strong></p>
 <p>等分 10 份，两条洛伦兹曲线， TPR 与 FPR 的差值. 好坏客户的区程度.</p>
-<h3 id="3-3-4-IV-值"><a href="#3-3-4-IV-值" class="headerlink" title="3.3.4 IV 值"></a>3.3.4 IV 值</h3><p>IV称为信息价值(information value)，自变量的IV值越大，表示自变量的预测能力越强。</p>
+<h2 id="4-变量筛选"><a href="#4-变量筛选" class="headerlink" title="4. 变量筛选"></a>4. 变量筛选</h2><p>主要衡量标准: 变量的预测能力和变量的线性相关性。</p>
+<p>挑选入模变量:</p>
+<blockquote>
+<ol>
+<li>变量的预测能力</li>
+<li>变量之间的线性相关性</li>
+<li>变量在业务上的可解释性</li>
+</ol>
+</blockquote>
+<p>变量两两相关性分析，变量的多重共线性分析。</p>
+<h3 id="4-1-单变量筛选"><a href="#4-1-单变量筛选" class="headerlink" title="4.1 单变量筛选"></a>4.1 单变量筛选</h3><p>IV 称为信息价值(information value)，自变量的IV值越大，表示自变量的预测能力越强。</p>
 <p><img src="https://www.zhihu.com/equation?tex=IV_i+%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+log+%28%5Cfrac%7B%5C%23B_i%2F%5C%23B_T%7D%7B%5C%23G_i%2F%5C%23G_T%7D%29%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+WOE_i+%5C%5C" alt=""></p>
 <p>变量对应的IV值为所有分箱对应的 IV 值之和：</p>
 <p><img src="https://www.zhihu.com/equation?tex=IV+%3D+%5Csum%5Climits_i%5En+IV_i+%5C%5C" alt=""></p>
 <p>IV排序后，选择IV&gt;0.02的变量，共58个变量IV&gt;0.02</p>
-<h3 id="3-3-5-多变量分析"><a href="#3-3-5-多变量分析" class="headerlink" title="3.3.5 多变量分析"></a>3.3.5 多变量分析</h3><p>保留相关性低于阈值0.6的变量，剩余27个变量</p>
+<h3 id="4-2-多变量分析"><a href="#4-2-多变量分析" class="headerlink" title="4.2 多变量分析"></a>4.2 多变量分析</h3><p>保留相关性低于阈值0.6的变量，剩余27个变量</p>
 <p><strong>为什么要进行相关性分析？</strong></p>
 <blockquote>
 <p>理想状态下，系数权重会有无数种取法，使系数权重变得无法解释，导致变量的每个分段的得分也有无数种取法（后面我们会发现变量中不同分段的评分会用到变量的系数）</p>
@@ -294,10 +297,19 @@ var _hmt = _hmt || [];
 <li>减轻后期验证、部署、监控的负担</li>
 <li>保证变量的可解释性</li>
 </ol>
-<h3 id="3-3-6-显著性分析"><a href="#3-3-6-显著性分析" class="headerlink" title="3.3.6 显著性分析"></a>3.3.6 显著性分析</h3><p>删除P值不显著的变量，剩余12个变量了。</p>
 <p>特征相关度筛选</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">cor = df.corr()</span><br><span class="line">cor.loc[:,:] = np.tril(cor, k=<span class="number">-1</span>) <span class="comment"># below main lower triangle of an array</span></span><br><span class="line">cor = cor.stack()</span><br><span class="line">cor[(cor &gt; <span class="number">0.55</span>) | (cor &lt; <span class="number">-0.55</span>)] <span class="comment"># 特征相关度筛选</span></span><br></pre></td></tr></table></figure>
-<h3 id="3-3-7-转化为评分卡"><a href="#3-3-7-转化为评分卡" class="headerlink" title="3.3.7 转化为评分卡"></a>3.3.7 转化为评分卡</h3><p>将 odds 带入可得：</p>
+<h3 id="4-3-显著性分析"><a href="#4-3-显著性分析" class="headerlink" title="4.3 显著性分析"></a>4.3 显著性分析</h3><p>删除P值不显著的变量，剩余12个变量了。</p>
+<p><strong>GBDT, GBRT, Xgboost, RF grid search</strong></p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">param_grid = &#123;</span><br><span class="line">    <span class="string">'learning_rate'</span>: [<span class="number">0.1</span>, <span class="number">0.05</span>, <span class="number">0.02</span>, <span class="number">0.01</span>],</span><br><span class="line">    <span class="string">'max_depth'</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>],</span><br><span class="line">    <span class="string">'min_samples_split'</span>: [<span class="number">50</span>,<span class="number">100</span>,<span class="number">200</span>,<span class="number">400</span>],</span><br><span class="line">    <span class="string">'n_estimators'</span>: [<span class="number">100</span>,<span class="number">200</span>,<span class="number">400</span>,<span class="number">800</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>特征重要度：</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Top Ten， GBRT top 10 的参数有哪些，可以作为参考， GBRT 不仅是一个分类器，还能帮你筛选变量</span><br><span class="line"># 比如 feature_importance = 0 的话，那么下一次 这个特征，你就去掉就可以了</span><br><span class="line"># 重新用模型GBRT重新跑，或者用其他模型LR跑</span><br><span class="line"># 或者其他的 RF 也可以帮助你做特征筛选</span><br></pre></td></tr></table></figure>
+<p>最后选择出 84 个变量， 然后在放到不同的模型中做训练，在 ensemble 应该效果还是不错的。</p>
+<p><strong>特征不稳定的，不可以作为入模变量：</strong></p>
+<blockquote>
+<p>挑选变量的时候，开始每个月我一直在看它的均值和方差的变化是否在容忍的范围内，超过50%舍</p>
+</blockquote>
+<h2 id="5-转化为评分卡"><a href="#5-转化为评分卡" class="headerlink" title="5. 转化为评分卡"></a>5. 转化为评分卡</h2><p>将 odds 带入可得：</p>
 <p><img src="https://www.zhihu.com/equation?tex=%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%3D+%5Ctheta%5ETx+%5C%5C" alt=""></p>
 <p>评分卡的分值可以定义为比率对数的线性表达来，即： </p>
 <p><img src="https://www.zhihu.com/equation?tex=Score+%3D+A+-B+%5Ctimes+%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%5C%5C" alt=""></p>
@@ -308,22 +320,13 @@ var _hmt = _hmt || [];
 <li>某个特定的违约概率下的预期评分，即比率 即比率 $\text{odds}$ 为 $θ_0$ 时的分数为 $P_0$</li>
 <li>该违约概率翻倍的评分（PDO）</li>
 </ul>
-<p><strong>GBDT, GBRT, Xgboost, RF grid search</strong></p>
-<figure class="highlight py"><table><tr><td class="code"><pre><span class="line">param_grid = &#123;</span><br><span class="line">    <span class="string">'learning_rate'</span>: [<span class="number">0.1</span>, <span class="number">0.05</span>, <span class="number">0.02</span>, <span class="number">0.01</span>],</span><br><span class="line">    <span class="string">'max_depth'</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>],</span><br><span class="line">    <span class="string">'min_samples_split'</span>: [<span class="number">50</span>,<span class="number">100</span>,<span class="number">200</span>,<span class="number">400</span>],</span><br><span class="line">    <span class="string">'n_estimators'</span>: [<span class="number">100</span>,<span class="number">200</span>,<span class="number">400</span>,<span class="number">800</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>特征重要度：</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># Top Ten， GBRT top 10 的参数有哪些，可以作为参考， GBRT 不仅是一个分类器，还能帮你筛选变量</span><br><span class="line"># 比如 feature_importance = 0 的话，那么下一次 这个特征，你就去掉就可以了</span><br><span class="line"># 重新用模型GBRT重新跑，或者用其他模型LR跑</span><br><span class="line"># 或者其他的 RF 也可以帮助你做特征筛选</span><br></pre></td></tr></table></figure>
-<p>最后选择出 84 个变量， 然后在放到不同的模型中做训练，在 ensemble 应该效果还是不错的。</p>
-<blockquote>
-<p>为什么要用回归，不用分类，其实我们在做分类器的过程中，大部分用回归的算法，效果好一些，具体为什么，我有点忘记了</p>
-</blockquote>
-<p><strong>特征不稳定的，不可以作为入模变量：</strong></p>
-<blockquote>
-<p>挑选变量的时候，开始每个月我一直在看它的均值和方差的变化是否在容忍的范围内，超过50%舍</p>
-</blockquote>
-<p><strong>模型更新周期：</strong></p>
-<blockquote>
-<p>信贷产品比较长的话，2个月更新一次比较好，贷款周期短的话，周更新都可以， 月更新</p>
-</blockquote>
+<h2 id="6-KS-评估"><a href="#6-KS-评估" class="headerlink" title="6. KS 评估"></a>6. KS 评估</h2><p>KS 值表示了模型区分好坏客户的能力。</p>
+<p>其实质是 $TPR - FPR$ 随好坏客户阈值变化的最大值。KS 的取值范围在 0.5 ~ 1 之间，值越大，模型的预测准确性越好。一般，KS &gt; 0.4 即认为模型有比较好的预测性能。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://zhuanlan.zhihu.com/p/34370741" target="_blank" rel="external">Python三大评分卡之行为评分卡</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/36539125" target="_blank" rel="external">玩转逻辑回归之金融评分卡模型</a></li>
+<li><a href="http://www.sfinst.com/?p=1389" target="_blank" rel="external">拍拍贷教你如何用GBDT做评分卡</a></li>
+</ul>
 
       
      <!-- by blair add this if sentence at 20160725 -->
@@ -367,7 +370,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-数据获取"><span class="toc-number"></span> <span class="toc-text">1. 数据获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-EDA"><span class="toc-number"></span> <span class="toc-text">2. EDA</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-数据预处理"><span class="toc-number"></span> <span class="toc-text">3.3 数据预处理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-1-数据清洗"><span class="toc-number"></span> <span class="toc-text">3.3.1 数据清洗</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-2-变量分箱"><span class="toc-number"></span> <span class="toc-text">3.3.2 变量分箱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-WOE编码"><span class="toc-number"></span> <span class="toc-text">3.3.3 WOE编码</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-4-IV-值"><span class="toc-number"></span> <span class="toc-text">3.3.4 IV 值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-5-多变量分析"><span class="toc-number"></span> <span class="toc-text">3.3.5 多变量分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-6-显著性分析"><span class="toc-number"></span> <span class="toc-text">3.3.6 显著性分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-7-转化为评分卡"><span class="toc-number"></span> <span class="toc-text">3.3.7 转化为评分卡</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-数据获取"><span class="toc-number"></span> <span class="toc-text">1. 数据获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-EDA"><span class="toc-number"></span> <span class="toc-text">2. EDA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-数据预处理"><span class="toc-number"></span> <span class="toc-text">3. 数据预处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-数据清洗"><span class="toc-number"></span> <span class="toc-text">3.1 数据清洗</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-变量分箱"><span class="toc-number"></span> <span class="toc-text">3.2 变量分箱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-WOE编码"><span class="toc-number"></span> <span class="toc-text">3.3 WOE编码</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-变量筛选"><span class="toc-number"></span> <span class="toc-text">4. 变量筛选</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-单变量筛选"><span class="toc-number"></span> <span class="toc-text">4.1 单变量筛选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-多变量分析"><span class="toc-number"></span> <span class="toc-text">4.2 多变量分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-显著性分析"><span class="toc-number"></span> <span class="toc-text">4.3 显著性分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-转化为评分卡"><span class="toc-number"></span> <span class="toc-text">5. 转化为评分卡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-KS-评估"><span class="toc-number"></span> <span class="toc-text">6. KS 评估</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
