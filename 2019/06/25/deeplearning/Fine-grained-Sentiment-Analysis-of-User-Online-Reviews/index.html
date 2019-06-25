@@ -15,7 +15,7 @@
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/AI-Challenger-14.png">
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/AI-Challenger-13.png">
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/AI-Challenger-16-1.png">
-<meta property="og:updated_time" content="2019-06-25T03:38:55.357Z">
+<meta property="og:updated_time" content="2019-06-25T03:50:25.131Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Fine-grained Sentiment Analysis of User Online Reviews">
 <meta name="twitter:description">
@@ -286,7 +286,11 @@ var _hmt = _hmt || [];
 这个 class weight 是我一直觉得比较玄学的地方，一般而言，当数据集样本不均衡的时候，通过设置正负样本权重，可以提高一些效果，但是在这道题目里面，我对4个类别分别设置了class_weight 之后，我发现效果竟然变得更差了。这里也希望知道原因的同学能留下评论，一起交流学习。
 
 -->
-<h3 id="2-6-Max-Length-padding"><a href="#2-6-Max-Length-padding" class="headerlink" title="2.6 Max Length (padding)"></a>2.6 Max Length (padding)</h3><p>这个看似不重要，其实确实很重要的点。一开我以为 padding 的最大长度取整个评论平均的长度的2倍差不多就可以啦(对于char level 而言，max_length 取 400左右)，但是会发现效果上不去，当时将 max_length 改为 1000 之后，macro f-score提示明显，我个人认为是在多分类问题中，那些长度很长的评论可能会有部分属于那些样本数很少的类别，padding过短会导致这些长评论无法被正确划分。</p>
+<h3 id="2-6-Max-Length-padding"><a href="#2-6-Max-Length-padding" class="headerlink" title="2.6 Max Length (padding)"></a>2.6 Max Length (padding)</h3><p>padding 的最大长度取整个评论平均的长度的2倍差不多就可以啦(对于char level 而言，max_length 取 400左右)，效果一直不给力.</p>
+<p>将 max_length 改为 1200 ，macro f-score 效果明显提升</p>
+<blockquote>
+<p>多分类问题中，那些长度很长的评论可能会有部分属于那些样本数很少的类别，padding过短会导致这些长评论无法被正确划分。</p>
+</blockquote>
 <h2 id="3-ELMO-Like"><a href="#3-ELMO-Like" class="headerlink" title="3. ELMO-Like"></a>3. ELMO-Like</h2><p>腾讯词向量 + 自己*128 + 自己BiGRU + 2*BiGRU</p>
 <blockquote>
 <p>一次输入一个Batch=128条评论，20个属性都4分类成功， 1 个 epoch， 1200秒=20多分钟</p>
