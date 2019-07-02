@@ -15950,6 +15950,105 @@ img {
     </entry>
     
     <entry>
+      <title><![CDATA[Elasticsearch installation plugins]]></title>
+      <url>http://shopee.ai/2016/05/17/elasticsearch/es-install-plugins/</url>
+      <content type="html"><![CDATA[<p> Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
+<a id="more"></a>
+<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
+<p><strong>Install es</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Config es</strong></p>
+<p>$ES_HOME/config/elasticsearch.yml</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
+<p><strong>Startup</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行之后，会产生 data 和 logs 目录</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
+<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
+<p>ES-Head的主要作用</p>
+<ul>
+<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
+<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
+<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
+</ul>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
+<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
+<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
+<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
+<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
+<p>service log 在 logs/service.log 中。</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
+<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
+</blockquote>
+<hr>
+<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
+<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
+<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
+<p><strong>Install-Verify</strong></p>
+<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
+<p><strong>Config http-basic param</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
+<p><strong>./bin/plugin –list</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
+<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
+<p>download and add mysql-driver</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
+<p>停止river</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
+<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
+<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>XPUT data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p><strong>XGET data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p>output</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
+<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
+<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
+<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
+<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
+<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
+<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
+</ol>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Elasticsearch * 入门]]></title>
       <url>http://shopee.ai/2016/05/17/elasticsearch/es-indoor/</url>
       <content type="html"><![CDATA[<p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎 、 实时分布式搜索 和 分析引擎。</p>
@@ -16101,105 +16200,6 @@ img {
 <li>将集群中任意一个节点上的请求路由到相应数据所在的节点。</li>
 <li>无论是增加节点，还是移除节点，分片都可以做到无缝的扩展和迁移。</li>
 </ul>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Elasticsearch installation plugins]]></title>
-      <url>http://shopee.ai/2016/05/17/elasticsearch/es-install-plugins/</url>
-      <content type="html"><![CDATA[<p> Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
-<a id="more"></a>
-<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
-<p><strong>Install es</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Config es</strong></p>
-<p>$ES_HOME/config/elasticsearch.yml</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
-<p><strong>Startup</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>运行之后，会产生 data 和 logs 目录</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
-<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
-<p>ES-Head的主要作用</p>
-<ul>
-<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
-<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
-<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
-</ul>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
-<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
-<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
-<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
-<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
-<p>service log 在 logs/service.log 中。</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
-<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
-</blockquote>
-<hr>
-<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
-<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
-<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
-<p><strong>Install-Verify</strong></p>
-<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
-<p><strong>Config http-basic param</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
-<p><strong>./bin/plugin –list</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
-<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
-<p>download and add mysql-driver</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
-<p>停止river</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
-<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
-<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>XPUT data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p><strong>XGET data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p>output</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
-<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
-<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
-<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
-<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
-<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
-<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
-</ol>
 ]]></content>
     </entry>
     
@@ -17997,78 +17997,6 @@ public final class Boolean
     </entry>
     
     <entry>
-      <title><![CDATA[Java SE Introduce]]></title>
-      <url>http://shopee.ai/2013/02/02/java/java-se-1-introduce/</url>
-      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
-<a id="more"></a>
-<ul>
-<li>Java data type</li>
-<li>OO</li>
-<li>Exception</li>
-<li>Java Array  </li>
-<li>Java 常用类 </li>
-<li>Java 容器类</li>
-<li>Collection / Generic</li>
-<li>Java I/O Stream</li>
-<li>Java Thread</li>
-<li>Java TCP/UDP, socket</li>
-</ul>
-<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
-<li>Java 运行机制</li>
-<li>JDK &amp; JRE</li>
-<li>Java env install</li>
-<li>Java Basic Content</li>
-</ul>
-<blockquote>
-<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
-</blockquote>
-<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
-<li>一种 OO 语言  </li>
-<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
-<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
-</ul>
-<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
-<ul>
-<li>Java Virtual Machine</li>
-<li>Garbage collection</li>
-</ul>
-<blockquote>
-<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
-<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
-<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
-</blockquote>
-<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
-<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
-<li>Java Runtime Environment  用户只需 JRE  </li>
-</ul>
-<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
-</blockquote>
-<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
-<li>类名首字母大写  </li>
-<li>变量名和方法名的首字母小写  </li>
-<li>运用驼峰标识   </li>
-</ol>
-<p>HelloWorld.java</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
-</blockquote>
-<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
-<hr>
-<blockquote>
-<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
-</blockquote>
-<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
       <url>http://shopee.ai/2013/02/02/java/java-se-2.5-notes-all/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
@@ -18474,6 +18402,78 @@ JDK 1.5 之后 {
     * Externalizable 接口  extends  Serializable   
 }  
 </code></pre><p>}  </p>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Java SE Introduce]]></title>
+      <url>http://shopee.ai/2013/02/02/java/java-se-1-introduce/</url>
+      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
+<a id="more"></a>
+<ul>
+<li>Java data type</li>
+<li>OO</li>
+<li>Exception</li>
+<li>Java Array  </li>
+<li>Java 常用类 </li>
+<li>Java 容器类</li>
+<li>Collection / Generic</li>
+<li>Java I/O Stream</li>
+<li>Java Thread</li>
+<li>Java TCP/UDP, socket</li>
+</ul>
+<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
+<li>Java 运行机制</li>
+<li>JDK &amp; JRE</li>
+<li>Java env install</li>
+<li>Java Basic Content</li>
+</ul>
+<blockquote>
+<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
+</blockquote>
+<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
+<li>一种 OO 语言  </li>
+<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
+<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
+</ul>
+<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
+<ul>
+<li>Java Virtual Machine</li>
+<li>Garbage collection</li>
+</ul>
+<blockquote>
+<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
+<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
+<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
+</blockquote>
+<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
+<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
+<li>Java Runtime Environment  用户只需 JRE  </li>
+</ul>
+<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
+</blockquote>
+<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
+<li>类名首字母大写  </li>
+<li>变量名和方法名的首字母小写  </li>
+<li>运用驼峰标识   </li>
+</ol>
+<p>HelloWorld.java</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
+</blockquote>
+<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
+</blockquote>
+<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
 ]]></content>
     </entry>
     
