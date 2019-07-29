@@ -31,10 +31,12 @@ n-gram model（n元模型）（基于 马尔可夫假设 思想）上下文相�
 2008 - M">
 <meta property="og:image" content="http://shopee.ai/images/tensorflow/tf-google-9.1.2_1-equation.svg">
 <meta property="og:image" content="http://shopee.ai/images/tensorflow/tf-google-9.1.2_2-equation.svg">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/RNN-01.png">
+<meta property="og:image" content="http://shopee.ai/images/deeplearning/RNN-02.png">
 <meta property="og:image" content="http://shopee.ai/images/nlp/word2vec-nnlm.png">
 <meta property="og:image" content="http://shopee.ai/images/nlp/word2vec-CBOW_1.png">
 <meta property="og:image" content="http://shopee.ai/images/nlp/fastText-4.webp">
-<meta property="og:updated_time" content="2019-07-29T03:43:43.015Z">
+<meta property="og:updated_time" content="2019-07-29T06:24:00.601Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Auckland New Zealand">
 <meta name="twitter:description" content="NLP 的发展NLP 神经网络发展历史中最重要的 8 个里程碑
@@ -107,7 +109,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/ai1/index.html" class="article-date">
-  <time datetime="2019-07-29T03:43:43.030Z" itemprop="datePublished">2019-07-29</time>
+  <time datetime="2019-07-29T06:24:00.617Z" itemprop="datePublished">2019-07-29</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -157,7 +159,34 @@ var _hmt = _hmt || [];
 <p>相比较乘积求平方根的方式，加法的形式可加速计算，同时避免概率乘积数值过小而导致浮点数向下溢出的问题.</p>
 <p>在数学上，log perplexity 可以看作真实分布与预测分布之间的交叉熵 Cross Entropy, 交叉熵描述了两个概率分布之间的一种距离. log perplexity 和 Cross Entropy 是等价的</p>
 </blockquote>
-<h2 id="2-NNLM"><a href="#2-NNLM" class="headerlink" title="2. NNLM"></a>2. NNLM</h2><p>NNLM,直接从语言模型出发，将模型最优化过程转化为求词向量表示的过程.</p>
+<h2 id="2-Recurrent-Neural-Networks"><a href="#2-Recurrent-Neural-Networks" class="headerlink" title="2. Recurrent Neural Networks"></a>2. Recurrent Neural Networks</h2><ul>
+<li><strong>输入和输出的长度不尽相同</strong></li>
+<li><strong>无法共享从其他位置学来的特征</strong></li>
+</ul>
+<p><img src="/images/deeplearning/RNN-01.png" width="500"></p>
+<blockquote>
+<ul>
+<li>很多数据是以序列形式存在的，例如文本、语音、视频、点击流等等。</li>
+</ul>
+</blockquote>
+<p><strong>Typical RNN Structure:</strong></p>
+<p>在 $h_T$ 后面直接接一个 Softmax 层，输出文本所属类别的预测概率 $y$，就可以实现文本分类.</p>
+<p><img src="/images/deeplearning/RNN-02.png" width="650"></p>
+<p>可应用于多种具体任务：</p>
+<p>$$<br>net_{t}=U x_{t}+W h_{t-1}<br>$$</p>
+<p>$$<br>h_{t}=f\left(\text {net}_{t}\right)<br>$$</p>
+<p>$$<br>y=g\left(V h_{T}\right)<br>$$</p>
+<p>其中 $f$ 和 $g$ 为激活函数，$U$ 为输入层到隐含层的权重矩阵，$W$ 为隐含层从上一时刻到下一时刻状态转移的权重矩阵。在文本分类任务中，$f$ 可以选取 Tanh 函数或者 ReLU 函数，$g$ 可以采用 Softmax 函数。</p>
+<blockquote>
+<ol>
+<li>RNN 优点： 最大程度捕捉上下文信息，这可能有利于捕获长文本的语义。</li>
+<li>RNN 缺点： 是一个有偏倚的模型，在这个模型中，后面的单词比先前的单词更具优势。因此，当它被用于捕获整个文档的语义时，它可能会降低效率，因为关键组件可能出现在文档中的任何地方，而不是最后。</li>
+</ol>
+</blockquote>
+<ul>
+<li><a href="/2019/06/14/deeplearning/RNN-LSTM-GRU/">Recurrent Neural Networks</a></li>
+</ul>
+<h2 id="3-NNLM"><a href="#3-NNLM" class="headerlink" title="3. NNLM"></a>3. NNLM</h2><p>NNLM,直接从语言模型出发，将模型最优化过程转化为求词向量表示的过程.</p>
 <p><img src="/images/nlp/word2vec-nnlm.png" width="600"></p>
 <p><strong>使用词嵌三步</strong></p>
 <blockquote>
@@ -167,7 +196,7 @@ var _hmt = _hmt || [];
 <li>可选：通过我们的训练任务更新词嵌库（如果训练量很小就不要更新了）</li>
 </ol>
 </blockquote>
-<h2 id="3-word2vec"><a href="#3-word2vec" class="headerlink" title="3. word2vec"></a>3. word2vec</h2><p>word2vec 并不是一个模型， 而是一个 2013年 google 发表的工具. 该工具包含2个模型： Skip-Gram 和 CBOW. 及两种高效训练方法： negative sampling 和 hierarchicam softmax.</p>
+<h2 id="4-word2vec"><a href="#4-word2vec" class="headerlink" title="4. word2vec"></a>4. word2vec</h2><p>word2vec 并不是一个模型， 而是一个 2013年 google 发表的工具. 该工具包含2个模型： Skip-Gram 和 CBOW. 及两种高效训练方法： negative sampling 和 hierarchicam softmax.</p>
 <blockquote>
 <p>词向量（词的特征向量）既能够降低维度，又能够capture到当前词在本句子中上下文的信息</p>
 </blockquote>
@@ -177,7 +206,7 @@ var _hmt = _hmt || [];
 <p>纠错 : 上图”目标函数“的第一个公式，应该是 连乘 公式，不是 连加 运算。</p>
 <p>理解 : 背景词向量与 中心词向量 内积 等部分，你可考虑 softmax $w * x+b$ 中 $x$ 和 $w$ 的关系来理解.</p>
 </blockquote>
-<h2 id="4-fastText"><a href="#4-fastText" class="headerlink" title="4. fastText"></a>4. fastText</h2><p>FastText是一个快速文本分类算法，在使用标准多核CPU的情况下，在10分钟内可以对超过10亿个单词进行训练。 不需要使用预先训练好的词向量，因为FastText会自己训练词向量。</p>
+<h2 id="5-fastText"><a href="#5-fastText" class="headerlink" title="5. fastText"></a>5. fastText</h2><p>FastText是一个快速文本分类算法，在使用标准多核CPU的情况下，在10分钟内可以对超过10亿个单词进行训练。 不需要使用预先训练好的词向量，因为FastText会自己训练词向量。</p>
 <p><img src="/images/nlp/fastText-4.webp" width="500"></p>
 <p>fastText 能够做到效果好，速度快，主要依靠两个秘密武器：</p>
 <blockquote>
@@ -186,7 +215,7 @@ var _hmt = _hmt || [];
 <li>用到了 层次化Softmax回归 (Hierarchical Softmax) 的训练 trick.</li>
 </ol>
 </blockquote>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="6-Seq2Seq-and-Attention"><a href="#6-Seq2Seq-and-Attention" class="headerlink" title="6. Seq2Seq and Attention"></a>6. Seq2Seq and Attention</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="/2019/06/16/nlp/Language-Model-and-Word-Embedding/">Language Model and Perplexity</a></li>
 <li><a href="https://blog.csdn.net/blmoistawinde/article/details/80816179" target="_blank" rel="external">sklearn: TfidfVectorizer 中文处理及一些使用参数</a></li>
 <li><a href="https://blog.csdn.net/binglingzy666/article/details/79241486" target="_blank" rel="external">sklearn.feature_extraction.text.TfidfVectorizer函数说明</a></li>
@@ -198,7 +227,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLP-的发展"><span class="toc-number"></span> <span class="toc-text">NLP 的发展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Language-Model"><span class="toc-number"></span> <span class="toc-text">1. Language Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Perplexity"><span class="toc-number"></span> <span class="toc-text">2. Perplexity</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NNLM"><span class="toc-number"></span> <span class="toc-text">2. NNLM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-word2vec"><span class="toc-number"></span> <span class="toc-text">3. word2vec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-fastText"><span class="toc-number"></span> <span class="toc-text">4. fastText</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLP-的发展"><span class="toc-number"></span> <span class="toc-text">NLP 的发展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Language-Model"><span class="toc-number"></span> <span class="toc-text">1. Language Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Perplexity"><span class="toc-number"></span> <span class="toc-text">2. Perplexity</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Recurrent-Neural-Networks"><span class="toc-number"></span> <span class="toc-text">2. Recurrent Neural Networks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-NNLM"><span class="toc-number"></span> <span class="toc-text">3. NNLM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-word2vec"><span class="toc-number"></span> <span class="toc-text">4. word2vec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-fastText"><span class="toc-number"></span> <span class="toc-text">5. fastText</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Seq2Seq-and-Attention"><span class="toc-number"></span> <span class="toc-text">6. Seq2Seq and Attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
