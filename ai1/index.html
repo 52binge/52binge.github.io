@@ -32,7 +32,9 @@ n-gram model（n元模型）（基于 马尔可夫假设 思想）上下文相�
 <meta property="og:image" content="http://shopee.ai/images/tensorflow/tf-google-9.1.2_1-equation.svg">
 <meta property="og:image" content="http://shopee.ai/images/tensorflow/tf-google-9.1.2_2-equation.svg">
 <meta property="og:image" content="http://shopee.ai/images/nlp/word2vec-nnlm.png">
-<meta property="og:updated_time" content="2019-07-29T03:37:50.342Z">
+<meta property="og:image" content="http://shopee.ai/images/nlp/word2vec-CBOW_1.png">
+<meta property="og:image" content="http://shopee.ai/images/nlp/fastText-4.webp">
+<meta property="og:updated_time" content="2019-07-29T03:43:43.015Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Auckland New Zealand">
 <meta name="twitter:description" content="NLP 的发展NLP 神经网络发展历史中最重要的 8 个里程碑
@@ -105,7 +107,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/ai1/index.html" class="article-date">
-  <time datetime="2019-07-29T03:37:50.353Z" itemprop="datePublished">2019-07-29</time>
+  <time datetime="2019-07-29T03:43:43.030Z" itemprop="datePublished">2019-07-29</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -144,8 +146,8 @@ var _hmt = _hmt || [];
 </blockquote>
 <p><a href="https://zhuanlan.zhihu.com/p/37601161" target="_blank" rel="external">good 张俊林: 深度学习中的注意力模型（2017版）</a></p>
 <p><a href="https://zhuanlan.zhihu.com/p/49271699" target="_blank" rel="external">good 张俊林: 从Word Embedding到Bert模型—自然语言处理中的预训练技术发展史</a> </p>
-<h3 id="1-Language-Model-and-Perplexity"><a href="#1-Language-Model-and-Perplexity" class="headerlink" title="1. Language Model and Perplexity"></a>1. Language Model and Perplexity</h3><p>$$<br>P(w_{i}|w_{1}, w_{2}, …, w_{i-1}) = P(w_i | w_{i-N+1}, w_{i-N+2}, …, w_{i-1})<br>$$</p>
-<p>计算perplexity的公式如下：</p>
+<h2 id="1-Language-Model"><a href="#1-Language-Model" class="headerlink" title="1. Language Model"></a>1. Language Model</h2><p>$$<br>P(w_{i}|w_{1}, w_{2}, …, w_{i-1}) = P(w_i | w_{i-N+1}, w_{i-N+2}, …, w_{i-1})<br>$$</p>
+<h2 id="2-Perplexity"><a href="#2-Perplexity" class="headerlink" title="2. Perplexity"></a>2. Perplexity</h2><p>计算perplexity的公式如下：</p>
 <p><img src="/images/tensorflow/tf-google-9.1.2_1-equation.svg" width="600"></p>
 <p><strong>perplexity</strong> 刻画的是语言模型预测一个语言样本的能力. 比如已经知道 (w1,w2,w3,…,wm) 这句话会出现在语料库之中，那么通过语言模型计算得到的这句话的概率越高，说明语言模型对这个语料库拟合得越好。</p>
 <p>perplexity 实际是计算每一个单词得到的概率倒数的几何平均，因此 perplexity 可以理解为平均分支系数（average branching factor），即模型预测下一个词时的平均可选择数量。</p>
@@ -166,6 +168,24 @@ var _hmt = _hmt || [];
 </ol>
 </blockquote>
 <h2 id="3-word2vec"><a href="#3-word2vec" class="headerlink" title="3. word2vec"></a>3. word2vec</h2><p>word2vec 并不是一个模型， 而是一个 2013年 google 发表的工具. 该工具包含2个模型： Skip-Gram 和 CBOW. 及两种高效训练方法： negative sampling 和 hierarchicam softmax.</p>
+<blockquote>
+<p>词向量（词的特征向量）既能够降低维度，又能够capture到当前词在本句子中上下文的信息</p>
+</blockquote>
+<p><strong>CBOW</strong></p>
+<p><img src="/images/nlp/word2vec-CBOW_1.png" width="600"></p>
+<blockquote>
+<p>纠错 : 上图”目标函数“的第一个公式，应该是 连乘 公式，不是 连加 运算。</p>
+<p>理解 : 背景词向量与 中心词向量 内积 等部分，你可考虑 softmax $w * x+b$ 中 $x$ 和 $w$ 的关系来理解.</p>
+</blockquote>
+<h2 id="4-fastText"><a href="#4-fastText" class="headerlink" title="4. fastText"></a>4. fastText</h2><p>FastText是一个快速文本分类算法，在使用标准多核CPU的情况下，在10分钟内可以对超过10亿个单词进行训练。 不需要使用预先训练好的词向量，因为FastText会自己训练词向量。</p>
+<p><img src="/images/nlp/fastText-4.webp" width="500"></p>
+<p>fastText 能够做到效果好，速度快，主要依靠两个秘密武器：</p>
+<blockquote>
+<ol>
+<li>利用了 词内的n-gram信息 (subword n-gram information)</li>
+<li>用到了 层次化Softmax回归 (Hierarchical Softmax) 的训练 trick.</li>
+</ol>
+</blockquote>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="/2019/06/16/nlp/Language-Model-and-Word-Embedding/">Language Model and Perplexity</a></li>
 <li><a href="https://blog.csdn.net/blmoistawinde/article/details/80816179" target="_blank" rel="external">sklearn: TfidfVectorizer 中文处理及一些使用参数</a></li>
@@ -178,7 +198,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLP-的发展"><span class="toc-number"></span> <span class="toc-text">NLP 的发展</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Language-Model-and-Perplexity"><span class="toc-number"></span> <span class="toc-text">1. Language Model and Perplexity</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NNLM"><span class="toc-number"></span> <span class="toc-text">2. NNLM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-word2vec"><span class="toc-number"></span> <span class="toc-text">3. word2vec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLP-的发展"><span class="toc-number"></span> <span class="toc-text">NLP 的发展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Language-Model"><span class="toc-number"></span> <span class="toc-text">1. Language Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Perplexity"><span class="toc-number"></span> <span class="toc-text">2. Perplexity</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-NNLM"><span class="toc-number"></span> <span class="toc-text">2. NNLM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-word2vec"><span class="toc-number"></span> <span class="toc-text">3. word2vec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-fastText"><span class="toc-number"></span> <span class="toc-text">4. fastText</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
