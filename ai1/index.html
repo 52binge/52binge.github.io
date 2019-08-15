@@ -36,6 +36,7 @@ n-gram model（n元模型）（基于 马尔可夫假设 思想）上下文相�
 <meta property="og:image" content="http://shopee.ai/images/tensorflow/tf-google-8-1.jpg">
 <meta property="og:image" content="http://shopee.ai/images/nlp/word2vec-nnlm.png">
 <meta property="og:image" content="http://shopee.ai/images/nlp/word2vec-CBOW_1.png">
+<meta property="og:image" content="http://shopee.ai/images/nlp/word2vec-neg.png">
 <meta property="og:image" content="http://shopee.ai/images/nlp/fastText-4.webp">
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/Seq2Seq-03.jpg">
 <meta property="og:image" content="http://shopee.ai/images/deeplearning/Attention-01.jpg">
@@ -45,7 +46,7 @@ n-gram model（n元模型）（基于 马尔可夫假设 思想）上下文相�
 <meta property="og:image" content="http://shopee.ai/images/nlp/bert-zh-4.jpg">
 <meta property="og:image" content="http://shopee.ai/images/nlp/bert-zh-14.jpg">
 <meta property="og:image" content="http://shopee.ai/images/nlp/bert-11.gif">
-<meta property="og:updated_time" content="2019-07-30T02:06:55.176Z">
+<meta property="og:updated_time" content="2019-08-15T06:53:05.935Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Auckland New Zealand">
 <meta name="twitter:description" content="NLP 的发展NLP 神经网络发展历史中最重要的 8 个里程碑
@@ -118,7 +119,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/ai1/index.html" class="article-date">
-  <time datetime="2019-08-01T14:30:08.162Z" itemprop="datePublished">2019-08-01</time>
+  <time datetime="2019-08-15T06:53:05.955Z" itemprop="datePublished">2019-08-15</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -161,7 +162,8 @@ var _hmt = _hmt || [];
 <h2 id="2-Perplexity"><a href="#2-Perplexity" class="headerlink" title="2. Perplexity"></a>2. Perplexity</h2><p>计算perplexity的公式如下：</p>
 <p><img src="/images/tensorflow/tf-google-9.1.2_1-equation.svg" width="600"></p>
 <p><strong>perplexity</strong> 刻画的是语言模型预测一个语言样本的能力. 比如已经知道 (w1,w2,w3,…,wm) 这句话会出现在语料库之中，那么通过语言模型计算得到的这句话的概率越高，说明语言模型对这个语料库拟合得越好。</p>
-<p>perplexity 实际是计算每一个单词得到的概率倒数的几何平均，因此 perplexity 可以理解为平均分支系数（average branching factor），即模型预测下一个词时的平均可选择数量。</p>
+<p>perplexity 实际是计算每一个单词得到的概率倒数的 几何平均(<strong>geometric mean</strong>) ，因此 perplexity 可以理解为平均分支系数（average branching factor），即模型预测下一个词时的平均可选择数量。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/23809612" target="_blank" rel="external">参见： arithmetic average vs geometric mean</a></p>
 <p>在语言模型的训练中，通常采用 perplexity 的对数表达形式：</p>
 <p><img src="/images/tensorflow/tf-google-9.1.2_2-equation.svg" width="600"></p>
 <blockquote>
@@ -208,20 +210,39 @@ var _hmt = _hmt || [];
 <li>可选：通过我们的训练任务更新词嵌库（如果训练量很小就不要更新了）</li>
 </ol>
 </blockquote>
-<h2 id="4-word2vec"><a href="#4-word2vec" class="headerlink" title="4. word2vec"></a>4. word2vec</h2><p>word2vec 并不是一个模型， 而是一个 2013年 google 发表的工具. 该工具包含2个模型： Skip-Gram 和 CBOW. 及两种高效训练方法： negative sampling 和 hierarchicam softmax.</p>
+<h2 id="4-word2vec"><a href="#4-word2vec" class="headerlink" title="4. word2vec"></a>4. word2vec</h2><p>word2vec 并不是一个模型， 而是一个 2013年 google 发表的工具. </p>
+<p>该工具包含2个模型： </p>
+<ol>
+<li>Skip-Gram </li>
+<li>CBOW. </li>
+</ol>
+<p>该工具包含2种高效训练方法： </p>
+<ol>
+<li>negative sampling </li>
+<li>hierarchicam softmax.</li>
+</ol>
 <blockquote>
 <p>词向量（词的特征向量）既能够降低维度，又能够capture到当前词在本句子中上下文的信息</p>
 </blockquote>
-<p><strong>CBOW</strong></p>
+<p><strong>CBOW</strong> (context(W)-&gt;center)</p>
 <p><img src="/images/nlp/word2vec-CBOW_1.png" width="600"></p>
 <blockquote>
 <p>纠错 : 上图”目标函数“的第一个公式，应该是 连乘 公式，不是 连加 运算。</p>
 <p>理解 : 背景词向量与 中心词向量 内积 等部分，你可考虑 softmax $w * x+b$ 中 $x$ 和 $w$ 的关系来理解.</p>
 </blockquote>
-<p><strong>negative sampling</strong></p>
-<blockquote>
-<p>1）如果通过一个正例和neg个负例进行二元逻辑回归呢？ 2） 如何进行负采样呢？</p>
+<h3 id="4-1-Negative-Sampling"><a href="#4-1-Negative-Sampling" class="headerlink" title="4.1 Negative Sampling"></a>4.1 Negative Sampling</h3><blockquote>
+<p>1）如何通过一个正例和neg个负例进行二元逻辑回归呢？ 2） <strong><code>如何进行负采样呢</code></strong>？</p>
 </blockquote>
+<ul>
+<li><strong>如何进行 negative sampling</strong>？</li>
+</ul>
+<p>每个词𝑤的线段长度由下式决定：</p>
+<p>$$<br>len(w) = \frac{count(w)}{\sum\limits_{u \in vocab} count(u)}<br>$$</p>
+<ul>
+<li>在word2vec中，分子和分母都取了3/4次幂如下：</li>
+</ul>
+<p>$$<br>len(w) = \frac{count(w)^{3/4}}{\sum\limits_{u \in vocab} count(u)^{3/4}}<br>$$</p>
+<p><img src="/images/nlp/word2vec-neg.png" width="600"></p>
 <p>负采样这个点引入 word2vec 非常巧妙，两个作用，</p>
 <blockquote>
 <ol>
@@ -232,10 +253,10 @@ var _hmt = _hmt || [];
 <p>第二，中心词其实只跟它周围的词有关系，位置离着很远的词没有关系，也没必要同时训练更新，作者这点聪明.</p>
 </blockquote>
 <ul>
-<li><a href="https://www.cnblogs.com/pinard/p/7249903.html" target="_blank" rel="external">good good, word2vec Negative Sampling 刘建平Pinard</a></li>
+<li><a href="https://www.cnblogs.com/pinard/p/7249903.html" target="_blank" rel="external">good, word2vec Negative Sampling 刘建平Pinard</a></li>
 </ul>
-<blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/46430775" target="_blank" rel="external">知乎: 哈夫曼树</a></p>
+<h3 id="4-2-Hierarchicam-Softmax"><a href="#4-2-Hierarchicam-Softmax" class="headerlink" title="4.2 Hierarchicam Softmax"></a>4.2 Hierarchicam Softmax</h3><blockquote>
+<p><a href="https://zhuanlan.zhihu.com/p/46430775" target="_blank" rel="external">知乎: Huffman Tree</a></p>
 <p>给定n权值作为n个叶子节点，构造一棵二叉树，若这棵二叉树的带权路径长度达到最小，则称这样的二叉树为最优二叉树，也称为Huffman树。</p>
 </blockquote>
 <p><strong>word2vec vs glove</strong></p>
@@ -399,7 +420,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLP-的发展"><span class="toc-number"></span> <span class="toc-text">NLP 的发展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Language-Model"><span class="toc-number"></span> <span class="toc-text">1. Language Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Perplexity"><span class="toc-number"></span> <span class="toc-text">2. Perplexity</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Recurrent-Neural-Networks"><span class="toc-number"></span> <span class="toc-text">2. Recurrent Neural Networks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-NNLM"><span class="toc-number"></span> <span class="toc-text">3. NNLM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-word2vec"><span class="toc-number"></span> <span class="toc-text">4. word2vec</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-fastText"><span class="toc-number"></span> <span class="toc-text">5. fastText</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Seq2Seq"><span class="toc-number"></span> <span class="toc-text">6. Seq2Seq</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Attention"><span class="toc-number"></span> <span class="toc-text">7. Attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-GPT-amp-ELMO"><span class="toc-number"></span> <span class="toc-text">8. GPT & ELMO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Transformer"><span class="toc-number"></span> <span class="toc-text">9. Transformer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Task-tricks"><span class="toc-number"></span> <span class="toc-text">10. Task tricks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#NLP-的发展"><span class="toc-number"></span> <span class="toc-text">NLP 的发展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Language-Model"><span class="toc-number"></span> <span class="toc-text">1. Language Model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Perplexity"><span class="toc-number"></span> <span class="toc-text">2. Perplexity</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Recurrent-Neural-Networks"><span class="toc-number"></span> <span class="toc-text">2. Recurrent Neural Networks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-NNLM"><span class="toc-number"></span> <span class="toc-text">3. NNLM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-word2vec"><span class="toc-number"></span> <span class="toc-text">4. word2vec</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Negative-Sampling"><span class="toc-number"></span> <span class="toc-text">4.1 Negative Sampling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Hierarchicam-Softmax"><span class="toc-number"></span> <span class="toc-text">4.2 Hierarchicam Softmax</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-fastText"><span class="toc-number"></span> <span class="toc-text">5. fastText</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Seq2Seq"><span class="toc-number"></span> <span class="toc-text">6. Seq2Seq</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Attention"><span class="toc-number"></span> <span class="toc-text">7. Attention</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-GPT-amp-ELMO"><span class="toc-number"></span> <span class="toc-text">8. GPT & ELMO</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-Transformer"><span class="toc-number"></span> <span class="toc-text">9. Transformer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-Task-tricks"><span class="toc-number"></span> <span class="toc-text">10. Task tricks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
