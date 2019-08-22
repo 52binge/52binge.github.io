@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Classifier in Keras - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Classifier in Keras">
+<meta property="og:url" content="http://shopee.ai/2019/08/22/tensorflow/keras-1.3-classifier/index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:description">
+<meta property="og:image" content="http://shopee.ai/images/tensorflow/keras-Classifier.png">
+<meta property="og:updated_time" content="2019-08-22T06:51:16.459Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Classifier in Keras">
+<meta name="twitter:description">
+<meta name="twitter:image" content="http://shopee.ai/images/tensorflow/keras-Classifier.png">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF/Keras</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-tensorflow/keras-1.3-classifier" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Classifier in Keras
+      <small class=article-detail-date-index>&nbsp; 2019-08-22</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2019/08/22/tensorflow/keras-1.3-classifier/" class="article-date">
+  <time datetime="2019-08-22T06:17:21.000Z" itemprop="datePublished">2019-08-22</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/tensorflow/">tensorflow</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://shopee.ai/2019/08/22/tensorflow/keras-1.3-classifier/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/tensorflow/keras-Classifier.png" width="550" alt="Classifier in Keras"></p>
+<a id="more"></a>
+<p><strong>data preprocessing</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> mnist</span><br><span class="line"></span><br><span class="line"><span class="comment"># download the mnist to the path '~/.keras/datasets/' if it is the first time to be called</span></span><br><span class="line"><span class="comment"># X shape (60,000 28x28), y shape (10,000, )</span></span><br><span class="line">(X_train, y_train), (X_test, y_test) = mnist.load_data()</span><br><span class="line"></span><br><span class="line"><span class="comment"># data pre-processing</span></span><br><span class="line">X_train = X_train.reshape(X_train.shape[<span class="number">0</span>], <span class="number">-1</span>) / <span class="number">255.</span>   <span class="comment"># normalize</span></span><br><span class="line">X_test = X_test.reshape(X_test.shape[<span class="number">0</span>], <span class="number">-1</span>) / <span class="number">255.</span>      <span class="comment"># normalize</span></span><br><span class="line"></span><br><span class="line">y_train = np_utils.to_categorical(y_train, num_classes=<span class="number">10</span>)</span><br><span class="line">y_test = np_utils.to_categorical(y_test, num_classes=<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">print(X_train[<span class="number">1</span>].shape)</span><br><span class="line"><span class="string">"""</span><br><span class="line">(784,)</span><br><span class="line">"""</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#print(y_train[:3])</span></span><br><span class="line"><span class="string">"""</span><br><span class="line">[[ 0.  0.  0.  0.  0.  1.  0.  0.  0.  0.]</span><br><span class="line"> [ 1.  0.  0.  0.  0.  0.  0.  0.  0.  0.]</span><br><span class="line"> [ 0.  0.  0.  0.  1.  0.  0.  0.  0.  0.]]</span><br><span class="line">"""</span></span><br></pre></td></tr></table></figure>
+<h2 id="1-build-model"><a href="#1-build-model" class="headerlink" title="1. build model"></a>1. build model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">np.random.seed(<span class="number">1337</span>)  <span class="comment"># for reproducibility</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> mnist</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> keras.utils <span class="keyword">import</span> np_utils</span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Dense, Activation</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br></pre></td></tr></table></figure>
+<p>Another way to build your neural net</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Another way to build your neural net</span></span><br><span class="line">model = Sequential([</span><br><span class="line">    Dense(<span class="number">32</span>, input_dim=<span class="number">784</span>),</span><br><span class="line">    Activation(<span class="string">'relu'</span>),</span><br><span class="line">    Dense(<span class="number">10</span>),</span><br><span class="line">    Activation(<span class="string">'softmax'</span>),</span><br><span class="line">])</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+<pre><code>_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_5 (Dense)              (None, 32)                25120     
+_________________________________________________________________
+activation_5 (Activation)    (None, 32)                0         
+_________________________________________________________________
+dense_6 (Dense)              (None, 10)                330       
+_________________________________________________________________
+activation_6 (Activation)    (None, 10)                0         
+=================================================================
+Total params: 25,450
+Trainable params: 25,450
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Another way to define your optimizer</span></span><br><span class="line">rmsprop = RMSprop(lr=<span class="number">0.001</span>, rho=<span class="number">0.9</span>, epsilon=<span class="number">1e-08</span>, decay=<span class="number">0.0</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="2-compile-model"><a href="#2-compile-model" class="headerlink" title="2. compile model"></a>2. compile model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># We add metrics to get more results you want to see</span></span><br><span class="line">model.compile(optimizer=rmsprop,</span><br><span class="line">              loss=<span class="string">'categorical_crossentropy'</span>,</span><br><span class="line">              metrics=[<span class="string">'accuracy'</span>])</span><br></pre></td></tr></table></figure>
+<h2 id="3-train-model"><a href="#3-train-model" class="headerlink" title="3. train model"></a>3. train model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(<span class="string">'Training ------------'</span>)</span><br><span class="line"><span class="comment"># Another way to train the model</span></span><br><span class="line">model.fit(X_train, y_train, epochs=<span class="number">2</span>, batch_size=<span class="number">32</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># """</span></span><br><span class="line"><span class="comment"># Training ------------</span></span><br><span class="line"><span class="comment"># Epoch 1/2</span></span><br><span class="line"><span class="comment"># 60000/60000 [==============================] - 2s - loss: 0.3506 - acc: 0.9025     </span></span><br><span class="line"><span class="comment"># Epoch 2/2</span></span><br><span class="line"><span class="comment"># 60000/60000 [==============================] - 2s - loss: 0.1995 - acc: 0.9421   </span></span><br><span class="line"><span class="comment"># """</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-evaluate-model"><a href="#4-evaluate-model" class="headerlink" title="4. evaluate model"></a>4. evaluate model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(<span class="string">'\nTesting ------------'</span>)</span><br><span class="line"><span class="comment"># Evaluate the model with the metrics we defined earlier</span></span><br><span class="line">loss, accuracy = model.evaluate(X_test, y_test)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'test loss: '</span>, loss)</span><br><span class="line">print(<span class="string">'test accuracy: '</span>, accuracy)</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">Testing ------------</span><br><span class="line"> 9760/10000 [============================&gt;.] - ETA: 0s</span><br><span class="line"></span><br><span class="line">test loss:  0.1724540345</span><br><span class="line">test accuracy:  0.9489</span><br><span class="line">"""</span></span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://keras-cn.readthedocs.io/en/latest/backend/" target="_blank" rel="external">keras-cn</a>、 <a href="https://keras.io/" target="_blank" rel="external">keras.io</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/" target="_blank" rel="external">莫烦 Keras</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-build-model"><span class="toc-number"></span> <span class="toc-text">1. build model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-compile-model"><span class="toc-number"></span> <span class="toc-text">2. compile model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-train-model"><span class="toc-number"></span> <span class="toc-text">3. train model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-evaluate-model"><span class="toc-number"></span> <span class="toc-text">4. evaluate model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/tensorflow/">tensorflow</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/keras/">keras</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/08/22/tensorflow/keras-1.4-CNN/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          CNN in Keras
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/08/21/tensorflow/keras-1.2-Regressor/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Regressor in Keras&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://shopee.ai/2019/08/22/tensorflow/keras-1.3-classifier/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>

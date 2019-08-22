@@ -4,11 +4,96 @@
   
     
     <entry>
-      <title><![CDATA[Regressor]]></title>
-      <url>http://shopee.ai/2019/08/21/tensorflow/keras-1.2-Regressor/</url>
-      <content type="html"><![CDATA[<p><img src="/images/tensorflow/keras-regressor-1.2-1.png" width="450" alt="Regressor"></p>
+      <title><![CDATA[RNN in Keras]]></title>
+      <url>http://shopee.ai/2019/08/22/tensorflow/keras-1.5-RNN/</url>
+      <content type="html"><![CDATA[<p><img src="/images/tensorflow/keras-lstm1.png" width="550" alt="LSTM in Keras"></p>
 <a id="more"></a>
-<p>NN 可用来模拟 regression，给一组数据，用一条线对数据进行拟合，并可预测新输入 x 的输出值。</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://keras-cn.readthedocs.io/en/latest/backend/" target="_blank" rel="external">keras-cn</a>、 <a href="https://keras.io/" target="_blank" rel="external">keras.io</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/" target="_blank" rel="external">莫烦 Keras</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[CNN in Keras]]></title>
+      <url>http://shopee.ai/2019/08/22/tensorflow/keras-1.4-CNN/</url>
+      <content type="html"><![CDATA[<p>Convolutional Neural Networks，CNN 也是一种前馈神经网络，其特点是每层的神经元节点只响应前一层局部区域范围内的神经元（全连接网络中每个神经元节点响应前一层的全部节点）</p>
+<a id="more"></a>
+<p><img src="/images/tensorflow/keras-cnn4.png" width="550" alt="Convolutional Neural Network in Keras"></p>
+<p><strong>pooling</strong></p>
+<p><img src="/images/tensorflow/keras-cnn5.png" width="470" alt="Convolutional Neural Network in Keras"></p>
+<blockquote>
+<p>研究发现, 在每一次卷积的时候, 神经层可能会无意地丢失一些信息. 这时, pooling 就可以很好地解决这一问题. 而且池化是一个筛选过滤的过程, 能将 layer 中有用的信息筛选出来, 给下一个层分析. </p>
+<p>同时也减轻了神经网络的计算负担. 也就是说在卷集的时候, 我们不压缩长宽, 尽量保留更多信息, 压缩的工作就交给池化了,这样的一项附加工作能够很有效的提高准确性. 有了这些技术,我们就可以搭建一个 CNN.</p>
+</blockquote>
+<p><img src="/images/tensorflow/keras-cnn2.png" width="550" alt="Convolutional Neural Network in Keras"></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">np.random.seed(<span class="number">1337</span>)  <span class="comment"># for reproducibility</span></span><br><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> mnist</span><br><span class="line"><span class="keyword">from</span> keras.utils <span class="keyword">import</span> np_utils</span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Dense, Activation, Convolution2D, MaxPooling2D, Flatten</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> Adam</span><br></pre></td></tr></table></figure>
+<p>数据集 MNIST</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># download the mnist to the path '~/.keras/datasets/' if it is the first time to be called</span></span><br><span class="line"><span class="comment"># training X shape (60000, 28x28), Y shape (60000, ). test X shape (10000, 28x28), Y shape (10000, )</span></span><br><span class="line">(X_train, y_train), (X_test, y_test) = mnist.load_data()</span><br></pre></td></tr></table></figure>
+<h2 id="1-data-pre-processing"><a href="#1-data-pre-processing" class="headerlink" title="1. data pre-processing"></a>1. data pre-processing</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">X_train = X_train.reshape(<span class="number">-1</span>, <span class="number">1</span>,<span class="number">28</span>, <span class="number">28</span>)/<span class="number">255.</span></span><br><span class="line">X_test = X_test.reshape(<span class="number">-1</span>, <span class="number">1</span>,<span class="number">28</span>, <span class="number">28</span>)/<span class="number">255.</span></span><br><span class="line">y_train = np_utils.to_categorical(y_train, num_classes=<span class="number">10</span>)</span><br><span class="line">y_test = np_utils.to_categorical(y_test, num_classes=<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="2-build-model"><a href="#2-build-model" class="headerlink" title="2. build model"></a>2. build model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Another way to build your CNN</span></span><br><span class="line">model = Sequential()</span><br><span class="line"></span><br><span class="line"><span class="comment"># Conv layer 1 output shape (32, 28, 28)</span></span><br><span class="line">model.add(Convolution2D(</span><br><span class="line">    batch_input_shape=(<span class="keyword">None</span>, <span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>),</span><br><span class="line">    filters=<span class="number">32</span>,</span><br><span class="line">    kernel_size=<span class="number">5</span>,</span><br><span class="line">    strides=<span class="number">1</span>,</span><br><span class="line">    padding=<span class="string">'same'</span>,     <span class="comment"># Padding method</span></span><br><span class="line">    data_format=<span class="string">'channels_first'</span>,</span><br><span class="line">))</span><br><span class="line">model.add(Activation(<span class="string">'relu'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Pooling layer 1 (max pooling) output shape (32, 14, 14)</span></span><br><span class="line">model.add(MaxPooling2D(</span><br><span class="line">    pool_size=<span class="number">2</span>,</span><br><span class="line">    strides=<span class="number">2</span>,</span><br><span class="line">    padding=<span class="string">'same'</span>,    <span class="comment"># Padding method</span></span><br><span class="line">    data_format=<span class="string">'channels_first'</span>,</span><br><span class="line">))</span><br></pre></td></tr></table></figure>
+<p>再添加第二, 卷积层和池化层</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Conv layer 2 output shape (64, 14, 14)</span></span><br><span class="line">model.add(Convolution2D(<span class="number">64</span>, <span class="number">5</span>, strides=<span class="number">1</span>, padding=<span class="string">'same'</span>, data_format=<span class="string">'channels_first'</span>))</span><br><span class="line">model.add(Activation(<span class="string">'relu'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># Pooling layer 2 (max pooling) output shape (64, 7, 7)</span></span><br><span class="line">model.add(MaxPooling2D(<span class="number">2</span>, <span class="number">2</span>, <span class="string">'same'</span>, data_format=<span class="string">'channels_first'</span>))</span><br></pre></td></tr></table></figure>
+<p>Fully connected layer 1 input shape (64 * 7 * 7) = (3136), output shape (1024)</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">model.add(Flatten())</span><br><span class="line">model.add(Dense(<span class="number">1024</span>))</span><br><span class="line">model.add(Activation(<span class="string">'relu'</span>))</span><br></pre></td></tr></table></figure>
+<p>Fully connected layer 2 to shape (10) for 10 classes</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">model.add(Dense(<span class="number">10</span>))</span><br><span class="line">model.add(Activation(<span class="string">'softmax'</span>))</span><br></pre></td></tr></table></figure>
+<p>optimizer</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Another way to define your optimizer</span></span><br><span class="line">adam = Adam(lr=<span class="number">1e-4</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="3-compile-model"><a href="#3-compile-model" class="headerlink" title="3. compile model"></a>3. compile model</h2><p>设置adam优化方法，loss函数, metrics方法来观察输出结果</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># We add metrics to get more results you want to see</span></span><br><span class="line">model.compile(optimizer=adam,</span><br><span class="line">              loss=<span class="string">'categorical_crossentropy'</span>,</span><br><span class="line">              metrics=[<span class="string">'accuracy'</span>])</span><br></pre></td></tr></table></figure>
+<h2 id="4-train-model"><a href="#4-train-model" class="headerlink" title="4. train model"></a>4. train model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(<span class="string">'Training ------------'</span>)</span><br><span class="line"><span class="comment"># Another way to train the model</span></span><br><span class="line">model.fit(X_train, y_train, epochs=<span class="number">1</span>, batch_size=<span class="number">64</span>,)</span><br></pre></td></tr></table></figure>
+<h2 id="5-evaluate-model"><a href="#5-evaluate-model" class="headerlink" title="5. evaluate model"></a>5. evaluate model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(<span class="string">'\nTesting ------------'</span>)</span><br><span class="line"><span class="comment"># Evaluate the model with the metrics we defined earlier</span></span><br><span class="line">loss, accuracy = model.evaluate(X_test, y_test)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'\ntest loss: '</span>, loss)</span><br><span class="line">print(<span class="string">'\ntest accuracy: '</span>, accuracy)</span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://keras-cn.readthedocs.io/en/latest/backend/" target="_blank" rel="external">keras-cn</a>、 <a href="https://keras.io/" target="_blank" rel="external">keras.io</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/" target="_blank" rel="external">莫烦 Keras</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Classifier in Keras]]></title>
+      <url>http://shopee.ai/2019/08/22/tensorflow/keras-1.3-classifier/</url>
+      <content type="html"><![CDATA[<p><img src="/images/tensorflow/keras-Classifier.png" width="550" alt="Classifier in Keras"></p>
+<a id="more"></a>
+<p><strong>data preprocessing</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> mnist</span><br><span class="line"></span><br><span class="line"><span class="comment"># download the mnist to the path '~/.keras/datasets/' if it is the first time to be called</span></span><br><span class="line"><span class="comment"># X shape (60,000 28x28), y shape (10,000, )</span></span><br><span class="line">(X_train, y_train), (X_test, y_test) = mnist.load_data()</span><br><span class="line"></span><br><span class="line"><span class="comment"># data pre-processing</span></span><br><span class="line">X_train = X_train.reshape(X_train.shape[<span class="number">0</span>], <span class="number">-1</span>) / <span class="number">255.</span>   <span class="comment"># normalize</span></span><br><span class="line">X_test = X_test.reshape(X_test.shape[<span class="number">0</span>], <span class="number">-1</span>) / <span class="number">255.</span>      <span class="comment"># normalize</span></span><br><span class="line"></span><br><span class="line">y_train = np_utils.to_categorical(y_train, num_classes=<span class="number">10</span>)</span><br><span class="line">y_test = np_utils.to_categorical(y_test, num_classes=<span class="number">10</span>)</span><br><span class="line"></span><br><span class="line">print(X_train[<span class="number">1</span>].shape)</span><br><span class="line"><span class="string">"""</span><br><span class="line">(784,)</span><br><span class="line">"""</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#print(y_train[:3])</span></span><br><span class="line"><span class="string">"""</span><br><span class="line">[[ 0.  0.  0.  0.  0.  1.  0.  0.  0.  0.]</span><br><span class="line"> [ 1.  0.  0.  0.  0.  0.  0.  0.  0.  0.]</span><br><span class="line"> [ 0.  0.  0.  0.  1.  0.  0.  0.  0.  0.]]</span><br><span class="line">"""</span></span><br></pre></td></tr></table></figure>
+<h2 id="1-build-model"><a href="#1-build-model" class="headerlink" title="1. build model"></a>1. build model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">np.random.seed(<span class="number">1337</span>)  <span class="comment"># for reproducibility</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> mnist</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> keras.utils <span class="keyword">import</span> np_utils</span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Dense, Activation</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> RMSprop</span><br></pre></td></tr></table></figure>
+<p>Another way to build your neural net</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Another way to build your neural net</span></span><br><span class="line">model = Sequential([</span><br><span class="line">    Dense(<span class="number">32</span>, input_dim=<span class="number">784</span>),</span><br><span class="line">    Activation(<span class="string">'relu'</span>),</span><br><span class="line">    Dense(<span class="number">10</span>),</span><br><span class="line">    Activation(<span class="string">'softmax'</span>),</span><br><span class="line">])</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+<pre><code>_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+dense_5 (Dense)              (None, 32)                25120     
+_________________________________________________________________
+activation_5 (Activation)    (None, 32)                0         
+_________________________________________________________________
+dense_6 (Dense)              (None, 10)                330       
+_________________________________________________________________
+activation_6 (Activation)    (None, 10)                0         
+=================================================================
+Total params: 25,450
+Trainable params: 25,450
+Non-trainable params: 0
+_________________________________________________________________
+</code></pre><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Another way to define your optimizer</span></span><br><span class="line">rmsprop = RMSprop(lr=<span class="number">0.001</span>, rho=<span class="number">0.9</span>, epsilon=<span class="number">1e-08</span>, decay=<span class="number">0.0</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="2-compile-model"><a href="#2-compile-model" class="headerlink" title="2. compile model"></a>2. compile model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># We add metrics to get more results you want to see</span></span><br><span class="line">model.compile(optimizer=rmsprop,</span><br><span class="line">              loss=<span class="string">'categorical_crossentropy'</span>,</span><br><span class="line">              metrics=[<span class="string">'accuracy'</span>])</span><br></pre></td></tr></table></figure>
+<h2 id="3-train-model"><a href="#3-train-model" class="headerlink" title="3. train model"></a>3. train model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(<span class="string">'Training ------------'</span>)</span><br><span class="line"><span class="comment"># Another way to train the model</span></span><br><span class="line">model.fit(X_train, y_train, epochs=<span class="number">2</span>, batch_size=<span class="number">32</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># """</span></span><br><span class="line"><span class="comment"># Training ------------</span></span><br><span class="line"><span class="comment"># Epoch 1/2</span></span><br><span class="line"><span class="comment"># 60000/60000 [==============================] - 2s - loss: 0.3506 - acc: 0.9025     </span></span><br><span class="line"><span class="comment"># Epoch 2/2</span></span><br><span class="line"><span class="comment"># 60000/60000 [==============================] - 2s - loss: 0.1995 - acc: 0.9421   </span></span><br><span class="line"><span class="comment"># """</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-evaluate-model"><a href="#4-evaluate-model" class="headerlink" title="4. evaluate model"></a>4. evaluate model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(<span class="string">'\nTesting ------------'</span>)</span><br><span class="line"><span class="comment"># Evaluate the model with the metrics we defined earlier</span></span><br><span class="line">loss, accuracy = model.evaluate(X_test, y_test)</span><br><span class="line"></span><br><span class="line">print(<span class="string">'test loss: '</span>, loss)</span><br><span class="line">print(<span class="string">'test accuracy: '</span>, accuracy)</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">Testing ------------</span><br><span class="line"> 9760/10000 [============================&gt;.] - ETA: 0s</span><br><span class="line"></span><br><span class="line">test loss:  0.1724540345</span><br><span class="line">test accuracy:  0.9489</span><br><span class="line">"""</span></span><br></pre></td></tr></table></figure>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://keras-cn.readthedocs.io/en/latest/backend/" target="_blank" rel="external">keras-cn</a>、 <a href="https://keras.io/" target="_blank" rel="external">keras.io</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/" target="_blank" rel="external">莫烦 Keras</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Regressor in Keras]]></title>
+      <url>http://shopee.ai/2019/08/21/tensorflow/keras-1.2-Regressor/</url>
+      <content type="html"><![CDATA[<p>NN 可用来模拟 regression，给一组数据，用一条线对数据进行拟合，并可预测新输入 x 的输出值。</p>
+<a id="more"></a>
+<p><img src="/images/tensorflow/keras-regressor-1.2-1.png" width="450" alt="Regressor in Keras"></p>
 <p><strong>创建数据</strong></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">np.random.seed(<span class="number">1337</span>)  <span class="comment"># for reproducibility</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Dense</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span class="comment"># 可视化模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create some data</span></span><br><span class="line">X = np.linspace(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">200</span>)</span><br><span class="line"></span><br><span class="line">np.random.shuffle(X)    <span class="comment"># randomize the data</span></span><br><span class="line"></span><br><span class="line">Y = <span class="number">0.5</span> * X + <span class="number">2</span> + np.random.normal(<span class="number">0</span>, <span class="number">0.05</span>, (<span class="number">200</span>, ))</span><br></pre></td></tr></table></figure>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># plot data</span></span><br><span class="line">plt.scatter(X, Y)</span><br><span class="line">plt.show()</span><br><span class="line"></span><br><span class="line">X_train, Y_train = X[:<span class="number">160</span>], Y[:<span class="number">160</span>]     <span class="comment"># train 前 160 data points</span></span><br><span class="line">X_test, Y_test = X[<span class="number">160</span>:], Y[<span class="number">160</span>:]       <span class="comment"># test 后 40 data points</span></span><br></pre></td></tr></table></figure>
@@ -38,6 +123,7 @@
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://keras-cn.readthedocs.io/en/latest/backend/" target="_blank" rel="external">keras-cn</a>、 <a href="https://keras.io/" target="_blank" rel="external">keras.io</a></li>
 <li><a href="https://blog.csdn.net/lanchunhui/article/details/50163669" target="_blank" rel="external">从np.random.normal()到正态分布的拟合</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/" target="_blank" rel="external">莫烦 Keras</a></li>
 </ul>
 ]]></content>
     </entry>
@@ -45,11 +131,12 @@
     <entry>
       <title><![CDATA[Keras Introduce]]></title>
       <url>http://shopee.ai/2019/08/19/tensorflow/keras-1.1-intro/</url>
-      <content type="html"><![CDATA[<p><img src="/images/tensorflow/keras-4.png" width="550" alt="Keras + Tensorflow"></p>
-<!--<img src="/images/tensorflow/keras-5.jpeg" width="550" alt="Keras"/>
+      <content type="html"><![CDATA[<!--<img src="/images/tensorflow/keras-5.jpeg" width="550" alt="Keras"/>
 -->
-<a id="more"></a>
+<p>Keras 开发重点是支持快速的实验。能够以最小的时延把你的想法转换为实验结果，是做好研究的关键。</p>
 <p>Keras 并不处理如张量乘法、卷积等底层操作。这些操作依赖于某种特定的、优化良好的张量操作库。</p>
+<a id="more"></a>
+<p><img src="/images/tensorflow/keras-4.png" width="550" alt="Keras + Tensorflow"></p>
 <h2 id="1-Keras-install"><a href="#1-Keras-install" class="headerlink" title="1. Keras install"></a>1. Keras install</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pip install --upgrade pip</span><br><span class="line">pip3 install keras</span><br><span class="line">pip3 install ipython</span><br><span class="line">pip3 install notebook</span><br><span class="line">pip3 install tensorflow</span><br><span class="line">pip3 install --upgrade tensorflow</span><br><span class="line">pip3 install astkit</span><br><span class="line">pip3 install pandas</span><br><span class="line">pip3 install matplotlib</span><br></pre></td></tr></table></figure>
 <h2 id="2-Basic-concepts"><a href="#2-Basic-concepts" class="headerlink" title="2. Basic concepts"></a>2. Basic concepts</h2><p><a href="https://keras-cn.readthedocs.io/en/latest/for_beginners/concepts/" target="_blank" rel="external">keras-cn.readthedocs.io 一些基本概念</a></p>
 <ol>
@@ -18081,6 +18168,78 @@ public final class Boolean
     </entry>
     
     <entry>
+      <title><![CDATA[Java SE Introduce]]></title>
+      <url>http://shopee.ai/2013/02/02/java/java-se-1-introduce/</url>
+      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
+<a id="more"></a>
+<ul>
+<li>Java data type</li>
+<li>OO</li>
+<li>Exception</li>
+<li>Java Array  </li>
+<li>Java 常用类 </li>
+<li>Java 容器类</li>
+<li>Collection / Generic</li>
+<li>Java I/O Stream</li>
+<li>Java Thread</li>
+<li>Java TCP/UDP, socket</li>
+</ul>
+<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
+<li>Java 运行机制</li>
+<li>JDK &amp; JRE</li>
+<li>Java env install</li>
+<li>Java Basic Content</li>
+</ul>
+<blockquote>
+<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
+</blockquote>
+<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
+<li>一种 OO 语言  </li>
+<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
+<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
+</ul>
+<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
+<ul>
+<li>Java Virtual Machine</li>
+<li>Garbage collection</li>
+</ul>
+<blockquote>
+<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
+<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
+<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
+</blockquote>
+<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
+<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
+<li>Java Runtime Environment  用户只需 JRE  </li>
+</ul>
+<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
+</blockquote>
+<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
+<li>类名首字母大写  </li>
+<li>变量名和方法名的首字母小写  </li>
+<li>运用驼峰标识   </li>
+</ol>
+<p>HelloWorld.java</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
+</blockquote>
+<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
+<hr>
+<blockquote>
+<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
+</blockquote>
+<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
+<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
+]]></content>
+    </entry>
+    
+    <entry>
       <title><![CDATA[Java SE Learning Notes for All]]></title>
       <url>http://shopee.ai/2013/02/02/java/java-se-2.5-notes-all/</url>
       <content type="html"><![CDATA[<p>这篇主要是记录了我学习 Java SE 的概要笔记: <code>手中无剑</code>, <code>心中有剑</code>, <code>摘花飞叶可以伤人</code>.</p>
@@ -18486,78 +18645,6 @@ JDK 1.5 之后 {
     * Externalizable 接口  extends  Serializable   
 }  
 </code></pre><p>}  </p>
-]]></content>
-    </entry>
-    
-    <entry>
-      <title><![CDATA[Java SE Introduce]]></title>
-      <url>http://shopee.ai/2013/02/02/java/java-se-1-introduce/</url>
-      <content type="html"><![CDATA[<p>Java是一种广泛使用的计算机编程语言，拥有跨平台、面向对象、泛型编程的特性.</p>
-<a id="more"></a>
-<ul>
-<li>Java data type</li>
-<li>OO</li>
-<li>Exception</li>
-<li>Java Array  </li>
-<li>Java 常用类 </li>
-<li>Java 容器类</li>
-<li>Collection / Generic</li>
-<li>Java I/O Stream</li>
-<li>Java Thread</li>
-<li>Java TCP/UDP, socket</li>
-</ul>
-<h2 id="1-Java-概述"><a href="#1-Java-概述" class="headerlink" title="1. Java 概述"></a>1. Java 概述</h2><ul>
-<li>Java 运行机制</li>
-<li>JDK &amp; JRE</li>
-<li>Java env install</li>
-<li>Java Basic Content</li>
-</ul>
-<blockquote>
-<p>conclude : 计算机语言朝着人类易于理解的方向发展  </p>
-</blockquote>
-<h2 id="2-Java-特点"><a href="#2-Java-特点" class="headerlink" title="2. Java 特点"></a>2. Java 特点</h2><ul>
-<li>一种 OO 语言  </li>
-<li>一种平台无关的语言, 提供程序运行的解释环境  </li>
-<li>一种健壮的语言, 吸收了C/C++语言的优点， 但去掉了其影响程序健壮性的部分(如: 指针， 内存的申请与释放等)。  </li>
-</ul>
-<h2 id="3-Java程序运行机制"><a href="#3-Java程序运行机制" class="headerlink" title="3. Java程序运行机制"></a>3. Java程序运行机制</h2><p><strong>Java 2种核心机制</strong></p>
-<ul>
-<li>Java Virtual Machine</li>
-<li>Garbage collection</li>
-</ul>
-<blockquote>
-<p>JVM 可理解成一个以字节码为机器指令的CPU<br>JVM 机制屏蔽了底层运行平台的差别, 实现了”一次编译, 随处运行”。</p>
-<p>x.java –编译–&gt; x.class –执行–&gt; JVM</p>
-<p>Java语言消除了程序员回收无用内存空间的责任;<br>它提供一种系统级线程跟踪存储空间的分配情况，并在JVM的空闲时, 检查并释放那些可被释放的存储器空间。  </p>
-</blockquote>
-<h2 id="4-JDK-amp-JRE-amp-env-install"><a href="#4-JDK-amp-JRE-amp-env-install" class="headerlink" title="4. JDK &amp; JRE &amp; env install"></a>4. JDK &amp; JRE &amp; env install</h2><ul>
-<li>Software Development Kit (软件开发包)  开发需要 JDK  </li>
-<li>Java Runtime Environment  用户只需 JRE  </li>
-</ul>
-<p><code>/etc/profile</code> or  <code>~/.zshrc</code> or  <code>~/.zprofile</code></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">### JAVA ###</span><br><span class="line">JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk1.7.0_79.jdk/Contents/Home</span><br><span class="line">JAVA_BIN=$JAVA_HOME/bin</span><br><span class="line">PATH=$JAVA_HOME/bin:$PATH</span><br><span class="line">CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/jre/lib/dt.jar:$JAVA_HOME/jre/lib/tools.jar</span><br><span class="line">export JAVA_HOME JAVA_BIN PATH CLASSPATH</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>classpath : java在编译和运行时要找的class所在的路径<br>建议你的 JDK 装在不带空格的目录里面</p>
-</blockquote>
-<h2 id="5-命名规则"><a href="#5-命名规则" class="headerlink" title="5. 命名规则"></a>5. 命名规则</h2><ol>
-<li>类名首字母大写  </li>
-<li>变量名和方法名的首字母小写  </li>
-<li>运用驼峰标识   </li>
-</ol>
-<p>HelloWorld.java</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class HelloWorld &#123;</span><br><span class="line">  public static void main(String[] args) &#123;</span><br><span class="line">    System.out.println(&quot;Hello Java.&quot;);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">/**</span><br><span class="line">  * 这里是注释</span><br><span class="line">  */</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>一个源文件中最多只能有一个public类. 其它类的个数不限，如果源文件 文件包含一个public class 它必需按该 class-name 命名  </p>
-</blockquote>
-<h2 id="6-Java-程序设计"><a href="#6-Java-程序设计" class="headerlink" title="6. Java 程序设计"></a>6. Java 程序设计</h2><p><strong>data type</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">                                      -- 整数类型 (byte, short, int, long)  </span><br><span class="line">                          -- 数值型 --     </span><br><span class="line">                         |            -- 浮点类型 (float, double)  </span><br><span class="line">           --基本数据类型  -- 字符型 (char)  </span><br><span class="line">          |              |  </span><br><span class="line">          |               -- 布尔型 (boolean)  </span><br><span class="line">数据类型 --                           </span><br><span class="line">          |               -- 类 (class)  </span><br><span class="line">          |              |  </span><br><span class="line">           --引用数据类型  -- 接口 (interface)  </span><br><span class="line">                         |  </span><br><span class="line">                          -- 数组 (array)</span><br></pre></td></tr></table></figure>
-<hr>
-<blockquote>
-<p>java 中定义了 <strong>4类 8种</strong> 基本数据类型<br>boolean 类型只允许取值 true / false , 不可以用 0 或 非0 替代。<br>char 采用 Unicode 编码 (全球语言统一编码), 每个字符占两个字节  </p>
-</blockquote>
-<h2 id="7-Array-amp-Method"><a href="#7-Array-amp-Method" class="headerlink" title="7. Array &amp; Method"></a>7. Array &amp; Method</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public class Test &#123;  </span><br><span class="line">    public static void main(String[] args) &#123;  </span><br><span class="line">        Date[] days;  </span><br><span class="line">        days = new Date[3];  </span><br><span class="line">        for (int i = 0; i &lt; 3; i++) &#123;  </span><br><span class="line">            days[i] = new Date(2004, 4, i+1);  </span><br><span class="line">        &#125;</span><br><span class="line">        // </span><br><span class="line">        int[] a = &#123;1, 2, 3, 4, 5, 6, 7&#125;;  </span><br><span class="line">        for (int i = 0; i &lt; a.length; i++) &#123;  </span><br><span class="line">            System.out.print(a[i] + &quot; &quot;);  </span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;  </span><br><span class="line">class Date &#123;  </span><br><span class="line">    int year;  </span><br><span class="line">    int month;  </span><br><span class="line">    int day;  </span><br><span class="line">    Date(int y, int m, int d) &#123;  </span><br><span class="line">        year = y;  </span><br><span class="line">        month = m;  </span><br><span class="line">        day = d;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16942921" target="_blank" rel="external">面向过程-约瑟夫环</a></p>
-<p><a href="http://blog.csdn.net/robbyo/article/details/16967715" target="_blank" rel="external">面向对象-约瑟夫环</a></p>
 ]]></content>
     </entry>
     
