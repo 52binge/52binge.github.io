@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Pandas Basic Intro - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="如果用列表和字典来作比较, 那么可以说 Numpy 是列表形式的，没有数值标签，而 Pandas 就是字典形式">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pandas Basic Intro">
+<meta property="og:url" content="http://shopee.ai/2017/12/27/python/numpy-pandas/py-pandas-1-intro/index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:description" content="如果用列表和字典来作比较, 那么可以说 Numpy 是列表形式的，没有数值标签，而 Pandas 就是字典形式">
+<meta property="og:updated_time" content="2019-01-20T01:01:36.487Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Pandas Basic Intro">
+<meta name="twitter:description" content="如果用列表和字典来作比较, 那么可以说 Numpy 是列表形式的，没有数值标签，而 Pandas 就是字典形式">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF/Keras</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-python/numpy-pandas/py-pandas-1-intro" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Pandas Basic Intro
+      <small class=article-detail-date-index>&nbsp; 2017-12-27</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2017/12/27/python/numpy-pandas/py-pandas-1-intro/" class="article-date">
+  <time datetime="2017-12-27T08:28:21.000Z" itemprop="datePublished">2017-12-27</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://shopee.ai/2017/12/27/python/numpy-pandas/py-pandas-1-intro/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>如果用列表和字典来作比较, 那么可以说 Numpy 是列表形式的，没有数值标签，而 Pandas 就是字典形式</p>
+<a id="more"></a>
+<p>Pandas是基于Numpy构建的，让Numpy为中心的应用变得更加简单。</p>
+<p>要使用pandas，首先需要了解他主要两个数据结构：Series 和 DataFrame。</p>
+<h2 id="Series"><a href="#Series" class="headerlink" title="Series"></a>Series</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">s = pd.Series([<span class="number">1</span>,<span class="number">3</span>,<span class="number">6</span>,np.nan,<span class="number">44</span>,<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">print(s)</span><br></pre></td></tr></table></figure>
+<pre><code>0     1.0
+1     3.0
+2     6.0
+3     NaN
+4    44.0
+5     1.0
+dtype: float64
+</code></pre><p><code>Series</code> 的字符串表现形式为：索引在左边，值在右边。<br>由于我们没有为数据指定索引。于是会自动创建一个0到N-1（N为长度）的整数型索引。</p>
+<h2 id="DataFrame-矩阵创建"><a href="#DataFrame-矩阵创建" class="headerlink" title="DataFrame 矩阵创建"></a>DataFrame 矩阵创建</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">dates = pd.date_range(<span class="string">'20160101'</span>,periods=<span class="number">6</span>)</span><br><span class="line">df = pd.DataFrame(np.random.randn(<span class="number">6</span>,<span class="number">4</span>),index=dates,columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line"></span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure>
+<pre><code>                   a         b         c         d
+2016-01-01 -0.186992  0.228857  0.572464 -0.842974
+2016-01-02 -0.689623 -1.491299  0.647805  0.819846
+2016-01-03 -1.294425  0.138935  1.729793 -1.270880
+2016-01-04  0.088744  0.745256  0.380425  0.048070
+2016-01-05  0.003135 -2.240388  0.188038 -0.069044
+2016-01-06 -1.358217 -0.820133  1.606467 -1.622589
+</code></pre><p><code>DataFrame</code> 是一个表格型的数据结构，它包含有一组有序的列，每列可以是不同的值类型（数值，字符串，布尔值等）。<br><code>DataFrame</code> 既有行索引也有列索引， 它可以被看做由 <code>Series</code> 组成的大字典。</p>
+<p>我们可以根据每一个不同的索引来挑选数据, 比如挑选 <code>b</code> 的元素:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df[<span class="string">'b'</span>])</span><br></pre></td></tr></table></figure>
+<pre><code>2016-01-01    0.228857
+2016-01-02   -1.491299
+2016-01-03    0.138935
+2016-01-04    0.745256
+2016-01-05   -2.240388
+2016-01-06   -0.820133
+Freq: D, Name: b, dtype: float64
+</code></pre><p>我们在创建一组没有给定行标签和列标签的数据 <code>df1</code>:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df1 = pd.DataFrame(np.arange(<span class="number">12</span>).reshape((<span class="number">3</span>,<span class="number">4</span>)))</span><br><span class="line">print(df1)</span><br></pre></td></tr></table></figure>
+<pre><code>   0  1   2   3
+0  0  1   2   3
+1  4  5   6   7
+2  8  9  10  11
+</code></pre><p>这样,他就会采取默认的从0开始 index.</p>
+<h2 id="DataFrame-字典创建"><a href="#DataFrame-字典创建" class="headerlink" title="DataFrame 字典创建"></a>DataFrame 字典创建</h2><p>还有一种生成 <code>df</code> 的方法, 如下 <code>df2</code>:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df2 = pd.DataFrame(&#123;<span class="string">'A'</span> : [<span class="number">1</span>, <span class="number">3</span>, <span class="number">7</span>, <span class="number">5</span>],</span><br><span class="line">                    <span class="string">'B'</span> : pd.Timestamp(<span class="string">'20130102'</span>),</span><br><span class="line">                    <span class="string">'C'</span> : pd.Series(<span class="number">1</span>,index=list(range(<span class="number">4</span>)),dtype=<span class="string">'float32'</span>),</span><br><span class="line">                    <span class="string">'D'</span> : np.array([<span class="number">3</span>] * <span class="number">4</span>,dtype=<span class="string">'int32'</span>),</span><br><span class="line">                    <span class="string">'E'</span> : pd.Categorical([<span class="string">"test"</span>,<span class="string">"train"</span>,<span class="string">"test"</span>,<span class="string">"train"</span>]),</span><br><span class="line">                    <span class="string">'F'</span> : <span class="string">'foo'</span>&#125;)</span><br><span class="line">                    </span><br><span class="line">print(df2)</span><br></pre></td></tr></table></figure>
+<pre><code>   A          B    C  D      E    F
+0  1 2013-01-02  1.0  3   test  foo
+1  3 2013-01-02  1.0  3  train  foo
+2  7 2013-01-02  1.0  3   test  foo
+3  5 2013-01-02  1.0  3  train  foo
+</code></pre><p>这种方法能对每一列的数据进行特殊对待. 如果想要查看数据中的类型, 我们可以用 <code>dtype</code> 这个属性:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.dtypes)</span><br></pre></td></tr></table></figure>
+<pre><code>A             int64
+B    datetime64[ns]
+C           float32
+D             int32
+E          category
+F            object
+dtype: object
+</code></pre><p>如果想看对列的序号:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.index)</span><br></pre></td></tr></table></figure>
+<pre><code>Int64Index([0, 1, 2, 3], dtype=&apos;int64&apos;)
+</code></pre><p>同样, 每种数据的名称也能看到:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.columns)</span><br></pre></td></tr></table></figure>
+<pre><code>Index([&apos;A&apos;, &apos;B&apos;, &apos;C&apos;, &apos;D&apos;, &apos;E&apos;, &apos;F&apos;], dtype=&apos;object&apos;)
+</code></pre><p>如果只想看所有 <code>df2</code> 的值:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.values)</span><br></pre></td></tr></table></figure>
+<pre><code>[[1 Timestamp(&apos;2013-01-02 00:00:00&apos;) 1.0 3 &apos;test&apos; &apos;foo&apos;]
+ [3 Timestamp(&apos;2013-01-02 00:00:00&apos;) 1.0 3 &apos;train&apos; &apos;foo&apos;]
+ [7 Timestamp(&apos;2013-01-02 00:00:00&apos;) 1.0 3 &apos;test&apos; &apos;foo&apos;]
+ [5 Timestamp(&apos;2013-01-02 00:00:00&apos;) 1.0 3 &apos;train&apos; &apos;foo&apos;]]
+</code></pre><p>想知道数据的总结, 可以用 <code>describe()</code>:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df2.describe()</span><br></pre></td></tr></table></figure>
+<pre><code>    A    C    D
+count    4.000000    4.0    4.0
+mean    4.000000    1.0    3.0
+std    2.581989    0.0    0.0
+min    1.000000    1.0    3.0
+25%    2.500000    1.0    3.0
+50%    4.000000    1.0    3.0
+75%    5.500000    1.0    3.0
+max    7.000000    1.0    3.0
+</code></pre><p>如果想翻转数据, <code>transpose</code>:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.T)</span><br></pre></td></tr></table></figure>
+<pre><code>                     0                    1                    2  \
+A                    1                    3                    7   
+B  2013-01-02 00:00:00  2013-01-02 00:00:00  2013-01-02 00:00:00   
+C                    1                    1                    1   
+D                    3                    3                    3   
+E                 test                train                 test   
+F                  foo                  foo                  foo   
+
+                     3  
+A                    5  
+B  2013-01-02 00:00:00  
+C                    1  
+D                    3  
+E                train  
+F                  foo  
+</code></pre><p>如果想对数据的 <code>index</code> 进行排序并输出:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.sort_index(axis=<span class="number">1</span>, ascending=<span class="keyword">False</span>)) <span class="comment"># 对列名称进行排序，索引名，倒排序</span></span><br><span class="line"></span><br><span class="line">print(df2.sort_index(axis=<span class="number">0</span>, ascending=<span class="keyword">False</span>)) <span class="comment"># 对列名称进行排序，索引名，倒排序</span></span><br></pre></td></tr></table></figure>
+<pre><code>     F      E  D    C          B  A
+0  foo   test  3  1.0 2013-01-02  1
+1  foo  train  3  1.0 2013-01-02  3
+2  foo   test  3  1.0 2013-01-02  7
+3  foo  train  3  1.0 2013-01-02  5
+   A          B    C  D      E    F
+3  5 2013-01-02  1.0  3  train  foo
+2  7 2013-01-02  1.0  3   test  foo
+1  3 2013-01-02  1.0  3  train  foo
+0  1 2013-01-02  1.0  3   test  foo
+</code></pre><p>如果是对数据 值 排序输出:</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.sort_values(by=<span class="string">'E'</span>))</span><br></pre></td></tr></table></figure>
+<pre><code>   A          B    C  D      E    F
+0  1 2013-01-02  1.0  3   test  foo
+2  7 2013-01-02  1.0  3   test  foo
+1  3 2013-01-02  1.0  3  train  foo
+3  5 2013-01-02  1.0  3  train  foo
+</code></pre><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://pandas.pydata.org/" target="_blank" rel="external">pandas.pydata.org</a></li>
+<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="external">pandas docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">morvanzhou</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_weibo_icon.png);background-size: contain;display: inline-block; width:50px; height:50px" href="https://service.weibo.com/share/share.php?url" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Series"><span class="toc-number"></span> <span class="toc-text">Series</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DataFrame-矩阵创建"><span class="toc-number"></span> <span class="toc-text">DataFrame 矩阵创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#DataFrame-字典创建"><span class="toc-number"></span> <span class="toc-text">DataFrame 字典创建</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/python/">python</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/Pandas/">Pandas</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2017/12/28/python/numpy-pandas/py-pandas-2-select-data/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Pandas Select Data
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2017/12/27/python/numpy-pandas/py-numpy-8-copy-deep-copy/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Numpy copy &amp; deep copy&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2019 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://shopee.ai/2017/12/27/python/numpy-pandas/py-pandas-1-intro/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
