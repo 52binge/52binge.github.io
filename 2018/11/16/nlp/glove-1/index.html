@@ -6,17 +6,15 @@
   <title>Glove 和 fastText - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="本节介绍两种更新一点的词向量。分别是2014年Stanford发表的Glove和2017年由Facebook发表的fastText.">
+<meta name="keywords" content="Glove">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Glove 和 fastText">
-<meta property="og:url" content="http://iequa.com/2018/11/16/nlp/glove-1/index.html">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;11&#x2F;16&#x2F;nlp&#x2F;glove-1&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="本节介绍两种更新一点的词向量。分别是2014年Stanford发表的Glove和2017年由Facebook发表的fastText.">
-<meta property="og:image" content="http://iequa.com/images/nlp/glove-1.jpeg">
-<meta property="og:updated_time" content="2019-01-20T01:01:36.471Z">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-10-19T00:59:58.227Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Glove 和 fastText">
-<meta name="twitter:description" content="本节介绍两种更新一点的词向量。分别是2014年Stanford发表的Glove和2017年由Facebook发表的fastText.">
-<meta name="twitter:image" content="http://iequa.com/images/nlp/glove-1.jpeg">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -45,7 +43,7 @@ var _hmt = _hmt || [];
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -62,7 +60,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
         </div>
       </nav>
     </div>
@@ -108,8 +106,9 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>本节介绍两种更新一点的词向量。分别是2014年Stanford发表的<a href="https://nlp.stanford.edu/projects/glove/" target="_blank" rel="external">Glove</a>和2017年由Facebook发表的<a href="https://fasttext.cc/" target="_blank" rel="external">fastText</a>.</p>
+        <p>本节介绍两种更新一点的词向量。分别是2014年Stanford发表的<a href="https://nlp.stanford.edu/projects/glove/" target="_blank" rel="noopener">Glove</a>和2017年由Facebook发表的<a href="https://fasttext.cc/" target="_blank" rel="noopener">fastText</a>.</p>
 <a id="more"></a>
+
 <p>让我们先回顾一下 word2vec 中的跳字模型。将跳字模型中使用 softmax 运算表达的条件概率 $\mathbb{P}(w_j\mid w_i)$. 记作 $q_{ij}$，即</p>
 <p>$$<br>q_{ij}=\frac{\exp(\mathbf{u}_j^\top \mathbf{v}_i)}{ \sum_{k \in \mathcal{V}} \text{exp}(\mathbf{u}_k^\top \mathbf{v}_i)},<br>$$</p>
 <h2 id="GloVe-模型"><a href="#GloVe-模型" class="headerlink" title="GloVe 模型"></a>GloVe 模型</h2><p>有鉴于此，作为在 word2vec 之后提出的词嵌入模型，GloVe 采用了平方损失，并基于该损失对跳字模型做了三点改动 </p>
@@ -117,37 +116,35 @@ var _hmt = _hmt || [];
 <table>
 <thead>
 <tr>
-<th style="text-align:center">$w_k$=</th>
-<th style="text-align:center">“solid”</th>
-<th style="text-align:center">“gas”</th>
-<th style="text-align:center">“water”</th>
-<th style="text-align:center">“fashion”</th>
+<th align="center">$w_k$=</th>
+<th align="center">“solid”</th>
+<th align="center">“gas”</th>
+<th align="center">“water”</th>
+<th align="center">“fashion”</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center">$p_1=\mathbb{P}(w_k\mid\text{“ice”})$</td>
-<td style="text-align:center">0.00019</td>
-<td style="text-align:center">0.000066</td>
-<td style="text-align:center">0.003</td>
-<td style="text-align:center">0.000017</td>
+<tbody><tr>
+<td align="center">$p_1=\mathbb{P}(w_k\mid\text{“ice”})$</td>
+<td align="center">0.00019</td>
+<td align="center">0.000066</td>
+<td align="center">0.003</td>
+<td align="center">0.000017</td>
 </tr>
 <tr>
-<td style="text-align:center">$p_2=\mathbb{P}(w_k\mid\text{“steam”})$</td>
-<td style="text-align:center">0.000022</td>
-<td style="text-align:center">0.00078</td>
-<td style="text-align:center">0.0022</td>
-<td style="text-align:center">0.000018</td>
+<td align="center">$p_2=\mathbb{P}(w_k\mid\text{“steam”})$</td>
+<td align="center">0.000022</td>
+<td align="center">0.00078</td>
+<td align="center">0.0022</td>
+<td align="center">0.000018</td>
 </tr>
 <tr>
-<td style="text-align:center">$p_1/p_2$</td>
-<td style="text-align:center">8.9</td>
-<td style="text-align:center">0.085</td>
-<td style="text-align:center">1.36</td>
-<td style="text-align:center">0.96</td>
+<td align="center">$p_1/p_2$</td>
+<td align="center">8.9</td>
+<td align="center">0.085</td>
+<td align="center">1.36</td>
+<td align="center">0.96</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <p>我们可以观察到以下现象：</p>
 <blockquote>
 <ul>
@@ -165,16 +162,16 @@ var _hmt = _hmt || [];
 <p>$$f(\boldsymbol{u}_j, \boldsymbol{u}_k, {\boldsymbol{v}}_i) \approx \frac{p_{ij}}{p_{ik}}.$$</p>
 <p>这里函数 $f$ 可能的设计并不唯一，我们只需考虑一种较为合理的可能性。注意到条件概率比值是一个标量，我们可以将 $f$ 限制为一个标量函数：$f(\boldsymbol{u}_j, \boldsymbol{u}_k, {\boldsymbol{v}}_i) = f\left((\boldsymbol{u}_j - \boldsymbol{u}_k)^\top {\boldsymbol{v}}_i\right)$。交换索引 $j$ 和 $k$ 后可以看到函数 $f$ 应该满足 $f(x)f(-x)=1$，因此一个可能是 $f(x)=\exp(x)$，于是</p>
 <p>$$f(\boldsymbol{u}_j, \boldsymbol{u}_k, {\boldsymbol{v}}_i) = \frac{\exp\left(\boldsymbol{u}_j^\top {\boldsymbol{v}}_i\right)}{\exp\left(\boldsymbol{u}_k^\top {\boldsymbol{v}}_i\right)} \approx \frac{p_{ij}}{p_{ik}}.$$</p>
-<p>满足最右边约等号的一个可能是 $\exp\left(\boldsymbol{u}_j^\top {\boldsymbol{v}}_i\right) \approx \alpha p_{ij}$，这里 $\alpha$ 是一个常数。考虑到 $p_{ij}=x_{ij}/x_i$，取对数后 $\boldsymbol{u}_j^\top {\boldsymbol{v}}_i \approx \log\,\alpha + \log\,x_{ij} - \log\,x_i$。我们使用额外的偏差项来拟合 $- \log\,\alpha + \log\,x_i$，例如中心词偏差项 $b_i$ 和背景词偏差项 $c_j$：</p>
+<p>满足最右边约等号的一个可能是 $\exp\left(\boldsymbol{u}_j^\top {\boldsymbol{v}}_i\right) \approx \alpha p_{ij}$，这里 $\alpha$ 是一个常数。考虑到 $p_{ij}=x_{ij}/x_i$，取对数后 $\boldsymbol{u}_j^\top {\boldsymbol{v}}_i \approx \log,\alpha + \log,x_{ij} - \log,x_i$。我们使用额外的偏差项来拟合 $- \log,\alpha + \log,x_i$，例如中心词偏差项 $b_i$ 和背景词偏差项 $c_j$：</p>
 <p>$$\boldsymbol{u}_j^\top \boldsymbol{v}_i + b_i + c_j \approx \log(x_{ij}).$$</p>
 <p>对上式左右两边取平方误差并加权，我们可以得到 GloVe 的损失函数。</p>
-<p><img src="/images/nlp/glove-1.jpeg" width="900" img=""></p>
+<p>&lt;img src=”/images/nlp/glove-1.jpeg” width=”900” /img&gt;</p>
 <h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><ul>
 <li>在有些情况下，交叉熵损失函数有劣势。GloVe 采用了平方损失，并通过词向量拟合预先基于整个数据集计算得到的全局统计信息。</li>
 <li>任意词的中心词向量和背景词向量在 GloVe 中是等价的。</li>
 </ul>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://www.youtube.com/watch?v=ioSnNLZSQq0&amp;list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax&amp;index=17" target="_blank" rel="external">动手学深度学习第十七课：GloVe、fastText和使用预训练的词向量</a></li>
+<li><a href="https://www.youtube.com/watch?v=ioSnNLZSQq0&list=PLLbeS1kM6teJqdFzw1ICHfa4a1y0hg8Ax&index=17" target="_blank" rel="noopener">动手学深度学习第十七课：GloVe、fastText和使用预训练的词向量</a></li>
 </ul>
 
       
@@ -208,7 +205,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -219,7 +216,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#GloVe-模型"><span class="toc-number"></span> <span class="toc-text">GloVe 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从条件概率比值理解-GloVe"><span class="toc-number"></span> <span class="toc-text">从条件概率比值理解 GloVe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number"></span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#GloVe-模型"><span class="toc-number">1.</span> <span class="toc-text">GloVe 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#从条件概率比值理解-GloVe"><span class="toc-number">2.</span> <span class="toc-text">从条件概率比值理解 GloVe</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#小结"><span class="toc-number">3.</span> <span class="toc-text">小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">4.</span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -236,7 +233,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/Glove/">Glove</a>
+    <a class="article-tag-link" href="/tags/Glove/" rel="tag">Glove</a>
   </div>
 
 
@@ -277,7 +274,7 @@ var _hmt = _hmt || [];
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2019 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
     </div>
   </div>
 </footer>

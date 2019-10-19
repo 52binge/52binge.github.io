@@ -6,19 +6,19 @@
   <title>Regressor in Keras - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="NN 可用来模拟 regression，给一组数据，用一条线对数据进行拟合，并可预测新输入 x 的输出值。">
+<meta name="keywords" content="keras">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Regressor in Keras">
-<meta property="og:url" content="http://iequa.com/2019/08/21/tensorflow/keras-1.2-Regressor/index.html">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2019&#x2F;08&#x2F;21&#x2F;tensorflow&#x2F;keras-1.2-Regressor&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="NN 可用来模拟 regression，给一组数据，用一条线对数据进行拟合，并可预测新输入 x 的输出值。">
-<meta property="og:image" content="http://iequa.com/images/tensorflow/keras-regressor-1.2-1.png">
-<meta property="og:image" content="http://iequa.com/images/tensorflow/keras-regressor-1.2-2.png">
-<meta property="og:image" content="http://iequa.com/images/tensorflow/keras-regressor-1.2-3.png">
-<meta property="og:updated_time" content="2019-08-26T07:59:47.662Z">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;tensorflow&#x2F;keras-regressor-1.2-1.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;tensorflow&#x2F;keras-regressor-1.2-2.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;tensorflow&#x2F;keras-regressor-1.2-3.png">
+<meta property="og:updated_time" content="2019-10-19T00:59:58.222Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Regressor in Keras">
-<meta name="twitter:description" content="NN 可用来模拟 regression，给一组数据，用一条线对数据进行拟合，并可预测新输入 x 的输出值。">
-<meta name="twitter:image" content="http://iequa.com/images/tensorflow/keras-regressor-1.2-1.png">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;tensorflow&#x2F;keras-regressor-1.2-1.png">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -47,7 +47,7 @@ var _hmt = _hmt || [];
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -64,7 +64,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
         </div>
       </nav>
     </div>
@@ -112,38 +112,51 @@ var _hmt = _hmt || [];
       
         <p>NN 可用来模拟 regression，给一组数据，用一条线对数据进行拟合，并可预测新输入 x 的输出值。</p>
 <a id="more"></a>
-<p><img src="/images/tensorflow/keras-regressor-1.2-1.png" width="450" alt="Regressor in Keras"></p>
+
+<img src="/images/tensorflow/keras-regressor-1.2-1.png" width="450" alt="Regressor in Keras"/>
+
 <p><strong>创建数据</strong></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">np.random.seed(<span class="number">1337</span>)  <span class="comment"># for reproducibility</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Dense</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span class="comment"># 可视化模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create some data</span></span><br><span class="line">X = np.linspace(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">200</span>)</span><br><span class="line"></span><br><span class="line">np.random.shuffle(X)    <span class="comment"># randomize the data</span></span><br><span class="line"></span><br><span class="line">Y = <span class="number">0.5</span> * X + <span class="number">2</span> + np.random.normal(<span class="number">0</span>, <span class="number">0.05</span>, (<span class="number">200</span>, ))</span><br></pre></td></tr></table></figure>
+
+
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># plot data</span></span><br><span class="line">plt.scatter(X, Y)</span><br><span class="line">plt.show()</span><br><span class="line"></span><br><span class="line">X_train, Y_train = X[:<span class="number">160</span>], Y[:<span class="number">160</span>]     <span class="comment"># train 前 160 data points</span></span><br><span class="line">X_test, Y_test = X[<span class="number">160</span>:], Y[<span class="number">160</span>:]       <span class="comment"># test 后 40 data points</span></span><br></pre></td></tr></table></figure>
-<p><img src="/images/tensorflow/keras-regressor-1.2-2.png" width="450"></p>
+
+<img src="/images/tensorflow/keras-regressor-1.2-2.png" width="450" />
+
 <h2 id="1-build-model"><a href="#1-build-model" class="headerlink" title="1. build model"></a>1. build model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">model = Sequential()</span><br><span class="line">model.add(Dense(output_dim=<span class="number">1</span>, input_dim=<span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>用 Sequential 建立 model， 再用 model.add 添加神经层，添加的是 Dense FC 层</p>
 <p>参数有两个，一个是输入数据和输出数据的维度，本代码的例子中 x 和 y 是一维的。</p>
 <p>如果需要添加下一个神经层的时候，不用再定义输入的纬度，因为它默认就把前一层的输出作为当前层的输入。在这个例子里，只需要一层就够了。</p>
 </blockquote>
 <h2 id="2-compile-model"><a href="#2-compile-model" class="headerlink" title="2. compile model"></a>2. compile model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># choose loss function and optimizing method</span></span><br><span class="line">model.compile(loss=<span class="string">'mse'</span>, optimizer=<span class="string">'sgd'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># mse 均方误差； optimizer sgd 随机梯度下降法.</span></span><br></pre></td></tr></table></figure>
-<h2 id="3-train-model"><a href="#3-train-model" class="headerlink" title="3. train model"></a>3. train model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># training</span></span><br><span class="line">print(<span class="string">'Training -----------'</span>)</span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> range(<span class="number">301</span>):</span><br><span class="line">    cost = model.train_on_batch(X_train, Y_train)</span><br><span class="line">    <span class="keyword">if</span> step % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">        print(<span class="string">'train cost: '</span>, cost)</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">Training -----------</span><br><span class="line">train cost:  4.111329555511475</span><br><span class="line">train cost:  0.08777070790529251</span><br><span class="line">train cost:  0.007415373809635639</span><br><span class="line">train cost:  0.003544030711054802</span><br><span class="line">"""</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="3-train-model"><a href="#3-train-model" class="headerlink" title="3. train model"></a>3. train model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># training</span></span><br><span class="line">print(<span class="string">'Training -----------'</span>)</span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> range(<span class="number">301</span>):</span><br><span class="line">    cost = model.train_on_batch(X_train, Y_train)</span><br><span class="line">    <span class="keyword">if</span> step % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">        print(<span class="string">'train cost: '</span>, cost)</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">Training -----------</span></span><br><span class="line"><span class="string">train cost:  4.111329555511475</span></span><br><span class="line"><span class="string">train cost:  0.08777070790529251</span></span><br><span class="line"><span class="string">train cost:  0.007415373809635639</span></span><br><span class="line"><span class="string">train cost:  0.003544030711054802</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>训练的时候用 <code>model.train_on_batch</code> 一批一批的训练 <code>X_train</code>, <code>Y_train</code>。默认的返回值是 <code>cost</code>.</p>
 </blockquote>
-<h2 id="4-evaluate-model"><a href="#4-evaluate-model" class="headerlink" title="4. evaluate model"></a>4. evaluate model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># test</span></span><br><span class="line">print(<span class="string">'\nTesting ------------'</span>)</span><br><span class="line">cost = model.evaluate(X_test, Y_test, batch_size=<span class="number">40</span>)</span><br><span class="line">print(<span class="string">'test cost:'</span>, cost)</span><br><span class="line">W, b = model.layers[<span class="number">0</span>].get_weights()</span><br><span class="line">print(<span class="string">'Weights='</span>, W, <span class="string">'\nbiases='</span>, b)</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span><br><span class="line">Testing ------------</span><br><span class="line">40/40 [==============================] - 0s</span><br><span class="line">test cost: 0.004269329831</span><br><span class="line">Weights= [[ 0.54246825]] </span><br><span class="line">biases= [ 2.00056005]</span><br><span class="line">"""</span></span><br></pre></td></tr></table></figure>
+<h2 id="4-evaluate-model"><a href="#4-evaluate-model" class="headerlink" title="4. evaluate model"></a>4. evaluate model</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># test</span></span><br><span class="line">print(<span class="string">'\nTesting ------------'</span>)</span><br><span class="line">cost = model.evaluate(X_test, Y_test, batch_size=<span class="number">40</span>)</span><br><span class="line">print(<span class="string">'test cost:'</span>, cost)</span><br><span class="line">W, b = model.layers[<span class="number">0</span>].get_weights()</span><br><span class="line">print(<span class="string">'Weights='</span>, W, <span class="string">'\nbiases='</span>, b)</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">Testing ------------</span></span><br><span class="line"><span class="string">40/40 [==============================] - 0s</span></span><br><span class="line"><span class="string">test cost: 0.004269329831</span></span><br><span class="line"><span class="string">Weights= [[ 0.54246825]] </span></span><br><span class="line"><span class="string">biases= [ 2.00056005]</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>用到的函数是 <code>model.evaluate</code>，输入测试集的<code>x</code>和<code>y</code>， 输出 <code>cost</code>，<code>weights</code> 和 <code>biases</code>。其中 <code>weights</code> 和 <code>biases</code> 是取在模型的第一层 <code>model.layers[0]</code> 学习到的参数。</p>
 <p>从学习到的结果可以看到, weights 比较接近0.5，bias 接近 2。</p>
 </blockquote>
 <h2 id="5-Visualization"><a href="#5-Visualization" class="headerlink" title="5. Visualization"></a>5. Visualization</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># plotting the prediction</span></span><br><span class="line">Y_pred = model.predict(X_test)</span><br><span class="line">plt.scatter(X_test, Y_test)</span><br><span class="line">plt.plot(X_test, Y_pred)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-<p><img src="/images/tensorflow/keras-regressor-1.2-3.png" width="450"></p>
+
+<img src="/images/tensorflow/keras-regressor-1.2-3.png" width="450" />
+
 <h2 id="6-Gaussian-Distribution"><a href="#6-Gaussian-Distribution" class="headerlink" title="6. Gaussian Distribution"></a>6. Gaussian Distribution</h2><p>先看伟大的高斯分布（Gaussian Distribution）的概率密度函数（probability density function）</p>
 <p>$$<br>f(x)=\frac1{\sqrt{2\pi}\sigma}\exp(-\frac{(x-\mu)^2}{2\sigma^2})<br>$$</p>
 <p>对应于numpy中：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">numpy.random.normal(loc=<span class="number">0.0</span>, scale=<span class="number">1.0</span>, size=<span class="keyword">None</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">numpy.random.normal(loc=<span class="number">0.0</span>, scale=<span class="number">1.0</span>, size=<span class="literal">None</span>)</span><br></pre></td></tr></table></figure>
+
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://keras-cn.readthedocs.io/en/latest/backend/" target="_blank" rel="external">keras-cn</a>、 <a href="https://keras.io/" target="_blank" rel="external">keras.io</a></li>
-<li><a href="https://blog.csdn.net/lanchunhui/article/details/50163669" target="_blank" rel="external">从np.random.normal()到正态分布的拟合</a></li>
-<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/" target="_blank" rel="external">莫烦 Keras</a></li>
-<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/3-1-save/" target="_blank" rel="external">莫烦 Keras Model, Save &amp; reload</a></li>
+<li><a href="https://keras-cn.readthedocs.io/en/latest/backend/" target="_blank" rel="noopener">keras-cn</a>、 <a href="https://keras.io/" target="_blank" rel="noopener">keras.io</a></li>
+<li><a href="https://blog.csdn.net/lanchunhui/article/details/50163669" target="_blank" rel="noopener">从np.random.normal()到正态分布的拟合</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/" target="_blank" rel="noopener">莫烦 Keras</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/3-1-save/" target="_blank" rel="noopener">莫烦 Keras Model, Save &amp; reload</a></li>
 </ul>
 
       
@@ -177,7 +190,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -188,7 +201,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-build-model"><span class="toc-number"></span> <span class="toc-text">1. build model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-compile-model"><span class="toc-number"></span> <span class="toc-text">2. compile model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-train-model"><span class="toc-number"></span> <span class="toc-text">3. train model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-evaluate-model"><span class="toc-number"></span> <span class="toc-text">4. evaluate model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Visualization"><span class="toc-number"></span> <span class="toc-text">5. Visualization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Gaussian-Distribution"><span class="toc-number"></span> <span class="toc-text">6. Gaussian Distribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-build-model"><span class="toc-number">1.</span> <span class="toc-text">1. build model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-compile-model"><span class="toc-number">2.</span> <span class="toc-text">2. compile model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-train-model"><span class="toc-number">3.</span> <span class="toc-text">3. train model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-evaluate-model"><span class="toc-number">4.</span> <span class="toc-text">4. evaluate model</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Visualization"><span class="toc-number">5.</span> <span class="toc-text">5. Visualization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Gaussian-Distribution"><span class="toc-number">6.</span> <span class="toc-text">6. Gaussian Distribution</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">7.</span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -205,7 +218,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/keras/">keras</a>
+    <a class="article-tag-link" href="/tags/keras/" rel="tag">keras</a>
   </div>
 
 
@@ -246,7 +259,7 @@ var _hmt = _hmt || [];
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2019 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
     </div>
   </div>
 </footer>

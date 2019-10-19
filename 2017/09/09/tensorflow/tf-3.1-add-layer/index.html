@@ -6,15 +6,15 @@
   <title>Tensorflow 例子3 ： 添加层 def add_layer() - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="在 Tensorflow 里定义一个 添加层的函数， 可以很容易的 添加神经层, 为之后的添加省下不少时间.">
+<meta name="keywords" content="tensorflow">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Tensorflow 例子3 ： 添加层 def add_layer()">
-<meta property="og:url" content="http://iequa.com/2017/09/09/tensorflow/tf-3.1-add-layer/index.html">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2017&#x2F;09&#x2F;09&#x2F;tensorflow&#x2F;tf-3.1-add-layer&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="在 Tensorflow 里定义一个 添加层的函数， 可以很容易的 添加神经层, 为之后的添加省下不少时间.">
-<meta property="og:updated_time" content="2019-01-20T01:01:36.496Z">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-10-19T00:59:58.219Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Tensorflow 例子3 ： 添加层 def add_layer()">
-<meta name="twitter:description" content="在 Tensorflow 里定义一个 添加层的函数， 可以很容易的 添加神经层, 为之后的添加省下不少时间.">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -43,7 +43,7 @@ var _hmt = _hmt || [];
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -60,7 +60,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
         </div>
       </nav>
     </div>
@@ -108,26 +108,34 @@ var _hmt = _hmt || [];
       
         <p>在 Tensorflow 里定义一个 添加层的函数， 可以很容易的 添加神经层, 为之后的添加省下不少时间.</p>
 <a id="more"></a>
+
 <h2 id="定义-add-layer"><a href="#定义-add-layer" class="headerlink" title="定义 add_layer()"></a>定义 add_layer()</h2><p>神经层里常见的参数通常有 <code>weights</code>、<code>biases</code> 和激励函数。</p>
 <p>首先，我们需要导入 <code>tensorflow</code> 模块。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br></pre></td></tr></table></figure>
+
 <p>然后定义添加神经层的函数 <code>def add_layer()</code>, 它有四个参数：输入值、输入的大小、输出的大小和激励函数，我们设定默认的激励函数是 <code>None</code>。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_layer</span><span class="params">(inputs, in_size, out_size, activation_function=None)</span>:</span></span><br></pre></td></tr></table></figure>
+
 <p>接下来，我们开始定义 <code>weights</code> 和 <code>biases</code>。</p>
 <p>因为在生成初始参数时，随机变量(<strong>normal distribution</strong>)会比全部为0要好很多，所以我们这里的 <code>weights</code> 为一个 <code>in_size</code> 行, <code>out_size</code> 列的随机变量矩阵。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">Weights = tf.Variable(tf.random_normal([in_size, out_size]))</span><br></pre></td></tr></table></figure>
+
 <p>在机器学习中，<code>biases</code> 的推荐值不为0，所以我们这里是在0向量的基础上又加了0.1。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">biases = tf.Variable(tf.zeros([<span class="number">1</span>, out_size]) + <span class="number">0.1</span>)</span><br></pre></td></tr></table></figure>
+
 <p>下面，我们定义 Wx_plus_b, 即神经网络未激活的值。其中，tf.matmul() 是矩阵的乘法。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">Wx_plus_b = tf.matmul(inputs, Weights) + biases</span><br></pre></td></tr></table></figure>
+
 <p>当 activation_function 为 <code>None</code> 时，输出就是当前的预测值 <code>Wx_plus_b</code>，不为 <code>None</code> 时，就把 <code>Wx_plus_b</code> 传到 <code>activation_function()</code> 函数中得到输出。</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> activation_function <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">    outputs = Wx_plus_b</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    outputs = activation_function(Wx_plus_b)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> activation_function <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">    outputs = Wx_plus_b</span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    outputs = activation_function(Wx_plus_b)</span><br></pre></td></tr></table></figure>
+
 <p>最后，返回输出，添加一个神经层的函数 <code>def add_layer()</code> 就定义好了。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">return</span> outputs</span><br></pre></td></tr></table></figure>
+
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://www.tensorflow.org/" target="_blank" rel="external">tensorflow.org</a></li>
-<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/" target="_blank" rel="external">莫烦Python</a></li>
-<li><a href="https://www.tensorflow.org/api_guides/python/nn" target="_blank" rel="external">Tensorflow 提供的一些 激励函数</a></li>
+<li><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">tensorflow.org</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/" target="_blank" rel="noopener">莫烦Python</a></li>
+<li><a href="https://www.tensorflow.org/api_guides/python/nn" target="_blank" rel="noopener">Tensorflow 提供的一些 激励函数</a></li>
 </ul>
 
       
@@ -161,7 +169,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -172,7 +180,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#定义-add-layer"><span class="toc-number"></span> <span class="toc-text">定义 add_layer()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#定义-add-layer"><span class="toc-number">1.</span> <span class="toc-text">定义 add_layer()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">2.</span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -189,7 +197,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/tensorflow/">tensorflow</a>
+    <a class="article-tag-link" href="/tags/tensorflow/" rel="tag">tensorflow</a>
   </div>
 
 
@@ -230,7 +238,7 @@ var _hmt = _hmt || [];
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2019 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
     </div>
   </div>
 </footer>

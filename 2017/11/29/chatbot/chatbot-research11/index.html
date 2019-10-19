@@ -5,19 +5,16 @@
   
   <title>Chatbot Research 11 - Chatbot 的第二个版本 (新API实现) - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.
-本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：">
+  <meta name="description" content="我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版. 本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：">
+<meta name="keywords" content="Chatbot">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Chatbot Research 11 - Chatbot 的第二个版本 (新API实现)">
-<meta property="og:url" content="http://iequa.com/2017/11/29/chatbot/chatbot-research11/index.html">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2017&#x2F;11&#x2F;29&#x2F;chatbot&#x2F;chatbot-research11&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
-<meta property="og:description" content="我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.
-本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：">
-<meta property="og:updated_time" content="2019-07-22T09:00:42.827Z">
+<meta property="og:description" content="我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版. 本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-10-19T00:59:58.200Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Chatbot Research 11 - Chatbot 的第二个版本 (新API实现)">
-<meta name="twitter:description" content="我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.
-本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -46,7 +43,7 @@ var _hmt = _hmt || [];
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -63,7 +60,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
         </div>
       </nav>
     </div>
@@ -110,9 +107,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <!-- 2018 -->
+
 <p>我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.</p>
 <p>本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：</p>
 <a id="more"></a>
+
 <p><strong>新版本API：</strong></p>
 <blockquote>
 <ul>
@@ -124,15 +123,17 @@ var _hmt = _hmt || [];
 <ul>
 <li>实现了beam_search功能，可直接调用。</li>
 </ul>
-<p><a href="https://www.zhihu.com/question/52200883" target="_blank" rel="external">tensor flow dynamic_rnn 与rnn有啥区别？</a></p>
+</blockquote>
+<blockquote>
+<p><a href="https://www.zhihu.com/question/52200883" target="_blank" rel="noopener">tensor flow dynamic_rnn 与rnn有啥区别？</a></p>
 <p>dynamic_rnn 只在一个 batch 内部进行自动 padding， 不同 batch padding 长度可以不同</p>
 </blockquote>
 <h2 id="1-数据处理"><a href="#1-数据处理" class="headerlink" title="1. 数据处理"></a>1. 数据处理</h2><blockquote>
 <p> word2id is :  { ‘decorations’: 12002, ‘scraps’: 4599, …}</p>
-<p>id2word is :  { 0: ‘<pad>‘, 1: ‘<go>‘, 2: ‘<eos>‘, 3: ‘<unknown>‘, 4: ‘can’, 5: ‘we’, 6: ‘make’, … }</unknown></eos></go></pad></p>
+<p>id2word is :  { 0: ‘<pad>‘, 1: ‘<go>‘, 2: ‘<eos>‘, 3: ‘<unknown>‘, 4: ‘can’, 5: ‘we’, 6: ‘make’, … }</p>
 <p>trainingSamples is :<br> [<br>    [ [793, 138, 65], [35, 209, 110, 9016, 208, 382, 35, 22] ],<br>    [ [35, 209, 110, 9016, 208, 382, 35, 22], [26, 92, 1906, 47, 254, 65] ],<br>    …<br> ]</p>
 </blockquote>
-<h2 id="2-模型构建"><a href="#2-模型构建" class="headerlink" title="2. 模型构建"></a>2. 模型构建</h2><p>代码主要是从 tensorflow官网 给出的nmt例子的代码简化而来，实现了最基本的 <strong>attention</strong> 和 <strong>beam_search</strong> 等功能，同时有将nmt代码中繁杂的代码逻辑进行简化。这里参考nmt中所提到的构建<code>train</code>、<code>eval</code>、<code>inference</code> , 三个图进行模型构建，好处在于 <a href="https://github.com/tensorflow/nmt#building-training-eval-and-inference-graphs" target="_blank" rel="external">nmt官方文档 Building Training, Eval, and Inference Graphs </a></p>
+<h2 id="2-模型构建"><a href="#2-模型构建" class="headerlink" title="2. 模型构建"></a>2. 模型构建</h2><p>代码主要是从 tensorflow官网 给出的nmt例子的代码简化而来，实现了最基本的 <strong>attention</strong> 和 <strong>beam_search</strong> 等功能，同时有将nmt代码中繁杂的代码逻辑进行简化。这里参考nmt中所提到的构建<code>train</code>、<code>eval</code>、<code>inference</code> , 三个图进行模型构建，好处在于 <a href="https://github.com/tensorflow/nmt#building-training-eval-and-inference-graphs" target="_blank" rel="noopener">nmt官方文档 Building Training, Eval, and Inference Graphs </a></p>
 <blockquote>
 <ul>
 <li>inference图 往往与 train 和 eval结构 存在较大差异，所以往往需要单独进行构建<br>.   （没有decoder输入和目标，需要使用 greedy 或 beam_search 进行 decode，batch_size 也不同等等）</li>
@@ -159,15 +160,16 @@ var _hmt = _hmt || [];
 <li>dynamic_decode函数</li>
 </ul>
 <blockquote>
-<p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程.</eos></p>
+<p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程.</p>
 </blockquote>
 <h3 id="2-2-cell类型（Attention类型）"><a href="#2-2-cell类型（Attention类型）" class="headerlink" title="2.2 cell类型（Attention类型）"></a>2.2 cell类型（Attention类型）</h3><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 分为3步，</span></span><br><span class="line"><span class="comment">#.  1. 定义attention机制</span></span><br><span class="line"><span class="comment">#.  2. 定义要是用的基础的RNNCell</span></span><br><span class="line"><span class="comment">#.  3. 使用AttentionWrapper进行封装</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 定义要使用的attention机制。</span></span><br><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=self.rnn_size, memory=encoder_outputs, memory_sequence_length=encoder_inputs_length)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 定义decoder阶段要是用的LSTMCell，然后为其封装attention wrapper</span></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 使用AttentionWrapper进行封装</span></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper(cell=decoder_cell, attention_mechanism=attention_mechanism, attention_layer_size=self.rnn_size, name=<span class="string">'Attention_Wrapper'</span>)</span><br></pre></td></tr></table></figure>
+
 <h3 id="2-3-helper类型"><a href="#2-3-helper类型" class="headerlink" title="2.3 helper类型"></a>2.3 helper类型</h3><p>helper其实就是decode阶段如何根据预测结果得到下一时刻的输入，比如train训练过程中应该直接使用上一时刻的真实值作为下一时刻输入，预测过程中可以使用贪婪的方法选择概率最大的那个值作为下一时刻等等。</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="external">Tensorflow新版Seq2Seq接口使用</a></li>
-<li><a href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq" target="_blank" rel="external">tensorflow官网API指导</a></li>
-<li><a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="external">DeepQA</a></li>
-<li><a href="https://github.com/pbhatia243/Neural_Conversation_Models" target="_blank" rel="external">Neural_Conversation_Models</a></li>
+<li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="noopener">Tensorflow新版Seq2Seq接口使用</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq" target="_blank" rel="noopener">tensorflow官网API指导</a></li>
+<li><a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="noopener">DeepQA</a></li>
+<li><a href="https://github.com/pbhatia243/Neural_Conversation_Models" target="_blank" rel="noopener">Neural_Conversation_Models</a></li>
 </ul>
 
       
@@ -201,7 +203,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -212,7 +214,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-数据处理"><span class="toc-number"></span> <span class="toc-text">1. 数据处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-模型构建"><span class="toc-number"></span> <span class="toc-text">2. 模型构建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-BasicDecoder-类和-dynamic-decode"><span class="toc-number"></span> <span class="toc-text">2.1 BasicDecoder 类和 dynamic_decode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-cell类型（Attention类型）"><span class="toc-number"></span> <span class="toc-text">2.2 cell类型（Attention类型）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-helper类型"><span class="toc-number"></span> <span class="toc-text">2.3 helper类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-数据处理"><span class="toc-number">1.</span> <span class="toc-text">1. 数据处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-模型构建"><span class="toc-number">2.</span> <span class="toc-text">2. 模型构建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-BasicDecoder-类和-dynamic-decode"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 BasicDecoder 类和 dynamic_decode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-cell类型（Attention类型）"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 cell类型（Attention类型）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-helper类型"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 helper类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">3.</span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -229,7 +231,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/Chatbot/">Chatbot</a>
+    <a class="article-tag-link" href="/tags/Chatbot/" rel="tag">Chatbot</a>
   </div>
 
 
@@ -270,7 +272,7 @@ var _hmt = _hmt || [];
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2019 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
     </div>
   </div>
 </footer>

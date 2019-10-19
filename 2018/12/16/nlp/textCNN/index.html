@@ -5,27 +5,16 @@
   
   <title>TextCNN 文本情感分类的卷积神经网络 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
+  <meta name="keywords" content="TextCNN">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TextCNN 文本情感分类的卷积神经网络">
-<meta property="og:url" content="http://iequa.com/2018/12/16/nlp/textCNN/index.html">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;12&#x2F;16&#x2F;nlp&#x2F;textCNN&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
-<meta property="og:description">
-<meta property="og:image" content="http://iequa.com/images/nlp/textcnn-logo.png">
-<meta property="og:image" content="http://iequa.com/images/nlp/conv1d.svg">
-<meta property="og:image" content="http://iequa.com/images/nlp/conv1d-channel.svg">
-<meta property="og:image" content="http://iequa.com/images/nlp/conv1d-2d.svg">
-<meta property="og:image" content="http://iequa.com/images/nlp/conv_multi_in.svg">
-<meta property="og:image" content="http://iequa.com/images/nlp/conv_1x1.svg">
-<meta property="og:image" content="http://iequa.com/images/nlp/conv_textcnn.svg">
-<meta property="og:image" content="http://iequa.com/images/nlp/textcnn-1.webp">
-<meta property="og:image" content="http://iequa.com/images/nlp/textcnn-2.webp">
-<meta property="og:image" content="http://iequa.com/images/nlp/textcnn-3.webp">
-<meta property="og:updated_time" content="2019-05-25T14:49:30.544Z">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;textcnn-logo.png">
+<meta property="og:updated_time" content="2019-10-19T00:59:58.226Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="TextCNN 文本情感分类的卷积神经网络">
-<meta name="twitter:description">
-<meta name="twitter:image" content="http://iequa.com/images/nlp/textcnn-logo.png">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;textcnn-logo.png">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -54,7 +43,7 @@ var _hmt = _hmt || [];
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -71,7 +60,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
         </div>
       </nav>
     </div>
@@ -117,10 +106,12 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/images/nlp/textcnn-logo.png" width="650"></p>
+        <img src="/images/nlp/textcnn-logo.png" width="650" />
+
 <a id="more"></a>
+
 <p>textCNN 是 2014年 提出的用来做文本分类的卷积神经网络，结构简单、效果好.</p>
-<p>论文链接： <a href="https://arxiv.org/abs/1510.03820" target="_blank" rel="external">Convolutional Neural Networks for Sentence Classification</a> 在文本分类等 NLP 领域应用广泛. </p>
+<p>论文链接： <a href="https://arxiv.org/abs/1510.03820" target="_blank" rel="noopener">Convolutional Neural Networks for Sentence Classification</a> 在文本分类等 NLP 领域应用广泛. </p>
 <p>一般结构： 降维 -&gt; conv -&gt; 最大池化 -&gt; 完全连接层 -&gt; softmax .</p>
 <blockquote>
 <p>将文本当做是一维图像，从而可以用一维卷积神经网络来捕捉临近词之间的关联。</p>
@@ -128,27 +119,27 @@ var _hmt = _hmt || [];
 <h2 id="1-一维卷积层"><a href="#1-一维卷积层" class="headerlink" title="1. 一维卷积层"></a>1. 一维卷积层</h2><p>在介绍模型前我们先来解释一维卷积层的工作原理。和二维卷积层一样，一维卷积层使用一维的互相关运算。在一维互相关运算中，卷积窗口从输入数组的最左方开始，按从左往右的顺序，依次在输入数组上滑动。</p>
 <p>当卷积窗口滑动到某一位置时，窗口中的输入子数组与核数组按元素相乘并求和，得到输出数组中相应位置的元素。</p>
 <h3 id="1-1-多输入通道-一维互相关"><a href="#1-1-多输入通道-一维互相关" class="headerlink" title="1.1 多输入通道 * 一维互相关"></a>1.1 多输入通道 * 一维互相关</h3><p>如下图所示，输入是一个宽为 7 的一维数组，核数组的宽为 2。可以看到输出的宽度为 <strong>7−2+1=6</strong>，且第一个元素是由输入的最左边的宽为 2 的子数组与核数组按元素相乘后再相加得到的。</p>
-<p><img src="/images/nlp/conv1d.svg" width="650" img=""></p>
+<p>&lt;img src=”/images/nlp/conv1d.svg” width=”650” /img&gt;</p>
 <blockquote>
 <p>一维互相关运算。阴影部分为第一个输出元素及其计算所使用的输入和核数组元素：0×1+1×2=2。</p>
 </blockquote>
 <h3 id="1-2-多输入通道-一维互相关"><a href="#1-2-多输入通道-一维互相关" class="headerlink" title="1.2 多输入通道 * 一维互相关"></a>1.2 多输入通道 * 一维互相关</h3><p>多输入通道的一维互相关运算也与多输入通道的二维互相关运算类似：在每个通道上，将核与相应的输入做一维互相关运算，并将通道之间的结果相加得到输出结果。下图展示了含 3 个输入通道的一维互相关运算。</p>
-<p><img src="/images/nlp/conv1d-channel.svg" width="650" img=""></p>
+<p>&lt;img src=”/images/nlp/conv1d-channel.svg” width=”650” /img&gt;</p>
 <blockquote>
 <p>含3个输入通道的一维互相关运算。阴影部分为第一个输出元素及其计算所使用的输入和核数组元素：</p>
 <p>$$0×1+1×2+1×3+2×4+2×(−1)+3×(−3)=2$$</p>
 </blockquote>
-<h3 id="1-3-单输入通道-二维互相关"><a href="#1-3-单输入通道-二维互相关" class="headerlink" title="1.3 单输入通道 * 二维互相关"></a>1.3 单输入通道 * 二维互相关</h3><p><img src="/images/nlp/conv1d-2d.svg" width="650" img=""></p>
+<h3 id="1-3-单输入通道-二维互相关"><a href="#1-3-单输入通道-二维互相关" class="headerlink" title="1.3 单输入通道 * 二维互相关"></a>1.3 单输入通道 * 二维互相关</h3><p>&lt;img src=”/images/nlp/conv1d-2d.svg” width=”650” /img&gt;</p>
 <blockquote>
 <p>$$2×(−1)+3×(−3)+1×3+2×4+0×1+1×2=2$$</p>
 <p>结论 ： <strong>多输入通道</strong> <strong>一维互相关</strong> &lt;=&gt; <strong>单输入通道</strong> <strong>二维互相关</strong></p>
 </blockquote>
-<h3 id="1-4-多输入通道-二维互相关"><a href="#1-4-多输入通道-二维互相关" class="headerlink" title="1.4 多输入通道 * 二维互相关"></a>1.4 多输入通道 * 二维互相关</h3><p><img src="/images/nlp/conv_multi_in.svg" width="650" img=""></p>
+<h3 id="1-4-多输入通道-二维互相关"><a href="#1-4-多输入通道-二维互相关" class="headerlink" title="1.4 多输入通道 * 二维互相关"></a>1.4 多输入通道 * 二维互相关</h3><p>&lt;img src=”/images/nlp/conv_multi_in.svg” width=”650” /img&gt;</p>
 <blockquote>
 <p>$$<br>(1×1+2×2+4×3+5×4)+(0×0+1×1+3×2+4×3)=56<br>$$</p>
 </blockquote>
 <h3 id="1-5-多输出通道-1×1-卷积层"><a href="#1-5-多输出通道-1×1-卷积层" class="headerlink" title="1.5 多输出通道 1×1 卷积层"></a>1.5 多输出通道 1×1 卷积层</h3><p>当输入通道有多个时，由于我们对各个通道的结果做了累加，所以不论输入通道数是多少，输出通道数总是为 1</p>
-<p><img src="/images/nlp/conv_1x1.svg" width="650" img=""></p>
+<p>&lt;img src=”/images/nlp/conv_1x1.svg” width=”650” /img&gt;</p>
 <h3 id="1-6-小结"><a href="#1-6-小结" class="headerlink" title="1.6 小结"></a>1.6 小结</h3><ul>
 <li>使用多通道可以拓展卷积层的模型参数.</li>
 <li>假设将通道维当做是特征维，将高和宽维度上的元素当成数据样本，那么 1×1 卷积层的作用与全连接层等价.</li>
@@ -165,7 +156,7 @@ var _hmt = _hmt || [];
 <p>(2). <strong>池化层</strong>： 对输出的所有通道分别做时序最大池化，再将这些通道的池化输出值连结为向量。</p>
 <p>(3). <strong>全连层</strong>： 通过全连接层将连结后的向量变换为有关各类别的输出。这一步可以使用丢弃层应对过拟合。</p>
 </blockquote>
-<p><img src="/images/nlp/conv_textcnn.svg" width="700" img=""></p>
+<p>&lt;img src=”/images/nlp/conv_textcnn.svg” width=”700” /img&gt;</p>
 <p>用一个例子解释了 textCNN 的设计。这里的输入是一个有 11 个词的句子，每个词用 6 维词向量表示。因此输入序列的宽为 11，输入通道数为 6。给定 2 个一维卷积核，核宽分别为 2 和 4，输出通道数分别设为 4 和 5。因此，一维卷积计算后，4 个输出通道的宽为 11−2+1=10，而其他 5 个通道的宽为 11−4+1=8。尽管每个通道的宽不同，我们依然可以对各个通道做时序最大池化，并将 9 个通道的池化输出连结成一个 9 维向量。最终，我们使用全连接将 9 维向量变换为 2 维输出：正面情感和负面情感的预测。</p>
 <h2 id="4-CNN-的特点"><a href="#4-CNN-的特点" class="headerlink" title="4. CNN 的特点"></a>4. CNN 的特点</h2><p>CNN的三个优点：</p>
 <ol>
@@ -174,12 +165,12 @@ var _hmt = _hmt || [];
 <li>equivalent respresentation(等价表示)。</li>
 </ol>
 <p>经典的简化卷积公式表示如下：</p>
-<p><img src="/images/nlp/textcnn-1.webp" width="700" img=""></p>
+<p>&lt;img src=”/images/nlp/textcnn-1.webp” width=”700” /img&gt;</p>
 <p>假设每个词用三维向量表示，左边是4个词，右边是卷积矩阵，那么得到输出为：</p>
-<p><img src="/images/nlp/textcnn-2.webp" width="700" img=""></p>
+<p>&lt;img src=”/images/nlp/textcnn-2.webp” width=”700” /img&gt;</p>
 <p>如果基于这个结果做1-MaxPool池化(最大值池化)，那么就取卷积层结果 o 中的最大值，即提取最显著的特征。</p>
 <p>针对海量的文本多分类数据，也可以尝试一下浅层的深度学习模型FastText模型，该模型的分类效率更高。</p>
-<p><img src="/images/nlp/textcnn-3.webp" width="700" img=""></p>
+<p>&lt;img src=”/images/nlp/textcnn-3.webp” width=”700” /img&gt;</p>
 <p>整个模型由四部分构成： <strong>输入层</strong>、<strong>卷积层</strong>、<strong>池化层</strong>、<strong>全连接层</strong>。</p>
 <h2 id="5-小结"><a href="#5-小结" class="headerlink" title="5. 小结"></a>5. 小结</h2><ul>
 <li>我们可以使用一维卷积来处理和分析时序数据。</li>
@@ -188,11 +179,11 @@ var _hmt = _hmt || [];
 <li>TextCNN 主要使用了一维卷积层和时序最大池化层。</li>
 </ul>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://zh.gluon.ai/chapter_natural-language-processing/sentiment-analysis-cnn.html" target="_blank" rel="external">文本情感分类：使用卷积神经网络（textCNN）</a></li>
-<li><a href="http://www.52nlp.cn/tag/textcnn" target="_blank" rel="external">我爱自然语言处理</a></li>
-<li><a href="https://www.jianshu.com/p/f69e8a306862" target="_blank" rel="external">吾爱NLP(4)—基于Text-CNN模型的中文文本分类实战</a></li>
-<li><a href="https://www.cnblogs.com/DjangoBlog/p/7511979.html" target="_blank" rel="external">fastText、TextCNN、TextRNN……这里有一套NLP文本分类深度学习方法库供你选择</a></li>
-<li><a href="https://blog.csdn.net/u012762419/article/details/79561441" target="_blank" rel="external">大规模文本分类网络TextCNN介绍</a></li>
+<li><a href="https://zh.gluon.ai/chapter_natural-language-processing/sentiment-analysis-cnn.html" target="_blank" rel="noopener">文本情感分类：使用卷积神经网络（textCNN）</a></li>
+<li><a href="http://www.52nlp.cn/tag/textcnn" target="_blank" rel="noopener">我爱自然语言处理</a></li>
+<li><a href="https://www.jianshu.com/p/f69e8a306862" target="_blank" rel="noopener">吾爱NLP(4)—基于Text-CNN模型的中文文本分类实战</a></li>
+<li><a href="https://www.cnblogs.com/DjangoBlog/p/7511979.html" target="_blank" rel="noopener">fastText、TextCNN、TextRNN……这里有一套NLP文本分类深度学习方法库供你选择</a></li>
+<li><a href="https://blog.csdn.net/u012762419/article/details/79561441" target="_blank" rel="noopener">大规模文本分类网络TextCNN介绍</a></li>
 </ul>
 
       
@@ -226,7 +217,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -237,7 +228,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-一维卷积层"><span class="toc-number"></span> <span class="toc-text">1. 一维卷积层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-多输入通道-一维互相关"><span class="toc-number"></span> <span class="toc-text">1.1 多输入通道 * 一维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-多输入通道-一维互相关"><span class="toc-number"></span> <span class="toc-text">1.2 多输入通道 * 一维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-单输入通道-二维互相关"><span class="toc-number"></span> <span class="toc-text">1.3 单输入通道 * 二维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-多输入通道-二维互相关"><span class="toc-number"></span> <span class="toc-text">1.4 多输入通道 * 二维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-多输出通道-1×1-卷积层"><span class="toc-number"></span> <span class="toc-text">1.5 多输出通道 1×1 卷积层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-小结"><span class="toc-number"></span> <span class="toc-text">1.6 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-时序最大池化层"><span class="toc-number"></span> <span class="toc-text">2. 时序最大池化层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-TextCNN-模型"><span class="toc-number"></span> <span class="toc-text">3. TextCNN 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-CNN-的特点"><span class="toc-number"></span> <span class="toc-text">4. CNN 的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-小结"><span class="toc-number"></span> <span class="toc-text">5. 小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number"></span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-一维卷积层"><span class="toc-number">1.</span> <span class="toc-text">1. 一维卷积层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-多输入通道-一维互相关"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 多输入通道 * 一维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-多输入通道-一维互相关"><span class="toc-number">1.2.</span> <span class="toc-text">1.2 多输入通道 * 一维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-单输入通道-二维互相关"><span class="toc-number">1.3.</span> <span class="toc-text">1.3 单输入通道 * 二维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-多输入通道-二维互相关"><span class="toc-number">1.4.</span> <span class="toc-text">1.4 多输入通道 * 二维互相关</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-5-多输出通道-1×1-卷积层"><span class="toc-number">1.5.</span> <span class="toc-text">1.5 多输出通道 1×1 卷积层</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-6-小结"><span class="toc-number">1.6.</span> <span class="toc-text">1.6 小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-时序最大池化层"><span class="toc-number">2.</span> <span class="toc-text">2. 时序最大池化层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-TextCNN-模型"><span class="toc-number">3.</span> <span class="toc-text">3. TextCNN 模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-CNN-的特点"><span class="toc-number">4.</span> <span class="toc-text">4. CNN 的特点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-小结"><span class="toc-number">5.</span> <span class="toc-text">5. 小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">6.</span> <span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -254,7 +245,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/TextCNN/">TextCNN</a>
+    <a class="article-tag-link" href="/tags/TextCNN/" rel="tag">TextCNN</a>
   </div>
 
 
@@ -295,7 +286,7 @@ var _hmt = _hmt || [];
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2019 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
     </div>
   </div>
 </footer>
