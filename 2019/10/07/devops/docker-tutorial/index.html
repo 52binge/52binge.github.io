@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;docker-1.1.jpg">
-<meta property="og:updated_time" content="2019-10-19T00:59:58.173Z">
+<meta property="og:updated_time" content="2019-10-20T02:11:57.087Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;docker-1.1.jpg">
   
@@ -29,15 +29,6 @@
 <body>
   <div id="container">
     <!-- blair add baidu tongji start... @2017.10.03 -->
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
 <!-- blair add baidu tongji end ! @2017.10.03 -->
 
 <header id="header">
@@ -110,12 +101,20 @@ var _hmt = _hmt || [];
 
 <a id="more"></a>
 
-<p>为了更好的引出 Docker, 先简单介绍下 Linux 容器:</p>
+<p>由于环境配置的难题，所以开发者常常会说：<strong>It works on my machine</strong></p>
 <blockquote>
-<p>Linux 容器不是模拟一个完整的操作系统，而是对进程进行隔离。或者说，在正常进程的外面套了一个保护层。对于容器里面的进程来说，它接触到的各种资源都是虚拟的，从而实现与底层系统的隔离。</p>
-<p>由于容器是进程级别的，相比虚拟机有很多优势。</p>
+<p>为了更好的引出 Docker, 先简单介绍下 Linux 容器:</p>
+<p>Linux Container 不是模拟一个完整的 OS，而是对进程进行隔离。或者说，在正常进程的外面套了一个保护层。对于 <strong>Container</strong> 里面的进程来说，它接触到的各种资源都是 <strong>virtual</strong>，从而实现与底层系统的隔离。</p>
 </blockquote>
+<ul>
+<li><p><strong>Container</strong> 是进程级别的，相比 virtual machine 有很多优势。</p>
+</li>
+<li><p><strong>Container</strong> 有点像轻量级的 virtual machine，能够提供 virtual_env，但是成本开销小得多</p>
+</li>
+</ul>
 <h2 id="1-docker-what"><a href="#1-docker-what" class="headerlink" title="1. docker what?"></a>1. docker what?</h2><p>Docker 属于 Linux 容器的一种封装，提供简单易用的容器使用接口。它是目前最流行的 Linux 容器解决方案。</p>
+<p>Docker 将 Application 与该程序的依赖，打包在一个 image_file 里面。运行这个文件，就会生成一个虚拟容器。</p>
+<p>程序在这个 Container 里运行，就好像在真实的物理机上运行一样。有了 Docker，就不用担心环境问题。</p>
 <h2 id="2-docker-function"><a href="#2-docker-function" class="headerlink" title="2. docker function"></a>2. docker function</h2><blockquote>
 <ol>
 <li>提供一次性的环境</li>
@@ -126,7 +125,7 @@ var _hmt = _hmt || [];
 <h2 id="3-docker-install"><a href="#3-docker-install" class="headerlink" title="3. docker install"></a>3. docker install</h2><p><a href="https://docs.docker.com/docker-for-mac/install/" target="_blank" rel="noopener">Install Docker Desktop on Mac</a></p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker version</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">$ docker info</span><br></pre></td></tr></table></figure>
 
-<h2 id="4-image-file"><a href="#4-image-file" class="headerlink" title="4. image file"></a>4. image file</h2><ol>
+<h2 id="4-docker-image-file"><a href="#4-docker-image-file" class="headerlink" title="4. docker image file"></a>4. docker image file</h2><ol>
 <li>Docker 把 <strong><code>Application 及依赖，打包在 image file</code></strong> 里.</li>
 <li>只有通过这个 image file，才能生成 Docker Container, image file 可以看作是 template of container.</li>
 <li>Docker 根据 image file 生成 instance of container.</li>
@@ -134,6 +133,10 @@ var _hmt = _hmt || [];
 </ol>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出本机的所有 image 文件。</span></span><br><span class="line">$ docker image ls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除 image 文件</span></span><br><span class="line">$ docker image rm [imageName]</span><br></pre></td></tr></table></figure>
 
+<blockquote>
+<p>image 文件是通用的。一般来说，为了节省时间，我们应该尽量使用别人制作好的 image 文件，而不是自己制作。即使要定制，也应该基于别人的 image 文件进行加工，而不是从零开始制作。</p>
+<p>为了方便共享，image 文件制作完成后，可以上传到网上的仓库。Docker 的官方仓库 Docker Hub 是最重要、最常用的 image 仓库。</p>
+</blockquote>
 <h2 id="5-example：hello-world"><a href="#5-example：hello-world" class="headerlink" title="5. example：hello world"></a>5. example：hello world</h2><p>我们通过最简单的 image 文件”<a href="https://hub.docker.com/_/hello-world" target="_blank" rel="noopener">hello world</a>“，感受一下 Docker</p>
 <p>(1). 将 image 文件从仓库抓取到本地</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker image pull library/hello-world</span><br><span class="line"><span class="comment">#or</span></span><br><span class="line">$ docker image pull hello-world</span><br></pre></td></tr></table></figure>
@@ -155,12 +158,23 @@ var _hmt = _hmt || [];
 <p>control + D or 下面的 CMD</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container <span class="built_in">kill</span> [containID]</span><br></pre></td></tr></table></figure>
 
+<blockquote>
+<ul>
+<li><p>docker stop: Stop a running container (send SIGTERM, and then SIGKILL after grace period) […] The main process inside the container will receive SIGTERM, and after a grace period, SIGKILL. [emphasis mine]</p>
+</li>
+<li><p>docker kill: Kill a running container (send SIGKILL, or specified signal) […] The main process inside the container will be sent SIGKILL, or any signal specified with option –signal. [emphasis mine]</p>
+</li>
+</ul>
+</blockquote>
 <h2 id="6-container-file"><a href="#6-container-file" class="headerlink" title="6. container file"></a>6. container file</h2><p>image file 生成的 <strong>instance of container</strong>，本身也是一个文件，称为 container file。</p>
 <blockquote>
 <p>也就是说，一旦 container 生成，就会同时存在 2 files： <strong>image file</strong> 和 <strong>container file</strong>。</p>
 <p>且 close container 并不会 delete container file，只是 container stop run.</p>
 </blockquote>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出本机正在运行的容器</span></span><br><span class="line">$ docker container ls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出本机所有容器，包括终止运行的容器</span></span><br><span class="line">$ docker container ls --all</span><br></pre></td></tr></table></figure>
+
+<p><strong>docker 的常用命令:</strong></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker --version 			<span class="comment">#查看Docker版本</span></span><br><span class="line">docker info 				<span class="comment">#查看Docker安装有关的所有细节信息</span></span><br><span class="line">docker version				<span class="comment">#查看Docker安装有关的所有细节信息</span></span><br><span class="line">docker image ls				<span class="comment">#列出镜像清单</span></span><br><span class="line">docker container ls 	 	<span class="comment">#列出容器清单（列出运行中的容器）</span></span><br><span class="line">docker container ls --all 	<span class="comment">#列出容器清单（列出所有容器）</span></span><br><span class="line">docker container ls --aq 	<span class="comment">#列出容器清单（列出所有容器，简单模式，只有容器ID）</span></span><br><span class="line">docker run hello-world		<span class="comment">#执行Docker镜像，镜像名字为hello-world</span></span><br></pre></td></tr></table></figure>
 
 <h2 id="7-Dockerfile"><a href="#7-Dockerfile" class="headerlink" title="7. Dockerfile"></a>7. Dockerfile</h2><blockquote>
 <p>学会使用 image 文件以后，接下来的问题就是，如何生成 image 文件？</p>
@@ -216,7 +230,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-docker-what"><span class="toc-number">1.</span> <span class="toc-text">1. docker what?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-docker-function"><span class="toc-number">2.</span> <span class="toc-text">2. docker function</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-docker-install"><span class="toc-number">3.</span> <span class="toc-text">3. docker install</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-image-file"><span class="toc-number">4.</span> <span class="toc-text">4. image file</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-example：hello-world"><span class="toc-number">5.</span> <span class="toc-text">5. example：hello world</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-container-file"><span class="toc-number">6.</span> <span class="toc-text">6. container file</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Dockerfile"><span class="toc-number">7.</span> <span class="toc-text">7. Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Custom-docker-container"><span class="toc-number">8.</span> <span class="toc-text">8. Custom docker container</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-make-Dockerfile"><span class="toc-number">8.1.</span> <span class="toc-text">8.1 make Dockerfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-create-image"><span class="toc-number">8.2.</span> <span class="toc-text">8.2 create image</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-generate-Container"><span class="toc-number">8.3.</span> <span class="toc-text">8.3 generate Container</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-CMD"><span class="toc-number">8.4.</span> <span class="toc-text">8.4 CMD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-Release-image"><span class="toc-number">8.5.</span> <span class="toc-text">8.5 Release image</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-other-docker-command"><span class="toc-number">9.</span> <span class="toc-text">9. other docker command</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-number">10.</span> <span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-docker-what"><span class="toc-text">1. docker what?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-docker-function"><span class="toc-text">2. docker function</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-docker-install"><span class="toc-text">3. docker install</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-docker-image-file"><span class="toc-text">4. docker image file</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-example：hello-world"><span class="toc-text">5. example：hello world</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-container-file"><span class="toc-text">6. container file</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Dockerfile"><span class="toc-text">7. Dockerfile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-Custom-docker-container"><span class="toc-text">8. Custom docker container</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#8-1-make-Dockerfile"><span class="toc-text">8.1 make Dockerfile</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-2-create-image"><span class="toc-text">8.2 create image</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-3-generate-Container"><span class="toc-text">8.3 generate Container</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-4-CMD"><span class="toc-text">8.4 CMD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-5-Release-image"><span class="toc-text">8.5 Release image</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-other-docker-command"><span class="toc-text">9. other docker command</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
