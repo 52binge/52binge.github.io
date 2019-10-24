@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;fluentd-1.png">
-<meta property="og:updated_time" content="2019-10-24T01:42:38.245Z">
+<meta property="og:updated_time" content="2019-10-24T10:05:32.835Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;fluentd-1.png">
   
@@ -112,12 +112,41 @@ var _hmt = _hmt || [];
 
 <h2 id="1-Fluentd-what"><a href="#1-Fluentd-what" class="headerlink" title="1. Fluentd what?"></a>1. Fluentd what?</h2><p>Fluentd is an open source data collector for unified logging layer. </p>
 <p>Fluentd allows you to unify data collection and consumption for a better use and understanding of data.</p>
+<h2 id="2-Fluentd-docker"><a href="#2-Fluentd-docker" class="headerlink" title="2. Fluentd docker"></a>2. Fluentd docker</h2><p>Docker 提供很多 logging driver，默认下用的 json-file，docker logs 看到的日志就是来自于这些json文件.</p>
+<p>当有多个docker host的时候你会希望能够把日志汇集起来，集中存放到一处.</p>
+<p>本文讲的是如何通过 fluentd logging driver 配合 fluentd 来达成这一目标。</p>
+<p>Target：</p>
+<blockquote>
+<ol>
+<li>将standalone容器打到stdout/stderror的日志收集起来</li>
+<li>收集的日志根据容器名分开存储</li>
+<li>日志文件根据每天滚动</li>
+</ol>
+</blockquote>
+<h3 id="2-1-配置Fluentd实例"><a href="#2-1-配置Fluentd实例" class="headerlink" title="2.1 配置Fluentd实例"></a>2.1 配置Fluentd实例</h3><p>fluent.conf</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;<span class="built_in">source</span>&gt;</span><br><span class="line">  @<span class="built_in">type</span>   forward</span><br><span class="line">&lt;/<span class="built_in">source</span>&gt;</span><br><span class="line"> </span><br><span class="line">&lt;match *&gt;</span><br><span class="line"> </span><br><span class="line">  @<span class="built_in">type</span>              file</span><br><span class="line"> </span><br><span class="line">  path               /fluentd/<span class="built_in">log</span>/<span class="variable">$&#123;tag&#125;</span>/<span class="variable">$&#123;tag&#125;</span></span><br><span class="line">  append             <span class="literal">true</span></span><br><span class="line">  &lt;format&gt;</span><br><span class="line">    @<span class="built_in">type</span>            single_value</span><br><span class="line">    message_key      <span class="built_in">log</span></span><br><span class="line">  &lt;/format&gt;</span><br><span class="line">  &lt;buffer tag,time&gt;</span><br><span class="line">    @<span class="built_in">type</span>             file</span><br><span class="line">    timekey           1d</span><br><span class="line">    timekey_wait      10m</span><br><span class="line">    flush_mode        interval</span><br><span class="line">    flush_interval    30s</span><br><span class="line">  &lt;/buffer&gt;</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure>
+
+<p>新建目录 container-logs， 设置 777 权限</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ~/ghome/home/ub [17:57:07]</span></span><br><span class="line">➜ ll</span><br><span class="line">total 0</span><br><span class="line">drwxrwxrwx  5 blair  staff   160B Oct 24 17:50 container-logs</span><br><span class="line">drwxr-xr-x  4 blair  staff   128B Oct 23 18:06 fluentd</span><br><span class="line">(base)</span><br><span class="line"><span class="comment"># ~/ghome/home/ub [17:57:07]</span></span><br></pre></td></tr></table></figure>
+
+<p>启动Fluentd实例，这里使用的Docker方式：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -it \</span><br><span class="line">  -d \</span><br><span class="line">  -p 24224:24224 \</span><br><span class="line">  -v /Users/blair/ghome/home/ub/fluentd/conf/fluent.conf:/fluentd/etc2/fluent.conf \</span><br><span class="line">  -v /Users/blair/ghome/home/ub/container-logs:/fluentd/<span class="built_in">log</span> \</span><br><span class="line">  fluent/fluentd:v1.7.3-debian-1.0</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-2-指定容器的logging-driver"><a href="#2-2-指定容器的logging-driver" class="headerlink" title="2.2 指定容器的logging driver"></a>2.2 指定容器的logging driver</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run \</span><br><span class="line">  -d \</span><br><span class="line">  --<span class="built_in">log</span>-driver=fluentd \</span><br><span class="line">  --<span class="built_in">log</span>-opt fluentd-address=&lt;fluentdhost&gt;:24224 \</span><br><span class="line">  --<span class="built_in">log</span>-opt mode=non-blocking \</span><br><span class="line">  --<span class="built_in">log</span>-opt tag=&#123;&#123;.Name&#125;&#125; \</span><br><span class="line">  --rm -p 4000:4000 blair101/ubuntu-hexo-blog:v1.4</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p><code>&lt;fluentdhost&gt;</code> 参数不写则是指本机.</p>
+</blockquote>
+<h3 id="2-3-观察日志"><a href="#2-3-观察日志" class="headerlink" title="2.3 观察日志"></a>2.3 观察日志</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ~/ghome/home/ub [18:00:10]</span></span><br><span class="line">➜ ll container-logs</span><br><span class="line">total 16</span><br><span class="line">-rw-r--r--  1 blair  staff   470B Oct 24 17:47 data.b595a4ec02f220b1ce9d68e14ca1fc303.log</span><br><span class="line">-rw-r--r--  1 blair  staff    74B Oct 24 17:47 data.b595a4ec02f220b1ce9d68e14ca1fc303.log.meta</span><br><span class="line">lrwxrwxrwx  1 blair  staff    55B Oct 24 17:47 data.log -&gt; /fluentd/<span class="built_in">log</span>/data.b595a4ec02f220b1ce9d68e14ca1fc303.log</span><br><span class="line">(base)</span><br><span class="line"><span class="comment"># ~/ghome/home/ub [18:00:12]</span></span><br></pre></td></tr></table></figure>
+
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://docs.fluentd.org/installation/install-by-dmg" target="_blank" rel="noopener">docs.fluentd.org</a></li>
 <li><a href="https://hub.docker.com/r/fluent/fluentd" target="_blank" rel="noopener">fluentd docker</a></li>
 <li><a href="http://www.muzixing.com/pages/2017/02/05/fluentdru-men-jiao-cheng.html" target="_blank" rel="noopener">Fluentd入门教程</a></li>
+<li><a href="https://blog.csdn.net/qq_21816375/article/details/78011059" target="_blank" rel="noopener">fluentd之mac install &amp; test</a></li>
 <li><a href="https://medium.com/@harvey.chen/fluentd-不負責任的學習筆記-一-in-docker-compose-a7bfa1b69f87" target="_blank" rel="noopener">fluentd-不負責任的學習筆記</a></li>
-<li><a href="https://chanjarster.github.io/post/collect-docker-log-by-fluentd/" target="_blank" rel="noopener">使用Fluentd收集Docker容器日志</a></li>
+<li><a href="https://blog.csdn.net/weixin_34326179/article/details/88659550" target="_blank" rel="noopener">使用Fluentd收集Docker容器日志</a></li>
+<li><a href="https://www.yipzale.me/2018/04/22/fluentd-collect-dockerlog.html" target="_blank" rel="noopener">fluentd收集docker容器日志</a></li>
 </ul>
 
       
@@ -162,7 +191,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Fluentd-what"><span class="toc-text">1. Fluentd what?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Fluentd-what"><span class="toc-text">1. Fluentd what?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Fluentd-docker"><span class="toc-text">2. Fluentd docker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-配置Fluentd实例"><span class="toc-text">2.1 配置Fluentd实例</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-指定容器的logging-driver"><span class="toc-text">2.2 指定容器的logging driver</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-观察日志"><span class="toc-text">2.3 观察日志</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
