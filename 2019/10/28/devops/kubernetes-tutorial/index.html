@@ -14,7 +14,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;kubernetes-1.png">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;kubernetes-5.png">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;kubernetes-4.jpg">
-<meta property="og:updated_time" content="2019-10-28T10:53:19.965Z">
+<meta property="og:updated_time" content="2019-10-29T04:17:37.189Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;kubernetes-1.png">
   
@@ -114,7 +114,10 @@ var _hmt = _hmt || [];
 
 <h2 id="1-Kubernetes-what"><a href="#1-Kubernetes-what" class="headerlink" title="1. Kubernetes what?"></a>1. Kubernetes what?</h2><p>Kubernetes (K8s) is an open-source system for automating deployment, scaling, and management of containerized applications.</p>
 <p>Kubernetes minikube install @Mac</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sysctl -a | grep -E --color <span class="string">'machdep.cpu.features|VMX'</span> </span><br><span class="line"></span><br><span class="line">brew cask install minikube</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sysctl -a | grep -E --color <span class="string">'machdep.cpu.features|VMX'</span> </span><br><span class="line"></span><br><span class="line">brew cask install minikube</span><br><span class="line"></span><br><span class="line">同時它也會一起安裝 kubectl 這個 Kubernetes 指令操作工具 kubectl</span><br></pre></td></tr></table></figure>
+
+<p>minikube version</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># /tmp/fluentd/etc [9:47:26]</span></span><br><span class="line">➜ minikube version</span><br><span class="line">minikube version: v1.5.0</span><br><span class="line">commit: d1151d93385a70c5a03775e166e94067791fe2d9</span><br><span class="line"></span><br><span class="line">minikube 主要是用在練習和教學使用, 非生产环境.</span><br></pre></td></tr></table></figure>
 
 <p>Kubernetes is growing rapidly, has become a leader in <strong>Container Orchestration</strong>。</p>
 <h2 id="2-Kubernetes-why？"><a href="#2-Kubernetes-why？" class="headerlink" title="2. Kubernetes why？"></a>2. Kubernetes why？</h2><p>生产环境应用会包含多个 Containers，而这些 Containers 还很可能会跨越多个服务器主机部署。</p>
@@ -155,9 +158,9 @@ var _hmt = _hmt || [];
 <li>云服务（Google GAE、AWS）</li>
 </ol>
 </blockquote>
-<img src="/images/devops/kubernetes-5.png" width="750" alt="kubernetes.io" />
+<h3 id="3-1-K8s-architecture"><a href="#3-1-K8s-architecture" class="headerlink" title="3.1 K8s architecture"></a>3.1 K8s architecture</h3><img src="/images/devops/kubernetes-5.png" width="750" alt="kubernetes.io" />
 
-<p><strong>Master有三个组件：API Server、Scheduler、Controller</strong>:</p>
+<h3 id="3-2-Master"><a href="#3-2-Master" class="headerlink" title="3.2 Master"></a>3.2 Master</h3><p>Master有三个组件：API Server、Scheduler、Controller:</p>
 <blockquote>
 <ol>
 <li>API Server 是整个系统的对外接口，提供 RESTful 方式供客户端和其它组件调用；</li>
@@ -165,11 +168,16 @@ var _hmt = _hmt || [];
 <li>Controller-manager 负责管理控制器，包括 endpoint-controller（刷新服务和 pod 的关联信息）和 replication-controller（维护某个 pod 的复制为配置的数值）。</li>
 </ol>
 </blockquote>
-<p><strong>Node Architecture</strong></p>
-<img src="/images/devops/kubernetes-4.jpg" width="600" alt="Kubernetes Node" />
+<h3 id="3-3-Node"><a href="#3-3-Node" class="headerlink" title="3.3 Node"></a>3.3 Node</h3><img src="/images/devops/kubernetes-4.jpg" width="600" alt="Kubernetes Node" />
 
-<p><strong>Kubernetes 术语</strong></p>
+<p>集群中的每个非 master 节点都运行两个进程：</p>
 <blockquote>
+<ul>
+<li><strong>kubelet</strong>，和 master 节点进行通信。</li>
+<li>kube-proxy，一种网络代理，将 Kubernetes 的网络服务代理到每个节点上。</li>
+</ul>
+</blockquote>
+<h3 id="3-4-Kubernetes-术语"><a href="#3-4-Kubernetes-术语" class="headerlink" title="3.4 Kubernetes 术语"></a>3.4 Kubernetes 术语</h3><blockquote>
 <ul>
 <li><p>Master（主节点）： 控制 Kubernetes 节点的机器，也是创建作业任务的地方。</p>
 </li>
@@ -188,9 +196,36 @@ var _hmt = _hmt || [];
 </ul>
 <p><a href="https://kubernetes.io/docs/reference/" target="_blank" rel="noopener">更多内容请查看 Kubernetes 术语表</a></p>
 </blockquote>
-<h2 id="4-Quickstart-minikube"><a href="#4-Quickstart-minikube" class="headerlink" title="4. Quickstart minikube"></a>4. Quickstart minikube</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># /tmp/fluentd/etc [14:03:57]</span></span><br><span class="line">➜ minikube start</span><br><span class="line">😄  minikube v1.5.0 on Darwin 10.14.6</span><br><span class="line">✨  Automatically selected the <span class="string">'hyperkit'</span> driver</span><br><span class="line">💾  Downloading driver docker-machine-driver-hyperkit:</span><br></pre></td></tr></table></figure>
+<h2 id="4-Quickstart-minikube"><a href="#4-Quickstart-minikube" class="headerlink" title="4. Quickstart minikube"></a>4. Quickstart minikube</h2><p>启动 Kubernetes cluster</p>
+<h3 id="4-1-Start-Minik-amp-create-cluster"><a href="#4-1-Start-Minik-amp-create-cluster" class="headerlink" title="4.1 Start Minik &amp; create cluster"></a>4.1 Start Minik &amp; create cluster</h3><p>Start Minikube and create a cluster</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># /tmp/fluentd/etc [14:03:57]</span></span><br><span class="line">➜ minikube start</span><br><span class="line">😄  minikube v1.5.0 on Darwin 10.14.6</span><br><span class="line">✨  Automatically selected the <span class="string">'hyperkit'</span> driver</span><br><span class="line">💾  Downloading driver docker-machine-driver-hyperkit:</span><br></pre></td></tr></table></figure>
 
+<h3 id="4-2-create-a-k8s-Deployment"><a href="#4-2-create-a-k8s-Deployment" class="headerlink" title="4.2 create a k8s Deployment"></a>4.2 create a k8s Deployment</h3><p>Let’s create a Kubernetes Deployment using an existing image named echoserver, which is a simple HTTP server and expose it on port 8080 using –port.</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.10</span><br><span class="line">deployment.apps/hello-minikube created</span><br></pre></td></tr></table></figure>
 
+<h3 id="4-3-hello-minikube-Deployment"><a href="#4-3-hello-minikube-Deployment" class="headerlink" title="4.3 hello-minikube Deployment"></a>4.3 hello-minikube Deployment</h3><p>To access the hello-minikube Deployment, expose it as a Service:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ kubectl expose deployment hello-minikube --<span class="built_in">type</span>=NodePort --port=8080</span><br><span class="line">service/hello-minikube exposed</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-hello-minikube-Pod-launche"><a href="#4-4-hello-minikube-Pod-launche" class="headerlink" title="4.4 hello-minikube Pod launche."></a>4.4 hello-minikube Pod launche.</h3><p>The hello-minikube Pod is now launched but you have to wait until the Pod is up before accessing it via the exposed Service.</p>
+<p>If the output shows the STATUS as Running, the Pod is now up and running:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ kubectl get pod</span><br><span class="line">NAME                              READY   STATUS    RESTARTS   AGE</span><br><span class="line">hello-minikube-797f975945-nrb6r   1/1     Running   0          2m14s</span><br><span class="line">(anaconda3) (base)</span><br></pre></td></tr></table></figure>
+
+<p>kubectl get cmd：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl get node</span><br><span class="line">kubectl get po,svc -n kube-system</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-5-view-the-Service-details"><a href="#4-5-view-the-Service-details" class="headerlink" title="4.5 view the Service details"></a>4.5 view the Service details</h3><p>Get the URL of the exposed Service to view the Service details:</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ minikube service hello-minikube --url</span><br><span class="line">http://192.168.64.2:30799</span><br><span class="line">(anaconda3) (base)</span><br></pre></td></tr></table></figure>
+
+<p>Output: </p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Hostname: hello-minikube-797f975945-nrb6r</span><br><span class="line"></span><br><span class="line">Pod Information:</span><br><span class="line">	-no pod information available-</span><br><span class="line"></span><br><span class="line">Server values:</span><br><span class="line">	server_version=nginx: 1.13.3 - lua: 10008</span><br><span class="line"></span><br><span class="line">Request Information:</span><br><span class="line">	client_address=172.17.0.1</span><br><span class="line">	method=GET</span><br><span class="line">	real path=/</span><br><span class="line">	query=</span><br><span class="line">	request_version=1.1</span><br><span class="line">	request_scheme=http</span><br><span class="line">	request_uri=http://192.168.64.2:8080/</span><br><span class="line"></span><br><span class="line">Request Headers:</span><br><span class="line">	accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3</span><br><span class="line">	accept-encoding=gzip, deflate</span><br><span class="line">	accept-language=zh-CN,zh;q=0.9,zh-TW;q=0.8,en-US;q=0.7,en;q=0.6</span><br><span class="line">	connection=keep-alive</span><br><span class="line">	host=192.168.64.2:30799</span><br><span class="line">	upgrade-insecure-requests=1</span><br><span class="line">	user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36</span><br><span class="line"></span><br><span class="line">Request Body:</span><br><span class="line">	-no body <span class="keyword">in</span> request-</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-6-delete-hello-minik-service"><a href="#4-6-delete-hello-minik-service" class="headerlink" title="4.6 delete hello-minik service"></a>4.6 delete hello-minik service</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl delete services hello-minikube</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-7-delete-hello-minik-deploym"><a href="#4-7-delete-hello-minik-deploym" class="headerlink" title="4.7 delete hello-minik deploym"></a>4.7 delete hello-minik deploym</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl delete deployment hello-minikube</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-8-stop-Minikube-cluster"><a href="#4-8-stop-Minikube-cluster" class="headerlink" title="4.8 stop Minikube cluster"></a>4.8 stop Minikube cluster</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">minikube stop</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-9-delete-Minikube-cluster"><a href="#4-9-delete-Minikube-cluster" class="headerlink" title="4.9 delete Minikube cluster"></a>4.9 delete Minikube cluster</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">minikube delete</span><br></pre></td></tr></table></figure>
 
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://kubernetes.io" target="_blank" rel="noopener">kubernetes.io</a></li>
@@ -200,6 +235,9 @@ var _hmt = _hmt || [];
 <li><a href="https://yeasy.gitbooks.io/docker_practice/kubernetes/" target="_blank" rel="noopener">Kubernetes 项目· Docker —— 从入门到实践 - yeasy</a></li>
 <li><a href="https://juejin.im/post/5b8656a6f265da4332072aae" target="_blank" rel="noopener">从0到1使用Kubernetes系列</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/29232090" target="_blank" rel="noopener">知乎： Kubernetes 是什么？</a></li>
+<li><a href="https://dreamerjonson.com/2019/03/14/k8s/index.html" target="_blank" rel="noopener">郑建勋（jonson）K8S</a></li>
+<li><a href="https://kubernetes.io/zh/docs/concepts/" target="_blank" rel="noopener">官网 k8s 概念 &amp; 对象</a></li>
+<li><a href="https://kubernetes.io/zh/docs/reference/kubectl/docker-cli-to-kubectl/" target="_blank" rel="noopener">Docker 用户使用 kubectl 命令指南</a></li>
 </ul>
 
       
@@ -244,7 +282,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Kubernetes-what"><span class="toc-text">1. Kubernetes what?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Kubernetes-why？"><span class="toc-text">2. Kubernetes why？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Kubernetes-architecture"><span class="toc-text">3. Kubernetes architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Quickstart-minikube"><span class="toc-text">4. Quickstart minikube</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Kubernetes-what"><span class="toc-text">1. Kubernetes what?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Kubernetes-why？"><span class="toc-text">2. Kubernetes why？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Kubernetes-architecture"><span class="toc-text">3. Kubernetes architecture</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-K8s-architecture"><span class="toc-text">3.1 K8s architecture</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Master"><span class="toc-text">3.2 Master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Node"><span class="toc-text">3.3 Node</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-Kubernetes-术语"><span class="toc-text">3.4 Kubernetes 术语</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Quickstart-minikube"><span class="toc-text">4. Quickstart minikube</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Start-Minik-amp-create-cluster"><span class="toc-text">4.1 Start Minik &amp; create cluster</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-create-a-k8s-Deployment"><span class="toc-text">4.2 create a k8s Deployment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-hello-minikube-Deployment"><span class="toc-text">4.3 hello-minikube Deployment</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-hello-minikube-Pod-launche"><span class="toc-text">4.4 hello-minikube Pod launche.</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-5-view-the-Service-details"><span class="toc-text">4.5 view the Service details</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-6-delete-hello-minik-service"><span class="toc-text">4.6 delete hello-minik service</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-7-delete-hello-minik-deploym"><span class="toc-text">4.7 delete hello-minik deploym</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-8-stop-Minikube-cluster"><span class="toc-text">4.8 stop Minikube cluster</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-9-delete-Minikube-cluster"><span class="toc-text">4.9 delete Minikube cluster</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
