@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;systemd-logo.gif">
-<meta property="og:updated_time" content="2019-11-23T09:53:41.965Z">
+<meta property="og:updated_time" content="2019-11-23T10:52:43.675Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;devops&#x2F;systemd-logo.gif">
   
@@ -110,12 +110,51 @@ var _hmt = _hmt || [];
 
 <a id="more"></a>
 
+<h2 id="1-Preface"><a href="#1-Preface" class="headerlink" title="1. Preface"></a>1. Preface</h2><p>历史上，Linux 的启动一直采用init进程。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">$ sudo /etc/init.d/apache2 start</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">$ service apache2 start</span><br></pre></td></tr></table></figure>
+
+<p>这种方法有两个缺点:</p>
+<ol>
+<li>启动时间长</li>
+<li>启动脚本复杂</li>
+</ol>
+<blockquote>
+<p>init进程是串行启动，只有前一个进程启动完，才会启动下一个进程。</p>
+<p>init进程只是执行启动脚本，不管其他事情。脚本需要自己处理各种情况，这往往使得脚本变得很长。</p>
+</blockquote>
+<h2 id="2-Systemd"><a href="#2-Systemd" class="headerlink" title="2. Systemd"></a>2. Systemd</h2><p>Systemd 就是为了解决这些问题而诞生的。它的设计目标是，为系统的启动和管理提供一套完整的解决方案。</p>
+<p>根据 Linux 惯例，字母d是守护进程（daemon）的缩写。 Systemd 这个名字的含义，就是它要守护整个系统。</p>
+<blockquote>
+<p>Systemd 并不是一个命令，而是一组命令，涉及到系统管理的方方面面。</p>
 <p>Linux系统有自己的 Daemon 管理工具 Systemd 。它是 OS 的一部分，直接与内核交互，性能出色，功能强。我们完全可以将程序交给 Systemd ，让系统统一管理，成为真正意义上的系统服务。</p>
+</blockquote>
+<h2 id="3-Unit"><a href="#3-Unit" class="headerlink" title="3. Unit"></a>3. Unit</h2><p>Systemd 可以管理所有系统资源。不同的资源统称为 Unit（单位）。</p>
+<p>Unit 一共分成12种:</p>
+<blockquote>
+<ul>
+<li>Service unit：系统服务</li>
+<li>Target unit：多个 Unit 构成的一个组</li>
+<li>Device Unit：硬件设备</li>
+<li>Mount Unit：文件系统的挂载点</li>
+<li>Automount Unit：自动挂载点</li>
+<li>Path Unit：文件或路径</li>
+<li>Scope Unit：不是由 Systemd 启动的外部进程</li>
+<li>Slice Unit：进程组</li>
+<li>Snapshot Unit：Systemd 快照，可以切回某个快照</li>
+<li>Socket Unit：进程间通信的 socket</li>
+<li>Swap Unit：swap 文件</li>
+<li>Timer Unit：定时器</li>
+</ul>
+</blockquote>
+<p>systemctl list-units命令可以查看当前系统的所有 Unit </p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出正在运行的 Unit</span></span><br><span class="line">$ systemctl list-units</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有Unit，包括没有找到配置文件的或者启动失败的</span></span><br><span class="line">$ systemctl list-units --all</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有没有运行的 Unit</span></span><br><span class="line">$ systemctl list-units --all --state=inactive</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有加载失败的 Unit</span></span><br><span class="line">$ systemctl list-units --failed</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有正在运行的、类型为 service 的 Unit</span></span><br><span class="line">$ systemctl list-units --<span class="built_in">type</span>=service</span><br></pre></td></tr></table></figure>
+
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="http://www.ruanyifeng.com/blog/2013/02/booting.html" target="_blank" rel="noopener">阮一峰: 计算机是如何启动的？ ✔️</a></li>
 <li><a href="http://www.ruanyifeng.com/blog/2013/08/linux_boot_process.html" target="_blank" rel="noopener">阮一峰: Linux 的启动流程 ✔️</a></li>
 <li><a href="http://www.ruanyifeng.com/blog/2016/02/linux-daemon.html" target="_blank" rel="noopener">阮一峰: Linux daemon (守护进程)的启动方法 ✔️</a></li>
 <li><a href="http://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-commands.html" target="_blank" rel="noopener">阮一峰: Systemd 入门教程：命令篇 ✔️</a></li>
+<li><a href="http://www.ruanyifeng.com/blog/2009/06/unix_philosophy.html" target="_blank" rel="noopener">阮一峰: Kiss (Keep it sample stupid) Unix哲学 ✔️</a></li>
 <li><a href="https://www.freedesktop.org/wiki/Software/systemd/" target="_blank" rel="noopener">Systemd Service Manager</a></li>
 <li><a href="https://linux.cn/article-8835-1.html" target="_blank" rel="noopener">Great:  Linux 系统开机启动项清理</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/29217941" target="_blank" rel="noopener">CentOS 7 Systemd 入门</a></li>
@@ -169,7 +208,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Preface"><span class="toc-text">1. Preface</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Systemd"><span class="toc-text">2. Systemd</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Unit"><span class="toc-text">3. Unit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
