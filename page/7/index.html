@@ -110,108 +110,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Ensemble learning（集成学习）：是目前机器学习的一大热门方向，所谓集成学习简单理解就是指采用多个分类器对数据集进行预测，从而提高整体分类器的泛化能力。</p>
-<p>&lt;!-- more --&gt;</p>
-<ol>
-<li>Bootstraping</li>
-<li>Bagging、Boosting、Stacking</li>
-</ol>
-<h2>Bootstraping</h2>
-<p>Bootstraping的名称来自成语 “pull up by your own bootstraps”，意思是依靠你自己的资源，它是一种有放回的抽样方法.</p>
-<blockquote>
-<p>注:Bootstrap本义是指高靴子口后面的悬挂物、小环、带子，是穿靴子时用手向上拉的工具。“pull up by your own bootstraps”即“通过拉靴子让自己上 升”，意思是“不可能发生的事情”。后来意思发 生了转变，隐喻“不需要外界帮助，仅依靠自身力 量让自己变得更好”</p>
-</blockquote>
-<p>bootstraping 的思想和步骤如下：</p>
-<p>举个🌰：我要统计鱼塘里面的鱼的条数，怎么统计呢？假设鱼塘总共有鱼1000条，我是开了上帝视角的，但是你是不知道里面有多少。</p>
-<p>步骤：</p>
-<ol>
-<li>承包鱼塘，不让别人捞鱼(规定总体分布不变)。</li>
-<li>自己捞鱼，捞100条，都打上标签(构造样本)</li>
-<li>把鱼放回鱼塘，休息一晚(使之混入整个鱼群，确保之后抽样随机)</li>
-<li>开始捞鱼，每次捞100条，数一下，自己昨天标记的鱼有多少条，占比多少(一次重采样取分布)。</li>
-<li>重复3，4步骤n次。建立分布。</li>
-</ol>
-<blockquote>
-<p>假设一下，第一次重新捕鱼100条，发现里面有标记的鱼12条，记下为12%，放回去，再捕鱼100条，发现标记的为9条，记下9%，重复重复好多次之后，假设取置信区间95%，你会发现，每次捕鱼平均在10条左右有标记，所以，我们可以大致推测出鱼塘有1000条左右。其实是一个很简单的类似于一个比例问题。这也是因为提出者Efron给统计学顶级期刊投稿的时候被拒绝的理由--&quot;太简单&quot;。这也就解释了，为什么在小样本的时候，bootstrap效果较好，你这样想，如果我想统计大海里有多少鱼，你标记100000条也没用啊，因为实际数量太过庞大，你取的样本相比于太过渺小，最实际的就是，你下次再捕100000的时候，发现一条都没有标记，，，这TM就尴尬了。。</p>
-</blockquote>
-<p><strong>Bootstrap 经典语录</strong></p>
-<blockquote>
-<p>Bootstrap是现代统计学较为流行的一种统计方法，在小样本时效果很好。通过方差的估计可以构造置信区间等，其运用范围得到进一步延伸。
-就是一个在自身样本重采样的方法来估计真实分布的问题</p>
-</blockquote>
-<blockquote>
-<p>当我们不知道样本分布的时候，bootstrap方法最有用。</p>
-</blockquote>
-<h2>Ensemble learning</h2>
-<p>了解 boosting 和 bagging 之前，先了解一下什么是 ensemble，一句话，三个臭皮匠顶个诸葛亮，一箭易折十箭难折，千里之堤溃于蚁穴 …😄😄😄 ，在分类的表现上就是，多个弱分类器组合变成强分类器。</p>
-<p>&lt;img src=&quot;/images/ml/ensumble/ml-ensemble-1.png&quot; width=&quot;500&quot; /&gt;</p>
-<blockquote>
-<p>假设各弱分类器间具有一定差异性（如不同的算法，或相同算法不同参数配置），这会导致生成的分类决策边界不同，也就是说它们在决策时会犯不同的错误。将它们结合后能得到更合理的边界，减少整体错误，实现更好的分类效果。</p>
-</blockquote>
-<h3>Bagging (bootstrap aggregation)</h3>
-<blockquote>
-<p>bagging：从训练集从进行子抽样组成每个基模型所需要的子训练集，对所有基模型预测的结果进行综合产生最终的预测结果,至于为什么叫bootstrap aggregation，因为它抽取训练样本的时候采用的就是bootstrap的方法！</p>
-</blockquote>
-<p>Bagging 策略过程 😄 :</p>
-<ol>
-<li>从样本集中重采样(有重复的)选出n个样本</li>
-<li>在所有属性上，对这n个样本建立分类器 (ID3、C4.5、CART、SVM、Logistic回归等)</li>
-<li>重复以上两步m次，即获得了m个分类器</li>
-<li>将数据放在这m个分类器上，最后根据这m个分类器的投票结果，决定数据属于哪一类.</li>
-<li>投票机制 (多数服从少数, 民主政治) 看到底分到哪一类(分类问题)</li>
-</ol>
-<p>&lt;img src=&quot;/images/ml/ensumble/ml-ensemble-2-bagging.jpeg&quot; width=&quot;600&quot; /&gt;</p>
-<p><strong>Bagging 代表算法 - Random Forest</strong></p>
-<p>随机森林，它不仅可以用来做分类，也可用来做回归即预测，一般随机森林机由多个决策树构成，相比于单个决策树算法，它分类、预测效果更好，不容易出现过度拟合的情况。</p>
-<p>1.训练样本选择方面的Random：</p>
-<blockquote>
-<p>Bootstrap方法随机选择子样本</p>
-</blockquote>
-<p>2.特征选择方面的Random：</p>
-<blockquote>
-<p>属性集中随机选择k个属性，每个树节点分裂时，从这随机的k个属性，选择最优的(如何选择最优又有各种最大增益的方法，不在本文讨论范围内)。</p>
-</blockquote>
-<p><strong>决策树</strong></p>
-<p>决策树对训练样本有良好的分类能力，只要我们的层数不加限制，我们甚至可以把它分的没有任何误差，这样可能导致你的泛化能力很弱。 缓解的方法就是 1. 剪枝 2. 随机森林</p>
-<p>剪枝 我还没用过，所以我们看常用的 随机森林 Romdom Forest</p>
-<p>决策树 ： 特征选择</p>
-<ol>
-<li>ID3 仅具有教学价值</li>
-<li>gini 系数，作为指标比较多，在实践当中</li>
-</ol>
-<p><strong>Random Forest 构造流程</strong></p>
-<p>&lt;img src=&quot;/images/ml/ensumble/ml-ensemble-3-bagging.jpeg&quot; width=&quot;600&quot; /&gt;</p>
-<blockquote>
-<ol>
-<li>用 Random(训练样本用Bootstrap方法，选择分离叶子节点用上面的2)的方式构造一棵决策树(CART)</li>
-<li>用1的方法构造很多决策树, 不剪枝, 许多决策树构成一片森林，决策树之间没有联系</li>
-<li>测试数据进入每一棵决策树，每棵树做出自己的判断，然后投票选出最终所属类别(默认每棵树权重一致)</li>
-</ol>
-</blockquote>
-<p><strong>Random Forest 优点</strong></p>
-<blockquote>
-<ol>
-<li>不容易出现过拟合，因为选择训练样本的时候就不是全部样本。</li>
-<li>既可处理属性为离散值的量，比如ID3算法来构造树，也可以处理属性为连续值的量，比如C4.5算法来构造树</li>
-<li>对于高维数据集的处理能力令人兴奋，它可以处理成千上万的输入变量，并确定最重要的变量，因此被认为是一个不错的降维方法。该模型能够输出变量的重要性程度，这是一个非常便利的功能。</li>
-<li>分类不平衡的情况时，随机森林能够提供平衡数据集误差的有效方法</li>
-</ol>
-</blockquote>
-<p><strong>Random Forest 缺点</strong></p>
-<blockquote>
-<ol>
-<li>随机森林在解决回归问题时并没有像它在分类中表现的那么好，这是因为它并不能给出一个连续型的输出。当进行回归时，随机森林不能够作出超越训练集数据范围的预测，这可能导致在对某些还有特定噪声的数据进行建模时出现过度拟合。</li>
-<li>对于许多统计建模者来说，随机森林给人的感觉像是一个黑盒子——你几乎无法控制模型内部的运行，只能在不同的参数和随机种子之间进行尝试。</li>
-</ol>
-</blockquote>
-<blockquote>
-<p>优缺点，需要与杰神商讨再?</p>
-</blockquote>
-<h2>Reference article</h2>
-<ul>
-<li><a href="https://www.jianshu.com/p/708dff71df3a" target="_blank" rel="noopener">Bagging（Bootstrap aggregating）、随机森林（random forests）、AdaBoost</a></li>
-<li><a href="https://blog.csdn.net/xlinsist/article/details/51475345" target="_blank" rel="noopener">Bootstrap(自助法)，Bagging，Boosting(提升)</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/04/07/ml/ensumble-boosting-1/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -274,49 +177,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>多益 以及 一般英文聽力加強 | 和Cindy學英文 笔记</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>練習聽力</h2>
-<p>Useful Websites</p>
-<ul>
-<li>
-<p><a href="http://www.newsinlevels.com/" target="_blank" rel="noopener">News In Levels</a></p>
-</li>
-<li>
-<p><a href="https://umano.me/" target="_blank" rel="noopener">Umano</a></p>
-</li>
-<li>
-<p><a href="http://lyricstraining.com/" target="_blank" rel="noopener">Lyrics Training</a></p>
-</li>
-</ul>
-<p>Listen to Music</p>
-<ul>
-<li>
-<p><a href="http://lyricstraining.com/" target="_blank" rel="noopener">Lyrics Training</a></p>
-</li>
-<li>
-<p><a href="https://www.youtube.com/results?search_query=Taylor+Swift" target="_blank" rel="noopener">Taylor Swift、Miley Cyrus、Blake Shelton...</a></p>
-</li>
-</ul>
-<p>Sitcom and Movies</p>
-<ul>
-<li>
-<p><a href="http://www.livesinabox.com/friends/scripts.shtml" target="_blank" rel="noopener">Friends</a></p>
-</li>
-<li>
-<p><a href="https://www.springfieldspringfield.co.uk/episode_scripts.php?tv-show=how-i-met-your-mother" target="_blank" rel="noopener">How I met your Mother</a></p>
-</li>
-<li>
-<p><a href="http://www.imsdb.com/scripts/Titanic.html" target="_blank" rel="noopener">Titanic</a></p>
-</li>
-<li>
-<p><a href="https://www.springfieldspringfield.co.uk/movie_script.php?movie=the-hobbit-an-unexpected-journey" target="_blank" rel="noopener">Hobbit</a></p>
-</li>
-</ul>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://www.youtube.com/watch?v=D8gdg1zdM7U" target="_blank" rel="noopener">多益 英文聽力加強 和Cindy學英文</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/28/English/english-cindy-listening-duoyi/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -379,32 +244,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>对象的赋值，拷贝（深/浅拷贝）之间是有差异的，如果使用不当，可能产生意外的结果.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>id</h2>
-<p>什么是<code>id</code>？一个对象的<code>id</code>值在<code>CPython</code>解释器里就代表它在内存中的`地址</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line">a=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line">b=a</span><br><span class="line"></span><br><span class="line">print(id(a))</span><br><span class="line"></span><br><span class="line">print(id(b))</span><br><span class="line"></span><br><span class="line">print(id(a)==id(b))    <span class="comment">#附值后，两者的id相同，为true。</span></span><br><span class="line"></span><br><span class="line">b[<span class="number">0</span>]=<span class="number">222222</span>  <span class="comment"># 此时，改变b的第一个值，也会导致a值改变。</span></span><br><span class="line">print(a,b)</span><br></pre></td></tr></table></figure></p>
-<pre><code>4449594888
-4449594888
-True
-[222222, 2, 3] [222222, 2, 3]
-</code></pre>
-<h2>浅拷贝</h2>
-<p>当使用浅拷贝时，python 只是拷贝了最外围的对象本身，内部的元素都只是拷贝了一个引用而已</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line">a=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line">c=copy.copy(a)  <span class="comment">#拷贝了a的外围对象本身,</span></span><br><span class="line">print(id(c))</span><br><span class="line"></span><br><span class="line">print(id(a)==id(c))  <span class="comment">#id 改变 为false</span></span><br><span class="line"></span><br><span class="line">c[<span class="number">1</span>]=<span class="number">22222</span>   <span class="comment">#此时，我去改变c的第二个值时，a不会被改变。</span></span><br><span class="line">print(a,c)</span><br><span class="line"><span class="comment"># [1, 2, 3] [1, 22222, 3] #a值不变,c的第二个值变了，这就是copy和‘==’的不同</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>4449594440
-False
-[1, 2, 3] [1, 22222, 3]
-</code></pre>
-<h2>深拷贝</h2>
-<p><code>deepcopy</code> 对外围和内部元素都进行了拷贝对象本身，而不是对象的引用</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#copy.copy()</span></span><br><span class="line"></span><br><span class="line">a=[<span class="number">1</span>,<span class="number">2</span>,[<span class="number">3</span>,<span class="number">4</span>]]  <span class="comment">#第三个值为列表[3,4],即内部元素</span></span><br><span class="line">d=copy.copy(a) <span class="comment">#浅拷贝a中的[3，4]内部元素的引用，非内部元素对象的本身</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>id(a)==id(d)</span><br><span class="line"><span class="literal">False</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>id(a[<span class="number">2</span>])==id(d[<span class="number">2</span>])</span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">2</span>][<span class="number">0</span>]=<span class="number">3333</span>  <span class="comment">#改变a中内部原属列表中的第一个值</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d             <span class="comment">#这时d中的列表元素也会被改变</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3333</span>, <span class="number">4</span>]]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#copy.deepcopy()</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>e=copy.deepcopy(a) <span class="comment">#e为深拷贝了a</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">2</span>][<span class="number">0</span>]=<span class="number">333</span> <span class="comment">#改变a中内部元素列表第一个的值</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>e</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3333</span>, <span class="number">4</span>]] <span class="comment">#因为时深拷贝，这时e中内部元素[]列表的值不会因为a中的值改变而改变</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://docs.python.org/" target="_blank" rel="noopener">docs.python.org</a></li>
-<li><a href="https://morvanzhou.github.io/" target="_blank" rel="noopener">python morvanzhou</a></li>
-<li><a href="https://www.liaoxuefeng.com/" target="_blank" rel="noopener">python liaoxuefeng</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/24/python/language/py-language-13-copy/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -466,24 +310,12 @@ False
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>try:, except ... as ...:</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>错误处理</h2>
-<p>输出错误：<code>try:, except ... as ...</code>: 看如下代码</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    file=open(<span class="string">'eeee.txt'</span>,<span class="string">'r'</span>)  <span class="comment">#会报错的代码</span></span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:  <span class="comment"># 将报错存储在 e 中</span></span><br><span class="line">    print(e)</span><br></pre></td></tr></table></figure></p>
-<pre><code>[Errno 2] No such file or directory: 'eeee.txt'
-</code></pre>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">try</span>:</span><br><span class="line">    file=open(<span class="string">'eeee.txt'</span>,<span class="string">'r+'</span>)</span><br><span class="line"><span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">    print(e)</span><br><span class="line">    response = input(<span class="string">'do you want to create a new file:'</span>)</span><br><span class="line">    <span class="keyword">if</span> response==<span class="string">'y'</span>:</span><br><span class="line">        file=open(<span class="string">'eeee.txt'</span>,<span class="string">'w'</span>)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"><span class="keyword">else</span>:</span><br><span class="line">    file.write(<span class="string">'ssss'</span>)</span><br><span class="line">    file.close()</span><br></pre></td></tr></table></figure></p>
-<pre><code>[Errno 2] No such file or directory: 'eeee.txt'
-do you want to create a new file:y
-</code></pre>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://docs.python.org/" target="_blank" rel="noopener">docs.python.org</a></li>
-<li><a href="https://morvanzhou.github.io/" target="_blank" rel="noopener">python morvanzhou</a></li>
-<li><a href="https://www.liaoxuefeng.com/" target="_blank" rel="noopener">python liaoxuefeng</a></li>
-</ul>
-
+        <p>try:, except … as …:</p>
+         
+          <p class="article-more-link">
+            <a href="/2018/01/24/python/language/py-language-12-try-exception/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -545,40 +377,12 @@ do you want to create a new file:y
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>zip、lambda、map...</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>zip</h2>
-<p><code>zip</code> 函数接受任意多个（包括0个和1个）序列作为参数，合并后返回一个tuple列表</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line">b=[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</span><br><span class="line">ab=zip(a,b)</span><br><span class="line">print(list(ab))  <span class="comment">#需要加list来可视化这个功能</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>[(1, 4), (2, 5), (3, 6)]
-</code></pre>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line">b=[<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</span><br><span class="line">ab=zip(a,b)</span><br><span class="line"></span><br><span class="line">print(list(ab))</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i,j <span class="keyword">in</span> zip(a,b):</span><br><span class="line">     print(i/<span class="number">2</span>,j*<span class="number">2</span>)</span><br></pre></td></tr></table></figure></p>
-<pre><code>[(1, 4), (2, 5), (3, 6)]
-0.5 8
-1.0 10
-1.5 12
-</code></pre>
-<h2>lambda</h2>
-<p><code>lambda</code> 定义一个简单的函数，实现简化代码的功能，看代码会更好理解。</p>
-<p><code>fun = lambda x,y : x+y</code>, 冒号前的<code>x</code>,<code>y</code>为自变量，冒号后<code>x+y</code>为具体运算</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">fun= <span class="keyword">lambda</span> x,y:x+y</span><br><span class="line">x=int(input(<span class="string">'x='</span>))    <span class="comment">#这里要定义int整数，否则会默认为字符串</span></span><br><span class="line">y=int(input(<span class="string">'y='</span>))</span><br><span class="line">print(fun(x,y))</span><br></pre></td></tr></table></figure></p>
-<pre><code>x=4
-y=6
-10
-</code></pre>
-<h2>map</h2>
-<p><code>map</code> 是把 <code>函数</code> 和 <code>参数</code> 绑定在一起.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">fun</span><span class="params">(x,y)</span>:</span></span><br><span class="line">	<span class="keyword">return</span> (x+y)</span><br><span class="line"></span><br><span class="line">print(list(map(fun,[<span class="number">1</span>],[<span class="number">2</span>])))</span><br><span class="line"></span><br><span class="line">list(map(fun,[<span class="number">1</span>,<span class="number">2</span>],[<span class="number">3</span>,<span class="number">4</span>]))</span><br></pre></td></tr></table></figure></p>
-<pre><code>[3]
-[4, 6]
-</code></pre>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://docs.python.org/" target="_blank" rel="noopener">docs.python.org</a></li>
-<li><a href="https://morvanzhou.github.io/" target="_blank" rel="noopener">python morvanzhou</a></li>
-<li><a href="https://www.liaoxuefeng.com/" target="_blank" rel="noopener">python liaoxuefeng</a></li>
-</ul>
-
+        <p>zip、lambda、map…</p>
+         
+          <p class="article-more-link">
+            <a href="/2018/01/24/python/language/py-language-11-zip-lambda-map/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -641,32 +445,11 @@ y=6
     <div class="article-entry" itemprop="articleBody">
       
         <p>上篇学习了如何 plot Scatter，今天我们讲述如何 plot <code>Bar</code></p>
-<p>&lt;!-- more --&gt;</p>
-<p>今日目标 : 柱状图分成上下两部分，每一个柱体上都有相应的数值标注，并且取消坐标轴的显示.</p>
-<h2>生成基本图形</h2>
-<p>向上向下生成<code>12个数据</code>，<code>X</code> 为 [0,11] 的整数 ，<code>Y</code>是均匀分布的随机数据。 使用的函数是<code>plt.bar</code>，参数为<code>X</code>和<code>Y</code>：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">n = <span class="number">12</span></span><br><span class="line"></span><br><span class="line">X = np.arange(n)</span><br><span class="line"></span><br><span class="line">Y1 = (<span class="number">1</span> - X / float(n)) * np.random.uniform(<span class="number">0.5</span>, <span class="number">1.0</span>, n)</span><br><span class="line">Y2 = (<span class="number">1</span> - X / float(n)) * np.random.uniform(<span class="number">0.5</span>, <span class="number">1.0</span>, n)</span><br><span class="line"></span><br><span class="line">plt.bar(X, +Y1)</span><br><span class="line">plt.bar(X, -Y2)</span><br><span class="line"></span><br><span class="line">plt.xlim(<span class="number">-.5</span>, n)</span><br><span class="line">plt.xticks(())</span><br><span class="line"></span><br><span class="line">plt.ylim(<span class="number">-1.25</span>, <span class="number">1.25</span>)</span><br><span class="line">plt.yticks(())</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-9-bar-1-output_1_0.png&quot; height=&quot;100&quot; width=&quot;550&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>加颜色和数据</h2>
-<p>用<code>facecolor</code>设置主体颜色，<code>edgecolor</code>设置边框颜色为白色，</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.bar(X, +Y1, facecolor=<span class="string">'#9999ff'</span>, edgecolor=<span class="string">'white'</span>)</span><br><span class="line">plt.bar(X, -Y2, facecolor=<span class="string">'#ff9999'</span>, edgecolor=<span class="string">'white'</span>)</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-9-bar-2-output_3_0.png&quot; height=&quot;100&quot; width=&quot;550&quot; /&gt;
-&lt;/div&gt;</p>
-<p>接下来我们用函数<code>plt.text</code>分别在柱体上方（下方）加上数值，用<code>%.2f</code>保留两位小数，横向居中对齐<code>ha='center'</code>，纵向底部（顶部）对齐<code>va='bottom'</code>：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.bar(X, +Y1, facecolor=<span class="string">'#9999ff'</span>, edgecolor=<span class="string">'white'</span>)</span><br><span class="line">plt.bar(X, -Y2, facecolor=<span class="string">'#ff9999'</span>, edgecolor=<span class="string">'white'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x, y <span class="keyword">in</span> zip(X, Y1):</span><br><span class="line">    <span class="comment"># ha: horizontal alignment</span></span><br><span class="line">    <span class="comment"># va: vertical alignment</span></span><br><span class="line">    plt.text(x + <span class="number">0.4</span>, y + <span class="number">0.05</span>, <span class="string">'%.2f'</span> % y, ha=<span class="string">'center'</span>, va=<span class="string">'bottom'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x, y <span class="keyword">in</span> zip(X, Y2):</span><br><span class="line">    <span class="comment"># ha: horizontal alignment</span></span><br><span class="line">    <span class="comment"># va: vertical alignment</span></span><br><span class="line">    plt.text(x + <span class="number">0.4</span>, -y - <span class="number">0.05</span>, <span class="string">'%.2f'</span> % y, ha=<span class="string">'center'</span>, va=<span class="string">'top'</span>)</span><br><span class="line">    </span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-9-bar-3-output_5_0.png&quot; height=&quot;100&quot; width=&quot;550&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/24/python/matplotlib/py-matplotlib-9-bar/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -729,22 +512,11 @@ y=6
     <div class="article-entry" itemprop="articleBody">
       
         <p>上篇学习了如何 plot 线，今天学习如何 plot <code>Scatter</code> 散点图</p>
-<p>&lt;!-- more --&gt;</p>
-<p>引入模块<code>numpy</code>用来产生一些随机数据。生成<code>1024</code>个呈标准正态分布的二维数据组 (平均数是<code>0</code>，方差为<code>1</code>) 作为一个数据集，并图像化这个数据集。每一个点的颜色值用<code>T</code>来表示：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">n = <span class="number">1024</span>    <span class="comment"># data size</span></span><br><span class="line"></span><br><span class="line">X = np.random.normal(<span class="number">0</span>, <span class="number">1</span>, n) <span class="comment"># 每一个点的X值</span></span><br><span class="line">Y = np.random.normal(<span class="number">0</span>, <span class="number">1</span>, n) <span class="comment"># 每一个点的Y值</span></span><br><span class="line"></span><br><span class="line">T = np.arctan2(Y,X) <span class="comment"># for color value</span></span><br></pre></td></tr></table></figure></p>
-<p>数据集生成完毕，现在来用 <code>scatter</code> <code>plot</code> 这个点集</p>
-<p>输入<code>X</code>和<code>Y</code>作为location，<code>size=75</code>，颜色为<code>T</code>，<code>color map</code> 用默认值，透明度<code>alpha</code> 为 50%。 x轴显示范围定位(-1.5，1.5)，并用<code>xtick()</code> 函数来隐藏<code>x</code>坐标轴，<code>y</code>轴同理：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.scatter(X, Y, s=<span class="number">75</span>, c=T, alpha=<span class="number">.5</span>)</span><br><span class="line"></span><br><span class="line">plt.xlim(<span class="number">-1.5</span>, <span class="number">1.5</span>)</span><br><span class="line">plt.xticks(())  <span class="comment"># ignore xticks</span></span><br><span class="line">plt.ylim(<span class="number">-1.5</span>, <span class="number">1.5</span>)</span><br><span class="line">plt.yticks(())  <span class="comment"># ignore yticks</span></span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-8-scatter-1.png&quot; height=&quot;100&quot; width=&quot;700&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/24/python/matplotlib/py-matplotlib-8-scatter/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -807,26 +579,11 @@ y=6
     <div class="article-entry" itemprop="articleBody">
       
         <p>图中的内容较多，可通过设置相关内容的<code>透明度</code>来使图片更易于观察，也即是本节中的<code>bbox</code>参数设置来调节图像信息.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>生成图形</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">0.1</span>*x</span><br><span class="line"></span><br><span class="line">plt.figure()</span><br><span class="line"><span class="comment"># 在 plt 2.0.2 或更高的版本中, 设置 zorder 给 plot 在 z 轴方向排序</span></span><br><span class="line">plt.plot(x, y, linewidth=<span class="number">10</span>, zorder=<span class="number">1</span>)</span><br><span class="line">plt.ylim(<span class="number">-2</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">ax = plt.gca()</span><br><span class="line"></span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-7-tick-output_1_0.png&quot; height=&quot;100&quot; width=&quot;700&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>调整坐标 bbox</h2>
-<p>然后对被遮挡的图像调节相关透明度，本例中设置 x轴 和 y轴 的刻度数字进行透明度设置</p>
-<p>其中<code>label.set_fontsize(12)</code>重新调节字体大小，<code>bbox</code>设置目的内容的透明度相关参数，<code>facecolor</code>调节 <code>box</code> 前景色，<code>edgecolor</code> 设置边框， 本处设置边框为无，<code>alpha</code>设置透明度.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> label <span class="keyword">in</span> ax.get_xticklabels() + ax.get_yticklabels():</span><br><span class="line">    label.set_fontsize(<span class="number">12</span>)</span><br><span class="line">    <span class="comment"># 在 plt 2.0.2 或更高的版本中, 设置 zorder 给 plot 在 z 轴方向排序</span></span><br><span class="line">    label.set_bbox(dict(facecolor=<span class="string">'white'</span>, edgecolor=<span class="string">'None'</span>, alpha=<span class="number">0.7</span>, zorder=<span class="number">2</span>))</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-7-tick-output_3_0.png&quot; height=&quot;100&quot; width=&quot;700&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/23/python/matplotlib/py-matplotlib-7-tick/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -890,46 +647,11 @@ y=6
       
         <p>当图线中某些特殊地方需要标注时，我们可以使用 <code>annotation</code>.</p>
 <p>matplotlib 中的 <code>annotation</code> 有两种方法， 一种是用 plt 里面的 <code>annotate</code>，一种是直接用 plt 里面的 <code>text</code> 来写标注.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>画出基本图</h2>
-<p>首先，我们在坐标轴中绘制一条直线.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-6-annotation-output_1_0.png&quot; height=&quot;100&quot; width=&quot;500&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>移动坐标</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动坐标</span></span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-6-annotation-output_3_0.png&quot; height=&quot;100&quot; width=&quot;550&quot; /&gt;
-&lt;/div&gt;</p>
-<p>然后标注出点<code>(x0, y0)</code>的位置信息. 用 <code>plt.plot([x0, x0,], [0, y0,], 'k--', linewidth=2.5)</code> 画出一条垂直于x轴的虚线.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动坐标</span></span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">x0 = <span class="number">1</span></span><br><span class="line">y0 = <span class="number">2</span>*x0 + <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">###   plt.plot([x0, x0,], [0, y0,], 'k--', linewidth=2.5) 画出一条垂直于x轴的虚线.  ###</span></span><br><span class="line"></span><br><span class="line">plt.plot([x0, x0,], [<span class="number">0</span>, y0,], <span class="string">'k--'</span>, linewidth=<span class="number">2.5</span>)</span><br><span class="line"><span class="comment"># set dot styles</span></span><br><span class="line">plt.scatter([x0, ], [y0, ], s=<span class="number">50</span>, color=<span class="string">'b'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-6-annotation-output_5_0.png&quot; height=&quot;100&quot; width=&quot;550&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>加注释 annotate</h2>
-<p>接下来我们就对<code>(x0, y0)</code>这个点进行标注.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-4</span>, <span class="number">4</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">10</span>, <span class="number">6</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动坐标</span></span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">x0 = <span class="number">1</span></span><br><span class="line">y0 = <span class="number">2</span>*x0 + <span class="number">1</span></span><br><span class="line">plt.plot([x0, x0,], [<span class="number">0</span>, y0,], <span class="string">'k--'</span>, linewidth=<span class="number">2.5</span>)</span><br><span class="line"><span class="comment"># set dot styles</span></span><br><span class="line">plt.scatter([x0, ], [y0, ], s=<span class="number">50</span>, color=<span class="string">'b'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">############## 添加注释 annotate ###############</span></span><br><span class="line"></span><br><span class="line">plt.annotate(<span class="string">r'$2x+1=%s$'</span> % y0, xy=(x0, y0), xycoords=<span class="string">'data'</span>, xytext=(+<span class="number">30</span>, <span class="number">-30</span>),</span><br><span class="line">             textcoords=<span class="string">'offset points'</span>, fontsize=<span class="number">16</span>,</span><br><span class="line">             arrowprops=dict(arrowstyle=<span class="string">'-&gt;'</span>, connectionstyle=<span class="string">"arc3,rad=.2"</span>))</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-6-annotation-output_7_0.png&quot; height=&quot;100&quot; width=&quot;550&quot; /&gt;
-&lt;/div&gt;</p>
-<p>其中参数 <code>xycoords='data'</code> 是说基于数据的值来选位置, <code>xytext=(+30, -30)</code> 和 <code>textcoords='offset points'</code> 对于标注位置的描述 和 <code>xy</code> 偏差值, <code>arrowprops</code>是对图中箭头类型的一些设置.</p>
-<h2>加注释 text</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.text(<span class="number">-3.7</span>, <span class="number">3</span>, <span class="string">r'$This\ is\ the\ some\ text. \mu\ \sigma_i\ \alpha_t$'</span>,</span><br><span class="line">         fontdict=&#123;<span class="string">'size'</span>: <span class="number">16</span>, <span class="string">'color'</span>: <span class="string">'r'</span>&#125;)</span><br></pre></td></tr></table></figure></p>
-<pre><code>Text(-3.7,3,'$This\\ is\\ the\\ some\\ text. \\mu\\ \\sigma_i\\ \\alpha_t$')
-</code></pre>
-<p>其中<code>-3.7, 3,</code>是选取text的位置, 空格需要用到转字符<code>\</code> ,<code>fontdict</code>设置文本字体.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-4</span>, <span class="number">4</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">plt.figure(num=<span class="number">1</span>, figsize=(<span class="number">10</span>, <span class="number">6</span>),)</span><br><span class="line">plt.plot(x, y,)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 移动坐标</span></span><br><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line"></span><br><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">x0 = <span class="number">1</span></span><br><span class="line">y0 = <span class="number">2</span>*x0 + <span class="number">1</span></span><br><span class="line">plt.plot([x0, x0,], [<span class="number">0</span>, y0,], <span class="string">'k--'</span>, linewidth=<span class="number">2.5</span>)</span><br><span class="line"><span class="comment"># set dot styles</span></span><br><span class="line">plt.scatter([x0, ], [y0, ], s=<span class="number">50</span>, color=<span class="string">'b'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">############## 添加注释 annotate ###############</span></span><br><span class="line"></span><br><span class="line">plt.annotate(<span class="string">r'$2x+1=%s$'</span> % y0, xy=(x0, y0), xycoords=<span class="string">'data'</span>, xytext=(+<span class="number">30</span>, <span class="number">-30</span>),</span><br><span class="line">             textcoords=<span class="string">'offset points'</span>, fontsize=<span class="number">16</span>,</span><br><span class="line">             arrowprops=dict(arrowstyle=<span class="string">'-&gt;'</span>, connectionstyle=<span class="string">"arc3,rad=.2"</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">############# 添加注释 text #################</span></span><br><span class="line"></span><br><span class="line">plt.text(<span class="number">-3.7</span>, <span class="number">3</span>, <span class="string">r'$This\ is\ the\ some\ text. \mu\ \sigma_i\ \alpha_t$'</span>,</span><br><span class="line">         fontdict=&#123;<span class="string">'size'</span>: <span class="number">16</span>, <span class="string">'color'</span>: <span class="string">'r'</span>&#125;)</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-6-annotation-output_11_0.png&quot; height=&quot;100&quot; width=&quot;500&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/23/python/matplotlib/py-matplotlib-6-Annotation/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -992,41 +714,11 @@ y=6
     <div class="article-entry" itemprop="articleBody">
       
         <p>matplotlib 中的 <code>legend</code> 图例就是为了展示出每个数据对应的<code>图像名称</code>,可读性更好.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>添加图例 legend</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y1 = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line">y2 = x**<span class="number">2</span></span><br><span class="line"></span><br><span class="line">plt.figure()</span><br><span class="line"><span class="comment">#set x limits</span></span><br><span class="line">plt.xlim((<span class="number">-1</span>, <span class="number">2</span>))</span><br><span class="line">plt.ylim((<span class="number">-2</span>, <span class="number">3</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># set new sticks</span></span><br><span class="line">new_sticks = np.linspace(<span class="number">-1</span>, <span class="number">2</span>, <span class="number">5</span>)</span><br><span class="line">plt.xticks(new_sticks)</span><br><span class="line"><span class="comment"># set tick labels</span></span><br><span class="line">plt.yticks([<span class="number">-2</span>, <span class="number">-1.8</span>, <span class="number">-1</span>, <span class="number">1.22</span>, <span class="number">3</span>],</span><br><span class="line">           [<span class="string">r'$really\ bad$'</span>, <span class="string">r'$bad$'</span>, <span class="string">r'$normal$'</span>, <span class="string">r'$good$'</span>, <span class="string">r'$really\ good$'</span>])</span><br></pre></td></tr></table></figure></p>
-<pre><code>([&lt;matplotlib.axis.YTick at 0x1195c3358&gt;,
-  &lt;matplotlib.axis.YTick at 0x112681080&gt;,
-  &lt;matplotlib.axis.YTick at 0x1195ce710&gt;,
-  &lt;matplotlib.axis.YTick at 0x1195f5240&gt;,
-  &lt;matplotlib.axis.YTick at 0x1195fc550&gt;],
- &lt;a list of 5 Text yticklabel objects&gt;)
-</code></pre>
-<p>对图中的两条线绘制图例，首先我们设置两条线的类型等信息（蓝色实线与红色虚线).</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># set line syles</span></span><br><span class="line">l1, = plt.plot(x, y1, label=<span class="string">'linear line'</span>)</span><br><span class="line">l2, = plt.plot(x, y2, color=<span class="string">'red'</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">'--'</span>, label=<span class="string">'square line'</span>)</span><br></pre></td></tr></table></figure></p>
-<p>需要注意的是 <code>l1,</code> <code>l2,</code> 要以<code>逗号</code>结尾, 因为 <code>plt.plot()</code> 返回的是一个list.</p>
-<p><code>legend</code> 将要显示的信息来自于上面代码中的 <code>label</code>. 所以我们只需要简单写一下代码, <code>plt</code> 就能自动的为我们添加图例.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.legend(loc=<span class="string">'upper right'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-5-legend-1.png&quot; height=&quot;100&quot; width=&quot;650&quot; /&gt;
-&lt;/div&gt;</p>
-<p>参数 <code>loc='upper right'</code> 表示图例将添加在图中的右上角.</p>
-<h2>调整位置和名称</h2>
-<p>如果我们想单独修改之前的 <code>label</code> 信息, 给不同类型的线条设置图例信息. 我们可以在 <code>plt.legend</code> 输入更多参数. 如果以下面这种形式添加 <code>legend</code>, 我们需要确保, 在上面的代码 <code>plt.plot(x, y2, label='linear line')</code> 和 <code>plt.plot(x, y1, label='square line')</code> 中有用变量 l1 和 l2 分别存储起来.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.legend(handles=[l1, l2], labels=[<span class="string">'up'</span>, <span class="string">'down'</span>],  loc=<span class="string">'best'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-5-legend-2.png&quot; height=&quot;100&quot; width=&quot;650&quot; /&gt;
-&lt;/div&gt;</p>
-<p>这样我们就能分别重新设置线条对应的 <code>label</code> 了.</p>
-<p>其中’loc’参数有多种，’best’表示自动分配最佳位置，其余的如下：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="string">'best'</span> : <span class="number">0</span>,          </span><br><span class="line"><span class="string">'upper right'</span>  : <span class="number">1</span>,</span><br><span class="line"><span class="string">'upper left'</span>   : <span class="number">2</span>,</span><br><span class="line"><span class="string">'lower left'</span>   : <span class="number">3</span>,</span><br><span class="line"><span class="string">'lower right'</span>  : <span class="number">4</span>,</span><br><span class="line"><span class="string">'right'</span>        : <span class="number">5</span>,</span><br><span class="line"><span class="string">'center left'</span>  : <span class="number">6</span>,</span><br><span class="line"><span class="string">'center right'</span> : <span class="number">7</span>,</span><br><span class="line"><span class="string">'lower center'</span> : <span class="number">8</span>,</span><br><span class="line"><span class="string">'upper center'</span> : <span class="number">9</span>,</span><br><span class="line"><span class="string">'center'</span>       : <span class="number">10</span>,</span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/23/python/matplotlib/py-matplotlib-5-legend/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1089,76 +781,11 @@ y=6
     <div class="article-entry" itemprop="articleBody">
       
         <p>如何移动 matplotlib 中 axis 坐标轴的位置.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>设置名字和位置</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure></p>
-<p>使用 <code>np.linspace</code> 定义 <code>x</code> ：范围是(-3,3);个数是50.<br>
-仿真一维数据组(<code>x</code> ,<code>y1</code>)表示曲线1.  仿真一维数据组(<code>x</code> ,<code>y2</code>)表示曲线2.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y1 = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line">y2 = x**<span class="number">2</span></span><br></pre></td></tr></table></figure></p>
-<p>使用<code>plt.figure</code>定义一个图像窗口.</p>
-<p>使用<code>plt.plot</code>画(<code>x</code> ,<code>y2</code>)曲线. 使用<code>plt.plot</code>画(<code>x</code> ,<code>y1</code>)曲线，曲线的颜色属性(<code>color</code>)为红色; 曲线的宽度(<code>linewidth</code>) 为 1.0; 曲线的类型(<code>linestyle</code>)为虚线.</p>
-<p>使用<code>plt.xlim</code>设置<code>x</code>坐标轴范围: (-1, 2); 使用<code>plt.ylim</code>设置<code>y</code>坐标轴范围: (-2, 3);</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.figure()</span><br><span class="line">plt.plot(x, y2)</span><br><span class="line">plt.plot(x, y1, color=<span class="string">'red'</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">'--'</span>)</span><br><span class="line">plt.xlim((<span class="number">-1</span>, <span class="number">2</span>))</span><br><span class="line">plt.ylim((<span class="number">-2</span>, <span class="number">3</span>))</span><br></pre></td></tr></table></figure></p>
-<pre><code>(-2, 3)
-</code></pre>
-<p>使用<code>np.linspace</code>定义范围以及个数：范围是(-1,2);个数是5.</p>
-<p>使用<code>plt.xticks</code>设置<code>x</code>轴刻度：范围是(-1,2);个数是5.<br>
-使用<code>plt.yticks</code>设置<code>y</code>轴刻度以及名称: 刻度为[-2, -1.8, -1, 1.22, 3]; 对应刻度的名称为[‘really bad’,’bad’,’normal’,’good’, ‘really good’].</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">new_ticks = np.linspace(<span class="number">-1</span>, <span class="number">2</span>, <span class="number">5</span>)</span><br><span class="line">plt.xticks(new_ticks)</span><br><span class="line">plt.yticks([<span class="number">-2</span>, <span class="number">-1.8</span>, <span class="number">-1</span>, <span class="number">1.22</span>, <span class="number">3</span>],[<span class="string">'$really\ bad$'</span>, <span class="string">'$bad$'</span>, <span class="string">'$normal$'</span>, <span class="string">'$good$'</span>, <span class="string">'$really\ good$'</span>])</span><br></pre></td></tr></table></figure></p>
-<table>
-<thead>
-<tr>
-<th>function</th>
-<th>desc</th>
-<th>设置效果</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>plt.gca</code></td>
-<td>获取当前坐标轴信息</td>
-<td>-</td>
-</tr>
-<tr>
-<td><code>.spines</code></td>
-<td>设置边框</td>
-<td>右侧边框 &amp; 上边框</td>
-</tr>
-<tr>
-<td><code>.set_color</code></td>
-<td>设置边框颜色</td>
-<td>默认白色</td>
-</tr>
-</tbody>
-</table>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax = plt.gca()</span><br><span class="line">ax.spines[<span class="string">'right'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">ax.spines[<span class="string">'top'</span>].set_color(<span class="string">'none'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-4-ax-4_1.png&quot; height=&quot;100&quot; width=&quot;700&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>调整坐标轴</h2>
-<p>使用 <code>.xaxis.set_ticks_position</code>设置<code>x</code>坐标刻度数字或名称的位置：<code>bottom</code>.（所有位置：<code>top</code>，<code>bottom</code>，<code>both</code>，<code>default</code>，<code>none</code>）<br>
-使用 <code>.spines</code> 设置边框：<code>x</code>轴；<br>
-使用 <code>.set_position</code> 设置边框位置：<code>y=0</code> 的位置；（位置所有属性：<code>outward</code>，<code>axes</code>，<code>data</code>）</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax.xaxis.set_ticks_position(<span class="string">'bottom'</span>)</span><br><span class="line"></span><br><span class="line">ax.spines[<span class="string">'bottom'</span>].set_position((<span class="string">'data'</span>, <span class="number">0</span>))</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-4-ax-4_2.png&quot; height=&quot;100&quot; width=&quot;700&quot; /&gt;
-&lt;/div&gt;</p>
-<p>使用<code>.yaxis.set_ticks_position</code>设置<code>y</code>坐标刻度数字或名称的位置：<code>left</code>.（所有位置：<code>left</code>，<code>right</code>，<code>both</code>，<code>default</code>，<code>none</code>）</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax.yaxis.set_ticks_position(<span class="string">'left'</span>)</span><br></pre></td></tr></table></figure></p>
-<p>使用<code>.spines</code>设置边框：<code>y</code>轴;<br>
-使用<code>.set_position</code>设置边框位置：<code>x=0</code>的位置；（位置所有属性：<code>outward</code>，<code>axes</code>，<code>data</code>）<br>
-使用<code>plt.show</code>显示图像.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax.spines[<span class="string">'left'</span>].set_position((<span class="string">'data'</span>,<span class="number">0</span>))</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-4-ax-4_3.png&quot; height=&quot;100&quot; width=&quot;700&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/23/python/matplotlib/py-matplotlib-4-coordinate_axis/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1221,24 +848,11 @@ y=6
     <div class="article-entry" itemprop="articleBody">
       
         <p>Python 语言特定的序列化模块是pickle，但如果要把序列化搞得更通用、更符合Web标准，可以使用json模块</p>
-<p>&lt;!-- more --&gt;</p>
-<p>pickle 是一个 python 中, 压缩/保存/提取 文件的模块. 最一般的使用方式非常简单.</p>
-<h2>pickle 保存</h2>
-<p>字典和列表都是能被保存的.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"></span><br><span class="line">a_dict = &#123;<span class="string">'da'</span>: <span class="number">111</span>, <span class="number">2</span>: [<span class="number">23</span>,<span class="number">1</span>,<span class="number">4</span>], <span class="string">'23'</span>: &#123;<span class="number">1</span>:<span class="number">2</span>,<span class="string">'d'</span>:<span class="string">'sad'</span>&#125;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># pickle a variable to a file</span></span><br><span class="line">file = open(<span class="string">'pickle_example.pickle'</span>, <span class="string">'wb'</span>)</span><br><span class="line">pickle.dump(a_dict, file)</span><br><span class="line">file.close()</span><br></pre></td></tr></table></figure></p>
-<p><code>pickle.dump</code> 你要保存的东西去这个打开的 <code>file</code>.</p>
-<p>最后关闭 <code>file</code> 你就会发现你的文件目录里多了一个 <code>pickle_example.pickle</code> 文件, 这就是那个字典了.</p>
-<h2>pickle 提取</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># reload a file to a variable</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'pickle_example.pickle'</span>, <span class="string">'rb'</span>) <span class="keyword">as</span> file:</span><br><span class="line">    a_dict1 =pickle.load(file)</span><br><span class="line"></span><br><span class="line">print(a_dict1)</span><br></pre></td></tr></table></figure></p>
-<pre><code>{'da': 111, 2: [23, 1, 4], '23': {1: 2, 'd': 'sad'}}
-</code></pre>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://docs.python.org/" target="_blank" rel="noopener">docs.python.org</a></li>
-<li><a href="https://morvanzhou.github.io/" target="_blank" rel="noopener">python morvanzhou</a></li>
-<li><a href="https://www.liaoxuefeng.com/" target="_blank" rel="noopener">python liaoxuefeng</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/19/python/language/py-language-14-pickle/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1300,34 +914,13 @@ y=6
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>我们训练好了一个 <code>Model</code> 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。<br>
+        <p>我们训练好了一个 <code>Model</code> 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。<br />
 这次主要介绍两种保存Model的模块 <code>pickle</code> 与 <code>joblib</code></p>
-<p>&lt;!-- more --&gt;</p>
-<h2>pickle 保存</h2>
-<p>首先简单建立与训练一个 <code>SVC</code> Model</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> svm</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets</span><br><span class="line"></span><br><span class="line">clf = svm.SVC()</span><br><span class="line">iris = datasets.load_iris()</span><br><span class="line">X, y = iris.data, iris.target</span><br><span class="line">clf.fit(X,y)</span><br></pre></td></tr></table></figure></p>
-<pre><code>SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
-  decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf',
-  max_iter=-1, probability=False, random_state=None, shrinking=True,
-  tol=0.001, verbose=False)
-</code></pre>
-<p>使用 <code>pickle</code> 来保存与读取训练好的 <code>Model</code></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle <span class="comment">#pickle模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#保存Model(注:save文件夹要预先建立，否则会报错)</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'save/clf.pickle'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pickle.dump(clf, f)</span><br><span class="line"></span><br><span class="line"><span class="comment">#读取Model</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'save/clf.pickle'</span>, <span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    clf2 = pickle.load(f)</span><br><span class="line">    <span class="comment">#测试读取后的Model</span></span><br><span class="line">    print(clf2.predict(X[<span class="number">0</span>:<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># [0]</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>[0]
-</code></pre>
-<h2>joblib 保存</h2>
-<p><code>joblib</code> 是 sklearn的外部模块</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.externals <span class="keyword">import</span> joblib <span class="comment">#jbolib模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#保存Model(注:save文件夹要预先建立，否则会报错)</span></span><br><span class="line">joblib.dump(clf, <span class="string">'save/clf.pkl'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#读取Model</span></span><br><span class="line">clf3 = joblib.load(<span class="string">'save/clf.pkl'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#测试读取后的Model</span></span><br><span class="line">print(clf3.predict(X[<span class="number">0</span>:<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># [0]</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>[0]
-</code></pre>
-<p><code>joblib</code> 在使用上比较容易，读取速度也相对<code>pickle</code>快</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/10/python/sklearn/py-sklearn-7-save-model/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1390,21 +983,11 @@ y=6
     <div class="article-entry" itemprop="articleBody">
       
         <p>交叉验证(cross validation)让我们知道在机器学习中验证是有多么的重要, 这一次的 sklearn 中我们用到了<code>sklearn.learning_curve</code>当中的另外一种, 叫做<code>validation_curve</code>,用这一种曲线我们就能更加直观看出改变模型中的参数的时候有没有过拟合(overfitting)的问题了. 这也是可以让我们更好的选择参数的方法.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>validation_curve 检视过拟合</h2>
-<p>验证<code>SVC</code>中的一个参数 <code>gamma</code> 在什么范围内能使 <code>model</code> 产生好的结果. 以及过拟合和 <code>gamma</code> 取值的关系.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.learning_curve <span class="keyword">import</span> validation_curve <span class="comment">#validation_curve模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_digits </span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC </span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment">#digits数据集</span></span><br><span class="line">digits = load_digits()</span><br><span class="line">X = digits.data</span><br><span class="line">y = digits.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#建立参数测试集</span></span><br><span class="line">param_range = np.logspace(<span class="number">-6</span>, <span class="number">-2.3</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用validation_curve快速找出参数对模型的影响</span></span><br><span class="line">train_loss, test_loss = validation_curve(</span><br><span class="line">    SVC(), X, y, param_name=<span class="string">'gamma'</span>, param_range=param_range, cv=<span class="number">10</span>, scoring=<span class="string">'mean_squared_error'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#平均每一轮的平均方差</span></span><br><span class="line">train_loss_mean = -np.mean(train_loss, axis=<span class="number">1</span>)</span><br><span class="line">test_loss_mean = -np.mean(test_loss, axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#可视化图形</span></span><br><span class="line">plt.plot(param_range, train_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"r"</span>,</span><br><span class="line">         label=<span class="string">"Training"</span>)</span><br><span class="line">plt.plot(param_range, test_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"g"</span>,</span><br><span class="line">        label=<span class="string">"Cross-validation"</span>)</span><br><span class="line"></span><br><span class="line">plt.xlabel(<span class="string">"gamma"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Loss"</span>)</span><br><span class="line">plt.legend(loc=<span class="string">"best"</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-6-cross-validation-3-output_1_1.png&quot; width=&quot;400&quot; /&gt;
-&lt;/div&gt;</p>
-<p>由图中可以明显看到 <code>gamma</code> 值大于 <code>0.001</code>，模型就会有过拟合(<code>Overfitting</code>)的问题。</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/09/python/sklearn/py-sklearn-6-cross-validation-3/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1467,27 +1050,11 @@ y=6
     <div class="article-entry" itemprop="articleBody">
       
         <p>Sklearn 中的 <code>learning curve</code> 可以很直观的看出我们的 <code>model</code> 学习的进度, 对比发现有没有 <code>overfitting</code> 的问题. 然后我们可以对我们的 <code>model</code> 进行调整, 克服 <code>overfitting</code> 的问题.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>Learning curve 检视过拟合</h2>
-<p>加载对应模块:</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.learning_curve <span class="keyword">import</span> learning_curve <span class="comment">#学习曲线模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_digits <span class="comment">#digits数据集</span></span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC <span class="comment">#Support Vector Classifier</span></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span class="comment">#可视化模块</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure></p>
-<p>加载digits数据集，其包含的是手写体的数字，从0到9。<br>
-数据集总共有1797个样本，每个样本由64个特征组成， 分别为其手写体对应的8×8像素表示，每个特征取值0~16。</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">digits = load_digits()</span><br><span class="line">X = digits.data</span><br><span class="line">y = digits.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#print(len(X[0]))</span></span><br></pre></td></tr></table></figure></p>
-<p>观察样本由小到大的学习曲线变化, 采用K折交叉验证 <code>cv=10</code>, 选择平均方差检视模型效能 <code>scoring='mean_squared_error'</code>, 样本由小到大分成5轮检视学习曲线(<code>10%</code>, <code>25%</code>, <code>50%</code>, <code>75%</code>, <code>100%</code>):</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">train_sizes, train_loss, test_loss = learning_curve(</span><br><span class="line">    SVC(gamma=<span class="number">0.001</span>), X, y, cv=<span class="number">10</span>, scoring=<span class="string">'mean_squared_error'</span>,</span><br><span class="line">    train_sizes=[<span class="number">0.1</span>, <span class="number">0.25</span>, <span class="number">0.5</span>, <span class="number">0.75</span>, <span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#平均每一轮所得到的平均方差(共5轮，分别为样本10%、25%、50%、75%、100%)</span></span><br><span class="line">train_loss_mean = -np.mean(train_loss, axis=<span class="number">1</span>)</span><br><span class="line">test_loss_mean = -np.mean(test_loss, axis=<span class="number">1</span>)</span><br></pre></td></tr></table></figure></p>
-<p>可视化图形:</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.plot(train_sizes, train_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"r"</span>,</span><br><span class="line">         label=<span class="string">"Training"</span>)</span><br><span class="line">plt.plot(train_sizes, test_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"g"</span>,</span><br><span class="line">        label=<span class="string">"Cross-validation"</span>)</span><br><span class="line"></span><br><span class="line">plt.xlabel(<span class="string">"Training examples"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Loss"</span>)</span><br><span class="line">plt.legend(loc=<span class="string">"best"</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-6-cross-validation-2-output_7_0.png&quot; width=&quot;400&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/09/python/sklearn/py-sklearn-6-cross-validation-2/">Read More</a>
+          </p> 
+        
       
     </div>
 	

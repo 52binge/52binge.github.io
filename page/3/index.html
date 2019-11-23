@@ -109,72 +109,12 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/deeplearning/CNN-03.png&quot; width=&quot;700&quot; alt=&quot;Convolutional Neural Networks&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p><a href="/deeplearning/#4-Convolutional-Neural-Networks">CNN 基础知识，详参本博： Convolutional-Neural-Networks</a></p>
-<p>Convolutional Neural Networks，CNN 也是一种前馈神经网络，其特点是<strong>每层的神经元节点只响应前一层局部区域范围内的神经元</strong>（全连接网络中每个神经元节点响应前一层的全部节点）。</p>
-<p>一个 DCNN 通常由若干 Convolutional-Layer 叠加若干 Fully-Connected 组成，中间也包含各种 Non-Linear 操作以及 Pooling 操作。</p>
-<p>Convolution operation 的**<code>参数共享特性</code>**使得需要优化的参数数目大大缩减，提高了模型的训练效率以及可扩展性。</p>
-<p>&lt;img src=&quot;/images/deeplearning/CNN-04.png&quot; width=&quot;700&quot; alt=&quot;LeCun Yann 在 1998 年提出&quot; /&gt;</p>
-<h2>1. Convolutional Function</h2>
-<h3>1.1 Sparse Interaction</h3>
-<p>  稠密的连接结构,  神经元 $s_i$ 与输入的所有神经元 $x_j$ 均有连接：</p>
-<p>&lt;img src=&quot;/images/deeplearning/CNN-05.png&quot; width=&quot;400&quot; alt=&quot;对于全连接网络，任意一对输入与输出神经元之间都产生交互，形成<code>稠密</code>的连接结构&quot; /&gt;</p>
-<p>  卷积， 每个输出神经元仅与前一层特定局部区域内的神经元存在连接：</p>
-<p>&lt;img src=&quot;/images/deeplearning/CNN-06.png&quot; width=&quot;400&quot; alt=&quot;卷积神经网络中，卷积核尺度远小于输入的维度，我们称这种特性为稀疏交互&quot; /&gt;</p>
-<p>神经元 $s_i$ 仅与前一层中的 $x_{i−1}$, $x_i$ 和 $x_{i+1}$ 相连。具体来讲如果限定每个输出与前一层神经元的连接数为 k ，那么该层的参数总量为 $k×n$。在实际应用中，一般 $k$ 值远小于 $m$ 就可以取得较为可观的效果；复杂度将会减小几个数量级，过拟合的情况改善.</p>
-<p><strong>稀疏交互的物理意义：</strong></p>
-<p>&lt;img src=&quot;/images/deeplearning/CNN-07.png&quot; width=&quot;750&quot; /&gt;</p>
-<h3>1.2 Parameter Sharing</h3>
-<blockquote>
-<ol>
-<li>Fully-Connected Networks，计算每层的输出时，权值参数矩阵中的每个元素只作用于某个输入元素一次；</li>
-<li>CNN，卷积核中的每一个元素将作用于每一次局部输入的特定位置上。</li>
-</ol>
-</blockquote>
-<p>根据参数共享的思想，我们只需要学习一组参数集合，而不需要针对每个位置的每个参数都进行优化，从而大大降低了模型的存储需求。</p>
-<p>参数共享的物理意义是使得卷积层具有平移等变性。什么意思？假如图像中有一只猫，那么无论它出现在图像中的任何位置，我们都应该将它识别为猫，也就是说神经网络的输出对于平移变换来说应当是等变的。</p>
-<h2>2. Pooling Function</h2>
-<ul>
-<li>mean pooling</li>
-<li>max pooling</li>
-</ul>
-<p>&lt;img src=&quot;/images/deeplearning/CNN-08.png&quot; width=&quot;600&quot; /&gt;</p>
-<p>pooling 的本质是降采样.</p>
-<p>pooling 除了能显著降低参数量外，还能够保持对平移、伸缩、旋转操作的不变性。</p>
-<h2>3. CNN 文本分类任务</h2>
-<p>CNN 的核心思想是捕捉局部特征，起初在图像领域取得了巨大的成功，后来在文本领域也得到了广泛的应用。对于文本来说，局部特征就是由若干单词组成的滑动窗口，类似于 N-gram.</p>
-<p>CNN 的优势在于能够自动地对 N-gram 特征进行组合和筛选，获得不同抽象层次的语义信息。</p>
-<p>&lt;img src=&quot;/images/deeplearning/CNN-10.png&quot; width=&quot;700&quot; /&gt;</p>
-<blockquote>
-<p>(1). 输入层是一个 $N×K$ 的矩阵，其中 $N$ 为文章所对应的单词总数，$K$ 是每个词对应的表示向量的维度.</p>
-<p>(2). 卷积层。在输入的 $N×K$ 维矩阵上，我们定义不同大小的滑动窗口进行卷积操作.</p>
-<p>(3). 池化层，网络采用了 1-MaxPool, 达到的效果都是将不同长度的句子通过池化得到一个定长的向量表示。</p>
-<p>(4). 得到文本的向量表示之后，接一个全连接层，并使用 Softmax 激活函数输出每个类别的概率。</p>
-</blockquote>
-<p>&lt;img src=&quot;/images/nlp/textcnn-3.webp&quot; width=&quot;700&quot; /img&gt;</p>
-<p>整个模型由四部分构成： <strong>输入层</strong>、<strong>卷积层</strong>、<strong>池化层</strong>、<strong>全连接层</strong>。 <a href="/2018/12/16/nlp/textCNN/">更多资料详见： TextCNN文本分类</a></p>
-<blockquote>
-<p>针对海量的文本多分类数据，也可以尝试一下浅层的深度学习模型 FastText模型，该模型的分类效率更高.</p>
-</blockquote>
-<h2>4. ResNet</h2>
-<p>深度神经网络的层数决定了模型的容量，然而随着神经网络层数的加深：</p>
-<ul>
-<li>优化函数越来越陷入局部最优解。</li>
-<li>同时，随着网络层数的增加，梯度消失的问题更加严重，这是因为梯度在反向传播时会逐渐衰减。特别是利用 Sigmoid 激活函数时，使得远离输出层（即接近输入层）的网络层不能够得到有效的学习，影响了模型泛化的效果。</li>
-</ul>
-<p><strong>Deep Residual Network，ResNet 的提出背景和核心理论是什么？</strong></p>
-<p>ResNet 的提出背景是解决或缓解 Deep Neural Networks 训练中的 Gradients Vanishing 问题</p>
-<p>&lt;img src=&quot;/images/deeplearning/CNN-11.png&quot; width=&quot;700&quot; /&gt;</p>
-<blockquote>
-<p>ResNet在 ImageNet 竞赛和 AlphaGo Zero 的应用中都取得了非常好的效果.</p>
-</blockquote>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://book.douban.com/subject/30285146/" target="_blank" rel="noopener">《百面机器学习》</a></li>
-<li><a href="http://www.iterate.site/post/01-%E6%95%B0%E5%AD%97%E7%9A%84%E5%BC%A0%E5%8A%9B/02-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/01-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%90%86%E8%AE%BA/03-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/02-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0/01-%E5%89%8D%E5%90%91%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/05-%E6%B7%B1%E5%BA%A6%E5%8D%B7%E7%A7%AF%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C/" target="_blank" rel="noopener">迭代自己 DCNN</a></li>
-</ul>
-
+        <img src="/images/deeplearning/CNN-03.png" width="700" alt="Convolutional Neural Networks" />
+         
+          <p class="article-more-link">
+            <a href="/2019/06/13/deeplearning/CNN/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -236,176 +176,12 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/deeplearning/ANN-01.png&quot; width=&quot;500&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>**更多基础知识系列详情参见 : <a href="/deeplearning/">Deep Learning Notes</a>
-**</p>
-<blockquote>
-<p>Feedforward Networks 是一种最简单的神经网络，各神经元分层排列。每个神经元只与前一层的神经元相连。接收前一层的输出，并输出给下一层．各层间没有反馈。</p>
-</blockquote>
-<p>Feedforward Networks 是一类网络的统称: MLP、Autoencoder、RBM、CNN 等都属于这类.</p>
-<blockquote>
-<p>对于中间层来说, 往往是 ReLU 的效果最好.
-虽然 z &lt; 0, 的时候，斜率为0， 但在实践中，有足够多的隐藏单元 令 z &gt; 0, 对大多数训练样本来说是很快的.</p>
-<p>so the one place you might use as linear activation function others usually in the output layer.</p>
-</blockquote>
-<h2>1. Neural Networks Basics</h2>
-<p>&lt;img src=&quot;/images/deeplearning/C1W3-8_1.png&quot; width=&quot;700&quot; /&gt;</p>
-<h2>2. Activation functions</h2>
-<p>四种常用的激活函数: Sigmoid, Tanh, ReLU, Leaky ReLU.</p>
-<p>其中 sigmoid 我们已经见过了, 它的输出可看成一个概率值, 往往用在输出层. <strong>对于中间层来说, 往往<code>ReLU</code>效果最好.</strong></p>
-<blockquote>
-<p>Tanh 数据平均值为 0，具有数据中心化的效果，几乎在任何场合都优于 Sigmoid</p>
-</blockquote>
-<p>&lt;img src=&quot;/images/deeplearning/C1W3-9_1.png&quot; width=&quot;700&quot; /&gt;</p>
-<p>为什么需要激活函数? 如果没有激活函数, 那么不论多少层的神经网络都只相当于一个LR:</p>
-<blockquote>
-<p>it turns out that if you use a linear activation function or alternatively if you don’t have an activation function, then no matter how many layers your neural network has, always doing just computing a linear activation function, so you might as well not have any hidden layers.</p>
-<p>so unless you throw a non-linearity in there, then you’re not computing more interesting functions</p>
-</blockquote>
-<p>ReLU (rectified linear unit 矫正线性单元)</p>
-<blockquote>
-<p>tanh 和 sigmoid 都有一个缺点，就是 z 非常大或者非常小，函数的斜率(导数梯度)就会非常小, 梯度下降很慢.</p>
-<p>the slope of the function you know ends up being close to zero, and so this can slow down gradient descent</p>
-<p>ReLU (rectified linear unit) is well, z = 0 的时候，你可以给导数赋值为 0 or 1，虽然这个点是不可微的. 但实现没有影响.</p>
-<p>虽然 z &lt; 0, 的时候，斜率为0， 但在实践中，有足够多的隐藏单元 令 z &gt; 0, 对大多数训练样本来说是很快的.</p>
-</blockquote>
-<p><strong>激活函数的对比:</strong></p>
-<blockquote>
-<ol>
-<li>Sigmoid 和 Tanh 为什么会导致 Vanishing/Exploding gradients ?</li>
-<li>Tanh 值域 (-1,1) Sigmoid 值域 (0,1)</li>
-<li>ReLU 的优点，和局限性分别是什么?</li>
-<li><a href="https://zhuanlan.zhihu.com/p/48776056" target="_blank" rel="noopener">谈谈激活函数 Sigmoid,Tanh,ReLu,softplus,softmax</a></li>
-</ol>
-</blockquote>
-<h2>3. Initialization weights</h2>
-<p>在 LR 中我们的参数 $w$ 初始化为 0, 如果在神经网络中也是用相同的初始化, 那么一个隐藏层的每个节点都是相同的, 不论迭代多少次. 这显然是不合理的, 所以我们应该&lt;font color=&quot;red&quot;&gt; <strong>随机地初始化</strong>&lt;/font&gt; $w$ 从而解决这个 sysmmetry breaking problem. 破坏对称问题</p>
-<p>&lt;img src=&quot;/images/deeplearning/C1W3-16_1.png&quot; width=&quot;700&quot; /&gt;</p>
-<blockquote>
-<p>具体初始化代码可参见下图, 其中 <strong>乘以 0.01</strong> 是为了让参数 $w$ 较小, 加速梯度下降</p>
-<p>如激活为 tanh 时, 若参数较大则 $z$ 也较大, 此时梯度接近于 0, 更新缓慢. 如不是 tanh or sigmoid 则问题不大.</p>
-<p>this is a relatively shallow neural network without too many hidden layers, so 0.01 maybe work ok.</p>
-<p>finally it turns out that sometimes there can be better constants than 0.01.</p>
-</blockquote>
-<p>&lt;img src=&quot;/images/deeplearning/C1W3-17_1.png&quot; width=&quot;700&quot; /&gt;</p>
-<h2>4. Improving DNN</h2>
-<p>深度学习的实用层面 ：</p>
-<blockquote>
-<ul>
-<li>能够高效地使用神经网络<strong>通用</strong>的技巧，包括 <code>初始化、L2和dropout正则化、Batch归一化、梯度检验</code>。</li>
-<li>能够实现并应用各种<strong>优化</strong>算法，例如 <code>Mini-batch、Momentum、RMSprop、Adam，并检查它们的收敛程度</code>。</li>
-<li>理解深度学习时代关于如何 <strong>构建训练/开发/测试集</strong> 以及 <strong>偏差/方差分析</strong> 最新最有效的方法.</li>
-</ul>
-</blockquote>
-<h3>4.1 Train/dev/test</h3>
-<p>传统的机器学习中：</p>
-<blockquote>
-<p>通常按照 70/30 来数据集, 或者按照 60/20/20 的比例分为 Train/Validation/Test.</p>
-</blockquote>
-<p>深度学习问题中:</p>
-<blockquote>
-<p>我们可用的数据集的量级非常大. 这时我们就不需要给验证集和测试集太大的比例, 例如 98/1/1.</p>
-</blockquote>
-<h3>4.2 Regularization</h3>
-<p>为什么正则化没有加 $\frac{\lambda}{2m} b^2$:</p>
-<blockquote>
-<p>因为 $w$ 通常是一个高维参数矢量, 已经可以表达 <strong>High bias</strong> 的问题, $w$ 可能含有很多参数，我们不可能拟合所有参数, 而 $b$ 只是单个数字, 所以 $w$ 几乎覆盖了所有参数，而不是 $b$, 如果加了 $b$ 也没有影响，因为 $b$ 只是众多参数中的一个.</p>
-</blockquote>
-<p><strong>L1 regularization :</strong></p>
-<blockquote>
-<p>如果用的是 L1 regularization, then $w$ will end up being sprase 稀疏的, 也就是说 $w$ 向量中有很多 0. 有人说这样有利于压缩模型，但是我觉得不是很合适. 越来越多的人使用 L2.</p>
-</blockquote>
-<blockquote>
-<p>Notes: 不称为:矩阵 L2 范数， 按照惯例我们称为: <strong>Frobenius norm of a matrix</strong>, 其实就是 : 矩阵 L2.</p>
-</blockquote>
-<p><strong>L2 regularization :</strong></p>
-<blockquote>
-<p>L2 regularization 下的 Cost Function 如下所示, 只需要添加正则项 <strong>$\frac{\lambda}{2m}\sum_{l=1}^L||w^{[l]}||^2_F$</strong>, 其中 F 代表 Frobenius Norm. 在添加了正则项之后, 相应的梯度也要变化, 所以在更新参数的时候需要加上对应的项. 这里注意一点, 我们只对参数 $w$ 正则, 而不对 $b$. 因为对于每一层来说, $w$ 有很高的维度, 而 $b$ 只是一个标量. $w$ 对整个模型的影响远大于 $b$.</p>
-</blockquote>
-<p>下面给出添加 regularization 为什么能防止过拟合给出直观的解释:</p>
-<blockquote>
-<p>当我们的 λ 比较大的时候, 模型就会加大对 w 的惩罚, 这样有些 w 就会变得很小 (L2 Regularization 也叫权重衰减, <strong>weights decay</strong>). 效果就是整个神经网络变得简单了(一些隐藏层甚至 $w$ 趋向于 0), 从而降低了过拟合的风险.</p>
-</blockquote>
-<blockquote>
-<p>那些 隐藏层 并没有被消除，只是影响变得更小了，神经网络变得简单了.</p>
-</blockquote>
-<hr>
-<blockquote>
-<p>从另一个角度来看. 以 tanh激活函数 为例, 当 $λ$ 增加时, $w$ 会偏小, 这样 $z = wa +b$ 也会偏小, 此时的激活函数大致是线性的. 这样模型的复杂度也就降低了, 即降低了过拟合的风险.</p>
-<p>如果神经网络每层都是线性的，其实整个还是一个线性的, 即使是一个很深的网络，因为线性激活函数的特征，最终我们只能计算线性函数.</p>
-</blockquote>
-<p><strong>Other Regularization</strong></p>
-<ul>
-<li>Data augmentation</li>
-<li>Early stopping</li>
-</ul>
-<blockquote>
-<p>W 开始是变小的，之后会随着迭代越来越大. early stopping 就是在中间点停止迭代过程.</p>
-<p>其实可以设置在 J 不在明显下降的时候，设置 Early Stopping.</p>
-<p>Notes:</p>
-<p>   1. early stopping 缺点是 提早停止，w 是防止了过拟合，但是 J 没有被继续下降.
-   2. L2 正则化 的缺点是，要用大量精力搜索合适的 λ .</p>
-</blockquote>
-<h3>4.3 Dropout</h3>
-<p>dropout 也是一种正则化的手段, 在训练时以 1-keep_prob 随机地”丢弃”一些节点. 如下图所示.</p>
-<p>&lt;img src=&quot;/images/deeplearning/C2W1-10_1.png&quot; width=&quot;600&quot; /&gt;</p>
-<blockquote>
-<p>dropout 将产生收缩权重的平方范数的效果, 和 L2 类似，实施 dropout 的结果是它会压缩权重，并完成一些预防过拟合的外层正则化，事实证明 dropout 被正式地作为一种正则化的替代形式</p>
-<p>L2 对不同权重的衰减是不同的，它取决于倍增的激活函数的大小.</p>
-<p>dropout 的功能类似于 L2 正则化. 甚至 dropout 更适用于不同的输入范围.</p>
-</blockquote>
-<hr>
-<blockquote>
-<p>其他 : 计算机视觉的人员非常钟情 dropout 函数.</p>
-<p>Notes: dropout 的一大缺点就是 J 不会被明确定义. 每次迭代都会被随机删除一些节点. 如果再三检查梯度下降的性能，实际上是很难复查的.</p>
-<p>定义明确的代价函数，每次迭代都会下降. 因为 dropout 使得 J 没有被明确定义，或者在某种程度上很难计算. 所以我们失去了调试工具，我通常会关闭 dropout. keep_prob 设置为 1， 运行代码，确保 J 函数单调递减, 然后在打开 dropout, 在 dropout 的过程中，代码并未引入bug.</p>
-</blockquote>
-<h3>4.4 Normalization</h3>
-<p>&lt;img src=&quot;/images/deeplearning/C2W1-14_1.png&quot; width=&quot;600&quot; /&gt;</p>
-<blockquote>
-<ol>
-<li>0 均值化</li>
-<li>归一化 方差</li>
-</ol>
-<p>上图2， 特征 x1 的方差 比 特征 x2 的方差 大很多
-上图3， 特征 x1 和 特征 x2 的 方差 都是 1</p>
-<p>注意: 训练集 和 测试集，都是通过相同的 $\mu$ 和 ${\sigma}^2$ 定义的相同数据转换, 其中 $\mu$ 和 ${\sigma}^2$ 是由训练数据计算而来.</p>
-</blockquote>
-<hr>
-<blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/38176412" target="_blank" rel="noopener">张俊林 - Batch Normalization导读</a> 、 <a href="https://zhuanlan.zhihu.com/p/43200897" target="_blank" rel="noopener">张俊林 - 深度学习中的Normalization模型</a></p>
-<p><code>Internal Covariate Shift</code> &amp; Independent and identically distributed，缩写为 <code>IID</code></p>
-<p>Batch Normalization 可以有效避免复杂参数对网络训练产生的影响，也可提高泛化能力.</p>
-<p>神经网路的训练过程的本质是学习数据分布，如果训练数据与测试数据分布不同，将大大降低网络泛化能力， BN 是针对每一批数据，在网络的每一层输入之前增加 BN，(均值0，标准差1)。</p>
-<p>Dropout 可以抑制过拟合，作用于每份小批量的训练数据，随机丢弃部分神经元机制. bagging 原理.</p>
-<p><a href="https://posts.careerengine.us/p/5cae13b2d401440a7fe047af" target="_blank" rel="noopener">ML算法： 关于防止过拟合，整理了 8 条迭代方向</a></p>
-</blockquote>
-<h3>4.5 Vanishing/Exploding</h3>
-<p>Vanishing/Exploding gradients 指的是随着前向传播不断地进行, 激活单元的值会逐层指数级地增加或减小, 从而导致梯度无限增大或者趋近于零, 这样会严重影响神经网络的训练. 如下图.</p>
-<p>&lt;img src=&quot;/images/deeplearning/Vanishing-Exploding-gradients.png&quot; width=&quot;750&quot; /&gt;</p>
-<blockquote>
-<p>可以减小这种情况发生的方法, 就是用有效的参数初始化 (该方法并不能完全解决这个问题). 但是也是有意义的</p>
-<p>设置合理的权重，希望你设置的权重矩阵，既不会增长过快，也不会下降过快到 0.</p>
-<p>想更加了解如何初始化权重可以看下这篇文章 <a href="http://www.cnblogs.com/marsggbo/p/7462682.html" target="_blank" rel="noopener">神经网络权重初始化问题</a>，其中很详细的介绍了权重初始化问题。</p>
-</blockquote>
-<h2>5. Optimization &amp; Hyperparam</h2>
-<p>关于优化算法与超参数调优，以及 BN 等更多，详情参阅本博下面链接：</p>
-<blockquote>
-<ul>
-<li>
-<p><a href="/2018/07/21/deeplearning/Improving-Deep-Neural-Networks-week2/">Improving DNN (week2) - Optimization Algorithm</a></p>
-</li>
-<li>
-<p><a href="/2018/07/23/deeplearning/Improving-Deep-Neural-Networks-week3/">Improving DNN (week3) - Hyperparameter、Batch Regularization</a></p>
-</li>
-</ul>
-</blockquote>
-<h2>Reference</h2>
-<ul>
-<li><a href="/deeplearning/">Andrew Ng Notes</a></li>
-</ul>
-
+        <img src="/images/deeplearning/ANN-01.png" width="500" />
+         
+          <p class="article-more-link">
+            <a href="/2019/06/12/deeplearning/Deep-Feedforward-Networks/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -467,60 +243,14 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/svm/svm-01.jpg&quot; width=&quot;600&quot; border=&quot;0&quot; alt=&quot;SVM vs LR&quot;/&gt;</p>
-<p>&lt;!--&lt;a href=&quot;/2019/06/02/ml/Random_Forest_and_GBDT/&quot; target=&quot;_self&quot; style=&quot;display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;&quot;&gt;&lt;/a&gt;
---&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>关于 SVM 的详细原理与推导过程，详见： <a href="/2018/06/20/ml/svm-hanxiaoyang/">Support Vecor Machine (六部曲)</a></p>
-<p>其实我认为 SVM 的使用率已经明显在下降趋势了，主要原因是随着神经网络的兴起之后，所以我不建议一定要花非常多的经历去学习 SVM 的原理和推导了，可以简单了解下。 主要还是了解下适用范围和场景等就可以了。</p>
-<h2>1. LR vs SVM</h2>
-<p>要说有什么本质区别，那就是 loss function 不同，两者对数据和参数的敏感程度不同</p>
-<blockquote>
-<p>(1). 对非线性表达上，LR 只能通过人工的特征组合来实现，而 SVM 引入核函数来实现非线性表达。</p>
-<p>(2). LR 产出的是概率值，而 SVM 只能产出是正类还是负类，不能产出概率。</p>
-<p>(3). Linear SVM 依赖数据表达的距离测度，所以需要对数据先做 normalization；LR不受其影响.</p>
-<p>(4). SVM 不直接依赖数据分布，而LR则依赖, SVM 主要关注的是“支持向量”，也就是和分类最相关的少数点，即关注局部关键信息；而 LR 是在全局进行优化的。这导致 SVM 天然比 LR 有<strong>更好的泛化能力</strong>，防止过拟合。 LR则受所有数据点的影响，如果数据不同类别 strongly unbalance 一般需要先对数据做 balancing。</p>
-<p>(5). 损失函数的优化方法不同，LR 是使用 GD 来求解 <strong>对数似然函数</strong> 的最优解；SVM 使用 (Sequnential Minimal Optimal) 顺序最小优化，来求解条件约束损失函数的对偶形式。</p>
-<hr>
-<p>一般用线性核和高斯核，也就是Linear核与RBF核需要注意的是需要对 <strong>数据归一化处理</strong>.</p>
-<p>一般情况下RBF效果是不会差于Linear但是时间上RBF会耗费更多</p>
-</blockquote>
-<p>扩展点：</p>
-<blockquote>
-<p><strong>注</strong>：不带正则化的LR，其做 normalization 的目的是为了方便选择优化过程的起始值，不代表最后的解的 performance 会跟 normalization 相关，而其线性约束是可以被放缩的（等式两边可同时乘以一个系数），所以做 normalization 只是为了求解优化模型过程中更容易选择初始值</p>
-</blockquote>
-<h2>2. Andrew Ng</h2>
-<blockquote>
-<ol>
-<li>如果Feature的数量很大，跟样本数量差不多，这时候选用LR或者是Linear Kernel的SVM</li>
-<li>如果Feature的数量比较小，样本数量一般，不算大也不算小，选用SVM+Gaussian Kernel</li>
-<li>如果Feature的数量比较小，而样本数量很多，需要手工添加一些feature变成第一种情况</li>
-</ol>
-</blockquote>
-<p><strong>如何量化 feature number 和 sample number：</strong></p>
-<blockquote>
-<p>n 是feature的数量, m是样本数</p>
-</blockquote>
-<blockquote>
-<p>1). feature number &gt;&gt; sample number，则使用LR算法或者不带核函数的SVM（线性分类）
-     feature number = 1W， sample number = 1K</p>
-<p>2). <strong>fn</strong> 小， sample number <strong>一般</strong>1W，使用带有 <strong>kernel函数</strong> 的 SVM算法.</p>
-<p>3). <strong>fn</strong> 小， sample number <strong>很大</strong>5W+（n=1-1000，m=50000+）
-          增加更多的 feature 然后使用LR 算法或者 not have kernel 的 SVM</p>
-</blockquote>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://www.cnblogs.com/zhizhan/p/5038747.html" target="_blank" rel="noopener">LR 与 SVM的异同</a></li>
-<li><a href="http://izhaoyi.top/2017/06/02/Note-StatisticalML/" target="_blank" rel="noopener">懒死骆驼 - 统计学习方法笔记(一)</a></li>
-<li><a href="https://www.zhihu.com/question/24900876" target="_blank" rel="noopener">知乎 : 最小二乘、极大似然、梯度下降有何区别？</a></li>
-<li><a href="https://www.zhihu.com/question/26768865/answer/139613835" target="_blank" rel="noopener">知乎 : Linear SVM 和 LR 有什么异同？</a></li>
-<li><a href="http://www.cnblogs.com/peizhe123/p/5674730.html" target="_blank" rel="noopener">白开水加糖 SVM与LR的比较</a></li>
-<li><a href="http://izhaoyi.top/2017/09/03/model-pre/" target="_blank" rel="noopener">懒死骆驼 - 口述模型整理</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/53944720" target="_blank" rel="noopener">支持向量机(SVM)硬核入门-基础篇</a></li>
-<li><a href="https://www.cnblogs.com/pinard/p/6035872.html" target="_blank" rel="noopener">scikit-learn 逻辑回归类库使用小结</a></li>
-<li><a href="https://blog.csdn.net/Dinosoft/article/details/50492309" target="_blank" rel="noopener">LR 正负样本不均衡问题</a></li>
-</ul>
-
+        <img class="img-fancy" src="/images/ml/svm/svm-01.jpg" width="600" border="0" alt="SVM vs LR"/>
+<!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
+-->
+         
+          <p class="article-more-link">
+            <a href="/2019/06/10/ml/SVM-vs-LR/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -582,108 +312,14 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/intro/L1l2regularization.png&quot; width=&quot;550&quot; border=&quot;0&quot; alt=&quot;L1 L2 Regularization&quot;/&gt;</p>
-<p>&lt;!--&lt;a href=&quot;/2019/06/02/ml/Random_Forest_and_GBDT/&quot; target=&quot;_self&quot; style=&quot;display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;&quot;&gt;&lt;/a&gt;
---&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>Supervised Learning:  “minimizeyour error while regularizing your parameters”</p>
-<p>$$
-w^*=argmin_w\sum_iL(y_i,f(x_i;w))+\lambda\Omega(w)
-$$</p>
-<blockquote>
-<p>我们不仅要保证训练误差最小，我们更希望我们的模型测试误差小.</p>
-<p>第二项 $\lambda\Omega(w)$，也就是对参数$w$的规则化函数 $Ω(w)$ 去约束我们的模型尽量的简单.</p>
-</blockquote>
-<blockquote>
-<ol>
-<li>第一项对应模型的训练损失函数 (Square Loss、Hinge loss、Exp loss、Log loss)</li>
-<li>第二项对应模型的正则化项 （模型参数向量的范数）</li>
-</ol>
-</blockquote>
-<blockquote>
-<p>经验风险最小化 empirical risk minimization, 结构风险最小化 structural risk minimization</p>
-</blockquote>
-<p>李沐曾经说过：</p>
-<blockquote>
-<p>model是用离散特征还是连续特征，其实是“<strong>海量离散特征+简单模型</strong>” 同 “<strong>少量连续特征+复杂模型</strong>”的权衡。</p>
-<p>既可以离散化用线性模型，也可以用连续特征加深度学习。就看是喜欢折腾 <strong>feature</strong> 还是折腾 <strong>model</strong> 了。通常来说，前者容易，而且可以n个人一起并行做，有成功经验；后者目前看很赞，能走多远还须拭目以待。</p>
-</blockquote>
-<p>结构风险最小化: 规则化项是结构风险最小化策略的实现，即在经验风险上加一个正则化项或惩罚项</p>
-<blockquote>
-<p><strong>最小化误差</strong>是为了让我们的模型拟合我们的训练数据，<strong>regularized parameters</strong>是防止我们的模型<strong>过分拟合</strong>我们的<strong>训练数据</strong>。 因为参数太多，会导致我们的模型复杂度上升，容易过拟合，也就是我们的训练误差会很小。但训练误差小并不是我们的最终目标，我们的<strong>目标是希望模型的测试误差小</strong>，也就是能准确的预测新的样本。</p>
-<p>我们需要<strong>保证模型“<code>简单</code>”的基础上最小化训练误差</strong>，<strong>这样得到的参数才具有好的泛化性能（也就是测试误差也小）</strong>.</p>
-<p>而模型**“简单”就是通过规则函数来实现的**。<strong>regularized item</strong>的使用还可以约束我们的模型的特性。<strong>这样就可以将人对这个模型的先验知识融入到模型的学习当中</strong>，强行地让学习到的模型具有人想要的特性，例如 稀疏、低秩、平滑 等等。</p>
-<p>人的先验是非常重要的。前人的经验会让你少走很多弯路，这就是为什么我们平时学习最好找个大牛带带的原因。一句点拨可以为我们拨开眼前乌云，还我们一片晴空万里，醍醐灌顶。对机器学习也是一样，如果被我们人稍微点拨一下，它肯定能更快的学习相应的任务。只是由于人和机器的交流目前还没有那么直接的方法，目前只能由规则项来担当了.</p>
-</blockquote>
-<h2>1. Supervised Learning Obj</h2>
-<p><strong>第一项对应模型的训练损失函数:</strong></p>
-<blockquote>
-<ul>
-<li>Square Loss –&gt; 最小二乘</li>
-<li>Hinge Loss –&gt; SVM</li>
-<li>Exp Loss –&gt; AdaBoost</li>
-<li>Log Loss –&gt; LR</li>
-</ul>
-</blockquote>
-<p><strong>第二项对应模型的正则化项:</strong> (一般是模型复杂度的单调递增函数)</p>
-<blockquote>
-<ul>
-<li>模型参数向量的范数，不同的选择对参数的约束不同，取得的效果也不同</li>
-</ul>
-<p>论文中常都聚集在：零范数、一范数、二范数、核范数等等。这么多范数，到底它们表达啥意思？具有啥能力？</p>
-</blockquote>
-<h2>2. Norm</h2>
-<p>在机器学习中，我们经常使用称为范数(norm)的函数来衡量向量大小.</p>
-<p>$L^p$  范数定义如下：</p>
-<p>$$
-|x|_{p}=\left(\sum_{i}\left|x_{i}\right|^{p}\right)^{\frac{1}{p}}
-$$</p>
-<ul>
-<li>
-<p>$L^0$ 范数：$|x|_{0}$ 为 $x$ 向量各个非零元素的个数。</p>
-</li>
-<li>
-<p>$L^1$ 范数：$|x|_{1}$ 为 $x$ 向量各个元素绝对值之和，也叫“稀疏规则算子”（Lasso Regularization）。</p>
-</li>
-<li>
-<p>$L^2$ 范数：$|x|_{2}$ 为 $x$ 向量各个元素平方和的 $1/2$ 次方，$L^2$ 范数又称 Euclidean、 Frobenius 范数。</p>
-</li>
-</ul>
-<h2>3. L1 Regularization</h2>
-<p>L1 可以实现稀疏，为什么要稀疏？</p>
-<p>$$
-|\boldsymbol{x}|_{1}=\sum_{i}\left|x_{i}\right|
-$$</p>
-<p>让我们的参数稀疏有什么好处呢？这里扯两点：</p>
-<p><strong>特征选择(Feature Selection)：</strong></p>
-<blockquote>
-<p>大家对<strong>稀疏规则化</strong>趋之若鹜的一个关键原因在于它能实现特征的自动选择。$x_i$ 的大部分元素（也就是特征）都是和最终的输出 $y_i$ 没有关系或者不提供任何信息的，在最小化目标函数的时候考虑$x_i$这些额外的特征，虽然可以获得更小的训练误差，<strong>但在预测新的样本时，这些没用的信息反而会被考虑，从而干扰了对正确$y_i$的预测</strong>。稀疏规则化算子的引入就是为了完成特征自动选择的光荣使命，它会学习地去掉这些没有信息的特征，也就是把这些特征对应的权重置为0。</p>
-</blockquote>
-<p><strong>可解释性(Interpretability)：</strong></p>
-<blockquote>
-<p>模型更容易解释。例如患某种病的概率是$y$，我们收集到的数据$x$是 1000 维的，也就是我们需要寻找这 1000种 因素到底是怎么影响患上这种病的概率的。</p>
-<p>假设我们这个是个回归模型：$y=w_1 x_1 + w_2 x_2 + w_{1000} x_{1000} + b$（当然了，为了让 $y$ 限定在[0,1]的范围，一般还得加个Logistic函数）。</p>
-<p>通过学习，如果最后学习到的 $w*$ 就只有很少的非零元素，例如只有5个非零的 $w_i$，那么我们就有理由相信，这些对应的特征在患病分析上面提供的信息是巨大的，决策性的。</p>
-<p>患不患这种病只和这5个因素有关，那医生就好分析多了。但如果1000个 $w_i$ 都非0，医生面对这1000种因素，累觉不爱.</p>
-</blockquote>
-<h2>4. L2 Regularization</h2>
-<h3>4.1 L2 能防止过拟合？</h3>
-<p>通过 L2范数 的规则项最小来使参数值都较小、甚至趋于0(但不会为0)，模型参数值越小则对应的特征对于模型的影响就比较小，这样相当于对这部分无关特征做了一个惩罚，即使他们的值波动比较大，受限于参数值很小，也不会对模型的输出结果造成太大影响，也就使得模型不会习得这部分特征而发生过拟合</p>
-<h3>4.2 L2 范数的好处</h3>
-<ul>
-<li>学习理论的角度：可以防止过拟合，提升模型的泛化能力</li>
-<li>优化、数值计算的角度：L2范数能够让我们的优化求解变得稳定和快速.</li>
-</ul>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://izhaoyi.top/2017/09/15/l1-l2/" target="_blank" rel="noopener">懒死骆驼</a></li>
-<li><a href="https://blog.csdn.net/zouxy09/article/details/24971995" target="_blank" rel="noopener">机器学习中的范数规则化之（一）L0、L1与L2范数</a></li>
-<li><a href="https://plushunter.github.io/2017/07/22/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%AE%97%E6%B3%95%E7%B3%BB%E5%88%97%EF%BC%8828%EF%BC%89%EF%BC%9AL1%E3%80%81L2%E6%AD%A3%E5%88%99%E5%8C%96/" target="_blank" rel="noopener">机器学习算法系列（28）：L1、L2正则化</a></li>
-<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/ML-intro/3-09-l1l2regularization/" target="_blank" rel="noopener">L1 / L2 正规化</a></li>
-<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/5-02-A-overfitting/" target="_blank" rel="noopener">什么是过拟合 (Overfitting)</a></li>
-<li><a href="http://www.iterate.site/post/01-%E6%95%B0%E5%AD%97%E7%9A%84%E5%BC%A0%E5%8A%9B/02-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/01-%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%90%86%E8%AE%BA/01-%E6%95%B0%E5%AD%A6%E5%9F%BA%E7%A1%80/02-%E7%BA%BF%E6%80%A7%E4%BB%A3%E6%95%B0/25-%E8%8C%83%E6%95%B0/" target="_blank" rel="noopener">迭代自己: 范数</a></li>
-</ul>
-
+        <img class="img-fancy" src="/images/ml/intro/L1l2regularization.png" width="550" border="0" alt="L1 L2 Regularization"/>
+<!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
+-->
+         
+          <p class="article-more-link">
+            <a href="/2019/06/09/ml/ERM-SRM-L1-L2/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -745,113 +381,14 @@ $$</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/pgm/pgm-01.png&quot; width=&quot;550&quot; border=&quot;0&quot; alt=&quot;Probabilistic Graphical Model&quot;/&gt;</p>
-<p>&lt;!--&lt;a href=&quot;/2019/06/02/ml/Random_Forest_and_GBDT/&quot; target=&quot;_self&quot; style=&quot;display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;&quot;&gt;&lt;/a&gt;
---&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>对于一个实际问题，目标： 能够挖掘隐含在数据中的知识。 怎样才能使用概率图模型挖掘这些隐藏知识呢？</p>
-<blockquote>
-<p><strong>用观测结点表示观测到的数据，用隐含结点表示潜在的知识，用边来描述知识与数据的相互关系</strong>，获一概率分布。</p>
-</blockquote>
-<h2>1. Probabilistic Graphical Model</h2>
-<p>概率图中的**<code>节点</code>**分为：</p>
-<ol>
-<li>隐含节点</li>
-<li>观测节点</li>
-</ol>
-<p>概率图中的**<code>边</code>** 分为：</p>
-<ol>
-<li>有向边</li>
-<li>无向边</li>
-</ol>
-<blockquote>
-<p>常见的概率图模型 ： Native Bayes、最大熵、隐马尔科夫模型、CRF、LDA 等.</p>
-</blockquote>
-<p><strong>PGM 联合概率:</strong></p>
-<p>概率图模型最为“精彩”的部分就是能够用简洁清晰的图示形式表达概率生成的关系:</p>
-<p>&lt;img src=&quot;/images/ml/pgm/pgm-02.png&quot; width=&quot;500&quot; /&gt;</p>
-<p>在给定A的条件下B和C是条件独立的，基于条件概率的定义可得：</p>
-<p>$$\begin{aligned} P(C | A, B) &amp;=\frac{P(B, C | A)}{P(B A)}=\frac{P(B | A) P(C | A)}{P(B | A)} \\ &amp;=P(C | A) \end{aligned}
-$$</p>
-<p>同理，在给定B和C的条件下A和D是条件独立的，可得：</p>
-<p>$$
-\begin{aligned} P(D | A, B, C) &amp;= \frac{P(A, D | B, C)}{P(A | B, C)}=\frac{P(A | B, C) P(D | B, C)}{P(A | B, C)} \\ &amp;= P(D | B, C) \end{aligned}
-$$</p>
-<p>结合上面的两个表达式可得联合概率：</p>
-<p>$$
-\begin{aligned}
-P(A,B,C,D)&amp;=P(A)P(B|A)P(C|A,B)P(D|A,B,C) \\
-&amp;= P(A)P(B|A)P(C|A)P(D|B,C)
-\end{aligned}\tag{6.3}
-$$</p>
-<h2>2. PGM Expression</h2>
-<p><strong>解释朴素贝叶斯模型的原理，并给出概率图模型表示:</strong></p>
-<p>通过预测指定样本属于特定类别的概率</p>
-<p>$$
-y=\max _{y_{i}} P\left(y_{i} | x\right)
-$$</p>
-<p>可以写成：</p>
-<p>$$
-P\left(y_{i} | x\right)=\frac{P\left(x | y_{i}\right) P\left(y_{i}\right)}{P(x)}
-$$</p>
-<p>其中 $x=\left(x_{1}, x_{2}, \ldots \ldots, x_{n}\right)$, 为样本对应的特征向量， $P(x)$ 为样本的先验概率。</p>
-<p>&lt;img src=&quot;/images/ml/pgm/pgm-03.png&quot; width=&quot;120&quot; /&gt;</p>
-<h2>3. Generative vs Discriminative</h2>
-<h3>3.1 Generative</h3>
-<p>generative approach 由数据学习到联合概率分布 $P(X,Y)$，然后求出条件概率分布 $P(Y\mid X)$ 作为预测的模型：</p>
-<p>$$
-P(Y\mid X)=\frac{P(X,Y)}{P(X)}
-$$</p>
-<blockquote>
-<p>典型的生成式模型包括： Native Bayes、HMM、Bayes Net</p>
-</blockquote>
-<h3>3.2 Discriminative</h3>
-<p>discriminative approach 由数据直接学到决策函数 $f(X)$ 或条件概率分布 $P(Y\mid X)$ 作为预测的模型：</p>
-<p>$$
-f(X), P(Y\mid X)
-$$</p>
-<p>判别式模型关心的是对于给定的输入 $X$, 应该预测什么样的输出 $Y$, 判别模型就是判别数据输出量的模型。</p>
-<blockquote>
-<p>典型的判别式模型包括： LR、NN、SVM、CRF、CART</p>
-</blockquote>
-<h3>3.3 generative vs discriminative</h3>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">vs</th>
-<th style="text-align:center">generative approach</th>
-<th style="text-align:center">discriminative approach</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">定义</td>
-<td style="text-align:center">由数据学习联合概率分布$P(X,Y)$ 然后,&lt;br&gt;求出在$X$情况下，$P(Y)$作为预测的模型</td>
-<td style="text-align:center">决策函数$f(x)$或条件概率分布$P(X)$作为预测模型</td>
-</tr>
-<tr>
-<td style="text-align:center">特点</td>
-<td style="text-align:center">1. 可还原出$P(X,Y)$；&lt;br&gt; 2. 学习收敛速度更快；&lt;br&gt; 3. 存在隐变量时仍可用</td>
-<td style="text-align:center">1. 直接面对预测，准确率更高些; &lt;br&gt; 2. 便于数据抽象，特征定义使用;</td>
-</tr>
-<tr>
-<td style="text-align:center">模型</td>
-<td style="text-align:center">native bayes、hidden markov</td>
-<td style="text-align:center">Logistic Regression、SVM、Gradient Boosting、CRF..</td>
-</tr>
-<tr>
-<td style="text-align:center">Note</td>
-<td style="text-align:center">给定输入 $X$ 产生输出 $Y$ 的生成关系</td>
-<td style="text-align:center">对给定的输入 $X$，应预测什么样的输出 $Y$</td>
-</tr>
-</tbody>
-</table>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://xiaosheng.me/2017/04/09/article50/" target="_blank" rel="noopener">产生式模型与判别式模型</a></li>
-<li><a href="http://www.iterate.site/2019/04/05/12-%E6%A6%82%E7%8E%87%E5%9B%BE%E8%A1%A8%E7%A4%BA/" target="_blank" rel="noopener">迭代自己 概率图表示</a></li>
-</ul>
-
+        <img class="img-fancy" src="/images/ml/pgm/pgm-01.png" width="550" border="0" alt="Probabilistic Graphical Model"/>
+<!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
+-->
+         
+          <p class="article-more-link">
+            <a href="/2019/06/08/ml/Probabilistic_Graphical_Model/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -913,130 +450,14 @@ $$</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/info/entropy-1.png&quot; width=&quot;700&quot; border=&quot;0&quot; alt=&quot;Claude Shannon&quot;/&gt;</p>
-<p>&lt;!--&lt;a href=&quot;/2019/06/02/ml/Random_Forest_and_GBDT/&quot; target=&quot;_self&quot; style=&quot;display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;&quot;&gt;&lt;/a&gt;
---&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>1. Infomation Entropy</h2>
-<p>2014 年举行了世界杯足球赛，大家都很关心谁会是冠军。假如我错过了看世界杯，赛后我问一个知道比赛结果的观众“哪只球队是冠军”？他不愿意直接告诉我，而让我猜，并且我每猜一次，他要收我一元钱才肯告诉我是否猜对了，那么我要掏多少钱才能知道谁是冠军呢？我可以把球队编上号，从 1 到 32，然后提问：“冠军在 1~16 号中吗？”假如他告诉我猜对了，我会接着提问：“冠军在 1~8 号中吗？”假如他告诉我猜错了，我自然知道冠军在 9~16 号中。这样我只需要 5 次，就能知道哪只球队是冠军。所以，谁是世界杯冠军这条消息的信息量只值 5 块钱。</p>
-<p>$$
-H=-(p_1\cdot\log p_1+p_2\cdot\log p_2+\cdots+p_{32}\cdot\log p_{32})
-$$</p>
-<blockquote>
-<p>其中 $p_1,p_2,\cdots,p_{32}$ 分别是这 32 支球队夺冠的概率。香农把它称为信息熵(Entropy)，一般用符号 $H$ 表示，单位比特。很容易计算出，当 32 支球队夺冠概率相同时，对应的信息熵等于 5 比特。</p>
-</blockquote>
-<h3>1.1 信息熵的定义</h3>
-<p>对于任意一个离散型随机变量 $X$，它的熵 $H(X)$ 定义为:</p>
-<p>$$
-H(X)=-\sum_{x\in X}p(x)\log p(x)
-$$</p>
-<p>其中，约定 $0\log0=0$。$H(X)$ 可以写为 $H(p)$。</p>
-<blockquote>
-<p>变量的不确定性越大，熵也就越大，要把它搞清楚，所需信息量也就越大。</p>
-<p>信息熵的物理含义是对一个信息系统不确定性的度量，和热力学中熵有相似之处，后者就是一个系统无序的度量。</p>
-<p>从另一角度讲也是对一种 <strong>不确定性的度量</strong>。</p>
-</blockquote>
-<h3>1.2 信息熵的例子</h3>
-<p>设一次随机事件（用随机变量$X$表示）它可能会有 $x_1，x_2，⋯，x_m$ 共 m 个不同的结果，每个结果出现的概率分别为 $p_1，p_2，⋯，p_m$，那么 $X$ 的不确定度，即信息Entropy为：</p>
-<p>$$
-H(X) =\sum_{i=1}^{m} p_i \cdot \log_{2} \frac{1}{p_i} = - \sum_{i=1}^{m} p_i \cdot \log_{2} p_i
-$$</p>
-<p>将一个立方体A抛向空中，记落地时着地的面为 $c$, $c$ 的取值为{1,2,3,4,5,6}</p>
-<blockquote>
-<p>$$
-info(c) = - (1/6 \cdot log_{2}(1/6)+...+1/6 \cdot log_{2}(1/6)) = -1 \cdot log(1/6) = 2.58；
-$$</p>
-</blockquote>
-<p>四面体抛入空中 :</p>
-<blockquote>
-<p>$$
-info(c) = - (1/4 \cdot log_{2}(1/4)+...+1/4 \cdot log_{2}(1/4)) = -1 \cdot log(1/4) = 2；
-$$</p>
-</blockquote>
-<p>球体抛入空中 :</p>
-<blockquote>
-<p>$$
-info(c) = -1 \cdot log(1) = 0；
-$$
-此时表示不确定程度为0，也就是着地时向下的面是确定的。</p>
-</blockquote>
-<h3>1.3 最大熵</h3>
-<p>“最大熵”这个名词听起来很深奥，但是它的原理很简单，我们每天都在用。说白了，就是要保留全部的不确定性，将风险降到最小。</p>
-<p>$$
-\hat{p}=\arg\max_{p\in C}H(p)
-$$</p>
-<p>最大熵原理指出，对一个随机事件的概率分布进行预测时，我们的预测应当满足全部已知的条件，而对未知的情况不要做任何主观假设。在这种情况下，概率分布最均匀，预测的风险最小。因为这时概率分布的信息熵最大，所以人们把这种模型称作“最大熵模型”。我们常说的，不要把所有的鸡蛋放在一个篮子里，其实就是最大熵原理的一个朴素的说法，因为当我们遇到不确定时，就要保留各种可能性。</p>
-<h2>2. Conditional Entropy</h2>
-<p>自古以来，信息和消除不确定性是相联系的。在英语里，信息和情报是同一个词（Infomation），而我们知道情报的作用就是排除不确定性。 (二战时期，斯大林无兵可派到欧洲战场，但在远东有60万大军，情报得知 Japan 不会北上)</p>
-<p>一个事物内部会存有随机性，也就是不确定性，假定为 $U$, 而从外部消除这个不确定性的唯一的方法是引入信息 $I$， 而引入的信息量取决于这个不确定性的大小, 当 $I &lt; U$ 时，这些信息可以消除一部分不确定性.</p>
-<p><strong>新的不确定性：</strong></p>
-<p>$$
-U'=U-I
-$$</p>
-<blockquote>
-<p>几乎所有的自然语言处理、信息与信号处理的应用都是一个消除不确定性的过程。</p>
-<p>自然语言的统计模型，其中的一元模型就是通过某个词本身的概率分布，来消除不确定性；二元及更高阶的语言模型则还使用了上下文的信息，那就能准确预测一个句子中当前的词汇了。在数学上可以严格地证明为什么这些“相关的”信息也能够消除不确定性。为此，需要引入条件熵(Conditional Entropy)的概念。</p>
-</blockquote>
-<h3>2.1 条件熵的定义</h3>
-<p>假定 $X$ 和 $Y$ 是两个随机变量，$X$ 是我们需要了解的。假定我们现在知道了 $X$ 的随机分布
-$P(X)$，那么也就知道了 $X$ 的熵：</p>
-<p>$$
-H(X)=-\sum_{x\in X}P(x)\cdot\log P(x)
-$$</p>
-<p>那么它的不确定性就是这么大。现在假定我们还知道 $Y$ 的一些情况，包括它和 $X$ 一起出现的概率，在数学上称为联合概率分布(Joint Probability)，以及在 $Y$ 取不同值的前提下 $X$ 的概率分布，在数学上称为条件概率分布(Conditional Probability)。定义在 $Y$ 条件下 $X$ 的条件熵为：</p>
-<p>$$
-\begin{align}H(X \mid Y) &amp;=  \sum_{y\in Y}P(y)H(X \mid Y=y) \&amp;=\sum_{y\in Y}P(y)\big[-\sum_{x\in X}P(x\mid y)\log P(x\mid y)\big]\&amp;=-\sum_{x\in X,y \in Y}P(x,y)\log P(x\mid y)\end{align}
-$$</p>
-<p>可以证明 $H(X)\ge H(X\mid Y)$，也就是说，多了 $Y$ 的信息之后，关于 $X$ 的不确定性下降了！在统计语言模型中，如果把 $Y$ 看成是前一个字，那么在数学上就证明了二元模型的不确定性小于一元模型。同理，可以定义有两个条件的条件熵：</p>
-<p>$$
-H(X\mid Y,Z)=-\sum_{x\in X,y\in Y,z\in Z}P(x,y,z)\log P(x\mid y,z)
-$$</p>
-<p>还可以证明 $H(X\mid Y)\ge H(X\mid Y,Z)$。也就说，三元模型应该比二元的好。</p>
-<h3>2.2 一个有意思的问题</h3>
-<p>思考一下，上述式子中的等号什么时候成立？等号成立说明增加了信息，不确定性却没有降低，这可能吗？</p>
-<p>答案是肯定的，如果我们获取的信息与要研究的事物毫无关系，等号就成立。那么如何判断事物之间是否存在关系，或者说我们应该如何去度量两个事物之间的关联性呢？这自然而然就引出了互信息(Mutual Infomation)的概念。</p>
-<h2>3. Mutual Infomation</h2>
-<p>获取的信息和要研究的事物“有关系”时，这些信息才能帮助我们消除不确定性。当然“有关系”这种说法太模糊，太不科学，最好能够量化地度量“相关性”。为此，香农在信息论中提出了一个互信息(Mutual Infomation)的概念作为两个随机事件“相关性”的量化度量。</p>
-<p>假定有两个随机事件 $X$ 和 $Y$，它们之间的互信息定义如下：</p>
-<p>$$
-I(X;Y)=\sum_{x\in X,y\in Y}P(x,y)\log\frac{P(x,y)}{P(x)P(y)}
-$$</p>
-<p>可以证明，互信息 $I(X;Y)$ 就是随机事件 $X$ 的不确定性（熵 $H(X)$ 与在知道随机事件 $Y$
-条件下 $X$ 的不确定性（条件熵 $H(X∣Y)$）之间的差异，即：</p>
-<p>$$
-I(X;Y)=H(X)-H(X\mid Y)
-$$</p>
-<p>所谓两个事件相关性的量化度量，就是在了解了其中一个 $Y$ 的前提下，对消除另一个 $X$ 不确定性所提供的信息量。互信息是一个取值在 0 到 $min(H(X),H(Y))$ 之间的函数，当 $X$ 和 $Y$ 完全相关时，它的取值是 1；当二者完全无关时，它的取值是 0。</p>
-<h2>4. Relative Entropy</h2>
-<p>相对熵也用来衡量相关性，但和变量的互信息不同，它用来衡量两个取值为正数的函数的相似性。它的定义如下：</p>
-<p>$$
-KL(f(x) || g(x))=\sum_{x\in X}f(x)\cdot\log \frac{f(x)}{g(x)}
-$$</p>
-<p>大家不必关心公式本身，只需记住下面三条结论就好：</p>
-<blockquote>
-<p>(1). 对于两个完全相同的函数，它们的相对熵等于零。</p>
-<p>(2). 相对熵越大，两个函数差异越大；反之，相对熵越小，两个函数差异越小。</p>
-<p>(3). 对于概率分布或者概率密度函数，如果取值均大于零，相对熵可以度量两个随机分布的差异性。</p>
-<p>第 (3) 条： <strong>可以对标，CrossEntropy 的意义</strong>.</p>
-</blockquote>
-<p>注意，相对熵是不对称的，即：</p>
-<p>$$
-KL(f(x)||g(x))\ne KL(g(x)||f(x))
-$$</p>
-<p>为了让它对称，詹森和香农提出一种新的相对熵的计算方法</p>
-<p>$$
-JS(f(x)||g(x))=\frac{1}{2}\big[KL(f(x)||g(x))+KL(g(x)||f(x))\big]
-$$</p>
-<blockquote>
-<p>相对熵最早用在信号处理上。如两个随机信号，它们相对熵越小，说明这两个信号越接近，否则信号的差异越大。</p>
-</blockquote>
-<h2>Reference</h2>
-<ul>
-<li>吴军《数学之美》</li>
-<li>宗成庆《统计自然语言处理》</li>
-<li><a href="https://xiaosheng.me/2017/03/09/article39/" target="_blank" rel="noopener">信息的度量和作用</a></li>
-</ul>
-
+        <img class="img-fancy" src="/images/ml/info/entropy-1.png" width="700" border="0" alt="Claude Shannon"/>
+<!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
+-->
+         
+          <p class="article-more-link">
+            <a href="/2019/06/07/ml/Entropy/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1098,214 +519,14 @@ $$</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/metric/metric-1.gif&quot; width=&quot;580&quot; border=&quot;0&quot; alt=&quot;机器学习性能评估指标&quot;/&gt;</p>
-<p>&lt;!--&lt;a href=&quot;/2019/06/02/ml/Random_Forest_and_GBDT/&quot; target=&quot;_self&quot; style=&quot;display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;&quot;&gt;&lt;/a&gt;
---&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<hr>
-<p>选择与问题相匹配的评估方法，才能快速发现在 <strong>模型选择和训练过程</strong> 中可能出现的问题，迭代地对模型进行优化. 针对 <strong><code>分类、排序、回归、序列预测</code></strong> 等不同类型的机器学习问题，评估指标的选择也有所不同:</p>
-<p>本文将谈谈机器学习中，常用的性能评估指标：</p>
-<p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/metric/metric-2.jpg&quot; width=&quot;600&quot; border=&quot;0&quot; alt=&quot;&quot;/&gt;</p>
-<p>关于模型评估的基础概念:</p>
-<blockquote>
-<p>【误差(error)】：学习器的预测输出与样本的真实输出之间的差异。根据产生误差的数据集，可分为：</p>
-<ul>
-<li><strong>Training error</strong>：又称为经验误差(empirical error)，学习器在训练集上的误差。</li>
-<li><strong>Test error</strong>：学习器在测试集上的误差。</li>
-<li><strong>Generalization error</strong>：学习器在未知新样本上的误差。</li>
-</ul>
-<p>需要注意的是，上述所说的“误差”均指误差期望，排除数据集大小的影响。</p>
-<p>应该从训练样本中尽可能学出适用于所有 <strong>潜在样本的“普遍规律”</strong>，这样才能在遇到新样本时做出正确的判别。因为，泛化误差无法测量，因此，通常我们会将 <strong>Test error 近似等同于 Generalization error</strong>。</p>
-</blockquote>
-<h2>1. Classification Metric</h2>
-<h3>1.1 Accuracy</h3>
-<p>准确率：指的是分类正确的样本数量占样本总数的比例，定义如下：</p>
-<p>$$
-Accuracy = \frac{n_{correct}}{n_{total}}, Error = \frac{n_{error}}{n_{total}}
-$$</p>
-<p>正反比例严重失衡，则没意义，存在 accuracy paradox 现象.</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-3.jpg&quot; width=&quot;800&quot; alt=&quot;&quot;/&gt;</p>
-<blockquote>
-<p>accuracy 准确率 = (TP+TN)/(TP+TN+FP+FN), <strong>准确率可以判断总的正确率</strong></p>
-</blockquote>
-<h3>1.2 Precision</h3>
-<p>precision 查准率 (80% = 你一共预测了100个正例，80个是对的正例)</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-4.jpg&quot; width=&quot;800&quot; alt=&quot;&quot;/&gt;</p>
-<blockquote>
-<p>Precision = TP/(TP+FP)</p>
-</blockquote>
-<h3>1.3 Recall</h3>
-<p>recall (样本中的正例有多少被预测正确 TPR = TP/(TP+FN))</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-5.jpg&quot; width=&quot;800&quot; alt=&quot;&quot;/&gt;</p>
-<h3>1.4 F1-score</h3>
-<p>&lt;img src=&quot;/images/ml/metric/metric-16.jpg&quot; width=&quot;280&quot; alt=&quot;&quot;/&gt;</p>
-<p><strong>multi-class classification</strong></p>
-<p>如果非要用一个综合考量的 metric 的话，</p>
-<blockquote>
-<ol>
-<li>macro-average（宏平均）- 分布计算每个类别的F1，然后做平均（各类别F1的权重相同）</li>
-<li>micro-average（微平均）- 通过先计算总体的TP，FN和FP的数量，再计算F1</li>
-</ol>
-<p>macro-average（宏平均） 会比 micro-average（微平均）好一些哦，因为 macro 会受 minority class 影响更大，也就是说更能体现在 small class 上的 performance.</p>
-<p><a href="https://www.cnblogs.com/techengin/p/8962024.html" target="_blank" rel="noopener">sklearn中 F1-micro 与 F1-macro 区别和计算原理</a></p>
-</blockquote>
-<p>precision &amp; recall</p>
-<blockquote>
-<p>precision 是相对你自己的模型预测而言
-recall 是相对真实的答案而言</p>
-</blockquote>
-<h3>1.5 P-R curve</h3>
-<p>P-R曲线的横轴是召回率，纵轴是精确率。对于一个排序模型来说，其P-R曲线上的一个点代表着，在某一阈值下，模型将大于该阈值的结果判定为正样本， 小于该阈值的结果判定为负样本，此时返回结果对应的召回率和精确率。</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-15.jpg&quot; width=&quot;400&quot; alt=&quot;&quot;/&gt;</p>
-<blockquote>
-<p>整条 P-R 曲线是通过将阈值从高到低移动而生成的。 实线：A model， 虚线：B model</p>
-<p>上面说的阈值从高到低原因：阈值高，精确率高，阈值低，召回率高</p>
-</blockquote>
-<h3>1.6 ROC</h3>
-<p>Q1: 什么是ROC曲线？</p>
-<p>ROC curve （TPR 纵轴，FPR 横轴，TP（真正率）和 FP（假正率），设一个阈值）</p>
-<blockquote>
-<p>ROC（Receiver Operating Characteristic Curve）曲线。 ROC 曲线 是基于混淆矩阵得出的。</p>
-<p>TPR = recall = 灵敏度 = P（X=1 | Y=1）， FPR = 特异度 = P（X=0 | Y=0）</p>
-</blockquote>
-<p>&lt;img src=&quot;/images/ml/metric/metric-6.jpg&quot; width=&quot;800&quot; alt=&quot;&quot;/&gt;</p>
-<blockquote>
-<p><strong>注意：</strong> ROC 曲线是 FPR 越小，TPR 越大 最好. (也就是曲线 x 轴越小，y轴越大 最好)</p>
-<p>ROC曲线的适用场景更多，被广泛用于排序、推荐、广告等领域</p>
-</blockquote>
-<p><strong>Q2: 如何绘制ROC曲线？</strong></p>
-<p>与前面的P-R曲线类似， ROC曲线是通过不断移动分类器的“截断点”来生成曲线上的一组关键点的, 截断点指的是区分正负预测结果的阈值:</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-7.png&quot; width=&quot;550&quot; alt=&quot;&quot;/&gt;</p>
-<blockquote>
-<p>(1). 还有一种更直观地绘制ROC的方法。根据样本标签统计正负样本数量，假设正样本数量 P，负样本数量 N.</p>
-<p>(2). 接下来把横轴刻度间隔设置为 1 / N, 纵轴的刻度间隔设置为 1 / P。</p>
-<p>(3). 再根据模型输出的预测概率对样本进行排序（从高到低）；依次遍历样本，同时从零点开始绘制ROC曲线，每遇到一个正样本就沿着纵轴方向绘制一个刻度间隔的曲线，每遇到一个负样本就沿横轴方向绘制一个刻度间隔的曲线，直到遍历完所有样本，曲线最终停在（1，1）整个ROC曲线绘制完成。这样就很好理解为什么面积越大，分类性能越好了，想象这个过程即可。</p>
-</blockquote>
-<p><strong>ROC曲线无视样本不平衡</strong></p>
-<blockquote>
-<ul>
-<li><a href="https://www.zhihu.com/question/30643044" target="_blank" rel="noopener">精确率、召回率、F1 值、ROC、AUC 各自的优缺点是什么？</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/34655990" target="_blank" rel="noopener">机器学习之类别不平衡问题 (2) —— ROC和PR曲线</a></li>
-</ul>
-</blockquote>
-<h3>1.7 AUC</h3>
-<p>AUC = 0.5，跟随机猜测一样， ROC 纵轴 TPR 越大， 横轴 FPR 越小 模型越好</p>
-<blockquote>
-<p>0.5 - 0.7：效果较低，但用于预测股票已经很不错了
-0.7 - 0.85：效果一般
-0.85 - 0.95：效果很好</p>
-<p>real world data 经常会面临 class imbalance 问题，即正负样本比例失衡。</p>
-<p>根据计算公式可以推知，在 testing set 出现 <strong><code>imbalance 时 ROC曲线 能保持不变</code></strong>，而 PR 则会出现大变化。</p>
-</blockquote>
-<h2>2 Regression Metric</h2>
-<h3>2.1 MSE</h3>
-<p>MSE （Mean Squared Error）称为均方误差，，又被称为 L2范数损失:</p>
-<p>$$
-MSE=\frac{1}{n}\sum_{i=1}^n{(f_i - y_i)^2}
-$$</p>
-<h3>2.2 RMSE</h3>
-<p>均方根误差(Root Mean Squared Error, RMSE)，定义如下：</p>
-<p>$$
-RMSE=\sqrt{MSE}
-$$</p>
-<h3>2.3 MAE</h3>
-<p>$$
-MAE = \frac{1}{n}\sum_{i=1}^n|f_i-y_i|
-$$</p>
-<blockquote>
-<p>缺点：因为它使用的是平均误差，而平均误差对异常点较敏感，如果回归器对某个点的回归值很不合理，那么它的误差则比较大，从而会对RMSE的值有较大影响，即平均值是非鲁棒的。</p>
-</blockquote>
-<h3>2.4 MAPE</h3>
-<p>全称是 Mean Absolute Percentage Error（WikiPedia）, 也叫 mean absolute percentage deviation (MAPD)，在统计领域是一个预测准确性的衡量指标。</p>
-<p>$$
-MAPE=\frac{100}{n}\sum_{t=1}^{n}|\frac{y_i-f_i}{y_i}|
-$$</p>
-<h2>3. 余弦相似度 vs 欧式距离</h2>
-<p><strong>余弦相似度 ：</strong> 坐标系中两个向量，来计算两向量之间的夹角, 值域 [-1, 1]</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-8.jpg&quot; width=&quot;390&quot; alt=&quot;&quot;/&gt;</p>
-<p><strong>余弦距离 ：</strong>  值域 [0, 1]</p>
-<p>$$
-1 - cos
-$$</p>
-<p><strong>欧式距离 ：</strong> 坐标系中两个点，来计算两点之间的距离；</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-9.png&quot; width=&quot;300&quot; alt=&quot;&quot;/&gt;</p>
-<p>假设二维空间两个点：</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-10.svg&quot; width=&quot;200&quot; alt=&quot;&quot;/&gt;</p>
-<p>然后归一化为单位向量：</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-11.svg&quot; width=&quot;400&quot; alt=&quot;&quot;/&gt;</p>
-<p>余弦相似度就是：</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-12.svg&quot; width=&quot;400&quot; alt=&quot;&quot;/&gt;</p>
-<p>欧式距离就是：</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-13.svg&quot; width=&quot;400&quot; alt=&quot;&quot;/&gt;</p>
-<p>化简后就是：</p>
-<p>&lt;img src=&quot;/images/ml/metric/metric-14.svg&quot; width=&quot;200&quot; alt=&quot;&quot;/&gt;</p>
-<p>很明显，是一个单调函数（图像类似于单位元的第一象限部分），也就意味着，两者在归一化为单位向量的时候计算相似度结果完全一样。只不过余弦相似度是值越大月相似，欧式距离是值越小越相似。</p>
-<blockquote>
-<p>知识点 ： 余弦相似度、余弦距离、欧式距离、距离的定义</p>
-</blockquote>
-<h2>4. A/B 测试的陷阱</h2>
-<p>Q1：在对模型进行充分的离线评估之后，为什么还要进行在线A/B测试？</p>
-<blockquote>
-<p>（1）离线评估无法完全消除模型过拟合的影响。</p>
-<p>（2）离线评估无法完全还原线上的工程环境。线上的工程环境包括数据延迟、数据缺失、标签缺失等情况。</p>
-<p>（3）线上系统的某些商业指标在离线评估中无法计算。 离线模型评估的指标包括准确率，召回率和ROC曲线等。 而线上评估可以全面了解该推荐算法带来的用户点击率、留存时长、PV访问量等的变化。这些都要由A/B测试来进行全面的评估。</p>
-</blockquote>
-<p>Q2：如何进行线上AB测试？</p>
-<blockquote>
-<p>答：进行AB测试的主要手段是进行用户分桶，即将用户分成实验组和对照组，对实验组的用户施以新模型，对对照组的用户施以旧模型。</p>
-<p>分桶的过程中，要注意 <strong>样本的独立性 和 采样方式的无偏性</strong>.</p>
-</blockquote>
-<h2>5. 模型评估方法</h2>
-<p>Q1: 在模型评估过程中，有哪些主要的验证方法，它们的优缺点是什么？</p>
-<blockquote>
-<ul>
-<li>Holdout检验</li>
-<li>交叉检验 (k-fold交叉验证, 在实际实验中，经常取10。)</li>
-<li>自助法</li>
-</ul>
-</blockquote>
-<p>Q2：在自助法的采样过程中，对n个样本进行n次自助抽样，当n趋于无穷大时，最终有多少数据从未被选择过?</p>
-<blockquote>
-<p>根据重要极限，当样本量很大时，大约有 0.368 的样本从未被选择过，可做为验证集。</p>
-</blockquote>
-<h2>6. 超参数调优</h2>
-<ul>
-<li>网格搜索</li>
-<li>随机搜索</li>
-<li>贝叶斯优化 (未研究)</li>
-</ul>
-<h2>7. 过拟合/欠拟合</h2>
-<p>防止 overfiting 的 8 条</p>
-<blockquote>
-<p>1). get more data
-2). Data augmentation
-3). Regularization（权值衰减）. (L1 拉普拉斯先验, L2 高斯先验)
-4). Dropout (类似 RF bagging 作用，最后以投票的方式降低过拟合；)
-5). Choosing Right Network Structure
-6). Early stopping
-7). Model Ensumble
-8). Batch Normalization</p>
-</blockquote>
-<h2>8. 其他评价指标</h2>
-<ul>
-<li>计算速度：模型训练和预测需要的时间；</li>
-<li>鲁棒性：处理缺失值和异常值的能力；</li>
-<li>可拓展性：处理大数据集的能力；</li>
-<li>可解释性：模型预测标准的可理解性，比如决策树产生的规则就很容易理解，而神经网络被称为黑盒子的原因就是它的大量参数并不好理解。</li>
-</ul>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://www.zhihu.com/question/30643044" target="_blank" rel="noopener">精确率、召回率、F1 值、ROC、AUC 各自的优缺点是什么？</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/34655990" target="_blank" rel="noopener">机器学习之类别不平衡问题 (2) —— ROC和PR曲线</a></li>
-<li><a href="https://www.cnblogs.com/techengin/p/8962024.html" target="_blank" rel="noopener">sklearn中 F1-micro 与 F1-macro 区别和计算原理</a></li>
-<li><a href="https://charlesliuyx.github.io" target="_blank" rel="noopener">Bias-Variance Tradeoff</a></li>
-<li><a href="http://www.pianshen.com/article/9039255388/" target="_blank" rel="noopener">程序员大本营-百面</a></li>
-<li><a href="https://blog.csdn.net/weixin_43378396/article/details/90707493" target="_blank" rel="noopener">CSDN 模型评估</a></li>
-<li><a href="https://blog.csdn.net/lc013/article/details/88583580" target="_blank" rel="noopener">简单聊聊模型的性能评估标准</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/59685112" target="_blank" rel="noopener">从0开始机器学习-为什么要做A／B Test</a></li>
-<li><a href="https://zdkswd.github.io/2019/03/20/%E7%99%BE%E9%9D%A2%20%20%E6%A8%A1%E5%9E%8B%E8%AF%84%E4%BC%B0/#AB%E6%B5%8B%E8%AF%95" target="_blank" rel="noopener">百面模型评估</a></li>
-</ul>
-
+        <img class="img-fancy" src="/images/ml/metric/metric-1.gif" width="580" border="0" alt="机器学习性能评估指标"/>
+<!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
+-->
+         
+          <p class="article-more-link">
+            <a href="/2019/06/03/ml/Evaluation_Metric/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1367,102 +588,14 @@ $$</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/ensumble/ensumble-1.png&quot; width=&quot;550&quot; border=&quot;0&quot; alt=&quot;&quot;/&gt;</p>
-<p>&lt;!--&lt;a href=&quot;/2019/06/02/ml/Random_Forest_and_GBDT/&quot; target=&quot;_self&quot; style=&quot;display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;&quot;&gt;&lt;/a&gt;
---&gt;
-&lt;!-- more --&gt;</p>
-<h2>1. Random Forest</h2>
-<p>Rondom Forest 是一个典型的多个决策树的组合分类器.</p>
-<p>Rondom Forest, 的 Random 体现在 2 个方面：</p>
-<blockquote>
-<ol>
-<li>data random</li>
-<li>feature random</li>
-</ol>
-</blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/34534004" target="_blank" rel="noopener">RF、bagging、boosting、GBDT、xgboost算法总结</a></p>
-<p>Sample data Random：</p>
-<p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/ensumble/ensumble-2.jpg&quot; width=&quot;600&quot; border=&quot;0&quot;/&gt;</p>
-<p>Feature Random：</p>
-<blockquote>
-<p>与数据集的随机选取类似，随机森林中的子树的每一个分裂过程并未用到所有的待选特征，而是从所有的待选特征中随机选取一定的特征，之后再在随机选取的特征中选取最优的特征。这样能够使得随机森林中的决策树都能够彼此不同，提升系统的多样性，从而提升分类性能。</p>
-</blockquote>
-<p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/ensumble/ensumble-3.jpg&quot; width=&quot;600&quot; border=&quot;0&quot;/&gt;</p>
-<h2>2. GBDT</h2>
-<p>GBDT 是以决策树（CART）为基学习器的 GB算法，是迭代树，而不是分类树。</p>
-<p>一般 Boosting 算法都是一个迭代的过程，每一次新的训练都是为了改进上一次的结果。</p>
-<p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/ensumble/ensumble-4.jpg&quot; width=&quot;600&quot; /&gt;</p>
-<p>GBDT 的核心就在于：<strong>每一棵树学的是之前所有树结论和的残差</strong>，这个残差就是一个加预测值后能得真实值的累加量。</p>
-<p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/ensumble/ensumble-5.jpg&quot; width=&quot;850&quot; /&gt;</p>
-<h2>3. RF vs GBDT</h2>
-<blockquote>
-<ol>
-<li>组成 RF 的树可以是分类树，也可以是回归树；而GBDT只由回归树组成</li>
-<li>组成 RF 的树可以并行生成；而 GBDT 只能是串行生成.</li>
-<li>对于最终的输出结果而言，随机森林采用多数投票等；而 GBDT 则是将所有结果累加起来，或者加权累加起来.</li>
-<li>RF 对异常值不敏感，GBDT 对<code>异常值非常敏感</code>.</li>
-<li>RF 对训练集一视同仁，GBDT 是基于权值的弱分类器的集成.</li>
-<li>RF 是通过减少模型<code>方差</code>提高性能，GBDT是通过减少模型<code>偏差</code>提高性能.</li>
-</ol>
-</blockquote>
-<h2>4. Xgboost vs GBDT</h2>
-<p>Xgboost相比于GBDT来说，更加有效应用了数值优化，最重要是<strong>对损失函数</strong>（预测值和真实值的误差）<strong>变得更复杂</strong>。目标函数依然是所有树的预测值相加等于预测值。</p>
-<blockquote>
-<ol>
-<li>二阶泰勒展开，同时用到了一阶和二阶导数</li>
-<li>xgboost在代价函数里加入了正则项，用于控制模型的复杂度</li>
-<li>Shrinkage（缩减），相当于学习速率（xgboost中的eta）</li>
-<li>列抽样（column subsampling）。xgboost借鉴RF做法，支持列抽样（即每次的输入特征不是全部特征)</li>
-<li>并行化处理： 预先对每个特征内部进行了排序找出候选切割点.各个<strong>feature</strong>的增益计算就可以开多线程进行.</li>
-</ol>
-</blockquote>
-<p>&lt;img class=&quot;img-fancy&quot; src=&quot;/images/ml/ensumble/ensumble-6.jpg&quot; width=&quot;600&quot; /&gt;</p>
-<blockquote>
-<p>好的模型需要具备两个基本要素：</p>
-<ol>
-<li>是要有好的精度（即好的拟合程度）</li>
-<li>是模型要尽可能的简单（复杂的模型容易出现过拟合，并且更加不稳定）</li>
-</ol>
-<p>因此，我们构建的目标函数右边第一项是模型的误差项，第二项是正则化项（也就是模型复杂度的惩罚项）</p>
-</blockquote>
-<blockquote>
-<p>常用的误差项有平方误差和逻辑斯蒂误差，常见的惩罚项有l1，l2正则，l1正则是将模型各个元素进行求和，l2正则是对元素求平方。</p>
-</blockquote>
-<blockquote>
-<p><a href="https://zhuanlan.zhihu.com/p/34534004" target="_blank" rel="noopener">ID3、C4.5、CART、随机森林、bagging、boosting、Adaboost、GBDT、xgboost算法总结</a></p>
-</blockquote>
-<h2>5. Bagging vs Boosting</h2>
-<p>两种方法的采样和处理方式都不同，主要代表算法便是： Rondom Forest、 GBDT.</p>
-<h3>5.1 Bagging</h3>
-<p>Bagging 的思想比较简单，即每一次从原始数据中根据 <strong>均匀概率分布有放回的抽取和原始数据大小相同的样本集合</strong>，样本点可能出现重复，然后对每一次产生的训练集构造一个分类器，再对分类器进行组合。</p>
-<h3>5.2 Boosting</h3>
-<p>Boosting 的每一次抽样的 <strong>样本分布都是不一样</strong> 的。每一次迭代，都根据上一次迭代的结果，<strong>增加被错误分类的样本的权重</strong>，使得模型能在之后的迭代中更加注意到 <strong>难以分类的样本</strong>，这是一个 <strong>不断学习的过程，也是一个不断提升</strong> 的过程，这也就是boosting思想的本质所在。 迭代之后，将每次迭代的基分类器进行集成。那么如何进行样本权重的调整和分类器的集成是我们需要考虑的关键问题。</p>
-<p>&lt;img src=&quot;/images/ml/ensumble/ensumble-7.jpg&quot; width=&quot;600&quot; alt=&quot;&quot;/&gt;</p>
-<h2>6. 特征重要度</h2>
-<h3>6.1 RF 特征度量</h3>
-<p>(1）对每一颗决策树，选择相应的袋外数据（out of bag，OOB）​计算袋外数据误差，记为errOOB1.</p>
-<blockquote>
-<p>所谓袋外数据是指，每次建立决策树时，通过重复抽样得到一个数据用于训练​决策树，这时还有大约1/3的数据没有被利用，没有参与决策树的建立。这部分数据可以用于对决策树的性能进行评估，计算模型的预测错误率，称为袋外数据误差。</p>
-</blockquote>
-<blockquote>
-<p>​这已经经过证明是无偏估计的,所以在随机森林算法中不需要再进行交叉验证或者单独的测试集来获取测试集误差的无偏估计。</p>
-</blockquote>
-<p>​(2）随机对袋外数据OOB所有样本的特征$X$加入噪声干扰（可以随机改变样本在特征X处的值），再次计算袋外数据误差，记为errOOB2。</p>
-<p>(3）​假设森林中有N棵树，则特征X的重要性=∑（errOOB2-errOOB1）/N。这个数值之所以能够说明特征的重要性是因为，如果加入随机噪声后，袋外数据准确率大幅度下降（即errOOB2上升），说明这个特征对于样本的预测结果有很大影响，进而说明重要程度比较高。</p>
-<h3>6.2 GBDT 特征度量</h3>
-<p>主要是通过计算特征i在单棵树中重要度的平均值，计算公式如下：</p>
-<p>其中，M是树的数量。特征i在单棵树的重要度主要是通过计算按这个特征i分裂之后损失的减少值.</p>
-<p>其中，L是叶子节点的数量，L-1就是非叶子结点的数量。</p>
-<h3>6.3 Xgboost</h3>
-<p>XGboost是通过该特征每棵树中分裂次数的和去计算的，比如这个特征在第一棵树分裂1次，第二棵树2次……，那么这个特征的得分就是(1+2+...)。</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://blog.csdn.net/m0_37770941/article/details/78330795" target="_blank" rel="noopener">随机森林进行特征重要性度量的详细说明</a></li>
-<li><a href="https://www.zhihu.com/question/22983179" target="_blank" rel="noopener">什么是无偏估计？</a></li>
-<li><a href="http://wepon.me/files/gbdt.pdf" target="_blank" rel="noopener">GBDT PDF</a></li>
-<li><a href="https://www.zhihu.com/question/41354392" target="_blank" rel="noopener">机器学习算法中 GBDT 和 XGBOOST 的区别有哪些？</a></li>
-</ul>
-
+        <img class="img-fancy" src="/images/ml/ensumble/ensumble-1.png" width="550" border="0" alt=""/>
+<!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
+-->
+         
+          <p class="article-more-link">
+            <a href="/2019/06/02/ml/Random_Forest_and_GBDT/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1524,147 +657,13 @@ $$</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/ml/lr/LR-1.png&quot; width=&quot;600&quot; /&gt;</p>
-<p>&lt;!--&lt;a href=&quot;/2019/05/31/ml/Logistic_Regression/&quot; target=&quot;_self&quot; style=&quot;display:block; margin:0 auto; background:url('/images/ml/lr/LR-1.png') no-repeat 0 0 / contain; height:275px; width:550px;&quot;&gt;&lt;/a&gt;--&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>&lt;!--&lt;center&gt;&lt;font size=3.5&gt;--&gt;
-Logistic Regression 是一种用于解决二分类（0 or 1）问题的机器学习方法.
-&lt;!--&lt;/font&gt;&lt;/center&gt;--&gt;
-举个🌰 :</p>
-<blockquote>
-<p>(1). 用户购买某商品的可能性</p>
-<p>(2). 某病人患有某种疾病的可能性</p>
-<p>(3). 某广告被用户点击的可能性等</p>
-</blockquote>
-<h2>1. Logistic vs Linear Regression</h2>
-<p>Logistic Regression 和 Linear Regression 都是一种广义线性模型（generalized linear model）。</p>
-<p>逻辑回归假设因变量 y 服从伯努利分布，而线性回归假设因变量 y 服从高斯分布。 因此与线性回归有很多相同之处，去除 Sigmoid 映射函数的话，逻辑回归算法就是一个线性回归。可以说，逻辑回归是以线性回归为理论支持的，但是逻辑回归通过 Sigmoid函数 引入了非线性因素，因此可以轻松处理 0/1 分类问题。</p>
-<h3>1.1 Linear Regression</h3>
-<p>$$
-z={\theta_{0}}+{\theta_{1}x_{1}}+{\theta_{2}x_{2}+{\theta_{3}x_{3}}...+{\theta_{n}x_{n}}}=\theta^Tx
-$$</p>
-<blockquote>
-<p>使用最小二乘法求解 Linear Regression 时，我们认为因变量 y 服从正态分布。</p>
-<p>线性回归假设因变量 y 服从高斯分布:  真实值y与拟合值Y之间的差值是不是符合正态分布。</p>
-</blockquote>
-<h3>1.2 Logistic Regression</h3>
-<p>$$
-h_{\theta}(x)=\frac{1}{1+e^{-z}}=\frac{1}{1+e^{-\theta^Tx}}
-$$</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-2.png&quot; width=&quot;280&quot; alt=&quot;Logistic Regression 将线性函数的结果映射到了 sigmoid 函数 中. 取值在 [0, 1] 之间.&quot; /&gt;</p>
-<p>$$
-log\frac{p}{1-p} = \theta^Tx
-$$</p>
-<blockquote>
-<p>一件事发生的几率 $odds = \frac{p}{1-p}$， $p = P(y=1|x)$</p>
-<p>Logistic Regression 可以看作是对于 “y=1|x” 这一事件的对数几率的线性回归.</p>
-</blockquote>
-<p>逻辑回归通过对似然函数 $
-L(\theta)=\prod_{i=1}^{N}P(y_i|x_i;\theta)=\prod_{i=1}^{N}(\pi(x_i))^{y_i}(1-\pi(x_i))^{1-y_i} $ 的学习，得到最佳参数 θ.</p>
-<blockquote>
-<p>Logistic 与 Linear Regression 二者都使用了极大似然估计来对训练样本进行建模</p>
-</blockquote>
-<p><a href="http://www.iterate.site/2019/03/30/12-%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92/" target="_blank" rel="noopener">迭代自己 Logistic Regression</a></p>
-<h2>2. LR Hypothesis function</h2>
-<p>&lt;img src=&quot;/images/ml/lr/LR-3.svg&quot; width=&quot;150&quot; /&gt;</p>
-<p>其函数曲线如下：</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-2.png&quot; width=&quot;280&quot; alt=&quot;取值在[0, 1]之间，在远离0的地方函数的值会很快接近0或者1。它的这个特性对于解决二分类问题十分重要.&quot; /&gt;</p>
-<p>Logistic Regression 假设函数形式如下：</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-4.svg&quot; width=&quot;270&quot; /&gt;</p>
-<p>所以：</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-5.svg&quot; width=&quot;170&quot; /&gt;</p>
-<p>一个机器学习的模型，实际上是把决策函数限定在某一组条件下，这组限定条件就决定了模型的假设空间。当然，我们还希望这组限定条件简单而合理。而逻辑回归模型所做的假设是：</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-6.svg&quot; width=&quot;300&quot; alt=&quot;这个函数的意思就是在给定 x 和 0 的条件下 y=1 的概率&quot;/&gt;</p>
-<h2>3. Cost Function</h2>
-<p>Cost Function：</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-7.svg&quot; width=&quot;470&quot; /&gt;</p>
-<p>Loss Function：</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-8.svg&quot; width=&quot;400&quot; /&gt;</p>
-<p>上面的方程等价于：</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-9.svg&quot; width=&quot;570&quot; /&gt;</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-10.png&quot; width=&quot;370&quot; /&gt;</p>
-<blockquote>
-<ul>
-<li>选择 Cost_Function 时，最好挑选对参数 $\theta$ 可微的函数（全微分存在，偏导数一定存在）</li>
-<li>对于每种算法来说，Cost_Function 不是唯一的； Cost_Function 是参数 $\theta$ 的函数；</li>
-<li>Cost Function 是对所有样本而言, Loss Function 是对单一样本而言.</li>
-<li>$J(\theta)$ 是一个标量, 我们需要 min 最小化它.</li>
-</ul>
-</blockquote>
-<p>LR 中，代价函数是交叉熵 (<strong>Cross Entropy</strong>)，交叉熵是一个常见的代价函数:</p>
-<p><a href="https://zhuanlan.zhihu.com/p/38241764" target="_blank" rel="noopener">good 简单的交叉熵损失函数，你真的懂了吗？</a></p>
-<h2>4. Cross Entropy</h2>
-<p>Cross Entropy 是信息论中的一个概念，要想了解交叉熵的本质，需要先从最基本的概念讲起。</p>
-<blockquote>
-<p>信息量、熵、相对熵（KL散度）、交叉熵</p>
-<p>同一个随机变量 x 有两个单独的概率分布 P(x) 和 Q(x)， 用 KL散度 来衡量这两个分布的差异。</p>
-<p>$D_{KL}(p||q)=\sum_{i=1}^np(x_i)log(\frac{p(x_i)}{q(x_i)}) \tag{3.1}$</p>
-<p>$$\begin{eqnarray}
-D_{KL}(p||q) &amp;=&amp; \sum_{i=1}^np(x_i)log(p(x_i))-\sum_{i=1}^np(x_i)log(q(x_i))\end{eqnarray}$$</p>
-<p>等式的前一部分恰巧就是p的熵，等式的后一部分，就是交叉熵：</p>
-<p>$$\begin{eqnarray}
-=&amp; -H(p(x))+[-\sum_{i=1}^np(x_i)log(q(x_i))]
-\end{eqnarray}$$</p>
-<p>在机器学习中，我们需要评估label和predicts之间的差距，使用KL散度刚刚好，即 $D_{KL}(y||\hat{y})$ .</p>
-<p>由于KL散度中的前一部分 $-H(y)$ 不变，故在优化过程中，只需要关注 Cross Entropy 就可以了。</p>
-<p>所以一般在机器学习中直接用用 Cross Entropy Loss，评估模型。</p>
-<p>$D_{KL}$ 的值越小，表示 q分布 和 p分布 越接近.</p>
-</blockquote>
-<p><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="noopener">一文搞懂交叉熵在机器学习中的使用</a></p>
-<p><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="noopener">交叉熵在多分类问题中的使用, sigmoid</a></p>
-<blockquote>
-<p>1）CrossEntropy lossFunction</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-11.svg&quot; width=&quot;300&quot; /&gt;</p>
-<p>二分类:</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-12.svg&quot; width=&quot;150&quot; /&gt;</p>
-<p>意义：能表征 真实样本标签 和 预测概率 之间的差值</p>
-<p>2）最小化交叉熵的本质就是对数似然函数的最大化；</p>
-<p>3）对数似然函数的本质就是衡量在某个参数下，整体的估计和真实情况一样的概率，越大代表越相近；</p>
-<p>4）损失函数的本质就是衡量预测值和真实值之间的差距，越大代表越不相近。</p>
-</blockquote>
-<h3>4.1 Log 设计理念</h3>
-<p>预测输出与 y 差得越多，L 的值越大，也就是说对当前模型的 “ 惩罚 ” 越大，而且是非线性增大，是一种类似指数增长的级别。这是由 log 函数本身的特性所决定的。这样的好处是 模型会倾向于让预测输出更接近真实样本标签 y。</p>
-<blockquote>
-<p>我们希望 log P(y|x) 越大越好，反过来，只要 log P(y|x) 的负值 -log P(y|x) 越小就行了。那我们就可以引入损失函数，且令 Loss = -log P(y|x)即可。则得到损失函数为：</p>
-<p>&lt;img src=&quot;/images/ml/lr/LR-11.svg&quot; width=&quot;300&quot; /&gt;</p>
-<p>图可以帮助我们对 CrossEntropy lossFunction 有更直观的理解。无论真实样本标签 y 是 0 还是 1，L 都表征了预测输出与 y 的差距。</p>
-</blockquote>
-<h3>4.2 MLE 最大似然</h3>
-<p>就是利用已知的样本结果信息，反推最具有可能（最大概率）导致这些样本结果出现的 &lt;font color=#c7254e&gt;<strong>模型参数值</strong>！&lt;/font&gt;</p>
-<blockquote>
-<p>输入有两个：$x$ 表示某一个具体的数据；$θ$ 表示模型的参数。</p>
-</blockquote>
-<p>Probability Function：</p>
-<blockquote>
-<p>对于这个函数： $P(x|θ)$ ， 如果 $θ$ 是已知确定的，$x$ 是变量，这个函数叫做概率函数 (probability function)，它描述对于不同的样本点 $x$，其出现概率是多少。</p>
-</blockquote>
-<p>Likelihood Function：</p>
-<blockquote>
-<p>如果 $x$ 是已知确定的，$θ$ 是变量，这个函数叫做似然函数(likelihood function), 它描述对于不同的模型参数，出现 $x$ 这个样本点的概率是多少。</p>
-</blockquote>
-<blockquote>
-<p>MLE 提供了一种 <strong>给定观察数据来评估模型参数</strong> 的方法，即：“模型已定，参数未知”。</p>
-<p>MLE 中 <strong>采样</strong> 需满足一个重要的假设，就是所有的采样都是 <strong>独立同分布</strong> 的.</p>
-<p>一句话总结：概率是已知模型和参数，推数据。统计是已知数据，推模型和参数。</p>
-</blockquote>
-<h2>5. 最小二乘法 vs 最大似然估计</h2>
-<p>总结一句话：</p>
-<ul>
-<li>最小二乘法的核心是权衡，因为你要在很多条线中间选择，选择出距离所有的点之和最短的；</li>
-<li>而极大似然的核心是自恋，要相信自己是天选之子，自己看到的，就是冥冥之中最接近真相的。^_^</li>
-</ul>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://zhuanlan.zhihu.com/p/28408516" target="_blank" rel="noopener">逻辑回归（Logistic Regression）（一）</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/22876460" target="_blank" rel="noopener">广义线性模型（Generalized Linear Model）</a></li>
-<li><a href="https://blog.csdn.net/Cdd2xd/article/details/75635688" target="_blank" rel="noopener">GLM(广义线性模型) 与 LR(逻辑回归) 详解</a></li>
-<li><a href="https://www.zhihu.com/question/56891433" target="_blank" rel="noopener">怎样用通俗易懂的文字解释正态分布及其意义？</a></li>
-<li><a href="https://www.zhihu.com/question/20447622" target="_blank" rel="noopener">最大似然估计和最小二乘法怎么理解？</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/26614750" target="_blank" rel="noopener">知乎：一文搞懂极大似然估计</a></li>
-<li><a href="https://blog.csdn.net/u011508640/article/details/72815981" target="_blank" rel="noopener">CSDN：详解最大似然估计（MLE）、最大后验概率估计（MAP），以及贝叶斯公式的理解</a></li>
-<li><a href="https://blog.csdn.net/tsyccnh/article/details/79163834" target="_blank" rel="noopener">一文搞懂交叉熵在机器学习中的使用，透彻理解交叉熵背后的直觉</a></li>
-</ul>
-
+        <img src="/images/ml/lr/LR-1.png" width="600" />
+<!--<a href="/2019/05/31/ml/Logistic_Regression/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/lr/LR-1.png') no-repeat 0 0 / contain; height:275px; width:550px;"></a>-->
+         
+          <p class="article-more-link">
+            <a href="/2019/05/31/ml/Logistic_Regression/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1726,124 +725,12 @@ D_{KL}(p||q) &amp;=&amp; \sum_{i=1}^np(x_i)log(p(x_i))-\sum_{i=1}^np(x_i)log(q(x
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/ml/pca/pca-logo.png&quot; width=&quot;550&quot; alt=&quot;PCA&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>常见的 Dimensionality Reduction 方法： PCA、LDA 等。 <a href="https://terrifyzhao.github.io/2018/06/30/PCA%E4%B8%BB%E6%88%90%E5%88%86%E5%88%86%E6%9E%90.html" target="_blank" rel="noopener">PCA主成分分析</a></p>
-<p>Machine Learning 中的数据维数 与 现实世界中的空间维度本同末离。在 Machine Learning 中，数据通常需要被表示成向量形式以输入模型进行训练。用一个 <strong>低维度的向量</strong> 表示原始 <strong>高纬度的特征</strong> 显得尤为重要。</p>
-<p>降维的好处很明显，它不仅可以数据减少对内存的占用，而且还可以加快学习算法的执行</p>
-<p>PCA 是一种经典的降维方法，是一种<strong>线性、非监督、全局的</strong>降维方法，是面试常见问题.</p>
-<h2>1. Motivation</h2>
-<p>如果我们有许多冗余的数据，我们可能需要对特征量进行降维(Dimensionality Reduction)</p>
-<h3>1.1 Data Compression</h3>
-<p><img src="/images/ml/pca/pca-1.png" alt="一个2维到1维的例子"></p>
-<p>如图10-2所示的3维到2维的例子，通过对x1,x2,x3的可视化，发现虽然样本处于3维空间，但是他们大多数都分布在同一个平面中，所以我们可以通过投影，将3维降为2维。</p>
-<p><img src="/images/ml/pca/pca-2.png" alt="一个3维到2维的例子"></p>
-<h3>1.2 Visualization</h3>
-<p>特征量维数大于3时，我们几乎不能对数据进行可视化。所以，有时为了对数据进行可视化，我们需要对其进行降维。我们可以找到2个或3个具有代表性的特征量，他们(大致)可以概括其他的特征量。</p>
-<p>例如，描述一个国家有很多特征量，比如GDP，人均GDP，人均寿命，平均家庭收入等等。</p>
-<p><img src="/images/ml/pca/pca-3.png" alt="Visualization"></p>
-<h2>2. Principal Component Analysis</h2>
-<p>主成分分析(Principal Component Analysis : PCA)是最常用的降维算法。</p>
-<h3>2.1 Problem formulation</h3>
-<p>首先我们思考如下问题，对于正交属性空间(对2维空间即为直角坐标系)中的样本点，如何用一个超平面(直线/平面的高维推广)对所有样本进行恰当的表达？</p>
-<p>事实上，若存在这样的超平面，那么它大概应具有这样的性质：</p>
-<ul>
-<li><code>最近重构性</code> : 样本点到这个超平面的距离都足够近；</li>
-<li><code>最大可分性</code> : 样本点在这个超平面上的投影能尽可能分开。</li>
-</ul>
-<p><img src="/images/ml/pca/pca-4.png" alt="样本在3维正交空间的分布"></p>
-<blockquote>
-<p>对当前样本而言，s1平面比s2平面的最近重构性要好（样本离平面的距离更近）；</p>
-</blockquote>
-<p><img src="/images/ml/pca/pca-5.png" alt="样本投影在2维平面后的结果"></p>
-<blockquote>
-<p>对当前样本而言，s1平面(左边) 比s2平面的最大可分性要好(样本点更分散)。</p>
-<p>总结: 让上面的例子也说明了 <strong>最近重构性</strong> 和 <strong>最大可分性</strong> 可以同时满足。分别以最近重构性和最大可分性为目标，能够得到 <strong>PCA 的两种等价推导</strong>。</p>
-</blockquote>
-<p><strong>丢失信息对比：</strong></p>
-<blockquote>
-<p>s2平面 进行投影降维，我们会丢失更多（相当多）的特征量信息，因为它的投影结果甚至可以在转化为1维。</p>
-<p>而 s1平面 上的投影包含更多的信息(丢失的更少)。</p>
-</blockquote>
-<p><strong>将特征量从n维降到k维：</strong></p>
-<blockquote>
-<ol>
-<li>
-<p>以最近重构性为目标，PCA的目标是找到k个向量，将所有样本投影到这k个向量构成的超平面，使得<strong>投影的距离最小</strong>（或者说投影误差projection error最小）。</p>
-</li>
-<li>
-<p>以最大可分性为目标，PCA的目标是找到k个向量，将所有样本投影到这k个向量构成的超平面，使得<strong>样本点的投影能够尽可能的分开</strong>，也就是使投影后的<strong>样本点方差最大化</strong>。</p>
-</li>
-</ol>
-</blockquote>
-<p>摘要：</p>
-<blockquote>
-<p>PCA 与 线性回归 有一点相似，但是他们是2种不同的算法.</p>
-<p><a href="https://blog.csdn.net/u014665013/article/details/78669835" target="_blank" rel="noopener">good CSDN 主成分分析PCA之协方差矩阵的理解</a></p>
-<p><a href="https://zhuanlan.zhihu.com/p/37609917" target="_blank" rel="noopener">知乎: 如何直观地理解「协方差矩阵」？</a></p>
-<p><a href="https://blog.csdn.net/babywong/article/details/50085239" target="_blank" rel="noopener">PCA为什么要用协方差矩阵？</a></p>
-<p><a href="https://mp.weixin.qq.com/s/QqqLAxx92v_HOg7QBKrK6A" target="_blank" rel="noopener">线性降维方法（代码篇）| 机器学习你会遇到的“坑”</a></p>
-<p><a href="http://www.cnblogs.com/pinard/p/6239403.html" target="_blank" rel="noopener">主成分分析（PCA）原理总结</a></p>
-<p><a href="https://www.cnblogs.com/pinard/p/6243025.html" target="_blank" rel="noopener">刘建平Pinard 用scikit-learn学习主成分分析(PCA)</a></p>
-<p>PCA为什么要用协方差矩阵的特征向量矩阵来做投影矩阵呢？为神马啊为神马？</p>
-<p>降维的目的就是“降噪”和“去冗余”。“降噪”的目的就是使保留下来的维度间的相关性尽可能小，而“去冗余”的目的就是使保留下来的维度含有的“能量”即方差尽可能大。那首先的首先，我们得需要知道各维度间的相关性以及个维度上的方差啊！那有什么数据结构能同时表现不同维度间的**<code>相关性</code><strong>以及各个</strong><code>维度上的方差</code>**呢？自然是协方差矩阵！</p>
-</blockquote>
-<blockquote>
-<p>协方差矩阵度量的是维度与维度之间的关系，而非样本与样本之间。协方差矩阵的主对角线上的元素是各个<code>维度上的方差(即能量)</code>，其他元素是两两维度间的<code>协方差</code>(即相关性)。我们要的东西协方差矩阵都有了，先来看“降噪”，让保留下的不同维度间的<code>相关性尽可能小</code>，也就是说让<code>协方差矩阵中非对角线元素都基本为零</code>。达到这个目的的方式自然不用说，线代中奖的很明确——矩阵对角化。</p>
-</blockquote>
-<blockquote>
-<p>方差是用来度量单个随机变量的离散程度，而协方差则一般用来刻画两个随机变量的相似程度.</p>
-</blockquote>
-<h3>2.2 PCA Algorithm</h3>
-<p>输入：</p>
-<blockquote>
-<p>训练集 $x^{(1)}, x^{(2)}, ..., x^{(m)}$ 和 低维空间维数 $k$</p>
-</blockquote>
-<p>过程：</p>
-<blockquote>
-<p>(1) 数据预处理：对所有样本进行中心化(即使得样本和为0)</p>
-<p>&lt;img src=&quot;/images/ml/pca/pca-7.png&quot; width=&quot;350&quot; /&gt;</p>
-<p>(2) 计算样本的协方差矩阵</p>
-<p>&lt;img src=&quot;/images/ml/pca/pca-8.png&quot; width=&quot;350&quot; /&gt;</p>
-<p>(3) 对2中求得的协方差矩阵Sigma进行特征值分解</p>
-<p>    在实践中通常对协方差矩阵进行 <strong>SVD分解</strong> 代替 特征值分解.
-$$
-[U, S, V] = svd(Sigma);
-$$</p>
-<p>(4) 取最大的k个特征值所对应的特征向量 $u^{(1)}, u^{(2)}, ..., u^{(k)}$</p>
-</blockquote>
-<h3>2.3 Choosing the Number of Principal Components</h3>
-<p>如何选择k（又称为主成分的个数）的值？</p>
-<p>首先，试想我们可以使用PCA来压缩数据，我们应该如何解压？或者说如何回到原本的样本值？事实上我们可以利用下列等式计算出原始数据的近似值Xapprox：</p>
-<h3>2.4 Advice for Applying PCA</h3>
-<ol>
-<li>
-<p>PCA 通常用来加快监督学习算法.</p>
-</li>
-<li>
-<p>PCA 应该只是通过 <strong>训练集的特征量</strong> 来获取 投影矩阵 Ureduce，而不是交叉检验集或测试集。
-      但是获取到 Ureduce 之后可以应用在交叉检验集和测试集。</p>
-</li>
-<li>
-<p>避免使用 PCA 来防止 overfiting，PCA 只是对 特征 $X$ 进行降维，并没有考虑 $Y$ 的值；</p>
-</li>
-<li>
-<p>不应在项目开始就用PCA: 花大量时间来选择k值，可能项目并不需用PCA来降维。同时降维定会丢失一些信息。</p>
-</li>
-<li>
-<p>仅在需用 PCA 的时使用 PCA: 降维丢失的信息可能在一定程度上是噪声，使用 PCA 可以起到一定的去噪效果。</p>
-</li>
-<li>
-<p>PCA 通常用来 Data Compression 以加快算法，减少内存使用或磁盘占用，或者用于可视化(k=2, 3)。</p>
-</li>
-</ol>
-<h2>Reference article</h2>
-<ul>
-<li>百面机器学习</li>
-<li><a href="https://www.cnblogs.com/llhthinker/p/5522054.html" target="_blank" rel="noopener">Stanford Machine Learning</a></li>
-<li><a href="https://study.163.com/course/courseLearn.htm?courseId=1004570029#/learn/video?lessonId=1052320898&amp;courseId=1004570029" target="_blank" rel="noopener">网易云课堂</a></li>
-</ul>
-
+        <img src="/images/ml/pca/pca-logo.png" width="550" alt="PCA" />
+         
+          <p class="article-more-link">
+            <a href="/2019/04/21/ml/PCA/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1905,112 +792,12 @@ $$</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/nlp/fasttext-logo.png&quot; width=&quot;600&quot; alt=&quot;fasttext word2vec&quot;/&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>fastText 是 2016年 FAIR(Facebook AIResearch) 推出的一款文本分类与向量化工具。</p>
-<p>fastText 是 智慧与美貌并重的 <strong>文本分类</strong> and <strong>向量化工具</strong> 的项目，它是有两部分组成的。</p>
-<p>论文1链接： <a href="https://arxiv.org/abs/1607.01759" target="_blank" rel="noopener">Bag of Tricks for Efficient Text Classification</a></p>
-<p>论文2链接： <a href="https://arxiv.org/abs/1607.01759" target="_blank" rel="noopener">Enriching Word Vectors with Subword Information</a></p>
-<p>github链接： <a href="https://github.com/facebookresearch/fastText" target="_blank" rel="noopener">facebookresearch/fastText</a></p>
-<p>fastText 能够做到效果好，速度快，主要依靠两个秘密武器：</p>
-<blockquote>
-<ol>
-<li>利用了词内的n-gram信息(subword n-gram information)</li>
-<li>用到了层次化Softmax回归(Hierarchical Softmax) 的训练 trick.</li>
-</ol>
-</blockquote>
-<p><strong>fastText 背景</strong></p>
-<p>英语单词通常有其内部结构和形成方式。例如我们可以从“dog”、“dogs”和“dogcatcher”的字面上推测他们的关系。这些词都有同一个词根“dog”，这个关联可以推广至其他词汇。例如，“dog”和“dogs”的关系如同“cat”和“cats”的关系，“boy”和“boyfriend”的关系如同“girl”和“girlfriend”的关系。很多词根据场景不同有多种不同的形态。构词学（morphology）作为语言学的一个重要分支，研究的正是词的内部结构和形成方式。</p>
-<p>在 word2vec 中，我们并没有直接利用构词学中的信息。无论是在 <strong>skip-gram</strong> 还是 <strong>CBOW</strong> 中，我们将形态不同的单词用不同的向量来表示。例如，“dog”和“dogs”分别用两个不同的向量表示，而模型中并未直接表达这两个向量之间的关系。有鉴于此，fastText 提出了子词嵌入（subword embedding）的方法，从而试图将构词信息引入 word2vec 中的 <strong>skip-gram</strong>。</p>
-<p><strong>子词嵌入 subword embedding</strong></p>
-<p>在 fastText 中，每个中心词被表示成子词的集合。下面我们用单词“where”作为例子来了解子词是如何产生的。首先，我们在单词的首尾分别添加特殊字符“&lt;”和“&gt;”以区分作为前后缀的子词。然后，将单词当成一个由字符构成的序列来提取 $n$ 元语法。例如当 $n=3$ 时，我们得到所有长度为 3 的子词：</p>
-<p>$$&lt;.wh ， whe ， her ， ere ， re&gt;$$</p>
-<p>以及特殊子词 &quot;&lt;.where&gt;&quot;。</p>
-<p>在 fastText 中，对于一个词 $w$，将它所有长度在 3 到 6 的子词和特殊子词的并集记为 $\mathcal{G}_w$。那么词典则是所有词的子词集合的并集。假设词典中子词 $g$ 的向量为 $\boldsymbol{z}_g$，那么跳字模型中词 $w$ 的作为中心词的向量 $\boldsymbol{v}_w$ 则表示成</p>
-<p>$$
-\boldsymbol{v}_w = \sum_{g\in\mathcal{G}_w} \boldsymbol{z}_g.
-$$</p>
-<p>FastText 的其余部分同 <strong>skip-gram</strong> 一致，不在此重复。可以看到，同 <strong>skip-gram</strong> 相比，fastText 中词典规模更大，造成模型参数更多，同时一个词的向量需要对所有子词向量求和，继而导致计算复杂度更高。但与此同时，较生僻的复杂单词，甚至是词典中没有的单词，可能会从同它结构类似的其他词那里获取更好的词向量表示。</p>
-<h2>1. 前置知识</h2>
-<h3>1.1 Softmax Regression</h3>
-<p>Softmax Regression (回归) 又被称作多项LR（multinomial logistic regression），它是LR在多类别任务上的推广。</p>
-<p>&lt;img src=&quot;/images/nlp/fastText2.jpg&quot; width=&quot;850&quot; /img&gt;</p>
-<h3>1.2 Hierarchical Softmax</h3>
-<h3>1.3 n-gram's feature</h3>
-<p>在文本特征提取中，常常能看到 n-gram 的身影。它是一种基于语言模型的算法，基本思想是将文本内容按照字节顺序进行大小为 N 的滑动窗口操作，最终形成长度为 N 的字节片段序列。看下面的例子：</p>
-<p><strong>字粒度</strong></p>
-<blockquote>
-<p>我来到达观数据参观</p>
-<ul>
-<li>
-<p>相应的bigram特征为：我来 来到 到达 达观 观数 数据 据参 参观</p>
-</li>
-<li>
-<p>相应的trigram特征为：我来到 来到达 到达观 达观数 观数据 数据参 据参观</p>
-</li>
-</ul>
-</blockquote>
-<p><strong>词粒度</strong></p>
-<blockquote>
-<p>我 来到 达观数据 参观</p>
-<ul>
-<li>
-<p>相应的bigram特征为：我/来到 来到/达观数据 达观数据/参观</p>
-</li>
-<li>
-<p>相应的trigram特征为：我/来到/达观数据 来到/达观数据/参观</p>
-</li>
-</ul>
-</blockquote>
-<p><strong>小结：</strong></p>
-<p>n-gram中的gram根据粒度不同。它可以是字粒度，也可以是词粒度的。</p>
-<p>n-gram 产生的特征只是作为<strong>文本特征的候选集</strong>，你后面可能会采用信息熵、卡方统计、IDF等文本特征选择方式筛选出比较重要特征。</p>
-<h2>2. word2vec 架构原理</h2>
-<h3>2.1 CBOW 模型架构</h3>
-<h3>2.2 前向传播</h3>
-<h3>2.3 反向传播</h3>
-<h2>3. fastText 核心思想</h2>
-<h3>3.1 字符级 n-gram</h3>
-<h3>3.2 模型架构</h3>
-<h3>3.3 核心思想</h3>
-<p>仔细观察模型的后半部分，即从隐含层输出到输出层输出，会发现它就是一个softmax线性多类别分类器，分类器的输入是一个用来表征当前文档的向量；模型的前半部分，即从输入层输入到隐含层输出部分，主要在做一件事情：生成用来表征文档的向量。那么它是如何做的呢？叠加构成这篇文档的所有词及n-gram的词向量，然后取平均。叠加词向量背后的思想就是传统的词袋法，即将文档看成一个由词构成的集合。</p>
-<p>于是fastText的核心思想就是：将整篇文档的词及n-gram向量叠加平均得到文档向量，然后使用文档向量做softmax多分类。这中间涉及到两个技巧：字符级n-gram特征的引入以及分层Softmax分类。</p>
-<h3>3.4 分类效果</h3>
-<p>还有个问题，就是为何fastText的分类效果常常不输于传统的非线性分类器？</p>
-<p><strong>假设我们有两段文本：</strong></p>
-<blockquote>
-<p>我 来到 达观数据</p>
-<p>俺 去了 达而观信息科技</p>
-</blockquote>
-<p>这两段文本意思几乎一模一样，如果要分类，肯定要分到同一个类中去。但在传统的分类器中，用来表征这两段文本的向量可能差距非常大。传统的文本分类中，你需要计算出每个词的权重，比如tfidf值， “我”和“俺” 算出的tfidf值相差可能会比较大，其它词类似，于是，VSM（向量空间模型）中用来表征这两段文本的文本向量差别可能比较大。</p>
-<p>但是fastText就不一样了，它是用单词的embedding叠加获得的文档向量，词向量的重要特点就是向量的距离可以用来衡量单词间的语义相似程度，于是，在fastText模型中，这两段文本的向量应该是非常相似的，于是，它们很大概率会被分到同一个类中。</p>
-<p><strong>fastText效果好的原因：</strong></p>
-<blockquote>
-<ol>
-<li>使用词embedding而非词本身作为特征</li>
-<li>字符级n-gram特征的引入对分类效果会有一些提升</li>
-</ol>
-</blockquote>
-<h2>4. fastText keras 实战</h2>
-<h2>6. 小结</h2>
-<ul>
-<li>FastText 提出了子词嵌入方法。在 word2vec <strong>skip-gram</strong> 基础上，将中心词向量表示成单词的子词向量之和。</li>
-<li>子词嵌入（subword embedding）利用构词上的规律，通常可以提升生僻词表示的质量。</li>
-<li>fastText 训练时复杂度 采用层次化 softmax 之后，减少为 O(hlogK) 级别, 预测时还是 O(Kh)</li>
-</ul>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://zh.gluon.ai/chapter_natural-language-processing/fasttext.html" target="_blank" rel="noopener">子词嵌入（fastText）</a></li>
-<li><a href="https://www.jiqizhixin.com/articles/2018-06-05-3" target="_blank" rel="noopener">fastText，智慧与美貌并重的文本分类及向量化工具</a></li>
-<li><a href="https://blog.csdn.net/sinat_26917383/article/details/54850933" target="_blank" rel="noopener">NLP︱高级词向量表达（二）——FastText（简述、学习笔记）</a></li>
-<li><a href="https://blog.csdn.net/sinat_26917383/article/details/83041424" target="_blank" rel="noopener">如何在python 非常简单训练FastText</a></li>
-<li><a href="http://www.52nlp.cn/fasttext" target="_blank" rel="noopener">我爱自然语言处理-fastText原理及实践</a></li>
-<li><a href="https://www.jianshu.com/p/2acc49549af6" target="_blank" rel="noopener">FastText文本分类算法学习笔记（好文）</a></li>
-<li><a href="https://blog.csdn.net/fendouaini/article/details/81086575" target="_blank" rel="noopener">FastText的内部机制</a></li>
-<li><a href="https://blog.csdn.net/joleoy/article/details/84987230" target="_blank" rel="noopener">利用skift实现fasttext模型</a></li>
-<li><a href="https://blog.csdn.net/sxllllwd/article/details/81914447" target="_blank" rel="noopener">CSDN 层次softmax</a></li>
-</ul>
-
+        <img src="/images/nlp/fasttext-logo.png" width="600" alt="fasttext word2vec"/>
+         
+          <p class="article-more-link">
+            <a href="/2018/12/19/nlp/fastText/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -2072,75 +859,12 @@ $$</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/ml/k-means/K-Means.gif&quot; width=&quot;550&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;&lt;br&gt;</p>
-<p>在数据挖掘中， k-Means 算法是一种 cluster analysis 的算法，其主要是来计算数据聚集的算法，主要通过不断地取离种子点最近均值的算法。</p>
-<h2>1. 问题</h2>
-<p>K-Means算法主要解决的问题如下图所示。我们可以看到，在图的左边有一些点，我们用肉眼可以看出来有四个点群，但是我们怎么通过计算机程序找出这几个点群来呢？于是就出现了我们的K-Means算法.</p>
-<p>&lt;img src=&quot;/images/ml/k-means/K-Means-1.png&quot; width=&quot;750&quot; /&gt;</p>
-<p>K均值聚类的基本思想是，通过迭代方式寻找K个簇(Cluster)的一种划分方案，使得聚类结果对应的代价函数最小。特别的，代价函数可以定义为各个样本距离所属簇中心点的误差平方和</p>
-<p><img src="/images/ml/k-means/K-Means-2.svg" alt="K-Means 算法概要"></p>
-<h2>2. 算法概要</h2>
-<p>这个算法其实很简单，如下图所示：</p>
-<p><img src="/images/ml/k-means/K-Means.jpg" alt="K-Means 算法概要"></p>
-<p>从上图中，我们可以看到，A, B, C, D, E 是五个在图中点。而灰色的点是我们的种子点，也就是我们用来找点群的点。有两个种子点，所以K=2。</p>
-<p>然后，K-Means的算法如下：</p>
-<blockquote>
-<p>1). 随机在图中取K（这里K=2）个种子点。</p>
-<p>2). 然后对图中的所有点求到这K个种子点的距离，假如点Pi离种子点Si最近，那么Pi属于Si点群。（上图中，我们可以看到A,B属于上面的种子点，C,D,E属于下面中部的种子点）.</p>
-<p>3). 接下来，我们要移动种子点到属于他的“点群”的中心。（见图上的第三步）.</p>
-<p>4). 然后重复 第2）和 第3）步，直到，种子点没有移动（我们可以看到图中的第四步上面的种子点聚合了A,B,C，下面的种子点 聚合了D，E）。</p>
-</blockquote>
-<p>这个算法很简单。</p>
-<h2>3. K-Means 具体步骤</h2>
-<blockquote>
-<p>(1). 数据预处理、归一化、离群点处理。</p>
-<p>(2). 随机选择 K 个簇中心，记为 ${\mu_1}^{(0)}, {\mu_2}^{(0)}, {\mu_3}^{(0)}, ..., {\mu_k}^{(0)}$</p>
-<p>(3). 定义代价函数 :</p>
-<p>&lt;img src=&quot;/images/ml/k-means/K-Means-5.svg&quot; width=&quot;280&quot; /&gt;</p>
-<p>(4). 令 t=0,1,2,... 为迭代轮数，重复下面的过程知道 J 收敛:</p>
-<ul>
-<li>对于每一个样本 $x_i$, 将其分配到距离最近的簇.</li>
-</ul>
-<p>&lt;img src=&quot;/images/ml/k-means/K-Means-3.svg&quot; width=&quot;280&quot; /&gt;</p>
-<ul>
-<li>对于每一个类簇 $k$, 重新计算该类簇的中心</li>
-</ul>
-<p>&lt;img src=&quot;/images/ml/k-means/K-Means-4.svg&quot; width=&quot;280&quot; /&gt;</p>
-</blockquote>
-<h2>4. K-Means 优缺点</h2>
-<p><strong>Advantage：</strong></p>
-<blockquote>
-<p>对于大数据集，K均值 高效且可伸缩，它的复杂度是 $O(NKt)$，接近于线性。 其中 t是迭代轮数。</p>
-</blockquote>
-<p><strong>Disadvantage：</strong></p>
-<blockquote>
-<p>(1) <strong><code>需要人工预设K值，且该值和真实数据分布未必吻合</code></strong>；</p>
-<p>(2) <strong><code>受初值和离群点的影响，每次的结果不稳定</code></strong>；</p>
-<p>(3) <strong><code>受初值影响，结果通常是局部最优</code></strong>；</p>
-<p>(4) 无法很好地解决数据簇分布差别比较大的情况(如一类是另一类样本数量的100倍)；</p>
-<p>(5) 不太适用于离散分布；样本点只能被划分到单一的类中。</p>
-</blockquote>
-<h2>5. K-Means++</h2>
-<blockquote>
-<p>K-means 最开始是随机选取数据集中的K个点作为聚类中心.</p>
-<p>K-means++ <strong>改进了初始值的选择，会尽量使聚类中心越远越好</strong>.</p>
-</blockquote>
-<h2>6. 扩展</h2>
-<ul>
-<li>ISODATA算法(迭代自组织数据分析法)</li>
-<li>高斯混合模型、EM</li>
-<li>自组织映射神经网络 (SOM)</li>
-<li>聚类算法的评估</li>
-</ul>
-<h2>Reference article</h2>
-<ul>
-<li><a href="https://www.jianshu.com/p/7676f3b9808f" target="_blank" rel="noopener">百面机器学习</a> 、 <a href="https://study.163.com/course/courseLearn.htm?courseId=1004570029#/learn/video?lessonId=1052320898&amp;courseId=1004570029" target="_blank" rel="noopener">网易云课堂</a></li>
-<li><a href="https://coolshell.cn/articles/7779.html" target="_blank" rel="noopener">COOLSHELL K-MEANS 算法</a></li>
-<li><a href="https://coolshell.cn/articles/8052.html" target="_blank" rel="noopener">K NEAREST NEIGHBOR</a></li>
-<li><a href="https://blog.csdn.net/howhigh/article/details/74527651" target="_blank" rel="noopener">单位矩阵和逆矩阵</a></li>
-</ul>
-
+        <img src="/images/ml/k-means/K-Means.gif" width="550" />
+         
+          <p class="article-more-link">
+            <a href="/2018/12/18/ml/K-Means/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -2202,98 +926,12 @@ $$</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/nlp/textcnn-logo.png&quot; width=&quot;650&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>textCNN 是 2014年 提出的用来做文本分类的卷积神经网络，结构简单、效果好.</p>
-<p>论文链接： <a href="https://arxiv.org/abs/1510.03820" target="_blank" rel="noopener">Convolutional Neural Networks for Sentence Classification</a> 在文本分类等 NLP 领域应用广泛.</p>
-<p>一般结构： 降维 -&gt; conv -&gt; 最大池化 -&gt; 完全连接层 -&gt; softmax .</p>
-<blockquote>
-<p>将文本当做是一维图像，从而可以用一维卷积神经网络来捕捉临近词之间的关联。</p>
-</blockquote>
-<h2>1. 一维卷积层</h2>
-<p>在介绍模型前我们先来解释一维卷积层的工作原理。和二维卷积层一样，一维卷积层使用一维的互相关运算。在一维互相关运算中，卷积窗口从输入数组的最左方开始，按从左往右的顺序，依次在输入数组上滑动。</p>
-<p>当卷积窗口滑动到某一位置时，窗口中的输入子数组与核数组按元素相乘并求和，得到输出数组中相应位置的元素。</p>
-<h3>1.1 多输入通道 * 一维互相关</h3>
-<p>如下图所示，输入是一个宽为 7 的一维数组，核数组的宽为 2。可以看到输出的宽度为 <strong>7−2+1=6</strong>，且第一个元素是由输入的最左边的宽为 2 的子数组与核数组按元素相乘后再相加得到的。</p>
-<p>&lt;img src=&quot;/images/nlp/conv1d.svg&quot; width=&quot;650&quot; /img&gt;</p>
-<blockquote>
-<p>一维互相关运算。阴影部分为第一个输出元素及其计算所使用的输入和核数组元素：0×1+1×2=2。</p>
-</blockquote>
-<h3>1.2 多输入通道 * 一维互相关</h3>
-<p>多输入通道的一维互相关运算也与多输入通道的二维互相关运算类似：在每个通道上，将核与相应的输入做一维互相关运算，并将通道之间的结果相加得到输出结果。下图展示了含 3 个输入通道的一维互相关运算。</p>
-<p>&lt;img src=&quot;/images/nlp/conv1d-channel.svg&quot; width=&quot;650&quot; /img&gt;</p>
-<blockquote>
-<p>含3个输入通道的一维互相关运算。阴影部分为第一个输出元素及其计算所使用的输入和核数组元素：</p>
-<p>$$0×1+1×2+1×3+2×4+2×(−1)+3×(−3)=2$$</p>
-</blockquote>
-<h3>1.3 单输入通道 * 二维互相关</h3>
-<p>&lt;img src=&quot;/images/nlp/conv1d-2d.svg&quot; width=&quot;650&quot; /img&gt;</p>
-<blockquote>
-<p>$$2×(−1)+3×(−3)+1×3+2×4+0×1+1×2=2$$</p>
-<p>结论 ： <strong>多输入通道</strong> <strong>一维互相关</strong> &lt;=&gt; <strong>单输入通道</strong> <strong>二维互相关</strong></p>
-</blockquote>
-<h3>1.4 多输入通道 * 二维互相关</h3>
-<p>&lt;img src=&quot;/images/nlp/conv_multi_in.svg&quot; width=&quot;650&quot; /img&gt;</p>
-<blockquote>
-<p>$$
-(1×1+2×2+4×3+5×4)+(0×0+1×1+3×2+4×3)=56
-$$</p>
-</blockquote>
-<h3>1.5 多输出通道 1×1 卷积层</h3>
-<p>当输入通道有多个时，由于我们对各个通道的结果做了累加，所以不论输入通道数是多少，输出通道数总是为 1</p>
-<p>&lt;img src=&quot;/images/nlp/conv_1x1.svg&quot; width=&quot;650&quot; /img&gt;</p>
-<h3>1.6 小结</h3>
-<ul>
-<li>使用多通道可以拓展卷积层的模型参数.</li>
-<li>假设将通道维当做是特征维，将高和宽维度上的元素当成数据样本，那么 1×1 卷积层的作用与全连接层等价.</li>
-<li>1×1 卷积层通常用来调整网络层之间的通道数，并控制模型复杂度.</li>
-</ul>
-<h2>2. 时序最大池化层</h2>
-<p>类似地，我们有一维池化层。TextCNN 中使用的时序最大池化层（max-over-time pooling）实际上对应一维全局最大池化层：假设输入包含多个通道，各通道由不同时间步上的数值组成，各通道的输出即该通道所有时间步中最大的数值。因此，时序最大池化层的输入在各个通道上的时间步数可以不同。</p>
-<blockquote>
-<p>为提升计算性能，我们常常将不同长度的时序样本组成一个小<strong>Batch</strong>，并通过在较短序列后附加**特殊字符（例如 0）**令批量中各时序样本长度相同。这些人为添加的特殊字符当然是无意义的。由于时序最大池化的主要目的是抓取时序中最重要的特征，它通常能使模型不受人为添加字符的影响。</p>
-</blockquote>
-<h2>3. TextCNN 模型</h2>
-<p>TextCNN 主要使用了一维卷积层和时序最大池化层。假设输入的文本序列由 n 个词组成，每个词用 d 维的词向量表示。那么输入样本的宽为 n，高为 1，输入通道数为 d。</p>
-<p>textCNN 的计算主要分为以下几步：</p>
-<blockquote>
-<p>(1). <strong>卷积层</strong>： 定义多个一维卷积核，并使用这些卷积核对输入分别做卷积计算。宽度不同的卷积核可能会捕捉到不同个数的相邻词的相关性。</p>
-<p>(2). <strong>池化层</strong>： 对输出的所有通道分别做时序最大池化，再将这些通道的池化输出值连结为向量。</p>
-<p>(3). <strong>全连层</strong>： 通过全连接层将连结后的向量变换为有关各类别的输出。这一步可以使用丢弃层应对过拟合。</p>
-</blockquote>
-<p>&lt;img src=&quot;/images/nlp/conv_textcnn.svg&quot; width=&quot;700&quot; /img&gt;</p>
-<p>用一个例子解释了 textCNN 的设计。这里的输入是一个有 11 个词的句子，每个词用 6 维词向量表示。因此输入序列的宽为 11，输入通道数为 6。给定 2 个一维卷积核，核宽分别为 2 和 4，输出通道数分别设为 4 和 5。因此，一维卷积计算后，4 个输出通道的宽为 11−2+1=10，而其他 5 个通道的宽为 11−4+1=8。尽管每个通道的宽不同，我们依然可以对各个通道做时序最大池化，并将 9 个通道的池化输出连结成一个 9 维向量。最终，我们使用全连接将 9 维向量变换为 2 维输出：正面情感和负面情感的预测。</p>
-<h2>4. CNN 的特点</h2>
-<p>CNN的三个优点：</p>
-<ol>
-<li>sparse interaction(稀疏的交互)</li>
-<li>parameter sharing(参数共享)</li>
-<li>equivalent respresentation(等价表示)。</li>
-</ol>
-<p>经典的简化卷积公式表示如下：</p>
-<p>&lt;img src=&quot;/images/nlp/textcnn-1.webp&quot; width=&quot;700&quot; /img&gt;</p>
-<p>假设每个词用三维向量表示，左边是4个词，右边是卷积矩阵，那么得到输出为：</p>
-<p>&lt;img src=&quot;/images/nlp/textcnn-2.webp&quot; width=&quot;700&quot; /img&gt;</p>
-<p>如果基于这个结果做1-MaxPool池化(最大值池化)，那么就取卷积层结果 o 中的最大值，即提取最显著的特征。</p>
-<p>针对海量的文本多分类数据，也可以尝试一下浅层的深度学习模型FastText模型，该模型的分类效率更高。</p>
-<p>&lt;img src=&quot;/images/nlp/textcnn-3.webp&quot; width=&quot;700&quot; /img&gt;</p>
-<p>整个模型由四部分构成： <strong>输入层</strong>、<strong>卷积层</strong>、<strong>池化层</strong>、<strong>全连接层</strong>。</p>
-<h2>5. 小结</h2>
-<ul>
-<li>我们可以使用一维卷积来处理和分析时序数据。</li>
-<li>多输入通道的一维互相关运算可以看作是单输入通道的二维互相关运算。</li>
-<li>时序最大池化层的输入在各个通道上的时间步数可以不同。</li>
-<li>TextCNN 主要使用了一维卷积层和时序最大池化层。</li>
-</ul>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://zh.gluon.ai/chapter_natural-language-processing/sentiment-analysis-cnn.html" target="_blank" rel="noopener">文本情感分类：使用卷积神经网络（textCNN）</a></li>
-<li><a href="http://www.52nlp.cn/tag/textcnn" target="_blank" rel="noopener">我爱自然语言处理</a></li>
-<li><a href="https://www.jianshu.com/p/f69e8a306862" target="_blank" rel="noopener">吾爱NLP(4)—基于Text-CNN模型的中文文本分类实战</a></li>
-<li><a href="https://www.cnblogs.com/DjangoBlog/p/7511979.html" target="_blank" rel="noopener">fastText、TextCNN、TextRNN……这里有一套NLP文本分类深度学习方法库供你选择</a></li>
-<li><a href="https://blog.csdn.net/u012762419/article/details/79561441" target="_blank" rel="noopener">大规模文本分类网络TextCNN介绍</a></li>
-</ul>
-
+        <img src="/images/nlp/textcnn-logo.png" width="650" />
+         
+          <p class="article-more-link">
+            <a href="/2018/12/16/nlp/textCNN/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -2356,12 +994,11 @@ $$</p>
     <div class="article-entry" itemprop="articleBody">
       
         <p>本文提出了两种模型（其实就是改了下目标函数，而且训练过程中仍然使用likelihood，仅在测试的时候使用新的目标函数将有意义的响应的概率变大~~），MMI-antiLM和MMI-bidi，下面分别进行介绍。</p>
-<p>&lt;!-- more --&gt;</p>
-<p>本文是李纪为的论文“A Diversity-Promoting Objective Function for Neural Conversation Models”阅读笔记。违章提出使用MMI代替原始的maximum likelihood作为目标函数，目的是使用互信息减小“I don't Know”这类无聊响应的生成概率。一般的seq2seq模型，倾向于生成安全、普适的响应，因为这种响应更符合语法规则，在训练集中出现频率也较高，最终生成的概率也最大，而有意义的响应生成概率往往比他们小。通过MMI来计算输入输出之间的依赖性和相关性，可以减少模型对他们的生成概率。</p>
-<h2>新的目标函数</h2>
-<p>...</p>
-<h2>Reference</h2>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/12/05/chatbot/chatbot-research13/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -2424,50 +1061,11 @@ $$</p>
     <div class="article-entry" itemprop="articleBody">
       
         <p>对话系统之所以没有取得突破性的进展，很大程度是因为没有一个可以准确表示回答效果好坏的评价标准。对话系统中大都使用机器翻译、摘要生成领域提出来的评价指标，但是很明显对话系统的场景和需求与他们是存在差别的.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>1. 评价指标*概览</h2>
-<p><strong>对于某一轮对话而言:</strong></p>
-<blockquote>
-<p>可使用响应的适当性、流畅度、相关性；</p>
-</blockquote>
-<p><strong>对于多轮对话而言:</strong></p>
-<blockquote>
-<p>关注流畅性、对话深度、多样性、一致连贯性等指标</p>
-</blockquote>
-<p><strong>对于整个对话系统:</strong></p>
-<blockquote>
-<p>我们则希望他可以涵盖更多的话题、回复真实可信等等。</p>
-</blockquote>
-<p>这些都是我们想要对话系统所拥有的能力，但是往往在一个具体的任务中我们只能关注某一项或者几项指标，这里我们主要针对开放域生成式对话模型的评价指标进行总结。</p>
-<h2>2. 词重叠评价指标</h2>
-<p>首先来看词重叠评价指标，他们认为有效地回答应该和真实回答之间存在大量的词重叠
-（但是对话系统的答案空间往往是发散的，也就是一个问题的答案可能是完全不同的两句话，这种情况下该评价指标效果不好），也就是说这是一个非常强的假设。（以下环节中r表示真是响应，r^表示系统生成响应）</p>
-<h2>3. BLEU</h2>
-<p>该评价指标有IBM在2002年提出，参考论文“BLEU: a Method for Automatic Evaluation of Machine Translation”，常作为机器翻译系统评价指标。其实就是统计生成响应和真实响应中的n-gram词组在整个训练语料中出现次数。公式如下所示：</p>
-<p>&lt;img src=&quot;/images/chatbot/chatbot-12.1.jpg&quot; width=&quot;400&quot; /img&gt;</p>
-<blockquote>
-<p>ROUGE : 该指标常用于文本摘要领域
-METEOR: BLEU 的升级版</p>
-</blockquote>
-<h2>4. 词向量评价指标</h2>
-<p>上面的词重叠评价指标基本上都是n-gram方式，去计算生成响应和真实响应之间的重合程度，共现程度等指标。而词向量则是通过Word2Vec等方法将句子转换为向量表示，这样一个句子就被映射到一个低维空间，句向量在一定程度上表征了其含义，在通过余弦相似度等方法就可以计算两个句子之间的相似程度。使用词向量的好处是，可以一定程度上增加答案的多样性，因为这里大多采用词语相似度进行表征，相比词重叠中要求出现完全相同的词语，限制降低了很多。</p>
-<h2>5. perplexity困惑度</h2>
-<p>perplexity是语言模型中的指标，用于评价语言模型的好坏，其实就是估算一句话出现的概率，看一句话是否通顺。也经常会在对话系统中出现评价生成的响应是否符合语言规则，计算方法也很简单，如下图所示：</p>
-<p>&lt;img src=&quot;/images/chatbot/chatbot-12.3.jpg&quot; width=&quot;400&quot; /img&gt;</p>
-<p>所以当我们使用tf.contrib.seq2seq.sequence_loss()函数计算模型loss的时候，perplexity的计算就显得很简单了，直接对计算出来的loss取个指数就行了，命令如下所示：</p>
-<p><figure class="highlight py"><table><tr><td class="code"><pre><span class="line">train_perp = math.exp(float(mean_loss)) <span class="keyword">if</span> mean_loss &lt; <span class="number">300</span> <span class="keyword">else</span> math.inf</span><br></pre></td></tr></table></figure></p>
-<p>现在我训练的对话系统，一般都只是用了perplexity来评判模型的效果，最终perplexity可以降到20左右（越小越好，说明越接近于自然语言）。</p>
-<h2>6. 人工指标</h2>
-<p>最后说一下人工评价，首先来讲，上面说了这么多的评价指标，并没有一个可以很好的解决对话系统的问题，就像“How NOT To Evaluate Your Dialogue System”论文中说到的那样，当下的这些评价指标都跟人工评价成弱相关或者完全没有关系，相关程度跟具体的数据集有关。</p>
-<p>以下摘自徐阿衡的回答：</p>
-<ul>
-<li>在闲聊性质的数据集上，上述 metric 和人工判断有一定微弱的关联 (only a small positive correlation on chitchat oriented Twitter dataset)</li>
-<li>在技术类的数据集上，上述 metric 和人工判断完全没有关联(no correlation at all on the technical UDC)</li>
-<li>当局限于一个特别具体的领域时，BLEU 会有不错的表现</li>
-</ul>
-<p>随着发展，还逐渐有了一些别的评价方法，比如使用GAN网络来评价生成的回复是否跟人类回复相似等等。。。</p>
-<h2>Reference</h2>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/12/01/chatbot/chatbot-research12/">Read More</a>
+          </p> 
+        
       
     </div>
 	

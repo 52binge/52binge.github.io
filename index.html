@@ -109,213 +109,12 @@ var _hmt = _hmt || [];
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/systemd-logo.gif&quot; width=&quot;400&quot; alt=&quot;www.freedesktop.org&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>1. Preface</h2>
-<p>历史上，Linux 的启动一直采用init进程。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo /etc/init.d/apache2 start</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">$ service apache2 start</span><br></pre></td></tr></table></figure></p>
-<p>这种方法有两个缺点:</p>
-<ol>
-<li>启动时间长</li>
-<li>启动脚本复杂</li>
-</ol>
-<blockquote>
-<p>init 进程是串行启动，只有前一个进程启动完，才会启动下一个进程。</p>
-<p>init 进程只是执行启动脚本，不管其他事情。脚本需要自己处理各种情况，这往往使得脚本变得很长。</p>
-</blockquote>
-<h2>2. Systemd (daemon)</h2>
-<p>Systemd 就是为了解决这些问题而诞生的。它的设计目标是，为系统的启动和管理提供一套完整的解决方案。</p>
-<p>根据 Linux 惯例，字母d是守护进程（daemon）的缩写。 Systemd 这个名字的含义，就是它要守护整个系统。</p>
-<p>&lt;img src=&quot;/images/devops/linux-systemd-2.jpg&quot; width=&quot;400&quot; alt=&quot;Systemd Author: Lennart Poettering&quot; /&gt;</p>
-<p>Linux OS Daemon management tool <strong>Systemd</strong> 。它是 OS 的一部分，直接与 kernel 交互，性能棒，功能强。我们完全可以将程序交给 Systemd ，让系统统一管理，成为真正意义上的系统服务。</p>
-<p><figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">查看 Systemd 的版本。</span><br><span class="line">$ systemctl --version</span><br></pre></td></tr></table></figure></p>
-<h2>3. System management</h2>
-<p>Systemd 并不是一个命令，而是一组命令，涉及到系统管理的方方面面。</p>
-<p>&lt;img src=&quot;/images/devops/linux-systemd-1.png&quot; width=&quot;700&quot; alt=&quot; Systemd 架构图&quot; /&gt;</p>
-<h2>4. Unit</h2>
-<p>Systemd 可以管理所有系统资源。不同的资源统称为 Unit（单位）。</p>
-<h3>4.1 Unit definition</h3>
-<p>Unit 一共分成12种:</p>
-<blockquote>
-<ul>
-<li>Service unit：系统服务</li>
-<li>Target unit：多个 Unit 构成的一个组</li>
-<li>Device Unit：硬件设备</li>
-<li>Mount Unit：文件系统的挂载点</li>
-<li>Automount Unit：自动挂载点</li>
-<li>Path Unit：文件或路径</li>
-<li>Scope Unit：不是由 Systemd 启动的外部进程</li>
-<li>Slice Unit：进程组</li>
-<li>Snapshot Unit：Systemd 快照，可以切回某个快照</li>
-<li>Socket Unit：进程间通信的 socket</li>
-<li>Swap Unit：swap 文件</li>
-<li>Timer Unit：定时器</li>
-</ul>
-</blockquote>
-<p><code>systemctl list-units</code> 命令可以查看当前系统的所有 Unit</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出正在运行的 Unit</span></span><br><span class="line">$ systemctl list-units</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有Unit，包括没有找到配置文件的或者启动失败的</span></span><br><span class="line">$ systemctl list-units --all</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有没有运行的 Unit</span></span><br><span class="line">$ systemctl list-units --all --state=inactive</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有加载失败的 Unit</span></span><br><span class="line">$ systemctl list-units --failed</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有正在运行的、类型为 service 的 Unit</span></span><br><span class="line">$ systemctl list-units --<span class="built_in">type</span>=service</span><br></pre></td></tr></table></figure></p>
-<h3>4.2 Unit status</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 显示系统状态</span></span><br><span class="line">$ systemctl status</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示单个 Unit 的状态</span></span><br><span class="line">$ sysystemctl status bluetooth.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示远程主机的某个 Unit 的状态</span></span><br><span class="line">$ systemctl -H root@rhel7.example.com status httpd.service</span><br></pre></td></tr></table></figure></p>
-<p>除了 status 命令， systemctl 还提供了三个查询状态的简单方法，主要供脚本内部的判断语句使用。</p>
-<h3>4.3 Unit management</h3>
-<p>对于用户来说，最常用的是下面这些命令，用于 start 和 stop Unit（主要是 service）</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 立即启动一个服务</span></span><br><span class="line">$ sudo systemctl start apache.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 立即停止一个服务</span></span><br><span class="line">$ sudo systemctl stop apache.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重启一个服务</span></span><br><span class="line">$ sudo systemctl restart apache.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 杀死一个服务的所有子进程</span></span><br><span class="line">$ sudo systemctl <span class="built_in">kill</span> apache.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重新加载一个服务的配置文件</span></span><br><span class="line">$ sudo systemctl reload apache.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 重载所有修改过的配置文件</span></span><br><span class="line">$ sudo systemctl daemon-reload</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示某个 Unit 的所有底层参数</span></span><br><span class="line">$ systemctl show httpd.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 显示某个 Unit 的指定属性的值</span></span><br><span class="line">$ systemctl show -p CPUShares httpd.service</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置某个 Unit 的指定属性</span></span><br><span class="line">$ sudo systemctl <span class="built_in">set</span>-property httpd.service CPUShares=500</span><br></pre></td></tr></table></figure></p>
-<h3>4.4 Unit dependencies</h3>
-<p>Unit 之间存在依赖关系：A 依赖于 B，就意味着 Systemd 在启动 A 的时候，同时会去启动 B。</p>
-<p>systemctl list-dependencies命令列出一个 Unit 的所有依赖</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ systemctl list-dependencies nginx.service</span><br></pre></td></tr></table></figure></p>
-<p>上面命令的输出结果之中，有些依赖是 Target 类型（详见下文），默认不会展开显示。如果要展开 Target，就需要使用--all参数</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ systemctl list-dependencies --all nginx.service</span><br></pre></td></tr></table></figure></p>
-<h2>5. Unit config</h2>
-<h3>5.1 config overview</h3>
-<p>每一个 Unit 都有一个配置文件，告诉 Systemd 怎么启动这个 Unit 。</p>
-<p>Systemd 默认从目录 <code>/etc/systemd/system/</code> 读取配置文件。但是，里面存放的大部分文件都是符号链接，指向目录 <code>/usr/lib/systemd/system/</code>，真正的配置文件存放在那个目录。</p>
-<p>systemctl enable 命令用于在上面两个目录之间，建立符号链接关系。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo systemctl <span class="built_in">enable</span> clamd@scan.service</span><br><span class="line"><span class="comment"># 等同于</span></span><br><span class="line">$ sudo ln -s <span class="string">'/usr/lib/systemd/system/clamd@scan.service'</span> <span class="string">'/etc/systemd/system/multi-user.target.wants/clamd@scan.service'</span></span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>配置文件的后缀名，就是该 Unit 的种类，比如 sshd.socket。如果省略，Systemd 默认后缀名为.service，所以 sshd 会被理解成 sshd.service。</p>
-</blockquote>
-<h3>5.2 config status</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出所有配置文件</span></span><br><span class="line">$ systemctl list-unit-files</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出指定类型的配置文件</span></span><br><span class="line">$ systemctl list-unit-files --<span class="built_in">type</span>=service</span><br></pre></td></tr></table></figure></p>
-<p>这个命令会输出一个列表</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ systemctl list-unit-files</span><br><span class="line"></span><br><span class="line">UNIT FILE              STATE</span><br><span class="line">chronyd.service        enabled (已启动链接)</span><br><span class="line">clamd@.service         static (该配置文件没有[Install]部分（无法执行），只能作为其他配置文件的依赖)</span><br><span class="line">clamd@scan.service     disabled (没建立启动链接)</span><br></pre></td></tr></table></figure></p>
-<p>从配置文件的状态无法看出，该 Unit 是否正在运行。这必须执行前面提到的 systemctl status 命令</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ systemctl status bluetooth.service</span><br></pre></td></tr></table></figure></p>
-<p>一旦修改配置文件，就要让 SystemD 重新加载配置文件，然后重新启动，否则修改不会生效。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo systemctl daemon-reload</span><br><span class="line">$ sudo systemctl restart httpd.service</span><br></pre></td></tr></table></figure></p>
-<h3>5.3 config format</h3>
-<p><code>systemctl cat service_name</code> 命令可以查看配置文件的内容</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ systemctl cat atd.service</span><br><span class="line"></span><br><span class="line">[Unit]</span><br><span class="line">Description=ATD daemon</span><br><span class="line"></span><br><span class="line">[Service]</span><br><span class="line">Type=forking</span><br><span class="line">ExecStart=/usr/bin/atd</span><br><span class="line"></span><br><span class="line">[Install]</span><br><span class="line">WantedBy=multi-user.target</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>注意，键值对的等号两侧不能有空格</p>
-</blockquote>
-<h3>5.4 config block</h3>
-<p><code>[Unit]</code>区块是配置文件的第一个区块，用来定义 Unit 的元数据及配置与其他 Unit 的关系。它的主要字段如下。</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">field</th>
-<th style="text-align:center">desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Description</td>
-<td style="text-align:center">简短描述</td>
-</tr>
-<tr>
-<td style="text-align:center">Documentation</td>
-<td style="text-align:center">文档地址</td>
-</tr>
-<tr>
-<td style="text-align:center">Requires</td>
-<td style="text-align:center">当前 Unit 依赖的其他 Unit，如果它们没有运行，当前 Unit 会启动失败</td>
-</tr>
-<tr>
-<td style="text-align:center">...</td>
-<td style="text-align:center">...</td>
-</tr>
-<tr>
-<td style="text-align:center">Assert...</td>
-<td style="text-align:center">当前 Unit 运行必须满足的条件，否则会报启动失败</td>
-</tr>
-</tbody>
-</table>
-<p><code>[Install]</code>区块是配置文件的最后一个区块，用来定义如何启动，以及是否开机启动。它的主要字段如下。</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">field</th>
-<th style="text-align:center">desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">WantedBy</td>
-<td style="text-align:center">它的值是一个或多个 Target，当前 Unit 激活时（enable）符号链接会放入/etc/systemd/system目录下面以 Target 名 + .wants后缀构成的子目录中.</td>
-</tr>
-<tr>
-<td style="text-align:center">...</td>
-<td style="text-align:center">...</td>
-</tr>
-<tr>
-<td style="text-align:center">Alias</td>
-<td style="text-align:center">当前 Unit 可用于启动的别名</td>
-</tr>
-<tr>
-<td style="text-align:center">Also</td>
-<td style="text-align:center">当前 Unit 激活（enable）时，会被同时激活的其他 Unit</td>
-</tr>
-</tbody>
-</table>
-<p><code>[Service]</code>区块用来 Service 的配置，只有 Service 类型的 Unit 才有这个区块。它的主要字段如下。</p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">field</th>
-<th style="text-align:center">desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">Type</td>
-<td style="text-align:center">定义启动时的进程行为。它有以下几种值。</td>
-</tr>
-<tr>
-<td style="text-align:center">...</td>
-<td style="text-align:center">...</td>
-</tr>
-<tr>
-<td style="text-align:center">Environment</td>
-<td style="text-align:center">指定环境变量</td>
-</tr>
-</tbody>
-</table>
-<p>Unit 配置文件的完整字段清单，请参考<a href="https://www.freedesktop.org/software/systemd/man/systemd.unit.html" target="_blank" rel="noopener">官方文档</a>.</p>
-<h2>6. Target (units)</h2>
-<p>启动计算机的时候，需要启动大量的 Unit。如果每一次启动，都要一一写明本次启动需要哪些 Unit，显然非常不方便。Systemd 的解决方案就是 Target。 简单说，Target 就是一个 <strong>Unit 组</strong>，包含许多相关的 Unit 。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看当前系统的所有 Target</span></span><br><span class="line">$ systemctl list-unit-files --<span class="built_in">type</span>=target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看一个 Target 包含的所有 Unit</span></span><br><span class="line">$ systemctl list-dependencies multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 查看启动时的默认 Target</span></span><br><span class="line">$ systemctl get-default</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置启动时的默认 Target</span></span><br><span class="line">$ sudo systemctl <span class="built_in">set</span>-default multi-user.target</span><br><span class="line"></span><br><span class="line"><span class="comment"># 切换 Target 时，默认不关闭前一个 Target 启动的进程，</span></span><br><span class="line"><span class="comment"># systemctl isolate 命令改变这种行为，</span></span><br><span class="line"><span class="comment"># 关闭前一个 Target 里面所有不属于后一个 Target 的进程</span></span><br><span class="line">$ sudo systemctl isolate multi-user.target</span><br></pre></td></tr></table></figure></p>
-<p>Target 与 传统 RunLevel 的对应关系如下:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Traditional runlevel      New target name     Symbolically linked to...</span><br><span class="line"></span><br><span class="line">Runlevel 0           |    runlevel0.target -&gt; poweroff.target</span><br><span class="line">Runlevel 1           |    runlevel1.target -&gt; rescue.target</span><br><span class="line">Runlevel 2           |    runlevel2.target -&gt; multi-user.target</span><br><span class="line">Runlevel 3           |    runlevel3.target -&gt; multi-user.target</span><br><span class="line">Runlevel 4           |    runlevel4.target -&gt; multi-user.target</span><br><span class="line">Runlevel 5           |    runlevel5.target -&gt; graphical.target</span><br><span class="line">Runlevel 6           |    runlevel6.target -&gt; reboot.target</span><br></pre></td></tr></table></figure></p>
-<h2>7. Log management</h2>
-<p>Systemd 统一管理所有 Unit 的启动日志。带来的好处就是，可以只用 journalctl 一个命令，查看所有日志（内核日志和应用日志）。日志的配置文件是 <code>/etc/systemd/journald.conf</code>。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 查看某个 Unit 的日志</span></span><br><span class="line">$ sudo journalctl -u nginx.service</span><br><span class="line">$ sudo journalctl -u nginx.service --since today</span><br><span class="line"></span><br><span class="line"><span class="comment"># 实时滚动显示某个 Unit 的最新日志</span></span><br><span class="line">$ sudo journalctl -u nginx.service -f</span><br></pre></td></tr></table></figure></p>
-<p>它与<code>init</code>进程的主要差别如下</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">（1）默认的 RunLevel（在/etc/inittab文件设置）现在被默认的 Target 取代，位置是/etc/systemd/system/default.target，通常符号链接到graphical.target（图形界面）或者multi-user.target（多用户命令行）。</span><br><span class="line"></span><br><span class="line">（2）启动脚本的位置，以前是/etc/init.d目录，符号链接到不同的 RunLevel 目录 （比如/etc/rc3.d、/etc/rc5.d等），现在则存放在/lib/systemd/system和/etc/systemd/system目录。</span><br><span class="line"></span><br><span class="line">（3）配置文件的位置，以前init进程的配置文件是/etc/inittab，各种服务的配置文件存放在/etc/sysconfig目录。现在的配置文件主要存放在/lib/systemd目录，在/etc/systemd目录里面的修改可以覆盖原始设置。</span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://www.ruanyifeng.com/blog/2013/02/booting.html" target="_blank" rel="noopener">阮一峰: 计算机是如何启动的？ ✔️</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2013/08/linux_boot_process.html" target="_blank" rel="noopener">阮一峰: Linux 的启动流程 ✔️</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2016/02/linux-daemon.html" target="_blank" rel="noopener">阮一峰: Linux daemon (守护进程)的启动方法 ✔️</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2016/03/systemd-tutorial-commands.html" target="_blank" rel="noopener">阮一峰: Systemd 入门教程：命令篇 ✔️</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2009/06/unix_philosophy.html" target="_blank" rel="noopener">阮一峰: Kiss (Keep it sample stupid) Unix哲学 ✔️</a></li>
-</ul>
-<ul>
-<li><a href="https://www.freedesktop.org/wiki/Software/systemd/" target="_blank" rel="noopener">Systemd Service Manager</a></li>
-<li><a href="https://linux.cn/article-8835-1.html" target="_blank" rel="noopener">Great:  Linux 系统开机启动项清理</a></li>
-<li><a href="https://www.linux.com/tutorials/understanding-and-using-systemd/" target="_blank" rel="noopener">Understanding And Using Systemd</a></li>
-</ul>
-<p><strong>sudo</strong></p>
-<ul>
-<li><a href="https://www.cnblogs.com/hazir/p/sudo_command.html" target="_blank" rel="noopener">sudo 命令情景分析</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/36037822" target="_blank" rel="noopener">Linux 系统中 sudo 命令的 10 个技巧</a></li>
-<li><a href="http://cn.linux.vbird.org/linux_basic/0410accountmanager_4.php" target="_blank" rel="noopener">鸟哥的私房菜： 第十四章、Linux 账号管理与 ACL 权限配置</a></li>
-</ul>
-<p>&lt;!--table {
-width: 100%; /<em>表格宽度</em>/
-max-width: 65em; /<em>表格最大宽度，避免表格过宽</em>/
-border: 1px solid #dedede; /<em>表格外边框设置</em>/
-margin: 15px auto; /<em>外边距</em>/
-border-collapse: collapse; /<em>使用单一线条的边框</em>/
-empty-cells: show; /<em>单元格无内容依旧绘制边框</em>/
-}
-table th,
-table td {
-height: 35px; /<em>统一每一行的默认高度</em>/
-border: 1px solid #dedede; /<em>内部边框样式</em>/
-padding:
---&gt;</p>
-
+        <img src="/images/devops/systemd-logo.gif" width="400" alt="www.freedesktop.org" />
+         
+          <p class="article-more-link">
+            <a href="/2019/11/23/devops/linux-systemd-tutorial/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -377,45 +176,12 @@ padding:
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/Anaconda-Jupyter-Tensorflow.png&quot; width=&quot;550&quot; alt=&quot;bert 遇见 keras&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>1. Anaconda</h2>
-<h3>1.1 Anaconda 常用命令</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda --version</span><br><span class="line">conda update conda</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># 帮助命令</span><br><span class="line">conda -h</span><br><span class="line"></span><br><span class="line"># 更新所有包</span><br><span class="line">conda update --all</span><br><span class="line">conda upgrade --all</span><br></pre></td></tr></table></figure></p>
-<h3>1.2 Anaconda 管理环境</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda create --name &lt;env_name&gt; &lt;package_names&gt;</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>如： conda create -n python3 python=3.5 numpy pandas</p>
-<p>即创建一个名为“python3”的环境，环境中安装版本为3.5的python，同时也安装了numpy和pandas。</p>
-</blockquote>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda info --envs</span><br><span class="line"></span><br><span class="line">conda env list</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> activate &lt;env_name&gt;</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 复制环境</span></span><br><span class="line">conda create --name &lt;new_env_name&gt; --<span class="built_in">clone</span> &lt;copied_env_name&gt;</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除环境</span></span><br><span class="line">conda remove --name &lt;env_name&gt; --all</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pip list / conda list</span><br><span class="line"></span><br><span class="line"><span class="comment"># 当使用 conda install 无法进行安装时，可以使用pip进行安装</span></span><br><span class="line">pip install &lt;package_name&gt;</span><br></pre></td></tr></table></figure></p>
-<h2>2. Tensorflow</h2>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda install pandas xlrd</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda install keras==2.2.4</span><br><span class="line">pip install keras-bert</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda install tensorflow==<span class="string">'1.11.0'</span></span><br><span class="line">conda install tensorflow-gpu==<span class="string">'1.11.0'</span></span><br></pre></td></tr></table></figure></p>
-<h2>3. GPU</h2>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">nvidia-smi</span><br><span class="line"></span><br><span class="line">+-----------------------------------------------------------------------------+</span><br><span class="line">| Processes:                                                       GPU Memory |</span><br><span class="line">|  GPU       PID   Type   Process name                             Usage      |</span><br><span class="line">|=============================================================================|</span><br><span class="line">|    6      7847      C   python                                     11615MiB |</span><br><span class="line">|    7      6412      C   python                                      4219MiB |</span><br><span class="line">|    8     36257      C   .../anaconda2/envs/bert-serving/bin/python 11615MiB |</span><br><span class="line">|    9     17293      C   /home/xxx/.conda/envs/aspect/bin/python    11613MiB |</span><br><span class="line">+-----------------------------------------------------------------------------+</span><br></pre></td></tr></table></figure></p>
-<p>解决 cuda10 因为显卡驱动不支持的</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">conda install cudatoolkit=9.0</span><br></pre></td></tr></table></figure></p>
-<p>用如下代码可检测tensorflow的能使用设备情况：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> tensorflow.python.client <span class="keyword">import</span> device_lib</span><br><span class="line">print(device_lib.list_local_devices())</span><br></pre></td></tr></table></figure></p>
-<h2>4. CPU</h2>
-<p>Keras以及Tensorflow强制使用CPU</p>
-<p>使用CUDA_VISIBLE_DEVICES命令行参数，代码如下：</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">CUDA_VISIBLE_DEVICES=<span class="string">""</span> python3 train.py</span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://zhuanlan.zhihu.com/p/32925500" target="_blank" rel="noopener">Anaconda介绍、安装及使用教程</a></li>
-<li><a href="https://www.cnblogs.com/nxf-rabbit75/p/10639833.html" target="_blank" rel="noopener">Tensorflow检验GPU是否安装成功 及 使用GPU训练注意事项</a></li>
-<li><a href="https://blog.csdn.net/u010513327/article/details/81124110" target="_blank" rel="noopener">报错：cudaGetDevice() failed. Status: CUDA driver version is</a></li>
-<li><a href="https://tensorflow.google.cn/install/source" target="_blank" rel="noopener">https://tensorflow.google.cn/install/source</a></li>
-<li><a href="https://www.cnblogs.com/hutao722/p/9583214.html" target="_blank" rel="noopener">tensorflow 使用CPU而不使用GPU的问题解决</a></li>
-<li><a href="https://blog.csdn.net/silent56_th/article/details/72628606" target="_blank" rel="noopener">Keras以及Tensorflow强制使用CPU</a></li>
-</ul>
-
+        <img src="/images/devops/Anaconda-Jupyter-Tensorflow.png" width="550" alt="bert 遇见 keras" />
+         
+          <p class="article-more-link">
+            <a href="/2019/11/08/nlp/tensorflow_env_build/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -477,50 +243,12 @@ padding:
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/nlp/bert-keras-1.jpeg&quot; width=&quot;550&quot; alt=&quot;bert 遇见 keras&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>1. 当Bert遇上Keras</h2>
-<p>在Keras下对Bert最好的封装是：</p>
-<p>keras-bert：https://github.com/CyberZHG/keras-bert</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> choice</span><br><span class="line"><span class="keyword">from</span> keras_bert <span class="keyword">import</span> load_trained_model_from_checkpoint, Tokenizer</span><br><span class="line"><span class="keyword">import</span> re, os</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">maxlen = <span class="number">100</span></span><br><span class="line">config_path = <span class="string">'../bert/chinese_L-12_H-768_A-12/bert_config.json'</span></span><br><span class="line">checkpoint_path = <span class="string">'../bert/chinese_L-12_H-768_A-12/bert_model.ckpt'</span></span><br><span class="line">dict_path = <span class="string">'../bert/chinese_L-12_H-768_A-12/vocab.txt'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">token_dict = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># dict_path = './bert/chinese_L-12_H-768_A-12/vocab.txt'</span></span><br><span class="line"><span class="keyword">with</span> codecs.open(dict_path, <span class="string">'r'</span>, <span class="string">'utf8'</span>) <span class="keyword">as</span> reader:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> reader:</span><br><span class="line">        token = line.strip()</span><br><span class="line">        token_dict[token] = len(token_dict)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">OurTokenizer</span><span class="params">(Tokenizer)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_tokenize</span><span class="params">(self, text)</span>:</span></span><br><span class="line">        R = []</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> text:</span><br><span class="line">            <span class="keyword">if</span> c <span class="keyword">in</span> self._token_dict:</span><br><span class="line">                print(c)</span><br><span class="line">                R.append(c)</span><br><span class="line">            <span class="keyword">elif</span> self._is_space(c):</span><br><span class="line">                R.append(<span class="string">'[unused1]'</span>) <span class="comment"># space类用未经训练的[unused1]表示</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                R.append(<span class="string">'[UNK]'</span>) <span class="comment"># 剩余的字符是[UNK]</span></span><br><span class="line">        <span class="keyword">return</span> R</span><br><span class="line"></span><br><span class="line">tokenizer = OurTokenizer(token_dict)</span><br><span class="line">tokenizer</span><br><span class="line"></span><br><span class="line">tokenizer = OurTokenizer(token_dict)</span><br><span class="line">tokenizer.tokenize(<span class="string">u'今天天 气不错'</span>)</span><br></pre></td></tr></table></figure>
-output:</p>
-<blockquote>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[&apos;[CLS]&apos;, &apos;今&apos;, &apos;天&apos;, &apos;天&apos;, &apos;[unused1]&apos;, &apos;气&apos;, &apos;不&apos;, &apos;错&apos;, &apos;[SEP]&apos;] </span><br></pre></td></tr></table></figure></p>
-<p>这里简单解释一下Tokenizer的输出结果。首先，默认情况下，分词后句子首位会分别加上[CLS]和[SEP]标记，其中[CLS]位置对应的输出向量是能代表整句的句向量（反正Bert是这样设计的），而[SEP]则是句间的分隔符，其余部分则是单字输出（对于中文来说）</p>
-</blockquote>
-<h2>2. Sentiment classification</h2>
-<ul>
-<li><a href="https://kexue.fm/archives/3360" target="_blank" rel="noopener">文本情感分类（一）：传统模型</a></li>
-<li><a href="https://kexue.fm/archives/3414" target="_blank" rel="noopener">文本情感分类（二）：深度学习模型</a></li>
-</ul>
-<p>做一个最基本的文本分类任务:</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bert_model = load_trained_model_from_checkpoint(config_path, checkpoint_path, seq_len=None)</span><br><span class="line"></span><br><span class="line">for l in bert_model.layers:</span><br><span class="line">    l.trainable = True</span><br><span class="line"></span><br><span class="line">x1_in = Input(shape=(None,))</span><br><span class="line">x2_in = Input(shape=(None,))</span><br><span class="line"></span><br><span class="line">x = bert_model([x1_in, x2_in])</span><br><span class="line">x = Lambda(lambda x: x[:, 0])(x) # 取出[CLS]对应的向量用来做分类</span><br><span class="line">p = Dense(1, activation=&apos;sigmoid&apos;)(x)</span><br><span class="line"></span><br><span class="line">model = Model([x1_in, x2_in], p)</span><br><span class="line">model.compile(</span><br><span class="line">    loss=&apos;binary_crossentropy&apos;,</span><br><span class="line">    optimizer=Adam(1e-5), # </span><br><span class="line">    metrics=[&apos;accuracy&apos;]</span><br><span class="line">)</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure></p>
-<p>在Keras中调用Bert来做情感分类任务就这样写完了～写完了～～</p>
-<h2>3. 运行效果</h2>
-<p>所有的 params train</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> l <span class="keyword">in</span> bert_model.layers:</span><br><span class="line">    l.trainable = <span class="literal">True</span></span><br></pre></td></tr></table></figure></p>
-<p>&lt;img src=&quot;/images/nlp/bert-keras-2.png&quot; width=&quot;800&quot; alt=&quot;bert keras Sentiment analysis&quot; /&gt;</p>
-<p>加载的 bert params non-train</p>
-<p>&lt;img src=&quot;/images/nlp/bert-keras-3.png&quot; width=&quot;800&quot; alt=&quot;bert keras Sentiment analysis&quot; /&gt;</p>
-<h2>4. 指导原则</h2>
-<p>有什么原则来指导Bert后面应该要接哪些层？</p>
-<blockquote>
-<p>答案是：用尽可能少的层来完成你的任务。</p>
-<p>比如上述情感分析只是一个二分类任务，你就取出第一个向量然后加个Dense(1)就好了，不要想着多加几层Dense，更加不要想着接个LSTM再接Dense；</p>
-<p>如果你要做序列标注（比如NER），那你就接个Dense+CRF就好，也不要多加其他东西。</p>
-<p>总之，额外加的东西尽可能少。一是因为Bert本身就足够复杂，它有足够能力应对你要做的很多任务；二来你自己加的层都是随即初始化的，加太多会对Bert的预训练权重造成剧烈扰动，容易降低效果甚至造成模型不收敛</p>
-</blockquote>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://kexue.fm/archives/4765" target="_blank" rel="noopener">《Attention is All You Need》-苏神</a></li>
-<li><a href="https://arxiv.org/abs/1810.04805" target="_blank" rel="noopener">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</a></li>
-<li><a href="https://blog.csdn.net/itplus" target="_blank" rel="noopener">深度学习教程-苏神</a> 、 <a href="https://kexue.fm/archives/6736" target="_blank" rel="noopener">当Bert遇上Keras-苏神</a></li>
-<li><a href="https://keras.io/zh/models/model/#fit_generator" target="_blank" rel="noopener">Keras中文文档 fit_generator</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/80880371" target="_blank" rel="noopener">开启NLP的大魔法阵——通过Keras-Bert操纵Bert</a></li>
-</ul>
-<p>超牛推荐</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">albert</span><br><span class="line">https://arxiv.org/pdf/1909.11942.pdf</span><br><span class="line">ELECTRA</span><br><span class="line">https://openreview.net/pdf?id=r1xMH1BtvB</span><br><span class="line">bert attention analysis</span><br><span class="line">https://nlp.stanford.edu/pubs/clark2019what.pdf</span><br></pre></td></tr></table></figure></p>
-
+        <img src="/images/nlp/bert-keras-1.jpeg" width="550" alt="bert 遇见 keras" />
+         
+          <p class="article-more-link">
+            <a href="/2019/11/08/nlp/bert_keras-tutorial/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -582,33 +310,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/elastic/elastic-keyword-1.jpg&quot; width=&quot;550&quot; alt=&quot;ElasticSearch&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://my.oschina.net/weiweiblog/blog/1574020" target="_blank" rel="noopener">ElasticSearch各种查询关键字的区别</a></li>
-<li><a href="https://mp.weixin.qq.com/s/dn1n2FGwG9BNQuJUMVmo7w" target="_blank" rel="noopener">终于有人把elasticsearch原理讲通了！</a></li>
-<li><a href="https://wjw465150.github.io/Elasticsearch/3_2_DeepSearch.html#" target="_blank" rel="noopener">深入搜索</a></li>
-<li><a href="http://doc.codingdict.com/elasticsearch/251/" target="_blank" rel="noopener">Function Score 查询</a></li>
-<li><a href="https://www.cnblogs.com/wangiqngpei557/p/10423875.html" target="_blank" rel="noopener">ElasticSearch 评分排序</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/controlling-relevance.html" target="_blank" rel="noopener">深入搜索 » 控制相关度</a></li>
-<li><a href="https://n3xtchen.github.io/n3xtchen/elasticsearch/2017/07/05/elasticsearch-23-useful-query-example" target="_blank" rel="noopener">19 个很有用的 ElasticSearch 查询语句</a></li>
-<li><a href="https://www.cnblogs.com/ljhdo/p/4577065.html" target="_blank" rel="noopener">ElasticSearch查询 第四篇：匹配查询（Match）</a></li>
-<li><a href="https://juejin.im/post/5c180f0df265da6124155db5" target="_blank" rel="noopener">Elasticsearch bool query小结 (解决should失效)</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/most-fields.html#most-fields" target="_blank" rel="noopener">深入搜索 » 多字段搜索 » 多数字段</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/2.2/analysis-stemmer-tokenfilter.html" target="_blank" rel="noopener">Stemmer Token Filter</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.2/analysis-analyzers.html" target="_blank" rel="noopener">Elasticsearch Reference [6.2] » Analysis » Analyzers</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/6.2/analysis-standard-analyzer.html" target="_blank" rel="noopener">Elasticsearch Reference [6.2] » Analysis » Analyzers » Standard Analyzer</a></li>
-<li><a href="https://blog.csdn.net/shuimofengyang/article/details/88973597" target="_blank" rel="noopener">Elasticsearch修改分词器以及自定义分词器</a></li>
-<li><a href="https://www.cnblogs.com/shoufeng/p/10562746.html" target="_blank" rel="noopener">ES 09 - Elasticsearch如何定制分词器 (自定义分词策略)</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/stemming-in-situ.html" target="_blank" rel="noopener">处理人类语言 » 将单词还原为词根 » 原形词干提取</a></li>
-<li><a href="https://my.oschina.net/u/3625378/blog/1492575" target="_blank" rel="noopener">elasticsearch should实现or功能，设置minimum_should_match</a></li>
-<li><a href="https://www.elastic.co/guide/cn/kibana/current/discover.html" target="_blank" rel="noopener">Kibana 用户手册 » 数据探索</a></li>
-<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/bool-query.html" target="_blank" rel="noopener">Elasticsearch: 权威指南 » 深入搜索 » 全文搜索 » 组合查询</a></li>
-<li><a href="http://s0www0elastic0co.icopy.site/guide/en/elasticsearch/reference/6.4/search-request-collapse.html" target="_blank" rel="noopener">Elasticsearch Reference [6.4] » Search APIs » Request Body Search » Field Collapsing</a></li>
-<li><a href="https://blog.csdn.net/ZYC88888/article/details/83023143" target="_blank" rel="noopener">ES Field Collapsing 字段折叠使用详解</a></li>
-</ul>
-
+        <img src="/images/elastic/elastic-keyword-1.jpg" width="550" alt="ElasticSearch" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/31/elasticsearch/es-keyword-for-search/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -670,201 +377,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/kubernetes-1.png&quot; width=&quot;550&quot; alt=&quot;kubernetes.io&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>1. Kubernetes what?</h2>
-<p>Kubernetes (K8s) is an open-source system for automating deployment, scaling, and management of containerized applications.</p>
-<p>Kubernetes minikube install @Mac</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sysctl -a | grep -E --color <span class="string">'machdep.cpu.features|VMX'</span> </span><br><span class="line"></span><br><span class="line">brew cask install minikube</span><br><span class="line"></span><br><span class="line">同時它也會一起安裝 kubectl 這個 Kubernetes 指令操作工具 kubectl</span><br></pre></td></tr></table></figure></p>
-<p>minikube version</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># /tmp/fluentd/etc [9:47:26]</span></span><br><span class="line">➜ minikube version</span><br><span class="line">minikube version: v1.5.0</span><br><span class="line">commit: d1151d93385a70c5a03775e166e94067791fe2d9</span><br><span class="line"></span><br><span class="line">minikube 主要是用在練習和教學使用, 非生产环境.</span><br></pre></td></tr></table></figure></p>
-<p>Kubernetes is growing rapidly, has become a leader in <strong>Container Orchestration</strong>。</p>
-<h2>2. Kubernetes why？</h2>
-<p>生产环境应用会包含多个 Containers，而这些 Containers 还很可能会跨越多个服务器主机部署。</p>
-<blockquote>
-<ol>
-<li>Kubernetes 提供了为那些工作负载大规模部署 Container 的编排与管理能力.</li>
-<li>Kubernetes 编排能构建多容器应用服务，在集群上调度或伸缩这些容器，及管理它们随时间变化的健康状态.</li>
-</ol>
-<p>Kubernetes 也需要与网络、存储、安全、监控等其它服务集成才能提供综合性的容器基础设施。</p>
-</blockquote>
-<p>有了 Kubernetes，你可以：</p>
-<blockquote>
-<ul>
-<li>跨主机编排 Container;</li>
-<li>控制与自动化应用的部署与升级。</li>
-<li>为有状态的 Application 挂载和添加存储器。</li>
-<li>线上扩展或裁剪 Containerized applications 与它们的资源。</li>
-<li>声明式的容器管理，保证所部署的应用按照我们部署的方式运作。</li>
-<li>通过自动布局、自动重启、自动复制、自动伸缩实现应用的状态检查与自我修复。</li>
-</ul>
-</blockquote>
-<p>Kubernetes 依赖其它项目来提供完整的编排服务。结合其它必要开源项目作为其组件：</p>
-<blockquote>
-<ul>
-<li>仓库：Atomic Registry、Docker Registry 等。</li>
-<li>网络：OpenvSwitch 和智能边缘路由等。</li>
-<li>监控：heapster、kibana、hawkular 和 elastic。</li>
-<li>安全：LDAP、SELinux、 RBAC 与 支持多租户的 OAUTH。</li>
-<li>自动化：通过 Ansible 的 playbook 进行集群的安装和生命周期管理。</li>
-<li>服务：大量事先创建好的常用应用模板。</li>
-</ul>
-</blockquote>
-<p><a href="https://www.redhat.com/en/technologies/cloud-computing/openshift" target="_blank" rel="noopener">红帽 OpenShift 为容器部署预先集成了上面这些组件。</a></p>
-<h2>3. Kubernetes architecture</h2>
-<p>Kubernetes 支持在多种环境下的安装:</p>
-<blockquote>
-<ol>
-<li>本地主机（Fedora）</li>
-<li>云服务（Google GAE、AWS）</li>
-</ol>
-</blockquote>
-<h3>3.1 K8s architecture</h3>
-<p>&lt;img src=&quot;/images/devops/kubernetes-5.png&quot; width=&quot;750&quot; alt=&quot;kubernetes.io&quot; /&gt;</p>
-<h3>3.2 Master</h3>
-<p>Master有三个组件：API Server、Scheduler、Controller:</p>
-<blockquote>
-<ol>
-<li>API Server 是整个系统的对外接口，提供 RESTful 方式供客户端和其它组件调用；</li>
-<li>Scheduler 负责对资源进行调度，分配某个 pod 到某个节点上；</li>
-<li>Controller-manager 负责管理控制器，包括 endpoint-controller（刷新服务和 pod 的关联信息）和 replication-controller（维护某个 pod 的复制为配置的数值）。</li>
-</ol>
-</blockquote>
-<h3>3.3 Node</h3>
-<p>&lt;img src=&quot;/images/devops/kubernetes-4.jpg&quot; width=&quot;600&quot; alt=&quot;Kubernetes Node&quot; /&gt;</p>
-<p>集群中的每个非 master 节点都运行两个进程：</p>
-<blockquote>
-<ul>
-<li><strong>kubelet</strong>，和 master 节点进行通信。</li>
-<li>kube-proxy，一种网络代理，将 Kubernetes 的网络服务代理到每个节点上。</li>
-</ul>
-</blockquote>
-<h3>3.4 Kubernetes 术语</h3>
-<blockquote>
-<ul>
-<li>
-<p>Master（主节点）： 控制 Kubernetes 节点的机器，也是创建作业任务的地方。</p>
-</li>
-<li>
-<p>Node（节点）： 这些机器在 Kubernetes 主节点的控制下执行被分配的任务。</p>
-</li>
-<li>
-<p>Pod： 由一个或多个容器构成的集合，作为一个整体被部署到一个单一节点。</p>
-</li>
-</ul>
-<p>      同一个 pod 中的容器共享 IP 地址、进程间通讯（IPC）、主机名以及其它资源。</p>
-<p>      Pod 将底层容器的网络和存储抽象出来，使得集群内的容器迁移更为便捷。</p>
-<ul>
-<li>Replication controller： 控制一个 pod 在集群上运行的实例数量。</li>
-<li>Service： 将服务内容与具体的 pod 分离。Kubernetes 服务代理负责自动将服务请求分发到正确的 pod 处.</li>
-<li>Kubelet： 这个守护进程运行在各个工作节点上，负责获取容器列表，保证声明的容器已经启动且正常运行。</li>
-<li>kubectl： 这是 Kubernetes 的命令行配置工具。</li>
-</ul>
-<p><a href="https://kubernetes.io/docs/reference/" target="_blank" rel="noopener">更多内容请查看 Kubernetes 术语表</a></p>
-</blockquote>
-<h2>4. Quickstart minikube</h2>
-<p>启动 Kubernetes cluster</p>
-<h3>4.1 Start Minik &amp; create cluster</h3>
-<p>Start Minikube and create a cluster</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># /tmp/fluentd/etc [14:03:57]</span></span><br><span class="line">➜ minikube start</span><br><span class="line">😄  minikube v1.5.0 on Darwin 10.14.6</span><br><span class="line">✨  Automatically selected the <span class="string">'hyperkit'</span> driver</span><br><span class="line">💾  Downloading driver docker-machine-driver-hyperkit:</span><br></pre></td></tr></table></figure></p>
-<h3>4.2 create a k8s Deployment</h3>
-<p>Let’s create a Kubernetes Deployment using an existing image named echoserver, which is a simple HTTP server and expose it on port 8080 using --port.</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.10</span><br><span class="line">deployment.apps/hello-minikube created</span><br></pre></td></tr></table></figure></p>
-<h3>4.3 hello-minikube Deployment</h3>
-<p>To access the hello-minikube Deployment, expose it as a Service:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ kubectl expose deployment hello-minikube --<span class="built_in">type</span>=NodePort --port=8080</span><br><span class="line">service/hello-minikube exposed</span><br></pre></td></tr></table></figure></p>
-<h3>4.4 view hello-minikube Pod</h3>
-<p>The hello-minikube Pod is now launched but you have to wait until the Pod is up before accessing it via the exposed Service.</p>
-<p>If the output shows the STATUS as Running, the Pod is now up and running:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ kubectl get pod</span><br><span class="line">NAME                              READY   STATUS    RESTARTS   AGE</span><br><span class="line">hello-minikube-797f975945-nrb6r   1/1     Running   0          2m14s</span><br><span class="line">(anaconda3) (base)</span><br></pre></td></tr></table></figure></p>
-<p>kubectl get cmd：</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl get node</span><br><span class="line">kubectl get po,svc -n kube-system</span><br></pre></td></tr></table></figure></p>
-<h3>4.5 view the Service details</h3>
-<p>Get the URL of the exposed Service to view the Service details:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ minikube service hello-minikube --url</span><br><span class="line">http://192.168.64.2:30799</span><br><span class="line">(anaconda3) (base)</span><br></pre></td></tr></table></figure></p>
-<p>Output:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Hostname: hello-minikube-797f975945-nrb6r</span><br><span class="line"></span><br><span class="line">Pod Information:</span><br><span class="line">	-no pod information available-</span><br><span class="line"></span><br><span class="line">Server values:</span><br><span class="line">	server_version=nginx: 1.13.3 - lua: 10008</span><br><span class="line"></span><br><span class="line">Request Information:</span><br><span class="line">	client_address=172.17.0.1</span><br><span class="line">	method=GET</span><br><span class="line">	real path=/</span><br><span class="line">	query=</span><br><span class="line">	request_version=1.1</span><br><span class="line">	request_scheme=http</span><br><span class="line">	request_uri=http://192.168.64.2:8080/</span><br><span class="line"></span><br><span class="line">Request Headers:</span><br><span class="line">	accept=text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3</span><br><span class="line">	accept-encoding=gzip, deflate</span><br><span class="line">	accept-language=zh-CN,zh;q=0.9,zh-TW;q=0.8,en-US;q=0.7,en;q=0.6</span><br><span class="line">	connection=keep-alive</span><br><span class="line">	host=192.168.64.2:30799</span><br><span class="line">	upgrade-insecure-requests=1</span><br><span class="line">	user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36</span><br><span class="line"></span><br><span class="line">Request Body:</span><br><span class="line">	-no body <span class="keyword">in</span> request-</span><br></pre></td></tr></table></figure></p>
-<h3>4.6 delete hello-minik service</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl delete services hello-minikube</span><br></pre></td></tr></table></figure></p>
-<h3>4.7 delete hello-minik deploym</h3>
-<p>销毁该 Deployment（和它的 pod）</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl delete deployment hello-minikube</span><br></pre></td></tr></table></figure></p>
-<h3>4.8 stop Minikube cluster</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">minikube stop</span><br></pre></td></tr></table></figure></p>
-<h3>4.9 delete Minikube cluster</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">minikube delete</span><br></pre></td></tr></table></figure></p>
-<h2>5. Kubernetes hexo</h2>
-<p><a href="https://kubernetes.io/zh/docs/reference/kubectl/docker-cli-to-kubectl/" target="_blank" rel="noopener">Docker 用户使用 kubectl 命令指南</a></p>
-<p><a href="https://www.ibm.com/developerworks/community/blogs/132cfa78-44b0-4376-85d0-d3096cd30d3f/entry/k8s_%E5%88%9B%E5%BB%BA%E8%B5%84%E6%BA%90%E7%9A%84%E4%B8%A4%E7%A7%8D%E6%96%B9%E5%BC%8F_%E6%AF%8F%E5%A4%A95%E5%88%86%E9%92%9F%E7%8E%A9%E8%BD%AC_Docker_%E5%AE%B9%E5%99%A8%E6%8A%80%E6%9C%AF_124?lang=en" target="_blank" rel="noopener">Kubernetes 支持两种方式创建资源</a>：</p>
-<ol>
-<li>用 kubectl 命令直接创建，比如：</li>
-</ol>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl run nginx-deployment --image=nginx:1.7.9 --replicas=2</span><br><span class="line"></span><br><span class="line">在命令行中通过参数指定资源的属性.</span><br></pre></td></tr></table></figure></p>
-<ol start="2">
-<li>通过配置文件和 kubectl apply 创建，要完成前面同样的工作，可执行命令：</li>
-</ol>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl apply -f nginx.yml</span><br><span class="line"></span><br><span class="line">kubectl apply 不但能够创建 Kubernetes 资源，也能对资源进行更新，非常方便。</span><br></pre></td></tr></table></figure></p>
-<p>Kubernets 还提供了几个类似的命令，例如:</p>
-<blockquote>
-<ol>
-<li>kubectl create, kubectl replace</li>
-<li>kubectl edit, kubectl patch</li>
-</ol>
-</blockquote>
-<h3>5.1 kubectl cluster-info cmd</h3>
-<p>kubectl cluster-info</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜ kubectl cluster-info</span><br><span class="line">Kubernetes master is running at https://192.168.64.2:8443</span><br><span class="line">KubeDNS is running at https://192.168.64.2:8443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy</span><br></pre></td></tr></table></figure></p>
-<p>kubectl get po,svc -n kube-system</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ kubectl get po,svc -n kube-system</span><br><span class="line">NAME                                   READY   STATUS    RESTARTS   AGE</span><br><span class="line">pod/coredns-5644d7b6d9-2qtds           1/1     Running   0          25h</span><br><span class="line">pod/coredns-5644d7b6d9-w8442           1/1     Running   0          25h</span><br><span class="line">pod/etcd-minikube                      1/1     Running   0          25h</span><br><span class="line">pod/kube-addon-manager-minikube        1/1     Running   0          25h</span><br><span class="line">pod/kube-apiserver-minikube            1/1     Running   0          25h</span><br><span class="line">pod/kube-controller-manager-minikube   1/1     Running   1          25h</span><br><span class="line">pod/kube-proxy-k2pgh                   1/1     Running   0          25h</span><br><span class="line">pod/kube-scheduler-minikube            1/1     Running   2          25h</span><br><span class="line">pod/storage-provisioner                1/1     Running   0          25h</span><br><span class="line"></span><br><span class="line">NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE</span><br><span class="line">service/kube-dns   ClusterIP   10.96.0.10   &lt;none&gt;        53/UDP,53/TCP,9153/TCP   25h</span><br></pre></td></tr></table></figure></p>
-<h3>5.2 Create deployment hexo4</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl run --image=blair101/ubuntu-hexo-blog:v1.4 hexo4 --port=4000 --env=<span class="string">"DOMAIN=cluster"</span></span><br></pre></td></tr></table></figure></p>
-<p>创建一个 deployment, name: hexo4, 也会生成一个 pod, 可通过 kubectl edit deploy hexo4 修改副本数为2</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜ kubectl get deploy,svc</span><br><span class="line">NAME                    READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">deployment.apps/hexo4   2/2     2            2           8m34s</span><br><span class="line"></span><br><span class="line">NAME                         READY   STATUS    RESTARTS   AGE</span><br><span class="line">pod/hexo4-67f54d9bd9-8gzt9   1/1     Running   0          8m34s</span><br><span class="line">pod/hexo4-67f54d9bd9-dvzht   1/1     Running   0          3s</span><br></pre></td></tr></table></figure></p>
-<p><a href="https://feisky.gitbooks.io/kubernetes/practice/portmap.html" target="_blank" rel="noopener">k8s 端口映射</a></p>
-<p>查看详细 deploy hexo4 -o yaml</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl get deploy hexo4 -o yaml</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">apiVersion: apps/v1</span><br><span class="line">kind: Deployment</span><br><span class="line">metadata:</span><br><span class="line">  annotations:</span><br><span class="line">    deployment.kubernetes.io/revision: &quot;1&quot;</span><br><span class="line">  creationTimestamp: null</span><br><span class="line">  generation: 1</span><br><span class="line">  labels:</span><br><span class="line">    run: hexo4</span><br><span class="line">  name: hexo4</span><br><span class="line">  selfLink: /apis/apps/v1/namespaces/default/deployments/hexo4</span><br><span class="line">spec:</span><br><span class="line">  progressDeadlineSeconds: 600</span><br><span class="line">  replicas: 2</span><br><span class="line">  revisionHistoryLimit: 10</span><br><span class="line">  selector:</span><br><span class="line">    matchLabels:</span><br><span class="line">      run: hexo4</span><br><span class="line">  strategy:</span><br><span class="line">    rollingUpdate:</span><br><span class="line">      maxSurge: 25%</span><br><span class="line">      maxUnavailable: 25%</span><br><span class="line">    type: RollingUpdate</span><br><span class="line">  template:</span><br><span class="line">    metadata:</span><br><span class="line">      creationTimestamp: null</span><br><span class="line">      labels:</span><br><span class="line">        run: hexo4</span><br><span class="line">    spec:</span><br><span class="line">      containers:</span><br><span class="line">      - env:</span><br><span class="line">        - name: DOMAIN</span><br><span class="line">          value: cluster</span><br><span class="line">        image: blair101/ubuntu-hexo-blog:v1.4</span><br><span class="line">        imagePullPolicy: IfNotPresent</span><br><span class="line">        name: hexo4</span><br><span class="line">        ports:</span><br><span class="line">        - containerPort: 4000</span><br><span class="line">          protocol: TCP</span><br><span class="line">        resources: &#123;&#125;</span><br><span class="line">        terminationMessagePath: /dev/termination-log</span><br><span class="line">        terminationMessagePolicy: File</span><br><span class="line">      dnsPolicy: ClusterFirst</span><br><span class="line">      restartPolicy: Always</span><br><span class="line">      schedulerName: default-scheduler</span><br><span class="line">      securityContext: &#123;&#125;</span><br><span class="line">      terminationGracePeriodSeconds: 30</span><br><span class="line">status: &#123;&#125;</span><br><span class="line">(anaconda3) (base)</span><br></pre></td></tr></table></figure></p>
-<p>一些常用命令记录：</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl describe po hexo4-67f54d9bd9-ffnsp</span><br><span class="line"></span><br><span class="line">kubectl <span class="built_in">exec</span> -it hexo4-67f54d9bd9-ffnsp bash</span><br><span class="line"></span><br><span class="line">kubectl get po hexo4-5b97779b7c-8z8ns -o yaml --<span class="built_in">export</span></span><br><span class="line"></span><br><span class="line">kubectl get deploy hexo4 -o yaml --<span class="built_in">export</span> | tee deploy-v1.yaml</span><br><span class="line">kubectl apply -f deploy-v5.yaml</span><br></pre></td></tr></table></figure></p>
-<h3>5.3 Create service hexo4</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl expose deployment hexo4 --port=4000 --name=hexo4</span><br></pre></td></tr></table></figure></p>
-<p>查看 service, kubectl edit svc hexo4</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜ kubectl get deploy, po, svc</span><br><span class="line">NAME                    READY   UP-TO-DATE   AVAILABLE   AGE</span><br><span class="line">deployment.apps/hexo4   2/2     2            2           54m</span><br><span class="line"></span><br><span class="line">NAME                         READY   STATUS    RESTARTS   AGE</span><br><span class="line">pod/hexo4-67f54d9bd9-8gzt9   1/1     Running   0          54m</span><br><span class="line">pod/hexo4-67f54d9bd9-dvzht   1/1     Running   0          45m</span><br><span class="line"></span><br><span class="line">NAME                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE</span><br><span class="line">service/hexo4        ClusterIP   10.97.151.174   &lt;none&gt;        4000/TCP   35s</span><br><span class="line">service/kubernetes   ClusterIP   10.96.0.1       &lt;none&gt;        443/TCP    26h</span><br></pre></td></tr></table></figure></p>
-<p>查看 service hexo4 详情:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ kubectl get svc -o yaml hexo4</span><br><span class="line">apiVersion: v1</span><br><span class="line">kind: Service</span><br><span class="line">metadata:</span><br><span class="line">  creationTimestamp: <span class="string">"2019-10-30T03:56:49Z"</span></span><br><span class="line">  labels:</span><br><span class="line">    run: hexo4</span><br><span class="line">  name: hexo4</span><br><span class="line">  namespace: default</span><br><span class="line">  resourceVersion: <span class="string">"48479"</span></span><br><span class="line">  selfLink: /api/v1/namespaces/default/services/hexo4</span><br><span class="line">  uid: e1c9c30b-d3b8-4625-9817-a14ea3677bd3</span><br><span class="line">spec:</span><br><span class="line">  clusterIP: 10.97.151.174</span><br><span class="line">  ports:</span><br><span class="line">  - port: 4000</span><br><span class="line">    protocol: TCP</span><br><span class="line">    targetPort: 4000</span><br><span class="line">  selector:</span><br><span class="line">    run: hexo4</span><br><span class="line">  sessionAffinity: None</span><br><span class="line">  <span class="built_in">type</span>: ClusterIP</span><br><span class="line">status:</span><br><span class="line">  loadBalancer: &#123;&#125;</span><br><span class="line">(anaconda3) (base)</span><br></pre></td></tr></table></figure></p>
-<h3>5.4 kubectl edit service hexo4</h3>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kubectl edit service hexo4</span><br></pre></td></tr></table></figure></p>
-<p>type: ClusterIP --&gt; NodePort 且 spec.ports 增加 nodePort: 30001</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">spec:</span><br><span class="line">  clusterIP: 10.107.236.48</span><br><span class="line">  externalTrafficPolicy: Cluster</span><br><span class="line">  ports:</span><br><span class="line">  - nodePort: 30001</span><br><span class="line">    port: 4000</span><br><span class="line">    protocol: TCP</span><br><span class="line">    targetPort: 4000</span><br><span class="line">  selector:</span><br><span class="line">    run: hexo4</span><br><span class="line">  sessionAffinity: None</span><br><span class="line">  type: NodePort</span><br></pre></td></tr></table></figure></p>
-<h3>5.5 build hexo5, deploy ervice</h3>
-<p>create deployment hexo5</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl run --image=blair101/ubuntu-hexo-blog:v1.5 hexo5 --port=4000 --env=<span class="string">"DOMAIN=cluster"</span></span><br></pre></td></tr></table></figure></p>
-<p>create service hexo5</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">kubectl expose deployment hexo5 --port=4000 --name=hexo5</span><br></pre></td></tr></table></figure></p>
-<p>kubectl edit service hexo5</p>
-<blockquote>
-<p>type: ClusterIP --&gt; NodePort 且 spec.ports 增加 nodePort: 30001</p>
-</blockquote>
-<h3>5.6 modify service hexo4</h3>
-<p>更改 selector.run: hexo4 为 hexo5</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">spec:</span><br><span class="line">  clusterIP: 10.107.236.48</span><br><span class="line">  externalTrafficPolicy: Cluster</span><br><span class="line">  ports:</span><br><span class="line">  - nodePort: 30001</span><br><span class="line">    port: 4000</span><br><span class="line">    protocol: TCP</span><br><span class="line">    targetPort: 4000</span><br><span class="line">  selector:</span><br><span class="line">    run: hexo5</span><br><span class="line">  sessionAffinity: None</span><br><span class="line">  type: NodePort</span><br></pre></td></tr></table></figure></p>
-<p>接下来是一些 delete 操作.</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://kubernetes.io" target="_blank" rel="noopener">kubernetes.io</a></li>
-<li><a href="https://kubernetes.io/docs/setup/learning-environment/minikube/" target="_blank" rel="noopener">Kubernetes with Minikube</a></li>
-<li><a href="https://kubernetes.io/docs/tasks/tools/install-minikube/" target="_blank" rel="noopener">Install Minikube</a></li>
-<li><a href="https://github.com/kubernetes/kubernetes" target="_blank" rel="noopener">Github kubernetes</a></li>
-<li><a href="https://yeasy.gitbooks.io/docker_practice/kubernetes/" target="_blank" rel="noopener">Kubernetes 项目· Docker —— 从入门到实践 - yeasy</a></li>
-<li><a href="https://juejin.im/post/5b8656a6f265da4332072aae" target="_blank" rel="noopener">从0到1使用Kubernetes系列</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/29232090" target="_blank" rel="noopener">知乎： Kubernetes 是什么？</a></li>
-<li><a href="https://dreamerjonson.com/2019/03/14/k8s/index.html" target="_blank" rel="noopener">郑建勋（jonson）K8S</a></li>
-<li><a href="https://kubernetes.io/zh/docs/concepts/" target="_blank" rel="noopener">官网 k8s 概念 &amp; 对象</a></li>
-<li><a href="https://kubernetes.io/zh/docs/reference/kubectl/docker-cli-to-kubectl/" target="_blank" rel="noopener">Docker 用户使用 kubectl 命令指南</a></li>
-<li><a href="https://kubernetes.io/docs/tasks/debug-application-cluster/get-shell-running-container/" target="_blank" rel="noopener">Get a Shell to a Running Container</a></li>
-<li><a href="http://kubernetes.kansea.com/docs/user-guide/walkthrough/k8s201/" target="_blank" rel="noopener">Label， Deployment， Service 和 健康检查</a></li>
-</ul>
-
+        <img src="/images/devops/kubernetes-1.png" width="550" alt="kubernetes.io" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/28/devops/kubernetes-tutorial/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -926,74 +444,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/tech-stack-logo1.png&quot; width=&quot;550&quot; alt=&quot;Tech Stack&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>1. Python env</h2>
-<ul>
-<li><a href="https://conda.io/en/latest/" target="_blank" rel="noopener">conda</a></li>
-<li><a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python &gt; 3.6</a></li>
-</ul>
-<h2>2. Data Process</h2>
-<ul>
-<li><a href="https://numpy.org/" target="_blank" rel="noopener">numpy</a></li>
-<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas</a></li>
-<li><a href="https://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn</a></li>
-<li><a href="https://www.scipy.org/" target="_blank" rel="noopener">scipy</a></li>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib</a></li>
-</ul>
-<h2>3. Deep Learning</h2>
-<ul>
-<li><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">tensorflow</a></li>
-<li><a href="https://pytorch.org/" target="_blank" rel="noopener">pytorch</a></li>
-<li><a href="https://keras.io/" target="_blank" rel="noopener">keras</a></li>
-</ul>
-<h2>4. NLP</h2>
-<ul>
-<li><a href="https://www.nltk.org/" target="_blank" rel="noopener">nltk</a></li>
-<li><a href="https://spacy.io/" target="_blank" rel="noopener">spacy</a></li>
-<li><a href="https://github.com/google-research/bert" target="_blank" rel="noopener">bert</a></li>
-</ul>
-<h2>5. System Dev</h2>
-<h3>5.1 Dev</h3>
-<ul>
-<li><a href="https://www.tensorflow.org/tfx/guide/serving" target="_blank" rel="noopener">tensorflow serving</a></li>
-<li><a href="https://palletsprojects.com/p/flask/" target="_blank" rel="noopener">flask</a></li>
-<li><a href="https://flask-restplus.readthedocs.io/en/stable/quickstart.html" target="_blank" rel="noopener">flask-restplus</a></li>
-<li><a href="https://docs.pytest.org/en/latest/" target="_blank" rel="noopener">pytest</a></li>
-<li><a href="http://docs.pyinvoke.org/en/1.3/getting-started.html" target="_blank" rel="noopener">pyinvoke</a></li>
-<li><a href="https://gunicorn.org/" target="_blank" rel="noopener">gunicorn</a></li>
-</ul>
-<h3>5.2 Libraries</h3>
-<ul>
-<li><a href="https://pydash.readthedocs.io/en/latest/api.html" target="_blank" rel="noopener">pydash</a></li>
-<li><a href="https://saurabh-kumar.com/python-dotenv/" target="_blank" rel="noopener">dotenv</a></li>
-<li><a href="http://www.fabfile.org/" target="_blank" rel="noopener">fabric</a></li>
-<li><a href="https://docs.python.org/3/library/pathlib.html" target="_blank" rel="noopener">pathlib</a></li>
-</ul>
-<h3>5.2 Tools</h3>
-<ul>
-<li><a href="https://cyberduck.io/" target="_blank" rel="noopener">Cyberduck</a></li>
-</ul>
-<h2>6. System Test</h2>
-<ul>
-<li><a href="https://docs.pytest.org/en/latest/" target="_blank" rel="noopener">pytest</a></li>
-<li><a href="https://nose.readthedocs.io/en/latest/" target="_blank" rel="noopener">nose</a></li>
-<li><a href="https://locust.io/" target="_blank" rel="noopener">locust</a></li>
-<li><a href="https://mitmproxy.org/" target="_blank" rel="noopener">mitmproxy</a></li>
-</ul>
-<h2>7. Log Collection</h2>
-<ul>
-<li><a href="https://github.com/fluent/fluent-logger-python" target="_blank" rel="noopener">fluentd</a></li>
-<li><a href="https://www.elastic.co/" target="_blank" rel="noopener">elastic</a></li>
-</ul>
-<h2>8. CI/CD</h2>
-<ul>
-<li><a href="https://about.gitlab.com/" target="_blank" rel="noopener">gitlab</a></li>
-<li><a href="https://www.docker.io/" target="_blank" rel="noopener">docker</a></li>
-<li><a href="https://kubernetes.io/" target="_blank" rel="noopener">kubernetes</a></li>
-</ul>
-<h2>Reference</h2>
-
+        <img src="/images/devops/tech-stack-logo1.png" width="550" alt="Tech Stack" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/28/devops/tech_stack/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1055,106 +511,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/fluentd-1.png&quot; width=&quot;550&quot; alt=&quot;Fluentd&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>1. Fluentd what?</h2>
-<p>Fluentd is an open source data collector for unified logging layer.</p>
-<p>Fluentd allows you to unify data collection and consumption for a better use and understanding of data.</p>
-<h2>2. Fluentd docker</h2>
-<p>Docker 提供很多 logging driver，默认下用的 json-file，docker logs 看到的日志就是来自于这些json文件.</p>
-<p>当有多个docker host的时候你会希望能够把日志汇集起来，集中存放到一处.</p>
-<p>本文讲的是如何通过 fluentd logging driver 配合 fluentd 来达成这一目标。</p>
-<p>Target：</p>
-<blockquote>
-<ol>
-<li>将standalone容器打到stdout/stderror的日志收集起来</li>
-<li>收集的日志根据容器名分开存储</li>
-<li>日志文件根据每天滚动</li>
-</ol>
-</blockquote>
-<h3>2.1 配置 Fluentd 实例</h3>
-<p>fluent.conf</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;<span class="built_in">source</span>&gt;</span><br><span class="line">  @<span class="built_in">type</span>   forward</span><br><span class="line">&lt;/<span class="built_in">source</span>&gt;</span><br><span class="line"> </span><br><span class="line">&lt;match *&gt;</span><br><span class="line"> </span><br><span class="line">  @<span class="built_in">type</span>              file</span><br><span class="line"> </span><br><span class="line">  path               /fluentd/<span class="built_in">log</span>/<span class="variable">$&#123;tag&#125;</span>/<span class="variable">$&#123;tag&#125;</span></span><br><span class="line">  append             <span class="literal">true</span></span><br><span class="line">  &lt;format&gt;</span><br><span class="line">    @<span class="built_in">type</span>            single_value</span><br><span class="line">    message_key      <span class="built_in">log</span></span><br><span class="line">  &lt;/format&gt;</span><br><span class="line">  &lt;buffer tag,time&gt;</span><br><span class="line">    @<span class="built_in">type</span>             file</span><br><span class="line">    timekey           1d</span><br><span class="line">    timekey_wait      10m</span><br><span class="line">    flush_mode        interval</span><br><span class="line">    flush_interval    30s</span><br><span class="line">  &lt;/buffer&gt;</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
-<p>新建目录 container-logs， 设置 777 权限</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ~/ghome/home/ub [17:57:07]</span></span><br><span class="line">➜ ll</span><br><span class="line">total 0</span><br><span class="line">drwxrwxrwx  5 blair  staff   160B Oct 24 17:50 container-logs</span><br><span class="line">drwxr-xr-x  4 blair  staff   128B Oct 23 18:06 fluentd</span><br><span class="line">(base)</span><br><span class="line"><span class="comment"># ~/ghome/home/ub [17:57:07]</span></span><br></pre></td></tr></table></figure></p>
-<p>启动Fluentd实例，这里使用的Docker方式：</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -it \</span><br><span class="line">  -d \</span><br><span class="line">  -p 24224:24224 \</span><br><span class="line">  -v /Users/blair/ghome/home/ub/fluentd/conf/fluent.conf:/fluentd/etc2/fluent.conf \</span><br><span class="line">  -v /Users/blair/ghome/home/ub/container-logs:/fluentd/<span class="built_in">log</span> \</span><br><span class="line">  fluent/fluentd:v1.7.3-debian-1.0</span><br></pre></td></tr></table></figure></p>
-<h3>2.2 指定 logging driver</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run \</span><br><span class="line">  -d \</span><br><span class="line">  --<span class="built_in">log</span>-driver=fluentd \</span><br><span class="line">  --<span class="built_in">log</span>-opt fluentd-address=&lt;fluentdhost&gt;:24224 \</span><br><span class="line">  --<span class="built_in">log</span>-opt mode=non-blocking \</span><br><span class="line">  --<span class="built_in">log</span>-opt tag=&#123;&#123;.Name&#125;&#125; \</span><br><span class="line">  --rm -p 4000:4000 blair101/ubuntu-hexo-blog:v1.4</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p><code>&lt;fluentdhost&gt;</code> 参数不写则是指本机.</p>
-</blockquote>
-<h3>2.3 观察日志</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ~/ghome/home/ub [18:00:10]</span></span><br><span class="line">➜ ll container-logs</span><br><span class="line">total 16</span><br><span class="line">-rw-r--r--  1 blair  staff   470B Oct 24 17:47 data.b595a4ec02f220b1ce9d68e14ca1fc303.log</span><br><span class="line">-rw-r--r--  1 blair  staff    74B Oct 24 17:47 data.b595a4ec02f220b1ce9d68e14ca1fc303.log.meta</span><br><span class="line">lrwxrwxrwx  1 blair  staff    55B Oct 24 17:47 data.log -&gt; /fluentd/<span class="built_in">log</span>/data.b595a4ec02f220b1ce9d68e14ca1fc303.log</span><br><span class="line">(base)</span><br><span class="line"><span class="comment"># ~/ghome/home/ub [18:00:12]</span></span><br></pre></td></tr></table></figure></p>
-<h2>3. Fluentd docker + nginx</h2>
-<p>本机 /tmp/fluentd/etc 下创建fluentd.conf</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;<span class="built_in">source</span>&gt;</span><br><span class="line">@<span class="built_in">type</span> forward</span><br><span class="line">&lt;/<span class="built_in">source</span>&gt;</span><br><span class="line"></span><br><span class="line">&lt;match *&gt;</span><br><span class="line">  @<span class="built_in">type</span>              file</span><br><span class="line"></span><br><span class="line">  path               /fluentd/<span class="built_in">log</span>/app.log</span><br><span class="line">  append             <span class="literal">true</span></span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
-<h3>3.1 Fluentd Container</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d \</span><br><span class="line">-p 24224:24224 \</span><br><span class="line">-v /tmp/fluentd/etc:/fluentd/etc -e FLUENTD_CONF=fluentd.conf \</span><br><span class="line">-v /tmp/container-logs:/fluentd/<span class="built_in">log</span> \</span><br><span class="line">fluent/fluentd</span><br></pre></td></tr></table></figure></p>
-<p>查看日志</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker logs 2e6d50875a07</span><br></pre></td></tr></table></figure></p>
-<h3>3.2 Nginx Container</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run -d --<span class="built_in">log</span>-driver fluentd --<span class="built_in">log</span>-opt fluentd-address=localhost:24224 --<span class="built_in">log</span>-opt tag=<span class="string">"nginx-test"</span> --<span class="built_in">log</span>-opt fluentd-async-connect --name nginx-test -p 9080:80 nginx</span><br></pre></td></tr></table></figure></p>
-<h3>3.3 Curl test</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -X GET http://localhost:9080</span><br></pre></td></tr></table></figure></p>
-<h3>3.4 查看日志</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># /tmp/container-logs/app.log [19:02:53]</span></span><br><span class="line">➜ cat buffer.b595a5b11618618c6459a69df40de5e79.log</span><br><span class="line">2019-10-24T10:42:36+00:00	nginx-test	&#123;<span class="string">"container_id"</span>:<span class="string">"53929d5422b0d74cd47f9fa3f6a21e63dd0a559b570631034118b4185435f266"</span>,<span class="string">"container_name"</span>:<span class="string">"/nginx-test"</span>,<span class="string">"source"</span>:<span class="string">"stdout"</span>,<span class="string">"log"</span>:<span class="string">"172.17.0.1 - - [24/Oct/2019:10:42:36 +0000] \"GET / HTTP/1.1\" 200 612 \"-\" \"curl/7.55.1\" \"-\""</span>&#125;</span><br><span class="line">2019-10-24T10:46:04+00:00	nginx-test	&#123;<span class="string">"container_id"</span>:<span class="string">"35dcb86564324032d5a4736d5e7bcfe78e6c2ead1408b9be85c60ac113d0de43"</span>,<span class="string">"container_name"</span>:<span class="string">"/nginx-test"</span>,<span class="string">"source"</span>:<span class="string">"stdout"</span>,<span class="string">"log"</span>:<span class="string">"172.17.0.1 - - [24/Oct/2019:10:46:04 +0000] \"GET / HTTP/1.1\" 200 612 \"-\" \"curl/7.55.1\" \"-\""</span>&#125;</span><br><span class="line">2019-10-24T10:47:03+00:00	nginx-test	&#123;<span class="string">"log"</span>:<span class="string">"172.17.0.1 - - [24/Oct/2019:10:47:03 +0000] \"GET / HTTP/1.1\" 200 612 \"-\" \"curl/7.55.1\" \"-\""</span>,<span class="string">"container_id"</span>:<span class="string">"35dcb86564324032d5a4736d5e7bcfe78e6c2ead1408b9be85c60ac113d0de43"</span>,<span class="string">"container_name"</span>:<span class="string">"/nginx-test"</span>,<span class="string">"source"</span>:<span class="string">"stdout"</span>&#125;</span><br><span class="line">2019-10-24T10:48:12+00:00	nginx-test	&#123;<span class="string">"log"</span>:<span class="string">"172.17.0.1 - - [24/Oct/2019:10:48:12 +0000] \"GET / HTTP/1.1\" 200 612 \"-\" \"curl/7.55.1\" \"-\""</span>,<span class="string">"container_id"</span>:<span class="string">"35dcb86564324032d5a4736d5e7bcfe78e6c2ead1408b9be85c60ac113d0de43"</span>,<span class="string">"container_name"</span>:<span class="string">"/nginx-test"</span>,<span class="string">"source"</span>:<span class="string">"stdout"</span>&#125;</span><br><span class="line">(base)</span><br><span class="line"><span class="comment"># /tmp/container-logs/app.log [19:02:55]</span></span><br><span class="line">➜</span><br></pre></td></tr></table></figure></p>
-<h2>4. Fluent-Logger-Python</h2>
-<p><strong>fluentd.conf</strong></p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">&lt;<span class="built_in">source</span>&gt;</span><br><span class="line">  @<span class="built_in">type</span> forward</span><br><span class="line">  port 24224</span><br><span class="line">&lt;/<span class="built_in">source</span>&gt;</span><br><span class="line">&lt;match fluentd.test.**&gt;</span><br><span class="line">  @<span class="built_in">type</span> stdout</span><br><span class="line">&lt;/match&gt;</span><br></pre></td></tr></table></figure></p>
-<p>Please restart your agent once these lines are in place.</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker run --rm \</span><br><span class="line">-d \</span><br><span class="line">-p 24224:24224 \</span><br><span class="line">-v /tmp/fluentd/etc:/fluentd/etc -e FLUENTD_CONF=fluentd.conf \</span><br><span class="line">-v /tmp/container-logs:/fluentd/<span class="built_in">log</span> \</span><br><span class="line">fluent/fluentd</span><br></pre></td></tr></table></figure></p>
-<h3>4.1 Event-Based Interface</h3>
-<p>First, install the fluent-logger library via pip.</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pip install fluent-logger</span><br></pre></td></tr></table></figure></p>
-<p>Next, initialize and post the records as shown below.</p>
-<p><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># test.py</span></span><br><span class="line"><span class="keyword">from</span> fluent <span class="keyword">import</span> sender</span><br><span class="line"><span class="keyword">from</span> fluent <span class="keyword">import</span> event</span><br><span class="line">sender.setup(<span class="string">'fluentd.test'</span>, host=<span class="string">'localhost'</span>, port=<span class="number">24224</span>)</span><br><span class="line">event.Event(<span class="string">'follow'</span>, &#123;</span><br><span class="line">  <span class="string">'from'</span>: <span class="string">'userA'</span>,</span><br><span class="line">  <span class="string">'to'</span>:   <span class="string">'userB'</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure></p>
-<p>Executing the script will send the logs to Fluentd</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># /tmp/fluentd/etc [14:21:01]</span></span><br><span class="line">➜ python test.py</span><br></pre></td></tr></table></figure></p>
-<p>show docker fluentd log</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line"># /tmp/fluentd/etc [14:21:11]</span><br><span class="line">➜ docker logs cda923986a28</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">2019-10-25 06:19:57 +0000 [info]: parsing config file is succeeded path=&quot;/fluentd/etc/fluentd.conf&quot;</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">2019-10-25 06:21:11.000000000 +0000 fluentd.test.follow: &#123;&quot;from&quot;:&quot;userA&quot;,&quot;to&quot;:&quot;userB&quot;&#125;</span><br><span class="line">(anaconda3) (base)</span><br></pre></td></tr></table></figure></p>
-<p><a href="https://github.com/fluent/fluent-logger-python#fluentsender-interface" target="_blank" rel="noopener">#fluentsender-interface</a></p>
-<h3>4.2 FluentSender Interface</h3>
-<p><strong>fluentd.conf</strong></p>
-<p><figure class="highlight html"><table><tr><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">source</span>&gt;</span></span><br><span class="line">  @type forward</span><br><span class="line">  port 24224</span><br><span class="line"><span class="tag">&lt;/<span class="name">source</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">match</span> <span class="attr">fluentd.test.</span>**&gt;</span></span><br><span class="line">  @type stdout</span><br><span class="line"><span class="tag">&lt;/<span class="name">match</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">match</span> <span class="attr">app.</span>**&gt;</span></span><br><span class="line">  type stdout</span><br><span class="line"><span class="tag">&lt;/<span class="name">match</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
-<p><strong>app.py</strong></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> fluent <span class="keyword">import</span> sender</span><br><span class="line"><span class="keyword">from</span> fluent <span class="keyword">import</span> event</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">   FluentSender Interface</span></span><br><span class="line"><span class="string">   </span></span><br><span class="line"><span class="string">     sender.FluentSender is a structured event logger for Fluentd.</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">     By default, the logger assumes fluentd daemon is launched locally. You can also specify remote logger by passing the options.</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># for local fluent</span></span><br><span class="line">logger = sender.FluentSender(<span class="string">'app'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># for remote fluent</span></span><br><span class="line">logger = sender.FluentSender(<span class="string">'app'</span>, host=<span class="string">'localhost'</span>, port=<span class="number">24224</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Specify optional time</span></span><br><span class="line">cur_time = int(time.time())</span><br><span class="line"></span><br><span class="line">logger.emit_with_time(<span class="string">'follow'</span>, cur_time, &#123;<span class="string">'from'</span>: <span class="string">'userA'</span>, <span class="string">'to'</span>:<span class="string">'userB'</span>&#125;)</span><br></pre></td></tr></table></figure></p>
-<h3>4.3 Handler for buffer overflow</h3>
-<p>You can inject your own custom proc to handle buffer overflow in the event of connection failure. This will mitigate the loss of data instead of simply throwing data away.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> fluent <span class="keyword">import</span> sender</span><br><span class="line"><span class="keyword">from</span> fluent <span class="keyword">import</span> event</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> msgpack</span><br><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> BytesIO</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">overflow_handler</span><span class="params">(pendings)</span>:</span></span><br><span class="line">    unpacker = msgpack.Unpacker(BytesIO(pendings))</span><br><span class="line">    <span class="keyword">for</span> unpacked <span class="keyword">in</span> unpacker:</span><br><span class="line">        print(unpacked)</span><br><span class="line"></span><br><span class="line"><span class="comment"># for local fluent</span></span><br><span class="line">logger = sender.FluentSender(<span class="string">'app'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># for remote fluent</span></span><br><span class="line">logger = sender.FluentSender(<span class="string">'app'</span>, host=<span class="string">'localhost'</span>, port=<span class="number">24224</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Specify optional time</span></span><br><span class="line">cur_time = int(time.time())</span><br><span class="line"></span><br><span class="line"><span class="comment"># logger.emit_with_time('follow', cur_time, &#123;'from': 'userA', 'to':'userB'&#125;)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Use nanosecond</span></span><br><span class="line">logger = sender.FluentSender(<span class="string">'app'</span>, nanosecond_precision=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line">logger = sender.FluentSender(<span class="string">'app'</span>, host=<span class="string">'localhost'</span>, port=<span class="number">24224</span>, buffer_overflow_handler=overflow_handler)</span><br><span class="line"></span><br><span class="line">logger.emit(<span class="string">'follow'</span>, &#123;<span class="string">'from'</span>: <span class="string">'userA'</span>, <span class="string">'to'</span>: <span class="string">'userB'</span>&#125;)</span><br><span class="line"></span><br><span class="line">logger.emit_with_time(<span class="string">'follow'</span>, time.time(), &#123;<span class="string">'from'</span>: <span class="string">'userA'</span>, <span class="string">'to'</span>: <span class="string">'userB'</span>&#125;)</span><br><span class="line"></span><br><span class="line">logger.close()</span><br></pre></td></tr></table></figure></p>
-<h3>4.4 Python logging.Handler interface</h3>
-<p>This client-library also has FluentHandler class for Python logging module.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> logging</span><br><span class="line"><span class="keyword">from</span> fluent <span class="keyword">import</span> handler</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> msgpack</span><br><span class="line"><span class="keyword">from</span> io <span class="keyword">import</span> BytesIO</span><br><span class="line"></span><br><span class="line">custom_format = &#123;</span><br><span class="line">    <span class="string">'host'</span>: <span class="string">'%(hostname)s'</span>,</span><br><span class="line">    <span class="string">'where'</span>: <span class="string">'%(module)s.%(funcName)s'</span>,</span><br><span class="line">    <span class="string">'type'</span>: <span class="string">'%(levelname)s'</span>,</span><br><span class="line">    <span class="string">'stack_trace'</span>: <span class="string">'%(exc_text)s'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">logging.basicConfig(level=logging.INFO)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">overflow_handler</span><span class="params">(pendings)</span>:</span></span><br><span class="line">    unpacker = msgpack.Unpacker(BytesIO(pendings))</span><br><span class="line">    <span class="keyword">for</span> unpacked <span class="keyword">in</span> unpacker:</span><br><span class="line">        print(unpacked)</span><br><span class="line"></span><br><span class="line">l = logging.getLogger(<span class="string">'fluent.test'</span>)</span><br><span class="line"></span><br><span class="line">h = handler.FluentHandler(<span class="string">'app.follow'</span>, host=<span class="string">'localhost'</span>, port=<span class="number">24224</span>, buffer_overflow_handler=overflow_handler)</span><br><span class="line">formatter = handler.FluentRecordFormatter(custom_format)</span><br><span class="line">h.setFormatter(formatter)</span><br><span class="line">l.addHandler(h)</span><br><span class="line">l.info(&#123;</span><br><span class="line">    <span class="string">'from'</span>: <span class="string">'userA'</span>,</span><br><span class="line">    <span class="string">'to'</span>: <span class="string">'userB'</span></span><br><span class="line">&#125;)</span><br><span class="line">l.info(<span class="string">'&#123;"from": "userC", "to": "userD"&#125;'</span>)</span><br><span class="line">l.info(<span class="string">"This log entry will be logged with the additional key: 'message'."</span>)</span><br></pre></td></tr></table></figure></p>
-<p><strong>使用步骤总结：</strong></p>
-<blockquote>
-<ol>
-<li>FluentHandler (并可设置 formatter)</li>
-<li>logging instance , l.addHandler(h)</li>
-</ol>
-</blockquote>
-<p><strong>自定义格式化程序</strong></p>
-<p>你还可以通过 logging.config.dictConfig 自定义格式化程序</p>
-<p><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> logging.configimport yamlwithopen(<span class="string">'logging.yaml'</span>) <span class="keyword">as</span> fd:</span><br><span class="line"> conf = yaml.load(fd)</span><br><span class="line">logging.config.dictConfig(conf[<span class="string">'logging'</span>])</span><br></pre></td></tr></table></figure></p>
-<p>你可以在连接失败时插入自己的自定义过程来处理缓冲区溢出。 这将减少数据的丢失，而不是简单地丢弃数据。</p>
-<p><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">logging:</span></span><br><span class="line"><span class="attr">    version:</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="attr">    formatters:</span></span><br><span class="line"><span class="attr">      brief:</span></span><br><span class="line"><span class="attr">        format:</span> <span class="string">'%(message)s'</span></span><br><span class="line"><span class="attr">      default:</span></span><br><span class="line"><span class="attr">        format:</span> <span class="string">'%(asctime)s %(levelname)-8s %(name)-15s %(message)s'</span></span><br><span class="line"><span class="attr">        datefmt:</span> <span class="string">'%Y-%m-%d %H:%M:%S'</span></span><br><span class="line"><span class="attr">      fluent_fmt:</span></span><br><span class="line">        <span class="string">'()'</span><span class="string">:</span> <span class="string">fluent.handler.FluentRecordFormatter</span></span><br><span class="line"><span class="attr">        format:</span></span><br><span class="line"><span class="attr">          level:</span> <span class="string">'%(levelname)s'</span></span><br><span class="line"><span class="attr">          hostname:</span> <span class="string">'%(hostname)s'</span></span><br><span class="line"><span class="attr">          where:</span> <span class="string">'%(module)s.%(funcName)s'</span></span><br><span class="line"></span><br><span class="line"><span class="attr">    handlers:</span></span><br><span class="line"><span class="attr">        console:</span></span><br><span class="line">            <span class="string">class</span> <span class="string">:</span> <span class="string">logging.StreamHandler</span></span><br><span class="line"><span class="attr">            level:</span> <span class="string">DEBUG</span></span><br><span class="line"><span class="attr">            formatter:</span> <span class="string">default</span></span><br><span class="line"><span class="attr">            stream:</span> <span class="attr">ext://sys.stdout</span></span><br><span class="line"><span class="attr">        fluent:</span></span><br><span class="line"><span class="attr">            class:</span> <span class="string">fluent.handler.FluentHandler</span></span><br><span class="line"><span class="attr">            host:</span> <span class="string">localhost</span></span><br><span class="line"><span class="attr">            port:</span> <span class="number">24224</span></span><br><span class="line"><span class="attr">            tag:</span> <span class="string">app.follow</span></span><br><span class="line"><span class="attr">            buffer_overflow_handler:</span> <span class="string">overflow_handler</span></span><br><span class="line"><span class="attr">            formatter:</span> <span class="string">fluent_fmt</span></span><br><span class="line"><span class="attr">            level:</span> <span class="string">DEBUG</span></span><br><span class="line"><span class="attr">        none:</span></span><br><span class="line"><span class="attr">            class:</span> <span class="string">logging.NullHandler</span></span><br><span class="line"></span><br><span class="line"><span class="attr">    loggers:</span></span><br><span class="line"><span class="attr">        amqp:</span></span><br><span class="line"><span class="attr">            handlers:</span> <span class="string">[none]</span></span><br><span class="line"><span class="attr">            propagate:</span> <span class="literal">False</span></span><br><span class="line"><span class="attr">        conf:</span></span><br><span class="line"><span class="attr">            handlers:</span> <span class="string">[none]</span></span><br><span class="line"><span class="attr">            propagate:</span> <span class="literal">False</span></span><br><span class="line">        <span class="string">''</span><span class="string">:</span> <span class="comment"># root logger</span></span><br><span class="line"><span class="attr">            handlers:</span> <span class="string">[console,</span> <span class="string">fluent]</span></span><br><span class="line"><span class="attr">            level:</span> <span class="string">DEBUG</span></span><br><span class="line"><span class="attr">            propagate:</span> <span class="literal">False</span></span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://docs.fluentd.org/installation/install-by-dmg" target="_blank" rel="noopener">docs.fluentd.org</a></li>
-<li><a href="https://hub.docker.com/r/fluent/fluentd" target="_blank" rel="noopener">fluentd docker</a></li>
-<li><a href="http://www.muzixing.com/pages/2017/02/05/fluentdru-men-jiao-cheng.html" target="_blank" rel="noopener">Fluentd入门教程</a></li>
-<li><a href="https://blog.csdn.net/qq_21816375/article/details/78011059" target="_blank" rel="noopener">fluentd之mac install &amp; test</a></li>
-<li><a href="https://medium.com/@harvey.chen/fluentd-%E4%B8%8D%E8%B2%A0%E8%B2%AC%E4%BB%BB%E7%9A%84%E5%AD%B8%E7%BF%92%E7%AD%86%E8%A8%98-%E4%B8%80-in-docker-compose-a7bfa1b69f87" target="_blank" rel="noopener">fluentd-不負責任的學習筆記</a></li>
-<li><a href="https://blog.csdn.net/weixin_34326179/article/details/88659550" target="_blank" rel="noopener">使用Fluentd收集Docker容器日志</a></li>
-<li><a href="https://www.yipzale.me/2018/04/22/fluentd-collect-dockerlog.html" target="_blank" rel="noopener">fluentd收集docker容器日志</a></li>
-<li><a href="http://www.pangxieke.com/linux/docker-logging-fluentd.html" target="_blank" rel="noopener">Docker安装Fluentd并管理 Docker 日志</a></li>
-<li><a href="https://docs.fluentd.org/v/0.12/articles/python" target="_blank" rel="noopener">fluent-logger-python</a></li>
-<li><a href="https://github.com/fluent/fluent-logger-python" target="_blank" rel="noopener">github.com/fluent/fluent-logger-python</a></li>
-<li><a href="https://hant.helplib.com/GitHub/article_58290" target="_blank" rel="noopener">fluent-logger-python, 用於Fluentd的結構化記錄器( python )</a></li>
-<li><a href="https://www.li-rui.top/2018/11/29/log/fluentd%E4%B8%ADbuffer%E9%85%8D%E7%BD%AE/" target="_blank" rel="noopener">fluentd中buffer配置</a></li>
-<li><a href="https://chenguolin.github.io/2019/02/28/Fluentd-3-Fluentd%E6%8F%92%E4%BB%B6%E4%BB%8B%E7%BB%8D/" target="_blank" rel="noopener">fluentd插件介绍</a></li>
-</ul>
-
+        <img src="/images/devops/fluentd-1.png" width="550" alt="Fluentd" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/23/devops/fluentd_td-agent/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1216,52 +578,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/nlp/Bert-Ernie-logo.jpg&quot; width=&quot;550&quot; alt=&quot;Bert-Ernie&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p><strong>2018.10</strong> google 发布 <strong>BERT</strong> 模型. 引爆整个AI圈的 NLP 模型. 在 NLP领域 刷新 11 项记录.</p>
-<p><strong>BERT</strong> is <strong>language_encoder</strong>，把输入的 <strong>sentence</strong> 或 <strong>paragraph</strong> 转成 <strong>feature_vector</strong>(embedding).</p>
-<p><strong>Paper</strong>: <a href="https://arxiv.org/abs/1810.04805" target="_blank" rel="noopener">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</a></p>
-<p><strong>BERT</strong> 创新点在于提出了一套完整的方案，利用之前最新的算法模型，去解决各种各样的 NLP 任务.</p>
-<p>&lt;!-- more --&gt;</p>
-<p><strong>NLP 的 4 大任务</strong></p>
-<blockquote>
-<p>(1). 序列标注.</p>
-<p>(2). 分类任务</p>
-<p>(3). 句子关系判断</p>
-<p>(4). 生成式任务</p>
-</blockquote>
-<p>&lt;img src=&quot;/images/nlp/bert-sample-1.png&quot; width=&quot;700&quot; alt=&quot;Bert的预训练和微调（图片来自Bert的原论文）&quot; /&gt;</p>
-<p>BERT的目的是预训练语言模型，简单来说就是预训练一个模型可以对句子进行embedding，其作用可以类比word embedding。论文首先对Language model pre-training的方法进行了介绍，一个是Feature-based的方法，例如ELMo，一个是Fine-tuning的方法，例如OpenAI GPT，BERT同样属于后者。那么BERT是如何预训练的呢？</p>
-<p><strong>那么BERT是如何预训练的呢？</strong></p>
-<h2>Task1： Masked Language Model</h2>
-<p>思想很简单，就是随机mask句子中的一部分词，目标是利用其它词去预测被mask掉的词。</p>
-<p>具体BERT采取的策略如下：</p>
-<p>&lt;img src=&quot;/images/nlp/Bert-tutorial-1.jpg&quot; width=&quot;600&quot; alt=&quot;Masked Language Model&quot; /&gt;</p>
-<p>文中解释并不100%进行mask的原因是为了保持pre-training与fine-tuning的一致，因为fine-tuning的时候并不能看到[mask]。至于引入随机word的原因个人感觉仅仅是引入一些噪声从而使模型更稳健，具有一定纠错能力。一点牵强的理由是文中强调了和denoising auto-encoders的区别。</p>
-<p><a href="https://zhuanlan.zhihu.com/p/49542105" target="_blank" rel="noopener">Transformer与BERT浅说</a></p>
-<h2>Task2： Next Sentence Prediction</h2>
-<p>NSP 简单说就是预测 句子B 是否承接 句子A，具体 BERT 的策略是：</p>
-<blockquote>
-<p>(1). 50%B是A的下文，label=IsNext</p>
-<p>(2). 50%不是，label=NotNext</p>
-</blockquote>
-<p>也就是个二分类问题。</p>
-<p>&lt;img src=&quot;/images/nlp/Bert-tutorial-2.jpg&quot; width=&quot;700&quot; alt=&quot;NSP简单说就是预测句子B是否承接句子A&quot; /&gt;</p>
-<p>pre-training 过程同时优化上面两个任务，其结束后就可以在特定任务上进行 fine-tuning，仅需在BERT的基础上增加相应的 output layer 即可.</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://zhuanlan.zhihu.com/p/51934140" target="_blank" rel="noopener">张俊林: 天空之城：拉马努金式思维训练法</a></li>
-<li><a href="https://www.zhihu.com/question/20584585/answer/15559213" target="_blank" rel="noopener">互联网人到了 30 岁，大部分都去干什么了？</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/50717786" target="_blank" rel="noopener">AINLP BERT相关论文、文章和代码资源汇总</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/53099098" target="_blank" rel="noopener">自然语言处理中的Transformer和BERT</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/36331888" target="_blank" rel="noopener">RNN和LSTM弱！爆！了！注意力模型才是王道</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/46997268" target="_blank" rel="noopener">NLP突破性成果 BERT 模型详细解读</a></li>
-<li><a href="https://mp.weixin.qq.com/s/H4at_BDLwZWqlBHLjMZWRQ" target="_blank" rel="noopener">一步步理解BERT</a></li>
-<li><a href="https://kexue.fm/archives/6736" target="_blank" rel="noopener">当Bert遇上Keras：这可能是Bert最简单的打开姿势</a></li>
-<li><a href="https://terrifyzhao.github.io/2019/01/17/BERT%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97.html" target="_blank" rel="noopener">BERT完全指南</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/53099098" target="_blank" rel="noopener">自然语言处理中的Transformer和BERT</a></li>
-</ul>
-
+        <img src="/images/nlp/Bert-Ernie-logo.jpg" width="550" alt="Bert-Ernie" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/23/nlp/BERT-tutorial/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1323,65 +645,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/developer-3.png&quot; width=&quot;550&quot; alt=&quot;Developer's manual&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<ul>
-<li>
-<p><a href="http://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html" target="_blank" rel="noopener">阮一峰: Docker 入门教程</a></p>
-</li>
-<li>
-<p><a href="http://www.ruanyifeng.com/blog/2018/02/docker-wordpress-tutorial.html" target="_blank" rel="noopener">阮一峰: Docker 微服务教程</a></p>
-</li>
-<li>
-<p><a href="http://www.ruanyifeng.com/blog/developer/" target="_blank" rel="noopener">阮一峰: developer 手册</a></p>
-</li>
-<li>
-<p><a href="http://www.ruanyifeng.com/blog/2018/10/restful-api-best-practices.html" target="_blank" rel="noopener">阮一峰: RESTful API 最佳实践</a></p>
-</li>
-<li>
-<p><a href="http://www.ruanyifeng.com/blog/2014/05/restful_api.html" target="_blank" rel="noopener">阮一峰: RESTful API 设计指南</a></p>
-</li>
-<li>
-<p><a href="http://www.ruanyifeng.com/blog/2015/02/mvcmvp_mvvm.html" target="_blank" rel="noopener">阮一峰: MVC，MVP 和 MVVM 的图示</a></p>
-</li>
-<li>
-<p><a href="http://www.ruanyifeng.com/blog/2009/10/5_ways_to_search_for_files_using_the_terminal.html" target="_blank" rel="noopener">阮一峰: Linux的五个查找命令</a></p>
-</li>
-<li>
-<p><a href="http://www.ruanyifeng.com/blog/2019/09/curl-reference.html" target="_blank" rel="noopener">阮一峰: curl 的用法指南</a></p>
-</li>
-<li>
-<p><a href="https://coolshell.cn/articles/19219.html" target="_blank" rel="noopener">CoolShell: 打造高效的工作环境 – SHELL 篇</a></p>
-</li>
-<li>
-<p><a href="https://coolshell.cn/articles/18654.html" target="_blank" rel="noopener">CoolShell: 记一次KUBERNETES/DOCKER网络排障</a></p>
-</li>
-<li>
-<p><a href="https://coolshell.cn/articles/4990.html" target="_blank" rel="noopener">CoolShell: 程序员技术练级攻略</a></p>
-</li>
-<li>
-<p><a href="https://www.liaoxuefeng.com/" target="_blank" rel="noopener">廖雪峰的官方网站</a></p>
-</li>
-</ul>
-<p>devops</p>
-<ul>
-<li><a href="http://www.ruanyifeng.com/blog/2018/11/awk.html" target="_blank" rel="noopener">阮一峰: awk 入门教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2019/08/xargs-tutorial.html" target="_blank" rel="noopener">阮一峰: xargs 命令教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2018/09/vimrc.html" target="_blank" rel="noopener">阮一峰: Vim 配置入门</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2018/09/bash-wildcards.html" target="_blank" rel="noopener">阮一峰: 命令行通配符教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2017/02/filename-should-be-lowercase.html" target="_blank" rel="noopener">阮一峰: 为什么文件名要小写？</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2016/07/yaml.html" target="_blank" rel="noopener">阮一峰: YAML 语言教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2014/03/server_setup.html" target="_blank" rel="noopener">阮一峰: Linux Server的初步配置流程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2012/08/how_to_read_diff.html' target="_blank" rel="noopener"">阮一峰: 读懂diff</a></li>
-<li><a href="https://www.epubit.com/bookDetails?id=N847" target="_blank" rel="noopener">Steve Yegge 程序员的呐喊</a></li>
-</ul>
-<p>other</p>
-<ul>
-<li><a href="http://www.ruanyifeng.com/blog/2010/05/my_wp_tweet_archive.html" target="_blank" rel="noopener">我的Tweet档案</a></li>
-<li><a href="https://www.liaoxuefeng.com/" target="_blank" rel="noopener">感谢廖雪峰帮助</a></li>
-<li><a href="https://book.douban.com/people/haoel/collect?start=0&amp;sort=time&amp;rating=all&amp;filter=all&amp;mode=grid" target="_blank" rel="noopener">陈皓读过的书(72)</a></li>
-</ul>
-
+        <img src="/images/devops/developer-3.png" width="550" alt="Developer's manual" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/20/devops/developer-manual/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1443,31 +712,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/docker-3.1.svg&quot; width=&quot;550&quot; alt=&quot;Docker&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>为了更好的引出 Docker, 先简单介绍下 Linux 容器:</p>
-<h2>1. docker what?</h2>
-<p>Docker 属于 Linux 容器的一种封装，提供简单易用的容器使用接口。</p>
-<h2>4. dockerfile</h2>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">FROM blair101/ubuntu-hexo-blog:v1.3</span><br><span class="line"></span><br><span class="line">COPY ./<span class="built_in">source</span> /blog/<span class="built_in">source</span></span><br><span class="line"></span><br><span class="line">WORKDIR /blog</span><br><span class="line"></span><br><span class="line"><span class="comment">#RUN hexo s</span></span><br><span class="line"></span><br><span class="line">EXPOSE 4000</span><br><span class="line"></span><br><span class="line">CMD hexo s</span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://hexo.io/" target="_blank" rel="noopener">hexo.io</a>, <a href="https://hexo.io/zh-tw/docs/server.html" target="_blank" rel="noopener">hexo-server</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html" target="_blank" rel="noopener">阮一峰: Docker 入门教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2018/02/docker-wordpress-tutorial.html" target="_blank" rel="noopener">阮一峰: Docker 微服务教程</a></li>
-<li><a href="https://icoty.github.io/2019/04/22/docker/" target="_blank" rel="noopener">荒野之萍: Docker 最简教程</a></li>
-<li><a href="https://icoty.github.io/2019/04/18/docker-hexo-blog/" target="_blank" rel="noopener">荒野之萍: Hexo+Github-Dockerfile自动搭建</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/45610616" target="_blank" rel="noopener">Docker 容器从入门到入魔</a></li>
-</ul>
-<p>plugins:</p>
-<ul>
-<li><a href="http://www.itomtan.com/2017/09/29/the-problem-when-use-post-asset-folder/" target="_blank" rel="noopener">Hexo + hexo-asset-image</a></li>
-<li><a href="https://zhiho.github.io/2015/09/26/start-hexo1/" target="_blank" rel="noopener">Hexo + hexo-deployer-git</a></li>
-<li><a href="https://chad-it.github.io/2018/07/01/Hexo%E9%9B%86%E6%88%90WordCount%E6%8F%92%E4%BB%B6/" target="_blank" rel="noopener">Hexo + WordCount</a></li>
-<li><a href="https://wizardforcel.gitbooks.io/markdown-simple-world/hexo-tutor-6.html" target="_blank" rel="noopener">Hexo + sitemap、rss</a></li>
-<li><a href="https://hexo.io/zh-tw/docs/tag-plugins#Image" target="_blank" rel="noopener">標籤外掛（Tag Plugins）</a></li>
-</ul>
-
+        <img src="/images/devops/docker-3.1.svg" width="550" alt="Docker" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/19/devops/docker-hexo/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1529,96 +779,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/docker-2.1.png&quot; width=&quot;550&quot; alt=&quot;Docker Microservices&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>站在 Docker 的角度，<strong><code>Software</code></strong> is the combination of <strong><code>Containers</code></strong>：</p>
-<blockquote>
-<ol>
-<li>业务逻辑容器</li>
-<li>数据库容器</li>
-<li>储存容器</li>
-<li>...</li>
-</ol>
-</blockquote>
-<p>Docker 使得软件可以拆分成若干个标准化容器，然后像搭积木一样组合起来。</p>
-<p>这正是微服务（microservices）的思想：</p>
-<blockquote>
-<p>软件把任务外包出去，让各种外部服务完成这些任务，软件本身只是底层服务的调度中心和组装层。</p>
-</blockquote>
-<p>&lt;!--&lt;img src=&quot;/images/devops/docker-2.2.png&quot; width=&quot;550&quot; alt=&quot;Docker Microservices&quot; /&gt;--&gt;</p>
-<p>如何在<strong>一台计算机</strong>上实现多个 <strong><code>Services</code></strong>，让它们互相配合，组合出一个 <strong><code>Application</code></strong>:</p>
-<p>&lt;img src=&quot;/images/devops/docker-2.3.png&quot; width=&quot;550&quot; alt=&quot;Docker Microservices&quot; /&gt;</p>
-<p>为了加深理解，采用三种方法，演示如何架设 WordPress 网站</p>
-<blockquote>
-<p>方法 A：自建 WordPress 容器
-方法 B：采用官方的 WordPress 容器
-方法 C：采用 Docker Compose 工具</p>
-</blockquote>
-<h2>1. 自建 WordPress Container</h2>
-<p><a href="http://www.ruanyifeng.com/blog/2018/02/docker-wordpress-tutorial.html" target="_blank" rel="noopener">方法 A：自建 WordPress Container</a></p>
-<h3>1.1 官方 PHP image</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker container run \</span><br><span class="line">    -p 8080:80 \</span><br><span class="line">    -it \</span><br><span class="line">    --rm \</span><br><span class="line">    --name wordpress \</span><br><span class="line">   --volume <span class="string">"<span class="variable">$PWD</span>/"</span>:/var/www/html php:5.6-apache</span><br></pre></td></tr></table></figure></p>
-<h3>1.2 拷贝 WordPress 安装包</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ wget https://cn.wordpress.org/wordpress-4.9.4-zh_CN.tar.gz</span><br><span class="line">$ tar -xvf wordpress-4.9.4-zh_CN.tar.gz</span><br></pre></td></tr></table></figure></p>
-<h3>1.3 官方 MySQL Container</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker container run \</span><br><span class="line">  -d \</span><br><span class="line">  --rm \</span><br><span class="line">  --name wordpressdb \</span><br><span class="line">  --env MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">  --env MYSQL_DATABASE=wordpress \</span><br><span class="line">  mysql:5.7</span><br></pre></td></tr></table></figure></p>
-<p>查看正在运行的容器</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ docker container ls</span><br><span class="line">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                  NAMES</span><br><span class="line">228857116d2d        mysql:5.7           <span class="string">"docker-entrypoint.s…"</span>   4 minutes ago       Up 4 minutes        3306/tcp, 33060/tcp    wordpressdb</span><br><span class="line">a4c7f3d045a3        php:5.6-apache      <span class="string">"docker-php-entrypoi…"</span>   23 minutes ago      Up 23 minutes       0.0.0.0:8080-&gt;80/tcp   wordpress</span><br><span class="line">(anaconda3) (base)</span><br><span class="line">➜</span><br></pre></td></tr></table></figure></p>
-<p>其中，wordpressdb是后台运行的，前台看不见它的输出，必须使用下面的命令查看</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker container logs wordpressdb</span><br></pre></td></tr></table></figure></p>
-<h3>1.4 定制 PHP Container</h3>
-<p>PHP 的官方 image 不带有mysql扩展，必须自己新建 image 文件</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker container stop wordpress</span><br></pre></td></tr></table></figure></p>
-<p>Create Dockerfile in docker-demo dir</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">FROM php:5.6-apache</span><br><span class="line">RUN docker-php-ext-install mysqli</span><br><span class="line">CMD apache2-foreground</span><br></pre></td></tr></table></figure></p>
-<p>基于这个 Dockerfile 文件，新建一个名为 phpwithmysql 的 image 文件.</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker build -t phpwithmysql .</span><br></pre></td></tr></table></figure></p>
-<h3>1.5 WordpresspC 连接 MySQL</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker container run \</span><br><span class="line">  --rm \</span><br><span class="line">  --name wordpress \</span><br><span class="line">  --volume <span class="string">"<span class="variable">$PWD</span>/"</span>:/var/www/html \</span><br><span class="line">  --link wordpressdb:mysql \</span><br><span class="line">  phpwithmysql</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>WordPressC 要连到 wordpressdbC，冒号表示该 Container 的别名是 mysql .</p>
-</blockquote>
-<p>&lt;img src=&quot;/images/devops/docker-1.3.png&quot; width=&quot;750&quot; alt=&quot;wp&quot; /&gt;</p>
-<p>看到以上界面，自建WPC 演示完毕。 关闭 Containers。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ docker container stop wordpress wordpressdb</span><br></pre></td></tr></table></figure></p>
-<h2>2. Official WordPress Container</h2>
-<p><a href="http://www.ruanyifeng.com/blog/2018/02/docker-wordpress-tutorial.html" target="_blank" rel="noopener">方法 B：官方 WordPress Container</a></p>
-<h3>2.1 mysql container</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker container run \</span><br><span class="line">  -d \</span><br><span class="line">  --rm \</span><br><span class="line">  --name wordpressdb \</span><br><span class="line">  --env MYSQL_ROOT_PASSWORD=123456 \</span><br><span class="line">  --env MYSQL_DATABASE=wordpress \</span><br><span class="line">  mysql:5.7</span><br></pre></td></tr></table></figure></p>
-<h3>2.2 wordpress container</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ docker container run \</span><br><span class="line">  -p 8080:80 \</span><br><span class="line">  -d \</span><br><span class="line">  --rm \</span><br><span class="line">  --name wordpress \</span><br><span class="line">  --env WORDPRESS_DB_PASSWORD=123456 \</span><br><span class="line">  --link wordpressdb:mysql \</span><br><span class="line">  wordpress</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>-p 127.0.0.1:8080:80：将容器的 80 端口 映射到 127.0.0.2 的 8080 端口</p>
-<p>--volume &quot;$PWD/wordpress&quot;:/var/www/html：将容器的/var/www/html目录映射到当前目录的wordpress子目录</p>
-</blockquote>
-<h3>2.3 docker container ls</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ docker container ls --all</span><br><span class="line">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                 NAMES</span><br><span class="line">99e93c4dfc7c        wordpress           <span class="string">"docker-entrypoint.s…"</span>   2 seconds ago       Up 1 second         80/tcp                wordpress</span><br><span class="line">373fcc5e1b94        mysql:5.7           <span class="string">"docker-entrypoint.s…"</span>   2 minutes ago       Up 2 minutes        3306/tcp, 33060/tcp   wordpressdb</span><br><span class="line">(anaconda3) (base)</span><br></pre></td></tr></table></figure></p>
-<p>浏览器 http://localhost:8080 就能看到 WordPress 的安装提示.</p>
-<h3>2.4 stop containers</h3>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ docker container stop wordpress wordpressdb</span><br></pre></td></tr></table></figure></p>
-<h2>3. Docker Compose Tool</h2>
-<p><a href="https://docs.docker.com/compose/" target="_blank" rel="noopener">Compose</a> 一个工具软件, 可以管理多个 Docker 容器组成一个应用.</p>
-<blockquote>
-<p>定义 docker-compose.yml，写好多容器的调用关系。然后，只要一个命令，就能同时启动/关闭这些容器.</p>
-</blockquote>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker-compose --version</span><br></pre></td></tr></table></figure></p>
-<h3>3.1 WordPress example</h3>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mysql:</span><br><span class="line">    image: mysql:5.7</span><br><span class="line">    environment:</span><br><span class="line">     - MYSQL_ROOT_PASSWORD=123456</span><br><span class="line">     - MYSQL_DATABASE=wordpress</span><br><span class="line">web:</span><br><span class="line">    image: wordpress</span><br><span class="line">    links:</span><br><span class="line">     - mysql</span><br><span class="line">    environment:</span><br><span class="line">     - WORDPRESS_DB_PASSWORD=123456</span><br><span class="line">    ports:</span><br><span class="line">     - &quot;127.0.0.3:8080:80&quot;</span><br><span class="line">    working_dir: /var/www/html</span><br><span class="line">    volumes:</span><br><span class="line">     - wordpress:/var/www/html</span><br></pre></td></tr></table></figure></p>
-<p>启动 2个 Container</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker-compose up</span><br></pre></td></tr></table></figure></p>
-<p>关闭 2个 Container</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker-compose stop</span><br></pre></td></tr></table></figure></p>
-<p>关闭以后，这两个容器文件还是存在的，写在里面的数据不会丢失。下次启动的时候，还可以复用。下面的命令可以把这两个容器文件删除（容器必须已经停止运行）。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker-compose rm</span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html" target="_blank" rel="noopener">阮一峰: Docker 入门教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2018/02/docker-wordpress-tutorial.html" target="_blank" rel="noopener">阮一峰: Docker 微服务教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/developer/" target="_blank" rel="noopener">阮一峰: developer 手册</a></li>
-<li><a href="https://icoty.github.io/2019/04/22/docker/" target="_blank" rel="noopener">荒野之萍: Docker最简教程</a></li>
-<li><a href="https://icoty.github.io/2019/04/18/docker-hexo-blog/" target="_blank" rel="noopener">Hexo+Github博客最简教程-Dockerfile自动搭建</a></li>
-</ul>
-
+        <img src="/images/devops/docker-2.1.png" width="550" alt="Docker Microservices" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/14/devops/docker-wordpress-tutorial/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1680,123 +846,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/devops/docker-1.1.jpg&quot; width=&quot;550&quot; alt=&quot;Docker&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p>由于环境配置的难题，所以开发者常常会说：<strong>It works on my machine</strong></p>
-<blockquote>
-<p>为了更好的引出 Docker, 先简单介绍下 Linux 容器:</p>
-<p>Linux Container 不是模拟一个完整的 OS，而是对进程进行隔离。或者说，在正常进程的外面套了一个保护层。对于 <strong>Container</strong> 里面的进程来说，它接触到的各种资源都是 <strong>virtual</strong>，从而实现与底层系统的隔离。</p>
-</blockquote>
-<ul>
-<li>
-<p><strong>Container</strong> 是进程级别的，相比 virtual machine 有很多优势。</p>
-</li>
-<li>
-<p><strong>Container</strong> 有点像轻量级的 virtual machine，能够提供 virtual_env，但是成本开销小得多</p>
-</li>
-</ul>
-<h2>1. docker what?</h2>
-<p>Docker 属于 Linux 容器的一种封装，提供简单易用的容器使用接口。它是目前最流行的 Linux 容器解决方案。</p>
-<p>Docker 将 Application 与该程序的依赖，打包在一个 image_file 里面。运行这个文件，就会生成一个虚拟容器。</p>
-<p>程序在这个 Container 里运行，就好像在真实的物理机上运行一样。有了 Docker，就不用担心环境问题。</p>
-<h2>2. docker function</h2>
-<blockquote>
-<ol>
-<li>提供一次性的环境</li>
-<li>提供弹性的云服务</li>
-<li>组建微服务架构</li>
-</ol>
-</blockquote>
-<h2>3. docker install</h2>
-<p><a href="https://docs.docker.com/docker-for-mac/install/" target="_blank" rel="noopener">Install Docker Desktop on Mac</a></p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker version</span><br><span class="line"><span class="comment"># 或者</span></span><br><span class="line">$ docker info</span><br></pre></td></tr></table></figure></p>
-<h2>4. docker image file</h2>
-<ol>
-<li>Docker 把 <strong><code>Application 及依赖，打包在 image file</code></strong> 里.</li>
-<li>只有通过这个 image file，才能生成 Docker Container, image file 可以看作是 template of container.</li>
-<li>Docker 根据 image file 生成 instance of container.</li>
-<li>同一 image 文件，可以生成多个同时运行的 instance of container.</li>
-</ol>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出本机的所有 image 文件。</span></span><br><span class="line">$ docker image ls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 删除 image 文件</span></span><br><span class="line">$ docker image rm [imageName]</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>image 文件是通用的。一般来说，为了节省时间，我们应该尽量使用别人制作好的 image 文件，而不是自己制作。即使要定制，也应该基于别人的 image 文件进行加工，而不是从零开始制作。</p>
-<p>为了方便共享，image 文件制作完成后，可以上传到网上的仓库。Docker 的官方仓库 Docker Hub 是最重要、最常用的 image 仓库。</p>
-</blockquote>
-<h2>5. example：hello world</h2>
-<p>我们通过最简单的 image 文件&quot;<a href="https://hub.docker.com/_/hello-world" target="_blank" rel="noopener">hello world</a>&quot;，感受一下 Docker</p>
-<p>(1). 将 image 文件从仓库抓取到本地</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker image pull library/hello-world</span><br><span class="line"><span class="comment">#or</span></span><br><span class="line">$ docker image pull hello-world</span><br></pre></td></tr></table></figure></p>
-<p>(2). 本机看到这个 image 文件</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker image ls</span><br></pre></td></tr></table></figure></p>
-<p>(3). 运行这个 image 文件</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container run hello-world</span><br></pre></td></tr></table></figure></p>
-<p>运行成功:</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">$ docker container run hello-world</span><br><span class="line"></span><br><span class="line">Hello from Docker!</span><br><span class="line">This message shows that your installation appears to be working correctly.</span><br><span class="line"></span><br><span class="line">... ...</span><br></pre></td></tr></table></figure></p>
-<p>输出这段提示以后，hello world就会停止运行，容器自动终止。</p>
-<p>(4). 手动终止容器</p>
-<p>对于那些不会自动终止的容器，必须使用 docker container kill 手动终止.</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container <span class="built_in">kill</span> [containID]</span><br></pre></td></tr></table></figure></p>
-<h2>6. container file</h2>
-<p>image file 生成的 <strong>instance of container</strong>，本身也是一个文件，称为 container file。</p>
-<blockquote>
-<p>也就是说，一旦 container 生成，就会同时存在 2 files： <strong>image file</strong> 和 <strong>container file</strong>。</p>
-<p>且 close container 并不会 delete container file，只是 container stop run.</p>
-</blockquote>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 列出本机正在运行的容器</span></span><br><span class="line">$ docker container ls</span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出本机所有容器，包括终止运行的容器</span></span><br><span class="line">$ docker container ls --all</span><br></pre></td></tr></table></figure></p>
-<p><strong>docker 的常用命令:</strong></p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker --version 			<span class="comment">#查看Docker版本</span></span><br><span class="line">docker info 				<span class="comment">#查看Docker安装有关的所有细节信息</span></span><br><span class="line">docker version				<span class="comment">#查看Docker安装有关的所有细节信息</span></span><br><span class="line">docker image ls				<span class="comment">#列出镜像清单</span></span><br><span class="line">docker container ls 	 	<span class="comment">#列出容器清单（列出运行中的容器）</span></span><br><span class="line">docker container ls --all 	<span class="comment">#列出容器清单（列出所有容器）</span></span><br><span class="line">docker container ls --aq 	<span class="comment">#列出容器清单（列出所有容器，简单模式，只有容器ID）</span></span><br><span class="line">docker run hello-world		<span class="comment">#执行Docker镜像，镜像名字为hello-world</span></span><br></pre></td></tr></table></figure></p>
-<h2>7. Dockerfile</h2>
-<p>学会使用 image 文件以后，接下来的问题就是，如何生成 image 文件？</p>
-<p>这需要用到 Dockerfile 文件。它是一个文本文件，用来配置 image。</p>
-<blockquote>
-<p>Docker 根据 Dockerfile 生成二进制的 image file .</p>
-</blockquote>
-<h2>8. Custom docker container</h2>
-<h3>8.1 make Dockerfile</h3>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">.git</span><br><span class="line">node_modules</span><br><span class="line">npm-debug.log</span><br></pre></td></tr></table></figure></p>
-<h3>8.2 create image</h3>
-<h3>8.3 generate Container</h3>
-<h3>8.4 CMD</h3>
-<h3>8.5 Release image</h3>
-<p>在 hub.docker.com 或 cloud.docker.com 注册一个账户。然后，用下面的命令登录。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker login</span><br></pre></td></tr></table></figure></p>
-<p>接着，为本地的 image 标注用户名和版本：</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker image tag [imageName] [username]/[repository]:[tag]</span><br><span class="line"><span class="comment"># 实例</span></span><br><span class="line">$ docker image tag koa-demos:0.0.1 ruanyf/koa-demos:0.0.1</span><br></pre></td></tr></table></figure></p>
-<p>也可以不标注用户名，重新构建一下 image 文件也是可以的:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker image build -t [username]/[repository]:[tag] .</span><br></pre></td></tr></table></figure></p>
-<p>最后，发布 image 文件:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker image push [username]/[repository]:[tag]</span><br></pre></td></tr></table></figure></p>
-<h2>9. other docker command</h2>
-<p>docker 的主要用法就是上面这些，此外还有几个命令，也非常有用</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker container start [containerID]</span><br><span class="line">docker container stop [containerID]</span><br><span class="line">docker container logs [containerID]</span><br><span class="line">docker container <span class="built_in">exec</span> [containerID]</span><br><span class="line">docker container cp [containerID]</span><br></pre></td></tr></table></figure></p>
-<h3>9.1 container start</h3>
-<blockquote>
-<p>命令是新建容器，每运行一次，就会新建一个容器。同样的命令运行两次，就会生成两个一模一样的容器文件。</p>
-</blockquote>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container start [containerID]</span><br></pre></td></tr></table></figure></p>
-<h3>9.2 container stop</h3>
-<p>docker container kill 命令终止容器运行，相当于向容器里面的主进程发出 SIGKILL 信号。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container <span class="built_in">kill</span> [containerID]</span><br></pre></td></tr></table></figure></p>
-<p>docker container stop 命令也是用来终止容器运行，相当于向容器里面的主进程发出 SIGTERM 信号，然后过一段时间再发出 SIGKILL 信号</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container stop [containerID]</span><br></pre></td></tr></table></figure></p>
-<h3>9.3 container logs</h3>
-<p>docker container logs 命令用来查看 docker 容器的输出，即容器里面 Shell 的标准输出。</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container logs [containerID]</span><br></pre></td></tr></table></figure></p>
-<h3>9.4 container exec</h3>
-<p>docker container exec 命令用于进入一个正在运行的 docker Container.</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container <span class="built_in">exec</span> -it [containerID] /bin/bash</span><br></pre></td></tr></table></figure></p>
-<h3>9.5 container cp</h3>
-<p>docker container cp 命令用于从正在运行的 Docker 容器里面，将文件拷贝到本机.</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ docker container cp [containID]:[/path/to/file] .</span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://www.ruanyifeng.com/blog/2018/02/docker-tutorial.html" target="_blank" rel="noopener">阮一峰: Docker 入门教程</a></li>
-<li><a href="http://www.ruanyifeng.com/blog/2018/02/docker-wordpress-tutorial.html" target="_blank" rel="noopener">阮一峰: Docker 微服务教程</a></li>
-<li><a href="https://hujb2000.gitbooks.io/docker-flow-evolution/content/cn/basis/dockerfiledetail.html" target="_blank" rel="noopener">Dockerfile文件详解</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/45610616" target="_blank" rel="noopener">Docker 容器从入门到入魔</a></li>
-<li><a href="https://coolshell.cn/articles/18190.html" target="_blank" rel="noopener">GO语言、DOCKER 和新技术</a></li>
-</ul>
-
+        <img src="/images/devops/docker-1.1.jpg" width="550" alt="Docker" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/07/devops/docker-tutorial/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1858,130 +913,12 @@ output:</p>
 	
     <div class="article-entry" itemprop="articleBody">
       
-        <p>&lt;img src=&quot;/images/python/WSGI/WSGI-1.jpg&quot; width=&quot;550&quot; alt=&quot;WSGI&quot; /&gt;</p>
-<p>&lt;!-- more --&gt;</p>
-<p><strong>Web应用程序的本质</strong>:</p>
-<p>User 通过 浏览器 访问 互联网上指定的 网页文件 展示到浏览器上。</p>
-<p>&lt;img src=&quot;/images/python/WSGI/WSGI-2.png&quot; width=&quot;600&quot; alt=&quot;WSGI&quot; /&gt;</p>
-<p>技术角度，以下3个步骤：</p>
-<ul>
-<li>浏览器，将要请求的内容按照HTTP协议发送服务端</li>
-<li>服务端，根据请求内容找到指定的HTML页面</li>
-<li>浏览器，解析请求到的HTML内容展示出来</li>
-</ul>
-<p><a href="https://zhuanlan.zhihu.com/p/66144617" target="_blank" rel="noopener">WEB开发——Python WSGI协议详解</a></p>
-<h2>1. Web DEV</h2>
-<ol>
-<li>静态开发</li>
-<li>动态开发</li>
-</ol>
-<p><strong>动态开发</strong></p>
-<ol>
-<li>CGI</li>
-<li>WSGI</li>
-</ol>
-<p><strong>CGI 流程</strong></p>
-<p>&lt;img src=&quot;/images/python/WSGI/WSGI-3.png&quot; width=&quot;650&quot; alt=&quot;CGI 流程&quot; /&gt;</p>
-<p><strong>WSGI 流程</strong></p>
-<p>&lt;img src=&quot;/images/python/WSGI/WSGI-4.png&quot; width=&quot;550&quot; alt=&quot;WSGI 流程&quot; /&gt;</p>
-<h2>2. What's WSGI</h2>
-<p>WSGI全称是Web Server Gateway Interface，其主要作用是Web服务器与Python Web应用程序或框架之间的建议标准接口，以促进跨各种Web服务器的Web应用程序可移植性。</p>
-<p>WSGI 协议 分成三个组件 Application、Server、Middleware 和 协议中传输的内容。</p>
-<ol>
-<li>Application：Django，Flask等</li>
-<li>Server：常用的有uWSGI，gunicorn等</li>
-<li>Middleware： Flask等框架中的装饰器</li>
-</ol>
-<h3>2.1 Application</h3>
-<p>应用程序，是一个可重复调用的可调用对象，在Python中可以是一个函数，也可以是一个类，如果是类的话要实现__call__方法，要求这个可调用对象接收2个参数，返回一个内容结果。</p>
-<h3>2.2 Server</h3>
-<p>Web服务器，主要是实现相应的信息转换，将网络请求中的信息，按照HTTP协议将内容拿出，同时按照WSGI协议组装成新的数据，同时将提供的start_response传递给Application。最后接收Application返回的内容，按照WSGI协议解析出。最终按照HTTP协议组织好内容返回就完成了一次请求。</p>
-<h3>2.3 Middleware</h3>
-<p>Middleware 中间件，可以理解为对应用程序的一组装饰器。</p>
-<blockquote>
-<p>在 Application 端看来，它可以提供一个类start_response函数，可以像start_response函数一样接收HTTP STATU和Headers；和environ。</p>
-<p>在 Server 看来，他可以接收2个参数，并且可以返回一个类 Application对象。</p>
-</blockquote>
-<h3>2.4 总结</h3>
-<p>WSGI 对于 application 对象有如下三点要求</p>
-<ul>
-<li>必须是一个可调用的对象</li>
-<li>接收两个必选参数 environ、start_response。</li>
-<li>返回值必须是可迭代对象，用来表示 http body。</li>
-</ul>
-<h2>3. Python Web 应用是什么?</h2>
-<p>一个 Python Web 应用包含两个部分：</p>
-<ul>
-<li>应用的开发：实现 Web 应用的逻辑，读数据库，拼装页面，用户登录</li>
-<li>应用的部署：将 Web 应用跑起来，多线程，多进程，异步，监听端口，所有服务器该做的事情</li>
-</ul>
-<blockquote>
-<p>我们希望用各种不同的技术来开发应用，用各种不同的服务器程序来跑应用.</p>
-<p>这就要求 开发 和 部署 遵循统一的 通信接口，这接口叫 Web Server Gateway Interface，简称“WSGI”。</p>
-</blockquote>
-<p>WSGI 接口 就是一个满足特定要求的函数</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">application</span><span class="params">(environ, start_response)</span>:</span></span><br><span class="line">    “”“</span><br><span class="line">    environ：包含所有 HTTP 请求信息的 dict</span><br><span class="line">    start_response：发送 HTTP 响应的函数</span><br><span class="line">    ”“”</span><br><span class="line">    start_response(<span class="string">'200 OK'</span>, [(<span class="string">'Content-Type'</span>, <span class="string">'text/html'</span>)])</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'&lt;h1&gt;Hello, web!&lt;/h1&gt;'</span></span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>WSGI 完整说明：<a href="https://www.python.org/dev/peps/pep-3333/" target="_blank" rel="noopener">PEP 333 : Python Web Server Gateway Interface v1.0.1</a>
-WSGI 简单说明： <a href="https://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001386832689740b04430a98f614b6da89da2157ea3efe2000" target="_blank" rel="noopener">廖雪峰的官方网站</a>
-Py Web 应用概览：<a href="http://pythonguidecn.readthedocs.io/zh/latest/scenarios/web.html" target="_blank" rel="noopener">The Hitchhiker's Guide To Python</a></p>
-</blockquote>
-<h2>4. Flask Web 应用开发</h2>
-<p>基本形态：URL 路由，获取请求，构造响应</p>
-<blockquote>
-<p>Flask 作为一个 Web 框架，它遵循 WSGI 接口，并且在其之上整合了 Werkzeug 的 URL 路由以及 WSGI 工具库，SQLAlchemy 的数据库访问，jinja2 的模版渲染等功能。</p>
-</blockquote>
-<p><a href="https://github.com/pallets/flask/blob/master/flask/app.py" target="_blank" rel="noopener">app 对象实现了 WSGI 接口</a></p>
-<blockquote>
-<p><a href="https://heleifz.github.io/15013781349463.html" target="_blank" rel="noopener">Flask，从简单开始</a></p>
-</blockquote>
-<h2>5. Flask-RESTPlus</h2>
-<p>Flask-RESTPlus 是对Flask的扩展，它增加了对快速开发REST API的支持.</p>
-<p>Flask-RESTPlus 鼓励以最小的设置来实现功能的开发.</p>
-<p>Flask-RESTPlus 既包含 <strong>Flask-Restful</strong>包 的功能，又包括 <strong>swagger</strong> 文档化功能（其实是封装了swagger）.</p>
-<h3>5.1 quickstart hello</h3>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask_restplus <span class="keyword">import</span> Api</span><br><span class="line"></span><br><span class="line"><span class="comment"># Flask实例</span></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 在使用Flask-RESTPlus之前，需要通过传入Flask实例进行初始化, 进行初始化.</span></span><br><span class="line"></span><br><span class="line">api = Api(app)</span><br></pre></td></tr></table></figure></p>
-<p>最简单的打开 Flask-RESTPlus, API 示例:</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># file:simple_api.py</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask_restplus <span class="keyword">import</span> Resource, Api</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">api = Api(app)</span><br><span class="line"></span><br><span class="line"><span class="meta">@api.route('/hello')</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HelloWorld</span><span class="params">(Resource)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> &#123;<span class="string">'hello'</span>: <span class="string">'world'</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app.run(debug=<span class="literal">True</span>) <span class="comment"># 开启了Flask的调试模式</span></span><br><span class="line">    </span><br><span class="line"><span class="comment">#    生产环境绝对不要开启调试模式，因为它会使你的后台服务处于被攻击的风险之中！</span></span><br></pre></td></tr></table></figure></p>
-<p>run <code>➜ python simple_api.py</code> , then:</p>
-<p>http://localhost:5000/hello：</p>
-<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">&quot;hello&quot;: &quot;world&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<h3>5.2 Resourceful Routing</h3>
-<p>通过在资源上定义方法来很容易地访问多个 HTTP 方法.</p>
-<p><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request</span><br><span class="line"><span class="keyword">from</span> flask_restplus <span class="keyword">import</span> Resource, Api</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">api = Api(app)</span><br><span class="line"></span><br><span class="line">todos = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@api.route('/&lt;string:todo_id&gt;')</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TodoSimple</span><span class="params">(Resource)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, todo_id)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> &#123;todo_id: todos[todo_id]&#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">put</span><span class="params">(self, todo_id)</span>:</span></span><br><span class="line">        todos[todo_id] = request.form[<span class="string">'data'</span>]</span><br><span class="line">        <span class="keyword">return</span> &#123;todo_id: todos[todo_id]&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app.run(debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure></p>
-<h3>5.3 Endpoints</h3>
-<p>大多数情况下，某个资源都会有多个URL。</p>
-<p>我们可以用 route()装饰器 中传入多个URL，这样每个URL都将会路由到该资源上.</p>
-<h3>5.4 Data Formatting</h3>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask_restplus <span class="keyword">import</span> fields, Api, Resource</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">api = Api(app)</span><br><span class="line"></span><br><span class="line">model = api.model(<span class="string">'Model'</span>, &#123;</span><br><span class="line">    <span class="string">'task'</span>: fields.String,</span><br><span class="line">    <span class="string">'uri'</span>: fields.Url(<span class="string">'todo_ep'</span>,absolute=<span class="literal">True</span>) <span class="comment"># absolute参数表示生成的url是否是绝对路径</span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TodoDao</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self, todo_id, task)</span>:</span></span><br><span class="line">        self.todo_id = todo_id</span><br><span class="line">        self.task = task</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 该字段不会发送到响应结果中</span></span><br><span class="line">        self.status = <span class="string">'active'</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@api.route('/todo',endpoint='todo_ep')</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Todo</span><span class="params">(Resource)</span>:</span></span><br><span class="line"><span class="meta">    @api.marshal_with(model)</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, **kwargs)</span>:</span></span><br><span class="line">        <span class="keyword">return</span> TodoDao(todo_id=<span class="string">'my_todo'</span>, task=<span class="string">'Remember the milk'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app.run(debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure></p>
-<blockquote>
-<p>marshal_with()装饰器就是用来对结果按照model的结构进行转换的.</p>
-</blockquote>
-<p><a href="http://flask-restplus.readthedocs.io/en/stable/quickstart.html" target="_blank" rel="noopener">flask-restplus quickstart</a>
-<a href="http://flask-restplus.readthedocs.io/en/stable/example.html" target="_blank" rel="noopener">flask-restplus example.html</a></p>
-<h3>5.5 Order Preservation</h3>
-<ul>
-<li>Api全局保留：api = Api(ordered = True)</li>
-<li>Namespace全局保留：ns = Namespace(ordered=True)</li>
-<li>marshal()局部保留：return marshal(data, fields, ordered=True)</li>
-</ul>
-<h3>5.6 Full example</h3>
-<p><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask</span><br><span class="line"><span class="keyword">from</span> flask_restplus <span class="keyword">import</span> Api, Resource, fields</span><br><span class="line"><span class="keyword">from</span> werkzeug.contrib.fixers <span class="keyword">import</span> ProxyFix</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line">app.wsgi_app = ProxyFix(app.wsgi_app)</span><br><span class="line"></span><br><span class="line">api = Api(app, version=<span class="string">'1.0'</span>, title=<span class="string">'TodoMVC API'</span>,</span><br><span class="line">    description=<span class="string">'A simple TodoMVC API'</span>,</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义命名空间</span></span><br><span class="line">ns = api.namespace(<span class="string">'todos'</span>, description=<span class="string">'TODO operations'</span>)</span><br><span class="line"></span><br><span class="line">todo = api.model(<span class="string">'Todo'</span>, &#123;</span><br><span class="line">    <span class="string">'id'</span>: fields.Integer(readOnly=<span class="literal">True</span>, description=<span class="string">'The task unique identifier'</span>),</span><br><span class="line">    <span class="string">'task'</span>: fields.String(required=<span class="literal">True</span>, description=<span class="string">'The task details'</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># DAO</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TodoDAO</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.counter = <span class="number">0</span></span><br><span class="line">        self.todos = []</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, id)</span>:</span></span><br><span class="line">        <span class="keyword">for</span> todo <span class="keyword">in</span> self.todos:</span><br><span class="line">            <span class="keyword">if</span> todo[<span class="string">'id'</span>] == id:</span><br><span class="line">                <span class="keyword">return</span> todo</span><br><span class="line">        api.abort(<span class="number">404</span>, <span class="string">"Todo &#123;&#125; doesn't exist"</span>.format(id))</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">create</span><span class="params">(self, data)</span>:</span></span><br><span class="line">        todo = data</span><br><span class="line">        todo[<span class="string">'id'</span>] = self.counter = self.counter + <span class="number">1</span></span><br><span class="line">        self.todos.append(todo)</span><br><span class="line">        <span class="keyword">return</span> todo</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">update</span><span class="params">(self, id, data)</span>:</span></span><br><span class="line">        todo = self.get(id)</span><br><span class="line">        todo.update(data)</span><br><span class="line">        <span class="keyword">return</span> todo</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(self, id)</span>:</span></span><br><span class="line">        todo = self.get(id)</span><br><span class="line">        self.todos.remove(todo)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">DAO = TodoDAO()</span><br><span class="line">DAO.create(&#123;<span class="string">'task'</span>: <span class="string">'Build an API'</span>&#125;)</span><br><span class="line">DAO.create(&#123;<span class="string">'task'</span>: <span class="string">'?????'</span>&#125;)</span><br><span class="line">DAO.create(&#123;<span class="string">'task'</span>: <span class="string">'profit!'</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对 all todo 操作</span></span><br><span class="line"><span class="meta">@ns.route('/')</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TodoList</span><span class="params">(Resource)</span>:</span></span><br><span class="line">    <span class="string">'''获取所有todos元素，并允许通过POST来添加新的task'''</span></span><br><span class="line"><span class="meta">    @ns.doc('list_todos')</span></span><br><span class="line"><span class="meta">    @ns.marshal_list_with(todo)</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">'''返回所有task'''</span></span><br><span class="line">        <span class="keyword">return</span> DAO.todos</span><br><span class="line"></span><br><span class="line"><span class="meta">    @ns.doc('create_todo')</span></span><br><span class="line"><span class="meta">    @ns.expect(todo)</span></span><br><span class="line"><span class="meta">    @ns.marshal_with(todo, code=201)</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">post</span><span class="params">(self)</span>:</span></span><br><span class="line">        <span class="string">'''创建一个新的task'''</span></span><br><span class="line">        <span class="keyword">return</span> DAO.create(api.payload), <span class="number">201</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 对其中 某个id 的 实体 操作</span></span><br><span class="line"><span class="meta">@ns.route('/&lt;int:id&gt;')</span></span><br><span class="line"><span class="meta">@ns.response(404, 'Todo not found')</span></span><br><span class="line"><span class="meta">@ns.param('id', 'The task identifier')</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Todo</span><span class="params">(Resource)</span>:</span></span><br><span class="line">    <span class="string">'''获取单个todo项，并允许删除操作'''</span></span><br><span class="line"><span class="meta">    @ns.doc('get_todo')</span></span><br><span class="line"><span class="meta">    @ns.marshal_with(todo)</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">get</span><span class="params">(self, id)</span>:</span></span><br><span class="line">        <span class="string">'''获取id指定的todo项'''</span></span><br><span class="line">        <span class="keyword">return</span> DAO.get(id)</span><br><span class="line"></span><br><span class="line"><span class="meta">    @ns.doc('delete_todo')</span></span><br><span class="line"><span class="meta">    @ns.response(204, 'Todo deleted')</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">delete</span><span class="params">(self, id)</span>:</span></span><br><span class="line">        <span class="string">'''根据id删除对应的task'''</span></span><br><span class="line">        DAO.delete(id)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">''</span>, <span class="number">204</span></span><br><span class="line"></span><br><span class="line"><span class="meta">    @ns.expect(todo)</span></span><br><span class="line"><span class="meta">    @ns.marshal_with(todo)</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">put</span><span class="params">(self, id)</span>:</span></span><br><span class="line">        <span class="string">'''更新id指定的task'''</span></span><br><span class="line">        <span class="keyword">return</span> DAO.update(id, api.payload)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    app.run(debug=<span class="literal">True</span>)</span><br></pre></td></tr></table></figure></p>
-<p>get all</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl <span class="string">"http://localhost:5000/todos/"</span></span><br></pre></td></tr></table></figure></p>
-<p>get id</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -X GET <span class="string">"http://localhost:5000/todos/1"</span> -H <span class="string">"accept: application/json"</span></span><br></pre></td></tr></table></figure></p>
-<p>delete:</p>
-<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -X DELETE <span class="string">"http://localhost:5000/todos/2"</span> -H <span class="string">"accept: application/json"</span></span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://zhuanlan.zhihu.com/p/68676316" target="_blank" rel="noopener">花了两个星期，我终于把 WSGI 整明白了</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/46983059" target="_blank" rel="noopener">尝试理解Flask源码 之 搞懂WSGI协议</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/66144617" target="_blank" rel="noopener">WEB开发——Python WSGI协议详解</a></li>
-<li><a href="https://heleifz.github.io/15013781349463.html" target="_blank" rel="noopener">Flask，从简单开始</a></li>
-<li><a href="https://www.cnblogs.com/leejack/p/9160818.html" target="_blank" rel="noopener">HackHan技术博客:【Flask-RESTPlus系列】Flask-RESTPlus系列译文开篇</a></li>
-</ul>
-
+        <img src="/images/python/WSGI/WSGI-1.jpg" width="550" alt="WSGI" />
+         
+          <p class="article-more-link">
+            <a href="/2019/10/06/python/README/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -2044,13 +981,11 @@ Py Web 应用概览：<a href="http://pythonguidecn.readthedocs.io/zh/latest/sce
     <div class="article-entry" itemprop="articleBody">
       
         <p><a href="https://zhuanlan.zhihu.com/p/59507137" target="_blank" rel="noopener">知乎：最全Tensorflow2.0 入门教程持续更新</a></p>
-<p>&lt;!-- more --&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">tensorflow.org</a></li>
-<li><a href="https://zhuanlan.zhihu.com/p/59507137" target="_blank" rel="noopener">知乎：最全Tensorflow2.0 入门教程持续更新</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2019/09/05/tensorflow/tf2.0-1-keras/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -2113,57 +1048,11 @@ Py Web 应用概览：<a href="http://pythonguidecn.readthedocs.io/zh/latest/sce
     <div class="article-entry" itemprop="articleBody">
       
         <p>RNN, Recurrent Neural Networks 进行分类（classification），采用 MNIST 数据集，用 SimpleRNN 层。</p>
-<p>&lt;!-- more --&gt;</p>
-<p>&lt;img src=&quot;/images/tensorflow/keras-lstm1.png&quot; width=&quot;550&quot; alt=&quot;LSTM in Keras&quot;/&gt;</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">np.random.seed(<span class="number">1337</span>)  <span class="comment"># for reproducibility</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> keras.datasets <span class="keyword">import</span> mnist</span><br><span class="line"><span class="keyword">from</span> keras.utils <span class="keyword">import</span> np_utils</span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> SimpleRNN, Activation, Dense</span><br><span class="line"><span class="keyword">from</span> keras.optimizers <span class="keyword">import</span> Adam</span><br><span class="line"></span><br><span class="line">TIME_STEPS = <span class="number">28</span>     <span class="comment"># same as the height of the image</span></span><br><span class="line"></span><br><span class="line">INPUT_SIZE = <span class="number">28</span>     <span class="comment"># same as the width of the image</span></span><br><span class="line"></span><br><span class="line">BATCH_SIZE = <span class="number">50</span></span><br><span class="line">BATCH_INDEX = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">OUTPUT_SIZE = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">CELL_SIZE = <span class="number">50</span></span><br><span class="line"></span><br><span class="line">LR = <span class="number">0.001</span></span><br></pre></td></tr></table></figure></p>
-<h2>1. data pre-processing</h2>
-<p>MNIST里面的图像分辨率是28×28，为用RNN，将图像理解为序列化数据。</p>
-<p>每一行作为一个输入单元，所以输入数据大小 <strong><code>INPUT_SIZE = 28</code></strong>；</p>
-<p>先是第1行输入，再是第2行，…，第28行输入， 这就是一张图片也就是一个序列，所以步长 <strong><code>TIME_STEPS = 28</code></strong>。</p>
-<p>训练数据要进行 normalize，因为原始数据是 8bit 灰度图像, 所以需要除以 255。</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># download the mnist to the path '~/.keras/datasets/' if it is the first time to be called</span></span><br><span class="line"><span class="comment"># X shape (60,000 28x28), y shape (10,000, )</span></span><br><span class="line">(X_train, y_train), (X_test, y_test) = mnist.load_data()</span><br><span class="line"></span><br><span class="line"><span class="comment"># data pre-processing</span></span><br><span class="line">X_train = X_train.reshape(<span class="number">-1</span>, <span class="number">28</span>, <span class="number">28</span>) / <span class="number">255.</span>      <span class="comment"># normalize</span></span><br><span class="line">X_test = X_test.reshape(<span class="number">-1</span>, <span class="number">28</span>, <span class="number">28</span>) / <span class="number">255.</span>        <span class="comment"># normalize</span></span><br><span class="line"></span><br><span class="line">y_train = np_utils.to_categorical(y_train, num_classes=<span class="number">10</span>)</span><br><span class="line">y_test = np_utils.to_categorical(y_test, num_classes=<span class="number">10</span>)</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(X_train.shape)</span><br><span class="line">print(y_train.shape)</span><br><span class="line"></span><br><span class="line">(<span class="number">60000</span>, <span class="number">28</span>, <span class="number">28</span>)</span><br><span class="line">(<span class="number">60000</span>, <span class="number">10</span>)</span><br></pre></td></tr></table></figure></p>
-<h2>2. build model</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># build RNN model</span></span><br><span class="line">model = Sequential()</span><br><span class="line"></span><br><span class="line"><span class="comment"># RNN cell</span></span><br><span class="line">model.add(SimpleRNN(</span><br><span class="line">    <span class="comment"># for batch_input_shape, if using tensorflow as the backend, we have to put None for the batch_size.</span></span><br><span class="line">    <span class="comment"># Otherwise, model.evaluate() will get error.</span></span><br><span class="line">    batch_input_shape=(<span class="literal">None</span>, TIME_STEPS, INPUT_SIZE),       <span class="comment"># Or: input_dim=INPUT_SIZE, input_length=TIME_STEPS,</span></span><br><span class="line">    output_dim=CELL_SIZE,</span><br><span class="line">    unroll=<span class="literal">True</span>,</span><br><span class="line">))</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># output layer</span></span><br><span class="line">model.add(Dense(OUTPUT_SIZE))</span><br><span class="line">model.add(Activation(<span class="string">'softmax'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># optimizer</span></span><br><span class="line">adam = Adam(LR)</span><br><span class="line">model.compile(optimizer=adam,</span><br><span class="line">              loss=<span class="string">'categorical_crossentropy'</span>,</span><br><span class="line">              metrics=[<span class="string">'accuracy'</span>])</span><br><span class="line"></span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure></p>
-<pre><code>_________________________________________________________________
-Layer (type)                 Output Shape              Param #   
-=================================================================
-simple_rnn_1 (SimpleRNN)     (None, 50)                3950      
-_________________________________________________________________
-dense_1 (Dense)              (None, 10)                510       
-_________________________________________________________________
-activation_1 (Activation)    (None, 10)                0         
-_________________________________________________________________
-dense_2 (Dense)              (None, 10)                110       
-_________________________________________________________________
-activation_2 (Activation)    (None, 10)                0         
-=================================================================
-Total params: 4,570
-Trainable params: 4,570
-Non-trainable params: 0
-_________________________________________________________________
-</code></pre>
-<p>设置优化方法，loss函数 和 <code>metrics</code> 方法之后就可以开始训练了。 每次训练的时候并不是取所有的数据，只是取 <code>BATCH_SIZE</code>个序列，或者称为 <code>BATCH_SIZE</code> 张图片，这样可以大大降低运算时间，提高训练效率。</p>
-<h2>3. training &amp; evaluate</h2>
-<p>输出 test 上的 <strong><code>loss</code></strong> 和 <strong><code>accuracy</code></strong> 结果</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># training</span></span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> range(<span class="number">4001</span>):</span><br><span class="line">    <span class="comment"># data shape = (batch_num, steps, inputs/outputs)</span></span><br><span class="line">    </span><br><span class="line">    X_batch = X_train[BATCH_INDEX: BATCH_INDEX+BATCH_SIZE, :, :]</span><br><span class="line">    Y_batch = y_train[BATCH_INDEX: BATCH_INDEX+BATCH_SIZE, :]</span><br><span class="line">    </span><br><span class="line">    cost = model.train_on_batch(X_batch, Y_batch)</span><br><span class="line">    </span><br><span class="line">    BATCH_INDEX += BATCH_SIZE</span><br><span class="line">    BATCH_INDEX = <span class="number">0</span> <span class="keyword">if</span> BATCH_INDEX &gt;= X_train.shape[<span class="number">0</span>] <span class="keyword">else</span> BATCH_INDEX</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> step % <span class="number">500</span> == <span class="number">0</span>:</span><br><span class="line">        cost, accuracy = model.evaluate(X_test, y_test, batch_size=y_test.shape[<span class="number">0</span>], verbose=<span class="literal">False</span>)</span><br><span class="line">        print(<span class="string">'test cost: '</span>, cost, <span class="string">'test accuracy: '</span>, accuracy)</span><br></pre></td></tr></table></figure></p>
-<pre><code>test cost:  2.311124086380005 test accuracy:  0.0957999974489212
-test cost:  1.6327736377716064 test accuracy:  0.5228999853134155
-test cost:  1.3161704540252686 test accuracy:  0.559499979019165
-test cost:  1.1487971544265747 test accuracy:  0.5494999885559082
-test cost:  1.0471760034561157 test accuracy:  0.5713000297546387
-test cost:  1.0110148191452026 test accuracy:  0.5630999803543091
-test cost:  0.9520753622055054 test accuracy:  0.5877000093460083
-test cost:  0.8796814680099487 test accuracy:  0.604200005531311
-test cost:  0.858435869216919 test accuracy:  0.6585999727249146
-</code></pre>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://keras-cn.readthedocs.io/en/latest/backend/" target="_blank" rel="noopener">keras-cn</a>、 <a href="https://keras.io/" target="_blank" rel="noopener">keras.io</a></li>
-<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/keras/" target="_blank" rel="noopener">莫烦 Keras</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2019/08/22/tensorflow/keras-1.5-RNN/">Read More</a>
+          </p> 
+        
       
     </div>
 	

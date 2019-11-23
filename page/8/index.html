@@ -110,39 +110,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Sklearn 中的 <code>Cross-validation</code> 对于我们选择正确的 <code>Model</code> 和 <code>Model 的参数</code>是非常有用， 有了它我们能直观的看出不同 Model 或者参数对结构准确度的影响。</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>Model 基础验证法</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_iris <span class="comment"># iris数据集</span></span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split <span class="comment"># 分割数据模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.neighbors <span class="keyword">import</span> KNeighborsClassifier <span class="comment"># K最近邻(kNN，k-NearestNeighbor)分类算法</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#加载iris数据集</span></span><br><span class="line">iris = load_iris()</span><br><span class="line">X = iris.data</span><br><span class="line">y = iris.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#分割数据并</span></span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=<span class="number">4</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#建立模型</span></span><br><span class="line">knn = KNeighborsClassifier()</span><br><span class="line"></span><br><span class="line"><span class="comment">#训练模型</span></span><br><span class="line">knn.fit(X_train, y_train)</span><br><span class="line"></span><br><span class="line"><span class="comment">#将准确率打印出</span></span><br><span class="line">print(knn.score(X_test, y_test))</span><br></pre></td></tr></table></figure></p>
-<pre><code>0.973684210526
-</code></pre>
-<p>可以看到基础验证的准确率为 <code>0.973684210526</code></p>
-<h2>Model Cross Validation</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.cross_validation <span class="keyword">import</span> cross_val_score <span class="comment"># K折交叉验证模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#使用K折交叉验证模块</span></span><br><span class="line">scores = cross_val_score(knn, X, y, cv=<span class="number">5</span>, scoring=<span class="string">'accuracy'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#将5次的预测准确率打印出</span></span><br><span class="line">print(scores)</span><br><span class="line"></span><br><span class="line"><span class="comment">#将5次的预测准确平均率打印出</span></span><br><span class="line">print(scores.mean())</span><br></pre></td></tr></table></figure></p>
-<pre><code>[ 0.96666667  1.          0.93333333  0.96666667  1.        ]
-0.973333333333
-</code></pre>
-<p>可以看到交叉验证的准确平均率为 <code>0.973333333333</code></p>
-<h2>Aaccuracy 准确率判断</h2>
-<p>一般来说 <code>准确率(accuracy)</code> 会用于判断分类(Classification)模型的好坏</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span class="comment">#可视化模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#建立测试参数集</span></span><br><span class="line">k_range = range(<span class="number">1</span>, <span class="number">31</span>)</span><br><span class="line"></span><br><span class="line">k_scores = []</span><br><span class="line"></span><br><span class="line"><span class="comment">#藉由迭代的方式来计算不同参数对模型的影响，并返回交叉验证后的平均准确率</span></span><br><span class="line"><span class="keyword">for</span> k <span class="keyword">in</span> k_range:</span><br><span class="line">    knn = KNeighborsClassifier(n_neighbors=k)</span><br><span class="line">    scores = cross_val_score(knn, X, y, cv=<span class="number">10</span>, scoring=<span class="string">'accuracy'</span>)</span><br><span class="line">    k_scores.append(scores.mean())</span><br><span class="line"></span><br><span class="line"><span class="comment">#可视化数据</span></span><br><span class="line">plt.plot(k_range, k_scores)</span><br><span class="line">plt.xlabel(<span class="string">'Value of K for KNN'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Cross-Validated Accuracy'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-6-cross-validation-1-output_6_0.png&quot; width=&quot;400&quot; /&gt;
-&lt;/div&gt;</p>
-<p>从图中得知，选择 <code>12~18</code> 的 <code>k</code> 值最好。高过 <code>18</code> 之后，准确率开始下降则是因为过拟合(<code>Over fitting</code>)的问题。</p>
-<h2>Mean squared error</h2>
-<p>一般来说平均方差(<code>Mean squared error</code>)会用于判断回归(<code>Regression</code>)模型的好坏</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line">k_range = range(<span class="number">1</span>, <span class="number">31</span>)</span><br><span class="line">k_scores = []</span><br><span class="line"><span class="keyword">for</span> k <span class="keyword">in</span> k_range:</span><br><span class="line">    knn = KNeighborsClassifier(n_neighbors=k)</span><br><span class="line">    loss = -cross_val_score(knn, X, y, cv=<span class="number">10</span>, scoring=<span class="string">'mean_squared_error'</span>)</span><br><span class="line">    k_scores.append(loss.mean())</span><br><span class="line"></span><br><span class="line">plt.plot(k_range, k_scores)</span><br><span class="line">plt.xlabel(<span class="string">'Value of K for KNN'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Cross-Validated MSE'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-6-cross-validation-1-output_8_1.png&quot; width=&quot;400&quot; /&gt;
-&lt;/div&gt;</p>
-<p>由图可以得知，平均方差越低越好，因此选择<code>13~18</code>左右的<code>K</code>值会最好</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/08/python/sklearn/py-sklearn-6-cross-validation-1/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -205,36 +177,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Data Normalization 可以提升机器学习的成效</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>Normalization</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> preprocessing <span class="comment">#标准化数据模块</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 建立Array</span></span><br><span class="line">a = np.array([[<span class="number">10</span>, <span class="number">2.7</span>, <span class="number">3.6</span>],</span><br><span class="line">              [<span class="number">-100</span>, <span class="number">5</span>, <span class="number">-2</span>],</span><br><span class="line">              [<span class="number">120</span>, <span class="number">20</span>, <span class="number">40</span>]], dtype=np.float64)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将normalized后的a打印出</span></span><br><span class="line">print(preprocessing.scale(a))</span><br></pre></td></tr></table></figure></p>
-<pre><code>[[ 0.         -0.85170713 -0.55138018]
- [-1.22474487 -0.55187146 -0.852133  ]
- [ 1.22474487  1.40357859  1.40351318]]
-</code></pre>
-<h2>Normalization 对结果的影响</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 标准化数据模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> preprocessing </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将资料分割成train与test的模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成适合做classification资料的模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.datasets.samples_generator <span class="keyword">import</span> make_classification </span><br><span class="line"></span><br><span class="line"><span class="comment"># Support Vector Machine中的Support Vector Classifier</span></span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC </span><br><span class="line"></span><br><span class="line"><span class="comment"># 可视化数据的模块</span></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure></p>
-<h3>生成适合做 Classification 数据</h3>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 生成具有2种属性的300笔数据</span></span><br><span class="line">X, y = make_classification(</span><br><span class="line">    n_samples=<span class="number">300</span>, n_features=<span class="number">2</span>,</span><br><span class="line">    n_redundant=<span class="number">0</span>, n_informative=<span class="number">2</span>, </span><br><span class="line">    random_state=<span class="number">22</span>, n_clusters_per_class=<span class="number">1</span>, </span><br><span class="line">    scale=<span class="number">100</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># n_features 特征个数 = n_informative（） + n_redundant + n_repeated</span></span><br><span class="line"><span class="comment"># n_informative 多信息特征的个数</span></span><br><span class="line"><span class="comment"># n_redundant 冗余信息，informative 特征的随机线性组合</span></span><br><span class="line"><span class="comment"># n_classes 分类类别</span></span><br><span class="line"><span class="comment"># n_clusters_per_class 某一个类别是由几个 cluster 构成的</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#可视化数据</span></span><br><span class="line">plt.scatter(X[:, <span class="number">0</span>], X[:, <span class="number">1</span>], c=y)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-5-normalization-output_5_0.png&quot; width=&quot;400&quot; /&gt;
-&lt;/div&gt;</p>
-<h3>data normalization before</h3>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.3</span>)</span><br><span class="line">clf = SVC()</span><br><span class="line">clf.fit(X_train, y_train)</span><br><span class="line">print(clf.score(X_test, y_test))</span><br></pre></td></tr></table></figure></p>
-<pre><code>0.477777777778
-</code></pre>
-<h3>data normalization after</h3>
-<p>数据的单位发生了变化, <code>X</code> 数据也被压缩到差不多大小范围.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">X = preprocessing.scale(X)</span><br><span class="line">X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="number">0.3</span>)</span><br><span class="line">clf = SVC()</span><br><span class="line">clf.fit(X_train, y_train)</span><br><span class="line">print(clf.score(X_test, y_test))</span><br><span class="line"><span class="comment"># 0.9</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>0.933333333333
-</code></pre>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/06/python/sklearn/py-sklearn-5-normalization/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -297,50 +244,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Sklearn 把所有机器学习的模式整合统一起来了，学会了一个模式就可以通吃其他不同类型的学习模式</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>使用分类器</h2>
-<p>Sklearn 本身就有很多数据库，可以用来练习。 以 Iris 的数据为例，这种花有四个属性，花瓣的长宽，茎的长宽，根据这些属性把花分为三类。</p>
-<p>我们要用 分类器 去把四种类型的花分开。</p>
-<p><img src="/images/python/sklearn-2-general-learning-model.png" alt=""></p>
-<p>今天用 <code>KNN classifier</code>，就是选择几个临近点，综合它们做个平均来作为预测值</p>
-<h2>导入模块</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets</span><br><span class="line"><span class="keyword">from</span> sklearn.model_selection <span class="keyword">import</span> train_test_split</span><br><span class="line"><span class="keyword">from</span> sklearn.neighbors <span class="keyword">import</span> KNeighborsClassifier</span><br></pre></td></tr></table></figure></p>
-<h2>创建数据</h2>
-<p>加载 <code>iris</code> 的数据，把属性存在 <code>X</code>，类别标签存在 <code>y</code>：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">iris = datasets.load_iris()</span><br><span class="line"></span><br><span class="line">iris_X = iris.data</span><br><span class="line">iris_y = iris.target</span><br></pre></td></tr></table></figure></p>
-<p>观察一下数据集，<code>X</code> 有四个属性，<code>y</code> 有 <code>0</code>，<code>1</code>，<code>2</code> 三类：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(iris_X[:<span class="number">2</span>, :])</span><br><span class="line">print(iris_y)</span><br></pre></td></tr></table></figure></p>
-<pre><code>[[ 5.1  3.5  1.4  0.2]
- [ 4.9  3.   1.4  0.2]]
-[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
- 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
- 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 2 2 2 2 2 2 2 2 2 2
- 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2 2
- 2 2]
-</code></pre>
-<p>把数据集分为训练集和测试集，其中 <code>test_size=0.3</code>，即测试集占总数据的 30%：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">X_train, X_test, y_train, y_test = train_test_split(iris_X, iris_y, test_size=<span class="number">0.3</span>)</span><br></pre></td></tr></table></figure></p>
-<p>可以看到分开后的数据集，顺序也被打乱，这样更有利于学习模型：</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(y_train)</span><br></pre></td></tr></table></figure></p>
-<pre><code>[0 0 2 2 1 0 2 0 1 1 0 2 1 2 2 0 0 1 0 1 0 2 1 1 1 2 2 1 0 0 2 2 2 2 2 1 0
- 0 0 0 1 2 1 2 1 0 2 1 2 2 2 1 0 1 2 1 0 0 2 1 1 0 2 2 0 2 1 0 0 2 0 0 0 1
- 2 0 1 1 2 2 0 1 0 2 2 0 1 0 0 1 2 1 1 2 2 1 1 0 0 2 0 0 1 1 0]
-</code></pre>
-<h2>建立模型－训练－预测</h2>
-<p>定义模块方式 <code>KNeighborsClassifier()</code>， 用 <code>fit</code> 来训练 <code>training data</code>，这一步就完成了训练的所有步骤， 后面的 <code>knn</code> 就已经是训练好的模型，可以直接用来 <code>predict</code> 测试集的数据， 对比用模型预测的值与真实的值，可以看到大概模拟出了数据，但是有误差，是不会完完全全预测正确的</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">knn = KNeighborsClassifier()</span><br><span class="line">knn.fit(X_train, y_train)</span><br><span class="line"></span><br><span class="line">print(knn.predict(X_test))</span><br><span class="line">print(y_test)</span><br></pre></td></tr></table></figure></p>
-<pre><code>[1 0 1 0 1 2 0 1 0 1 2 1 1 1 2 2 1 2 0 1 2 0 0 2 1 2 1 1 0 1 1 0 2 2 2 0 1
- 0 2 0 2 0 1 2 1]
-[1 0 1 0 1 2 0 1 0 1 2 1 1 1 2 2 1 2 0 1 2 0 0 2 1 2 1 1 0 1 1 0 2 2 2 0 1
- 0 2 0 2 0 2 2 1]
-</code></pre>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/05/python/sklearn/py-sklearn-2-general-learning-model/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -403,41 +311,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>今天来看 <code>Model</code> 的属性和功能, 这里以 <code>LinearRegressor</code> 为例，所以先导入包，数据，还有模型</p>
-<p>&lt;!-- more --&gt;</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression</span><br><span class="line"></span><br><span class="line">loaded_data = datasets.load_boston()</span><br><span class="line"></span><br><span class="line">data_X = loaded_data.data</span><br><span class="line">data_y = loaded_data.target</span><br><span class="line"></span><br><span class="line">model = LinearRegression()</span><br></pre></td></tr></table></figure></p>
-<h2>训练和预测</h2>
-<p>接下来 <code>model.fit</code> 和 <code>model.predict</code> 就属于 <code>Model</code> 的功能，用来训练模型，用训练好的模型预测</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">model.fit(data_X, data_y)</span><br><span class="line"></span><br><span class="line">print(model.predict(data_X[:<span class="number">4</span>, :]))</span><br></pre></td></tr></table></figure></p>
-<pre><code>[ 30.00821269  25.0298606   30.5702317   28.60814055]
-</code></pre>
-<h2>参数和分数</h2>
-<p><code>model.coef_</code> 和 <code>model.intercept_</code> 属于 <code>Model</code> 的属性， 例如对于 <code>LinearRegressor</code> 这个模型，这两个属性分别输出模型的斜率和截距（与y轴的交点）</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(model.coef_)</span><br><span class="line">print(model.intercept_)</span><br></pre></td></tr></table></figure></p>
-<pre><code>[ -1.07170557e-01   4.63952195e-02   2.08602395e-02   2.68856140e+00
-  -1.77957587e+01   3.80475246e+00   7.51061703e-04  -1.47575880e+00
-   3.05655038e-01  -1.23293463e-02  -9.53463555e-01   9.39251272e-03
-  -5.25466633e-01]
-36.4911032804
-</code></pre>
-<p><code>model.get_params()</code> 也是功能，它可以取出之前定义的参数</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(model.get_params())</span><br></pre></td></tr></table></figure></p>
-<pre><code>{'copy_X': True, 'fit_intercept': True, 'n_jobs': 1, 'normalize': False}
-</code></pre>
-<p><code>model.score(data_X, data_y)</code> 它可以对 <code>Model</code> 用 <code>R^2</code> 的方式进行打分，输出精确度。<br>
-关于 <code>R^2 coefficient of determination</code> 可以查看 <a href="https://en.wikipedia.org/wiki/Coefficient_of_determination" target="_blank" rel="noopener">Coefficient_of_determination</a></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(model.score(data_X, data_y)) <span class="comment"># R^2 coefficient of determination</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>0.740607742865
-</code></pre>
-<blockquote>
-<p>按标准的来说, 是要将数据分成训练数据和测试数据, 这里不是一个完整的测试, 只是展示 model 里面的一些属性. 正确率很少能真正100%, 取决于拟合度怎么样. 拟合度好, 正确率高</p>
-</blockquote>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/05/python/sklearn/py-sklearn-4-common-attributes/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -500,64 +378,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Sklearn 中的 <a href="http://scikit-learn.org/stable/modules/classes.html#module-sklearn.datasets" target="_blank" rel="noopener">data sets</a>，很多而且有用，可以用来学习算法模型</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>要点</h2>
-<p>eg: boston 房价, 糖尿病, 数字, Iris 花。</p>
-<p>也可以生成虚拟的数据，例如用来训练线性回归模型的数据，可以用函数来生成</p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-3-datasets-1.png&quot; width=&quot;400&quot; /&gt;
-&lt;/div&gt;
-&lt;!--<img src="/images/python/sklearn-3-datasets-1.png" alt="">--&gt;</p>
-<p>例如，点击进入 boston 房价的数据，可以看到 <code>sample</code> 的总数，属性，以及 <code>label</code> 等信息</p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-3-datasets-2.png&quot; width=&quot;650&quot; /&gt;
-&lt;/div&gt;</p>
-<p>如果是自己生成数据，按照函数的形式，输入 <code>sample</code>，<code>feature</code>，<code>target</code> 的个数等等。</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">sklearn.datasets.make_regression(n_samples=<span class="number">100</span>, n_features=<span class="number">100</span>, n_informative=<span class="number">10</span>, n_targets=<span class="number">1</span>, bias=<span class="number">0.0</span>, effective_rank=<span class="literal">None</span>, tail_strength=<span class="number">0.5</span>, noise=<span class="number">0.0</span>, shuffle=<span class="literal">True</span>, coef=<span class="literal">False</span>, random_state=<span class="literal">None</span>)[source]</span><br></pre></td></tr></table></figure></p>
-<p>接下来用代码练习...</p>
-<h2>导入模块</h2>
-<p>导入 <code>datasets</code> 包，以 Linear Regression 为例</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> __future__ <span class="keyword">import</span> print_function</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets</span><br><span class="line"><span class="keyword">from</span> sklearn.linear_model <span class="keyword">import</span> LinearRegression</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure></p>
-<h2>导入数据－训练模型</h2>
-<p>用 <code>datasets.load_boston()</code> 的形式加载数据，并给 <code>X</code> 和 <code>y</code> 赋值，这种形式在 Sklearn 中都是高度统一的</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">loaded_data = datasets.load_boston()</span><br><span class="line"></span><br><span class="line">data_X = loaded_data.data</span><br><span class="line">data_y = loaded_data.target</span><br><span class="line"></span><br><span class="line">print(data_X[:<span class="number">4</span>, <span class="number">0</span>]) <span class="comment"># == print(data_X[:4][0])</span></span><br><span class="line">print(data_y[:<span class="number">4</span>])</span><br></pre></td></tr></table></figure></p>
-<pre><code>[ 0.00632  0.02731  0.02729  0.03237]
-[ 24.   21.6  34.7  33.4]
-</code></pre>
-<p>定义模型</p>
-<p>可以直接用默认值去建立 <code>model</code>，默认值也不错，也可以自己改变参数使模型更好。 然后用 <code>training data</code> 训练模型</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">model = LinearRegression()</span><br><span class="line">model.fit(data_X, data_y)</span><br></pre></td></tr></table></figure></p>
-<pre><code>LinearRegression(copy_X=True, fit_intercept=True, n_jobs=1, normalize=False)
-</code></pre>
-<p>再打印出预测值，这里用 <code>X</code> 的前 4 个来预测，同时打印真实值，作为对比，可以看到是有些误差的</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(model.predict(data_X[:<span class="number">4</span>, :]))</span><br><span class="line">print(data_y[:<span class="number">4</span>])</span><br></pre></td></tr></table></figure></p>
-<pre><code>[ 30.00821269  25.0298606   30.5702317   28.60814055]
-[ 24.   21.6  34.7  33.4]
-</code></pre>
-<p>为了提高准确度，可以通过尝试不同的 <code>model</code>，不同的参数，不同的预处理等方法，入门的话可以直接用默认值</p>
-<h2>创建虚拟数据－可视化</h2>
-<p>下面是创造数据的例子。</p>
-<p>用函数来建立 100 个 <code>sample</code>，有一个 <code>feature</code>，和一个 <code>target</code>，这样比较方便可视化。</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">X, y = datasets.make_regression(n_samples=<span class="number">100</span>, n_features=<span class="number">1</span>, n_targets=<span class="number">1</span>, noise=<span class="number">3</span>)</span><br></pre></td></tr></table></figure></p>
-<p>用 scatter 的形式来输出结果</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.scatter(X, y)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-3-datasets-output_11_0.png&quot;/&gt;
-&lt;/div&gt;</p>
-<p>可以看到用函数生成的 <code>Linear Regression</code> 用的数据。</p>
-<p><code>noise</code> 越大的话，点就会越来越离散，例如 <code>noise</code> 由 10 变为 50.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">X, y = datasets.make_regression(n_samples=<span class="number">100</span>, n_features=<span class="number">1</span>, n_targets=<span class="number">1</span>, noise=<span class="number">50</span>)</span><br><span class="line">plt.scatter(X, y)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/sklearn-3-datasets-output_13_0.png&quot;/&gt;
-&lt;/div&gt;</p>
-<p>&lt;!--<img src="/images/python/sklearn-3-datasets-output_13_0.png" alt="output_13_0">--&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="http://scikit-learn.org/stable/modules/classes.html#module-sklearn.datasets" target="_blank" rel="noopener">scikit-learn machine_learning_map</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/03/python/sklearn/py-sklearn-3-database/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -620,46 +445,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Sciki-learn 选择学习方法，选择模型 <a href="http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html" target="_blank" rel="noopener">流程图</a></p>
-<p>&lt;!-- more --&gt;</p>
-<p>Sklearn 官网提供了一个流程图，蓝色圆圈内是判断条件，绿色方框内是可以选择的算法：<a href="http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html" target="_blank" rel="noopener">详情</a></p>
-<p>![http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html]]<a href="/images/python/sklearn-1-model-choosing.png">img-1</a></p>
-<p>从 START 开始，首先看数据的样本是否 <code>&gt;50</code>，小于则需要收集更多的数据。</p>
-<p>由图中，可以看到算法有四类，<code>分类</code>，<code>回归</code>，<code>聚类</code>，<code>降维</code>。</p>
-<table>
-<thead>
-<tr>
-<th>algorithm</th>
-<th>desc</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>分类</td>
-<td>监督式学习，即每个数据对应一个 label</td>
-</tr>
-<tr>
-<td>回归</td>
-<td>监督式学习，即每个数据对应一个 label</td>
-</tr>
-<tr>
-<td>聚类</td>
-<td>非监督式学习，即没有 label。</td>
-</tr>
-<tr>
-<td>降维</td>
-<td>当数据集有很多很多属性的时候，可以通过 降维 算法把属性归纳起来。&lt;br&gt;&lt;br&gt; 例如 20 个属性只变成 2 个，注意，这不是挑出 2 个，而是压缩成为 2 个，&lt;br&gt;它们集合了 20 个属性的所有特征，相当于把重要的信息提取的更好，不重要的信息就不要了</td>
-</tr>
-</tbody>
-</table>
-<p>然后看问题属于哪一类问题，是分类还是回归，还是聚类，就选择相应的算法。 当然还要考虑数据的大小，例如 <code>100K</code> 是一个阈值。</p>
-<p>可以发现有些方法是既可以作为分类，也可以作为回归，例如 <code>SGD</code>。</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html" target="_blank" rel="noopener">scikit-learn machine_learning_map</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/03/python/sklearn/py-sklearn-1-choosing-estimator/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -722,24 +512,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Scikit learn 也简称 sklearn, 是机器学习领域当中最知名的 python 模块之一.</p>
-<p>&lt;!-- more --&gt;</p>
-<p>Sklearn 包含了很多种机器学习的方式:</p>
-<ul>
-<li>Classification 分类</li>
-<li>Regression 回归</li>
-<li>Clustering 非监督分类</li>
-<li>Dimensionality reduction 数据降维</li>
-<li>Model Selection 模型选择</li>
-<li>Preprocessing 数据预处理</li>
-</ul>
-<p>我们总能够从这些方法中挑选出一个适合于自己问题的, 然后解决自己的问题.</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/03/python/sklearn/py-sklearn-0-why/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -805,233 +582,11 @@ var _hmt = _hmt || [];
 <li>一定要不断重复，不要相信自己的耳朵，要相信音标</li>
 <li>最开始练习，一定要超级夸张，一个音一个音读</li>
 </ul>
-<p>&lt;!--more--&gt;</p>
-<h2>1. 分组元音</h2>
-<table>
-<thead>
-<tr>
-<th>元音 1</th>
-<th>desc</th>
-<th>sample</th>
-<th>元音 2</th>
-<th>desc</th>
-<th>sample</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong><em>i:</em></strong></td>
-<td>微笑音，嘴巴拉长</td>
-<td>please、sleep</td>
-<td><strong><em>i</em></strong></td>
-<td>军训音</td>
-<td>big、pig</td>
-</tr>
-<tr>
-<td><strong><em>e</em></strong></td>
-<td>一个手指音</td>
-<td>egg、bed</td>
-<td><strong><em>æ</em></strong></td>
-<td>大嘴巴音 /ɛ/+/a:/</td>
-<td>bad、dad</td>
-</tr>
-<tr>
-<td><strong><em>a:</em></strong></td>
-<td>尾部儿话~</td>
-<td>car, star</td>
-<td><strong><em>ɒ</em></strong></td>
-<td>嘴张开、无变化</td>
-<td>not、lost、job</td>
-</tr>
-<tr>
-<td><strong><em>ɔ:</em></strong></td>
-<td>有点像 ‘沃’,多儿话</td>
-<td>horse、short</td>
-<td><strong><em>ʊ</em></strong></td>
-<td>发音靠后，脖子下</td>
-<td>good、should、would、could</td>
-</tr>
-<tr>
-<td><strong><em>u:</em></strong></td>
-<td>悟空的‘悟’拉长</td>
-<td>sch<code>oo</code>l、r<code>oo</code>m</td>
-<td><strong><em>ʌ</em></strong></td>
-<td>短元音</td>
-<td>l<code>o</code>ve、c<code>o</code>me</td>
-</tr>
-<tr>
-<td><strong><em>ɜ:</em></strong></td>
-<td>-</td>
-<td>b<code>ir</code>d、f<code>ir</code>st</td>
-<td><strong><em>ə</em></strong></td>
-<td>-</td>
-<td><code>a</code>bout、<code>a</code>sleep、Chin<code>a</code></td>
-</tr>
-<tr>
-<td><strong><em>eɪ</em></strong></td>
-<td>-</td>
-<td>b<code>a</code>by、f<code>a</code>ce</td>
-<td><strong><em>aɪ</em></strong></td>
-<td>-</td>
-<td>h<code>i</code></td>
-</tr>
-<tr>
-<td><strong><em>aʊ</em></strong></td>
-<td>-</td>
-<td>c<code>ow</code>、h<code>ow</code></td>
-<td><strong><em>ɪə(r)</em></strong></td>
-<td>-</td>
-<td>ear、dear</td>
-</tr>
-<tr>
-<td><strong><em>eə</em></strong></td>
-<td>-</td>
-<td><code>air</code>、h<code>air</code></td>
-<td><strong><em>əʊ</em></strong></td>
-<td>-</td>
-<td>b<code>oa</code>t、c<code>oa</code>t</td>
-</tr>
-<tr>
-<td><strong><em>ɔɪ</em></strong></td>
-<td>-</td>
-<td>b<code>oy</code>、j<code>oy</code></td>
-<td><strong><em>ʊə</em></strong></td>
-<td>-</td>
-<td>sure /[ʃʊə(r)]/</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>China <strong><em>ə</em></strong> 词尾变音</p>
-</blockquote>
-<h2>2. 清浊辅音</h2>
-<table>
-<thead>
-<tr>
-<th>清辅音</th>
-<th>desc</th>
-<th>sample</th>
-<th>浊辅音</th>
-<th>desc</th>
-<th>sample</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong><em>p</em></strong></td>
-<td></td>
-<td>pen、map</td>
-<td><strong><em>b</em></strong></td>
-<td></td>
-<td>big、job</td>
-</tr>
-<tr>
-<td><strong><em>k</em></strong></td>
-<td></td>
-<td>book、week</td>
-<td><strong><em>g</em></strong></td>
-<td></td>
-<td>egg、dog</td>
-</tr>
-<tr>
-<td><strong><em>f</em></strong></td>
-<td></td>
-<td>wife、knife</td>
-<td><strong><em>v</em></strong></td>
-<td></td>
-<td>love、give</td>
-</tr>
-<tr>
-<td><strong><em>s</em></strong></td>
-<td>舌头放嘴里</td>
-<td>sink、sick、month、nice、rice</td>
-<td><strong><em>z</em></strong></td>
-<td></td>
-<td>his、size</td>
-</tr>
-<tr>
-<td><strong><em>ʃ</em></strong></td>
-<td></td>
-<td>wish、dish</td>
-<td><strong><em>ʒ</em></strong></td>
-<td></td>
-<td>usually、vision</td>
-</tr>
-<tr>
-<td><strong><em>θ</em></strong></td>
-<td>用力吐舌头</td>
-<td>think、thick、mouth、month、bath</td>
-<td><strong><em>ð</em></strong></td>
-<td></td>
-<td>with、smooth</td>
-</tr>
-<tr>
-<td><strong><em>r</em></strong></td>
-<td></td>
-<td>sorry、story</td>
-<td><strong><em>h</em></strong></td>
-<td></td>
-<td>hand、home</td>
-</tr>
-<tr>
-<td><strong><em>tʃ</em></strong></td>
-<td></td>
-<td>teach、lunch</td>
-<td><strong><em>dʒ</em></strong></td>
-<td></td>
-<td>page、large</td>
-</tr>
-<tr>
-<td><strong><em>tr</em></strong></td>
-<td></td>
-<td>tree、trip</td>
-<td><strong><em>dr</em></strong></td>
-<td></td>
-<td>dress、dry</td>
-</tr>
-<tr>
-<td><strong><em>ts</em></strong></td>
-<td></td>
-<td>cats、hats</td>
-<td><strong><em>dz</em></strong></td>
-<td></td>
-<td>beds、cards</td>
-</tr>
-<tr>
-<td><strong><em>m</em></strong></td>
-<td></td>
-<td>mom、some</td>
-<td><strong><em>n</em></strong></td>
-<td></td>
-<td>pen、son、sun</td>
-</tr>
-<tr>
-<td><strong><em>ŋ</em></strong></td>
-<td></td>
-<td>drink</td>
-<td><strong><em>l</em></strong></td>
-<td></td>
-<td>let、ball</td>
-</tr>
-<tr>
-<td><strong><em>w</em></strong></td>
-<td></td>
-<td>why、water</td>
-<td><strong><em>j</em></strong></td>
-<td></td>
-<td>year、yellow</td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p>clothes [kləʊðz]</p>
-</blockquote>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/english/ielts-phonetic-symbol.jpg&quot; height=&quot;100&quot; width=&quot;650&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>3. Part of Speech</h2>
-<p>&lt;img src=&quot;/images/english/ielts-lucy-8-part-of-speech.png&quot; height=&quot;100&quot; width=&quot;680&quot; /&gt;</p>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/03/English/english-ielts-lucy-speaking/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1094,50 +649,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>matplotlib 的 figure 就是一个 单独的 figure 小窗口, 小窗口里面还可以有更多的小图片</p>
-<p>&lt;!-- more --&gt;</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure></p>
-<p>使用<code>np.linspace</code>定义<code>x</code>：范围是(-3,3);个数是50. 仿真一维数据组(<code>x</code> ,<code>y1</code>)表示曲线1. 仿真一维数据组(<code>x</code> ,<code>y2</code>)表示曲线2.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x = np.linspace(<span class="number">-3</span>, <span class="number">3</span>, <span class="number">50</span>)</span><br><span class="line">y1 = <span class="number">2</span>*x + <span class="number">1</span></span><br><span class="line">y2 = x**<span class="number">2</span></span><br></pre></td></tr></table></figure></p>
-<p>使用<code>plt.figure</code>定义一个图像窗口. 使用<code>plt.plot</code>画(<code>x</code> ,<code>y1</code>)曲线.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.figure()</span><br><span class="line">plt.plot(x, y1)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-2-figure-1.png&quot; height=&quot;100&quot; width=&quot;450&quot; /&gt;
-&lt;/div&gt;</p>
-<p>使用<code>plt.figure</code>定义一个图像窗口：编号为3；大小为(8, 5).</p>
-<p>使用<code>plt.plot</code>画(<code>x</code> ,<code>y2</code>)曲线.
-使用<code>plt.plot</code>画(<code>x</code> ,<code>y1</code>)曲线，曲线的颜色属性(<code>color</code>)为红色;曲线的宽度(<code>linewidth</code>)为1.0；曲线的类型(<code>linestyle</code>)为虚线. 使用<code>plt.show</code>显示图像.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.figure(num=<span class="number">3</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y2)</span><br><span class="line">plt.plot(x, y1, color=<span class="string">'red'</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">'--'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-2-figure-2.png&quot; height=&quot;100&quot; width=&quot;450&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Set Coordinate axis</h2>
-<p>使用<code>plt.xlim</code>设置x坐标轴范围：(-1, 2)； 使用<code>plt.ylim</code>设置y坐标轴范围：(-2, 3)；<br>
-使用<code>plt.xlabel</code>设置x坐标轴名称：’I am x’； 使用<code>plt.ylabel</code>设置y坐标轴名称：’I am y’；</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.figure(num=<span class="number">3</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y2)</span><br><span class="line">plt.plot(x, y1, color=<span class="string">'red'</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">'--'</span>)</span><br><span class="line"></span><br><span class="line">plt.xlim((<span class="number">-1</span>, <span class="number">2</span>))</span><br><span class="line">plt.ylim((<span class="number">-2</span>, <span class="number">3</span>))</span><br><span class="line">plt.xlabel(<span class="string">'I am x'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'I am y'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p><img src="/images/python/matplotlib-2-figure-3-output_9_0.png" alt="output_9_0.png"></p>
-<p>使用 <code>np.linspace</code> 定义范围以及个数：范围是(-1,2);个数是5.<br>
-使用 <code>print</code> 打印出新定义的范围.<br>
-使用 <code>plt.xticks</code> 设置x轴刻度：范围是(-1,2);个数是5.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.figure(num=<span class="number">3</span>, figsize=(<span class="number">8</span>, <span class="number">5</span>),)</span><br><span class="line">plt.plot(x, y2)</span><br><span class="line">plt.plot(x, y1, color=<span class="string">'red'</span>, linewidth=<span class="number">1.0</span>, linestyle=<span class="string">'--'</span>)</span><br><span class="line"></span><br><span class="line">plt.xlim((<span class="number">-1</span>, <span class="number">2</span>))</span><br><span class="line">plt.ylim((<span class="number">-2</span>, <span class="number">3</span>))</span><br><span class="line">plt.xlabel(<span class="string">'I am x'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'I am y'</span>)</span><br><span class="line"></span><br><span class="line">new_ticks = np.linspace(<span class="number">-1</span>, <span class="number">2</span>, <span class="number">5</span>)</span><br><span class="line">print(new_ticks)</span><br><span class="line">plt.xticks(new_ticks)</span><br></pre></td></tr></table></figure></p>
-<pre><code>[-1.   -0.25  0.5   1.25  2.  ]
-
-([&lt;matplotlib.axis.XTick at 0x11dd68ba8&gt;,
-  &lt;matplotlib.axis.XTick at 0x11dd68a58&gt;,
-  &lt;matplotlib.axis.XTick at 0x11dd7d5c0&gt;,
-  &lt;matplotlib.axis.XTick at 0x11e04af28&gt;,
-  &lt;matplotlib.axis.XTick at 0x11e0515c0&gt;],
- &lt;a list of 5 Text xticklabel objects&gt;)
-</code></pre>
-<p>使用<code>plt.yticks</code>设置y轴刻度以及名称：刻度为[-2, -1.8, -1, 1.22, 3]；对应刻度的名称为[‘really bad’,’bad’,’normal’,’good’, ‘really good’]. 使用plt.show显示图像.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.yticks([<span class="number">-2</span>, <span class="number">-1.8</span>, <span class="number">-1</span>, <span class="number">1.22</span>, <span class="number">3</span>],[<span class="string">r'$really\ bad$'</span>, <span class="string">r'$bad$'</span>, <span class="string">r'$normal$'</span>, <span class="string">r'$good$'</span>, <span class="string">r'$really\ good$'</span>])</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p><img src="/images/python/matplotlib-2-figure-4-output_13_0.png" alt="output_13_0.png"></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/01/python/matplotlib/py-matplotlib-3-figure-image/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1200,36 +716,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Matplotlib 最基本的使用介绍</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>基础应用</h2>
-<p>使用<code>import</code>导入模块<code>matplotlib.pyplot</code>，并简写成<code>plt</code> 使用<code>import</code>导入模块<code>numpy</code>，并简写成<code>np</code></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">np.linspace(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">50</span>)</span><br></pre></td></tr></table></figure></p>
-<pre><code>	array([-1.        , -0.95918367, -0.91836735, -0.87755102, -0.83673469,
-	       -0.79591837, -0.75510204, -0.71428571, -0.67346939, -0.63265306,
-	       -0.59183673, -0.55102041, -0.51020408, -0.46938776, -0.42857143,
-	       -0.3877551 , -0.34693878, -0.30612245, -0.26530612, -0.2244898 ,
-	       -0.18367347, -0.14285714, -0.10204082, -0.06122449, -0.02040816,
-	        0.02040816,  0.06122449,  0.10204082,  0.14285714,  0.18367347,
-	        0.2244898 ,  0.26530612,  0.30612245,  0.34693878,  0.3877551 ,
-	        0.42857143,  0.46938776,  0.51020408,  0.55102041,  0.59183673,
-	        0.63265306,  0.67346939,  0.71428571,  0.75510204,  0.79591837,
-	        0.83673469,  0.87755102,  0.91836735,  0.95918367,  1.        ])
-</code></pre>
-<p>使用 <a href="https://docs.scipy.org/doc/numpy-1.12.0/reference/generated/numpy.linspace.html" target="_blank" rel="noopener">np.linspace</a> 定义<code>x</code>：范围是(-1,1); 个数是50. 仿真一维数据组(<code>x</code> ,<code>y</code>)表示曲线1.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x = np.linspace(<span class="number">-1</span>, <span class="number">1</span>, <span class="number">50</span>)</span><br><span class="line">y = <span class="number">2</span>*x + <span class="number">1</span></span><br></pre></td></tr></table></figure></p>
-<p>使用<code>plt.figure</code>定义一个图像窗口. 使用<code>plt.plot</code>画(<code>x</code> ,<code>y</code>)曲线. 使用<code>plt.show</code>显示图像.</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.figure()</span><br><span class="line">plt.plot(x, y)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-1-basic-use-1.png&quot; height=&quot;100&quot; width=&quot;450&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/01/python/matplotlib/py-matplotlib-2-basic-use/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1292,31 +783,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Matplotlib 是一个非常强大的 Python 画图工具</p>
-<p>&lt;!-- more --&gt;</p>
-<p>Matplotlib 它能帮你画出美丽的:</p>
-<ul>
-<li>线图;</li>
-<li>散点图;</li>
-<li>等高线图;</li>
-<li>条形图;</li>
-<li>柱状图;</li>
-<li>3D 图形,</li>
-<li>甚至是图形动画等等.</li>
-</ul>
-<p>下面是一些例图:</p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-0-why-1.png&quot; height=&quot;100&quot; width=&quot;650&quot; /&gt;
-&lt;/div&gt;</p>
-<p>&lt;div class=&quot;limg1&quot;&gt;
-&lt;img src=&quot;/images/python/matplotlib-0-why-3.png&quot; height=&quot;100&quot; width=&quot;650&quot; /&gt;
-&lt;/div&gt;</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://matplotlib.org/" target="_blank" rel="noopener">matplotlib.org</a></li>
-<li><a href="https://matplotlib.org/contents.html" target="_blank" rel="noopener">matplotlib docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2018/01/01/python/matplotlib/py-matplotlib-1-why/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1379,55 +850,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>matplotlib 将数据可视化. 仅仅是用来 show 图片的, 即 plt.show()</p>
-<p>&lt;!-- more --&gt;</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br></pre></td></tr></table></figure></p>
-<h2>创建一个Series</h2>
-<p>这是一个线性的数据，我们随机生成1000个数据，<code>Series</code> 默认的 <code>index</code> 就是从0开始的整数</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 随机生成1000个数据</span></span><br><span class="line">data = pd.Series(np.random.randn(<span class="number">1000</span>),index=np.arange(<span class="number">1000</span>))</span><br><span class="line"> </span><br><span class="line"><span class="comment"># pandas 数据可以直接观看其可视化形式</span></span><br><span class="line">data.plot()</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p><img src="/images/python/pandas-output_3_0.png" alt="png"></p>
-<p>可以使用 <code>plt.plot(x=, y=)</code>，把<code>x</code>,<code>y</code>的数据作为参数存进去，但是<code>data</code>本来就是一个数据，所以我们可以直接<code>plot</code></p>
-<h2>Dataframe 可视化</h2>
-<p>我们生成一个 1000*4 的 <code>DataFrame</code>，并对他们累加</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data = pd.DataFrame(</span><br><span class="line">    np.random.randn(<span class="number">1000</span>,<span class="number">4</span>),</span><br><span class="line">    index=np.arange(<span class="number">1000</span>),</span><br><span class="line">    columns=list(<span class="string">"ABCD"</span>)</span><br><span class="line">    )</span><br><span class="line"><span class="comment">#data.cumsum()</span></span><br><span class="line">print(data)</span><br><span class="line">data.plot()</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<pre><code>            A         B         C         D
-0    1.163604 -0.689103  1.958018  0.241444
-1    0.595765  0.816026  1.573164 -0.443003
-2   -0.101446  0.768321 -0.203069 -0.638841
-3   -0.439233 -0.161273  0.398774  1.309622
-4   -0.524647 -0.180073 -1.499978  0.628436
-5   -0.305683  0.668840  0.243668 -1.386839
-..        ...       ...       ...       ...
-998 -0.243955 -0.190122 -0.299633  3.350200
-999 -0.055184  0.936187  0.146156  0.604271
-
-[1000 rows x 4 columns]
-</code></pre>
-<p><img src="/images/python/pandas-output_5_1.png" alt="png"></p>
-<p>这个就是我们刚刚生成的4个<code>column</code>的数据，因为有4组数据，所以4组数据会分别<code>plot</code>出来。</p>
-<p>plot 可以指定很多参数，具体参见<a href="http://pandas.pydata.org/pandas-docs/version/0.18.1/visualization.html" target="_blank" rel="noopener">官方文档</a></p>
-<p>除了plot，我经常会用到还有scatter，这个会显示散点图，首先说一下在 pandas 中有多少种方法</p>
-<ul>
-<li>bar</li>
-<li>hist</li>
-<li>box</li>
-<li>kde</li>
-<li>area</li>
-<li>scatter</li>
-<li>hexbin</li>
-</ul>
-<p>主要说一下 <code>plot</code> 和 <code>scatter</code>. 因为 <code>scatter</code> 只有 <code>x</code>，<code>y</code> 两个属性，可以分别给 <code>x</code>, <code>y</code> 指定数据</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">ax = data.plot.scatter(x=<span class="string">'A'</span>,y=<span class="string">'B'</span>,color=<span class="string">'DarkBlue'</span>,label=<span class="string">'Class1'</span>)</span><br></pre></td></tr></table></figure></p>
-<p>然后我们在可以再画一个在同一个<code>ax</code>上面，选择不一样的数据列，不同的 <code>color</code> 和 <code>label</code></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 将之下这个 data 画在上一个 ax 上面</span></span><br><span class="line">data.plot.scatter(x=<span class="string">'A'</span>,y=<span class="string">'C'</span>,color=<span class="string">'LightGreen'</span>,label=<span class="string">'Class2'</span>,ax=ax)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure></p>
-<p><img src="/images/python/pandas-output_9_0.png" alt="png"></p>
-<p>两种呈现方式，一种是<strong>线性的方式</strong>，一种是<strong>散点图</strong></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
-<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="noopener">pandas docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2017/12/31/python/numpy-pandas/py-pandas-8-matplotlib/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1490,80 +917,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p><code>pandas</code>中的<code>merge</code>和<code>concat</code>类似,但主要是用于两组有<strong>key column</strong>的数据,统一索引的数据.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>依据一组key合并</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集并打印出</span></span><br><span class="line">left = pd.DataFrame(&#123;<span class="string">'key'</span>: [<span class="string">'K0'</span>, <span class="string">'K1'</span>, <span class="string">'K2'</span>, <span class="string">'K3'</span>],</span><br><span class="line">                             <span class="string">'A'</span>: [<span class="string">'A0'</span>, <span class="string">'A1'</span>, <span class="string">'A2'</span>, <span class="string">'A3'</span>],</span><br><span class="line">                             <span class="string">'B'</span>: [<span class="string">'B0'</span>, <span class="string">'B1'</span>, <span class="string">'B2'</span>, <span class="string">'B3'</span>]&#125;)</span><br><span class="line">right = pd.DataFrame(&#123;<span class="string">'key'</span>: [<span class="string">'K0'</span>, <span class="string">'K1'</span>, <span class="string">'K2'</span>, <span class="string">'K3'</span>],</span><br><span class="line">                              <span class="string">'C'</span>: [<span class="string">'C0'</span>, <span class="string">'C1'</span>, <span class="string">'C2'</span>, <span class="string">'C3'</span>],</span><br><span class="line">                              <span class="string">'D'</span>: [<span class="string">'D0'</span>, <span class="string">'D1'</span>, <span class="string">'D2'</span>, <span class="string">'D3'</span>]&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment"># print(left)</span></span><br><span class="line"><span class="comment">#    A   B key</span></span><br><span class="line"><span class="comment"># 0  A0  B0  K0</span></span><br><span class="line"><span class="comment"># 1  A1  B1  K1</span></span><br><span class="line"><span class="comment"># 2  A2  B2  K2</span></span><br><span class="line"><span class="comment"># 3  A3  B3  K3</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># print(right)</span></span><br><span class="line"><span class="comment">#    C   D key</span></span><br><span class="line"><span class="comment"># 0  C0  D0  K0</span></span><br><span class="line"><span class="comment"># 1  C1  D1  K1</span></span><br><span class="line"><span class="comment"># 2  C2  D2  K2</span></span><br><span class="line"><span class="comment"># 3  C3  D3  K3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#依据key column合并，并打印出</span></span><br><span class="line">res = pd.merge(left, right, on=<span class="string">'key'</span>)</span><br><span class="line"></span><br><span class="line">print(res)</span><br></pre></td></tr></table></figure></p>
-<pre><code>    A   B key   C   D
-0  A0  B0  K0  C0  D0
-1  A1  B1  K1  C1  D1
-2  A2  B2  K2  C2  D2
-3  A3  B3  K3  C3  D3
-</code></pre>
-<h2>依据两组key合并</h2>
-<p>合并时有4种方法<code>how = ['left', 'right', 'outer', 'inner']</code>，预设值<code>how='inner'</code></p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集并打印出</span></span><br><span class="line">left = pd.DataFrame(&#123;<span class="string">'key1'</span>: [<span class="string">'K0'</span>, <span class="string">'K0'</span>, <span class="string">'K1'</span>, <span class="string">'K2'</span>],</span><br><span class="line">                      <span class="string">'key2'</span>: [<span class="string">'K0'</span>, <span class="string">'K1'</span>, <span class="string">'K0'</span>, <span class="string">'K1'</span>],</span><br><span class="line">                      <span class="string">'A'</span>: [<span class="string">'A0'</span>, <span class="string">'A1'</span>, <span class="string">'A2'</span>, <span class="string">'A3'</span>],</span><br><span class="line">                      <span class="string">'B'</span>: [<span class="string">'B0'</span>, <span class="string">'B1'</span>, <span class="string">'B2'</span>, <span class="string">'B3'</span>]&#125;)</span><br><span class="line">right = pd.DataFrame(&#123;<span class="string">'key1'</span>: [<span class="string">'K0'</span>, <span class="string">'K1'</span>, <span class="string">'K1'</span>, <span class="string">'K2'</span>],</span><br><span class="line">                       <span class="string">'key2'</span>: [<span class="string">'K0'</span>, <span class="string">'K0'</span>, <span class="string">'K0'</span>, <span class="string">'K0'</span>],</span><br><span class="line">                       <span class="string">'C'</span>: [<span class="string">'C0'</span>, <span class="string">'C1'</span>, <span class="string">'C2'</span>, <span class="string">'C3'</span>],</span><br><span class="line">                       <span class="string">'D'</span>: [<span class="string">'D0'</span>, <span class="string">'D1'</span>, <span class="string">'D2'</span>, <span class="string">'D3'</span>]&#125;)</span><br><span class="line"></span><br><span class="line">print(left)</span><br><span class="line"><span class="comment">#    A   B key1 key2</span></span><br><span class="line"><span class="comment"># 0  A0  B0   K0   K0</span></span><br><span class="line"><span class="comment"># 1  A1  B1   K0   K1</span></span><br><span class="line"><span class="comment"># 2  A2  B2   K1   K0</span></span><br><span class="line"><span class="comment"># 3  A3  B3   K2   K1</span></span><br><span class="line"></span><br><span class="line">print(right)</span><br><span class="line"><span class="comment">#    C   D key1 key2</span></span><br><span class="line"><span class="comment"># 0  C0  D0   K0   K0</span></span><br><span class="line"><span class="comment"># 1  C1  D1   K1   K0</span></span><br><span class="line"><span class="comment"># 2  C2  D2   K1   K0</span></span><br><span class="line"><span class="comment"># 3  C3  D3   K2   K0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#依据key1与key2 columns进行合并，并打印出四种结果['left', 'right', 'outer', 'inner']</span></span><br><span class="line">res = pd.merge(left, right, on=[<span class="string">'key1'</span>, <span class="string">'key2'</span>], how=<span class="string">'inner'</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#    A   B key1 key2   C   D</span></span><br><span class="line"><span class="comment"># 0  A0  B0   K0   K0  C0  D0</span></span><br><span class="line"><span class="comment"># 1  A2  B2   K1   K0  C1  D1</span></span><br><span class="line"><span class="comment"># 2  A2  B2   K1   K0  C2  D2</span></span><br><span class="line"></span><br><span class="line">res = pd.merge(left, right, on=[<span class="string">'key1'</span>, <span class="string">'key2'</span>], how=<span class="string">'outer'</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#     A    B key1 key2    C    D</span></span><br><span class="line"><span class="comment"># 0   A0   B0   K0   K0   C0   D0</span></span><br><span class="line"><span class="comment"># 1   A1   B1   K0   K1  NaN  NaN</span></span><br><span class="line"><span class="comment"># 2   A2   B2   K1   K0   C1   D1</span></span><br><span class="line"><span class="comment"># 3   A2   B2   K1   K0   C2   D2</span></span><br><span class="line"><span class="comment"># 4   A3   B3   K2   K1  NaN  NaN</span></span><br><span class="line"><span class="comment"># 5  NaN  NaN   K2   K0   C3   D3</span></span><br><span class="line"></span><br><span class="line">res = pd.merge(left, right, on=[<span class="string">'key1'</span>, <span class="string">'key2'</span>], how=<span class="string">'left'</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#    A   B key1 key2    C    D</span></span><br><span class="line"><span class="comment"># 0  A0  B0   K0   K0   C0   D0</span></span><br><span class="line"><span class="comment"># 1  A1  B1   K0   K1  NaN  NaN</span></span><br><span class="line"><span class="comment"># 2  A2  B2   K1   K0   C1   D1</span></span><br><span class="line"><span class="comment"># 3  A2  B2   K1   K0   C2   D2</span></span><br><span class="line"><span class="comment"># 4  A3  B3   K2   K1  NaN  NaN</span></span><br><span class="line"></span><br><span class="line">res = pd.merge(left, right, on=[<span class="string">'key1'</span>, <span class="string">'key2'</span>], how=<span class="string">'right'</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#     A    B key1 key2   C   D</span></span><br><span class="line"><span class="comment"># 0   A0   B0   K0   K0  C0  D0</span></span><br><span class="line"><span class="comment"># 1   A2   B2   K1   K0  C1  D1</span></span><br><span class="line"><span class="comment"># 2   A2   B2   K1   K0  C2  D2</span></span><br><span class="line"><span class="comment"># 3  NaN  NaN   K2   K0  C3  D3</span></span><br></pre></td></tr></table></figure></p>
-<h2>Indicator</h2>
-<p><code>indicator=True</code>会将合并的记录放在新的一列</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集并打印出</span></span><br><span class="line">df1 = pd.DataFrame(&#123;<span class="string">'col1'</span>:[<span class="number">0</span>,<span class="number">1</span>], <span class="string">'col_left'</span>:[<span class="string">'a'</span>,<span class="string">'b'</span>]&#125;)</span><br><span class="line">df2 = pd.DataFrame(&#123;<span class="string">'col1'</span>:[<span class="number">1</span>,<span class="number">2</span>,<span class="number">2</span>],<span class="string">'col_right'</span>:[<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>]&#125;)</span><br><span class="line"></span><br><span class="line">print(df1)</span><br><span class="line"><span class="comment">#   col1 col_left</span></span><br><span class="line"><span class="comment"># 0     0        a</span></span><br><span class="line"><span class="comment"># 1     1        b</span></span><br><span class="line"></span><br><span class="line">print(df2)</span><br><span class="line"><span class="comment">#   col1  col_right</span></span><br><span class="line"><span class="comment"># 0     1          2</span></span><br><span class="line"><span class="comment"># 1     2          2</span></span><br><span class="line"><span class="comment"># 2     2          2</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 依据col1进行合并，并启用indicator=True，最后打印出</span></span><br><span class="line">res = pd.merge(df1, df2, on=<span class="string">'col1'</span>, how=<span class="string">'outer'</span>, indicator=<span class="literal">True</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#   col1 col_left  col_right      _merge</span></span><br><span class="line"><span class="comment"># 0   0.0        a        NaN   left_only</span></span><br><span class="line"><span class="comment"># 1   1.0        b        2.0        both</span></span><br><span class="line"><span class="comment"># 2   2.0      NaN        2.0  right_only</span></span><br><span class="line"><span class="comment"># 3   2.0      NaN        2.0  right_only</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 自定indicator column的名称，并打印出</span></span><br><span class="line">res = pd.merge(df1, df2, on=<span class="string">'col1'</span>, how=<span class="string">'outer'</span>, indicator=<span class="string">'indicator_column'</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#   col1 col_left  col_right indicator_column</span></span><br><span class="line"><span class="comment"># 0   0.0        a        NaN        left_only</span></span><br><span class="line"><span class="comment"># 1   1.0        b        2.0             both</span></span><br><span class="line"><span class="comment"># 2   2.0      NaN        2.0       right_only</span></span><br><span class="line"><span class="comment"># 3   2.0      NaN        2.0       right_only</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>   col1 col_left
-0     0        a
-1     1        b
-   col1  col_right
-0     1          2
-1     2          2
-2     2          2
-   col1 col_left  col_right      _merge
-0     0        a        NaN   left_only
-1     1        b        2.0        both
-2     2      NaN        2.0  right_only
-3     2      NaN        2.0  right_only
-   col1 col_left  col_right indicator_column
-0     0        a        NaN        left_only
-1     1        b        2.0             both
-2     2      NaN        2.0       right_only
-3     2      NaN        2.0       right_only
-</code></pre>
-<h2>依据index合并</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集并打印出</span></span><br><span class="line">left = pd.DataFrame(&#123;<span class="string">'A'</span>: [<span class="string">'A0'</span>, <span class="string">'A1'</span>, <span class="string">'A2'</span>],</span><br><span class="line">                     <span class="string">'B'</span>: [<span class="string">'B0'</span>, <span class="string">'B1'</span>, <span class="string">'B2'</span>]&#125;,</span><br><span class="line">                     index=[<span class="string">'K0'</span>, <span class="string">'K1'</span>, <span class="string">'K2'</span>])</span><br><span class="line">right = pd.DataFrame(&#123;<span class="string">'C'</span>: [<span class="string">'C0'</span>, <span class="string">'C2'</span>, <span class="string">'C3'</span>],</span><br><span class="line">                      <span class="string">'D'</span>: [<span class="string">'D0'</span>, <span class="string">'D2'</span>, <span class="string">'D3'</span>]&#125;,</span><br><span class="line">                     index=[<span class="string">'K0'</span>, <span class="string">'K2'</span>, <span class="string">'K3'</span>])</span><br><span class="line"></span><br><span class="line">print(left)</span><br><span class="line"><span class="comment">#     A   B</span></span><br><span class="line"><span class="comment"># K0  A0  B0</span></span><br><span class="line"><span class="comment"># K1  A1  B1</span></span><br><span class="line"><span class="comment"># K2  A2  B2</span></span><br><span class="line"></span><br><span class="line">print(right)</span><br><span class="line"><span class="comment">#     C   D</span></span><br><span class="line"><span class="comment"># K0  C0  D0</span></span><br><span class="line"><span class="comment"># K2  C2  D2</span></span><br><span class="line"><span class="comment"># K3  C3  D3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#依据左右资料集的index进行合并，how='outer',并打印出</span></span><br><span class="line">res = pd.merge(left, right, left_index=<span class="literal">True</span>, right_index=<span class="literal">True</span>, how=<span class="string">'outer'</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#      A    B    C    D</span></span><br><span class="line"><span class="comment"># K0   A0   B0   C0   D0</span></span><br><span class="line"><span class="comment"># K1   A1   B1  NaN  NaN</span></span><br><span class="line"><span class="comment"># K2   A2   B2   C2   D2</span></span><br><span class="line"><span class="comment"># K3  NaN  NaN   C3   D3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#依据左右资料集的index进行合并，how='inner',并打印出</span></span><br><span class="line">res = pd.merge(left, right, left_index=<span class="literal">True</span>, right_index=<span class="literal">True</span>, how=<span class="string">'inner'</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#     A   B   C   D</span></span><br><span class="line"><span class="comment"># K0  A0  B0  C0  D0</span></span><br><span class="line"><span class="comment"># K2  A2  B2  C2  D2</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>     A   B
-K0  A0  B0
-K1  A1  B1
-K2  A2  B2
-     C   D
-K0  C0  D0
-K2  C2  D2
-K3  C3  D3
-      A    B    C    D
-K0   A0   B0   C0   D0
-K1   A1   B1  NaN  NaN
-K2   A2   B2   C2   D2
-K3  NaN  NaN   C3   D3
-     A   B   C   D
-K0  A0  B0  C0  D0
-K2  A2  B2  C2  D2
-</code></pre>
-<h2>解决overlapping的问题</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集</span></span><br><span class="line">boys = pd.DataFrame(&#123;<span class="string">'k'</span>: [<span class="string">'K0'</span>, <span class="string">'K1'</span>, <span class="string">'K2'</span>], <span class="string">'age'</span>: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;)</span><br><span class="line">girls = pd.DataFrame(&#123;<span class="string">'k'</span>: [<span class="string">'K0'</span>, <span class="string">'K0'</span>, <span class="string">'K3'</span>], <span class="string">'age'</span>: [<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>]&#125;)</span><br><span class="line"></span><br><span class="line">print(boys)</span><br><span class="line"></span><br><span class="line">print(girls)</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用suffixes解决overlapping的问题</span></span><br><span class="line">res = pd.merge(boys, girls, on=<span class="string">'k'</span>, suffixes=[<span class="string">'_boy'</span>, <span class="string">'_girl'</span>], how=<span class="string">'inner'</span>)</span><br><span class="line">print(res)</span><br></pre></td></tr></table></figure></p>
-<pre><code>   age   k
-0    1  K0
-1    2  K1
-2    3  K2
-   age   k
-0    4  K0
-1    5  K0
-2    6  K3
-   age_boy   k  age_girl
-0        1  K0         4
-1        1  K0         5
-</code></pre>
-<p>pandas 也有 <code>join</code> 和 <code>merge</code> 是类似的，如需要使用，请参考官方文档</p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
-<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="noopener">pandas docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2017/12/31/python/numpy-pandas/py-pandas-7-merge/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1626,102 +984,11 @@ K2  A2  B2  C2  D2
     <div class="article-entry" itemprop="articleBody">
       
         <p><code>pandas</code> 处理多组数据的时候往往会要用到数据的合并处理,使用 <code>concat</code> 是一种基本的合并方式.而且 <code>concat</code> 中有很多参数可以调整,合并成你想要的数据形式.</p>
-<p>&lt;!-- more --&gt;</p>
-<h2>axis (合并方向)</h2>
-<p><code>axis=0</code> 是预设值，因此未设定任何参数时，默认axis=0</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集</span></span><br><span class="line">df1 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">0</span>, columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line">df2 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">1</span>, columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line">df3 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">2</span>, columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#concat纵向合并</span></span><br><span class="line">res = pd.concat([df1, df2, df3], axis=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#打印结果</span></span><br><span class="line">print(res)</span><br></pre></td></tr></table></figure></p>
-<pre><code>     a    b    c    d
-0  0.0  0.0  0.0  0.0
-1  0.0  0.0  0.0  0.0
-2  0.0  0.0  0.0  0.0
-0  1.0  1.0  1.0  1.0
-1  1.0  1.0  1.0  1.0
-2  1.0  1.0  1.0  1.0
-0  2.0  2.0  2.0  2.0
-1  2.0  2.0  2.0  2.0
-2  2.0  2.0  2.0  2.0
-</code></pre>
-<p>仔细观察会发现结果的<code>index</code>是0, 1, 2, 0, 1, 2, 0, 1, 2，若要将<code>index</code>重置，请看例子二。</p>
-<h2>ignore_index (重置 index)</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#承上一个例子，并将index_ignore设定为True</span></span><br><span class="line">res = pd.concat([df1, df2, df3], axis=<span class="number">0</span>, ignore_index=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#打印结果</span></span><br><span class="line">print(res)</span><br></pre></td></tr></table></figure></p>
-<pre><code>     a    b    c    d
-0  0.0  0.0  0.0  0.0
-1  0.0  0.0  0.0  0.0
-2  0.0  0.0  0.0  0.0
-3  1.0  1.0  1.0  1.0
-4  1.0  1.0  1.0  1.0
-5  1.0  1.0  1.0  1.0
-6  2.0  2.0  2.0  2.0
-7  2.0  2.0  2.0  2.0
-8  2.0  2.0  2.0  2.0
-</code></pre>
-<p>结果的<code>index</code>变 0, 1, 2, 3, 4, 5, 6, 7, 8</p>
-<h2>join (合并方式)</h2>
-<p><code>join='outer'</code> 为预设值，未设定任何参数时，函数默认 <code>join='outer'</code>。此方式是依照<code>column</code>来做纵向合并，有相同的<code>column</code>上下合并在一起，其他独自的<code>column</code>个自成列，原本没有值的位置皆以<code>NaN</code>填充。</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集</span></span><br><span class="line">df1 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">0</span>, columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>], index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>])</span><br><span class="line">df2 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">1</span>, columns=[<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>,<span class="string">'e'</span>], index=[<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#纵向"外"合并df1与df2</span></span><br><span class="line">res = pd.concat([df1, df2], axis=<span class="number">0</span>, join=<span class="string">'outer'</span>)</span><br><span class="line"></span><br><span class="line">print(res)</span><br></pre></td></tr></table></figure></p>
-<pre><code>     a    b    c    d    e
-1  0.0  0.0  0.0  0.0  NaN
-2  0.0  0.0  0.0  0.0  NaN
-3  0.0  0.0  0.0  0.0  NaN
-2  NaN  1.0  1.0  1.0  1.0
-3  NaN  1.0  1.0  1.0  1.0
-4  NaN  1.0  1.0  1.0  1.0
-</code></pre>
-<p>只有相同的<code>column</code>合并在一起，其他的会被抛弃</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#承上一个例子</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#纵向"内"合并df1与df2</span></span><br><span class="line">res = pd.concat([df1, df2], axis=<span class="number">0</span>, join=<span class="string">'inner'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#重置index并打印结果</span></span><br><span class="line">res = pd.concat([df1, df2], axis=<span class="number">0</span>, join=<span class="string">'inner'</span>, ignore_index=<span class="literal">True</span>)</span><br><span class="line">print(res)</span><br></pre></td></tr></table></figure></p>
-<pre><code>     b    c    d
-0  0.0  0.0  0.0
-1  0.0  0.0  0.0
-2  0.0  0.0  0.0
-3  1.0  1.0  1.0
-4  1.0  1.0  1.0
-5  1.0  1.0  1.0
-</code></pre>
-<h2>join_axes (依照 axes 合并)</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集</span></span><br><span class="line">df1 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">0</span>, columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>], index=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>])</span><br><span class="line">df2 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">1</span>, columns=[<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>,<span class="string">'e'</span>], index=[<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#依照`df1.index`进行横向合并</span></span><br><span class="line">res = pd.concat([df1, df2], axis=<span class="number">1</span>, join_axes=[df1.index])</span><br><span class="line"></span><br><span class="line"><span class="comment">#打印结果</span></span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#     a    b    c    d    b    c    d    e</span></span><br><span class="line"><span class="comment"># 1  0.0  0.0  0.0  0.0  NaN  NaN  NaN  NaN</span></span><br><span class="line"><span class="comment"># 2  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0</span></span><br><span class="line"><span class="comment"># 3  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#移除join_axes，并打印结果</span></span><br><span class="line">res = pd.concat([df1, df2], axis=<span class="number">1</span>)</span><br><span class="line">print(res)</span><br></pre></td></tr></table></figure></p>
-<pre><code>     a    b    c    d    b    c    d    e
-1  0.0  0.0  0.0  0.0  NaN  NaN  NaN  NaN
-2  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0
-3  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0
-     a    b    c    d    b    c    d    e
-1  0.0  0.0  0.0  0.0  NaN  NaN  NaN  NaN
-2  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0
-3  0.0  0.0  0.0  0.0  1.0  1.0  1.0  1.0
-4  NaN  NaN  NaN  NaN  1.0  1.0  1.0  1.0
-</code></pre>
-<h2>append (添加数据)</h2>
-<p><code>append</code>只有纵向合并，没有横向合并</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment">#定义资料集</span></span><br><span class="line">df1 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">0</span>, columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line">df2 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">1</span>, columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line">df3 = pd.DataFrame(np.ones((<span class="number">3</span>,<span class="number">4</span>))*<span class="number">1</span>, columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line">s1 = pd.Series([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>], index=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#将df2合并到df1的下面，以及重置index，并打印出结果</span></span><br><span class="line">res = df1.append(df2, ignore_index=<span class="literal">True</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#     a    b    c    d</span></span><br><span class="line"><span class="comment"># 0  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 1  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 2  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 3  1.0  1.0  1.0  1.0</span></span><br><span class="line"><span class="comment"># 4  1.0  1.0  1.0  1.0</span></span><br><span class="line"><span class="comment"># 5  1.0  1.0  1.0  1.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#合并多个df，将df2与df3合并至df1的下面，以及重置index，并打印出结果</span></span><br><span class="line">res = df1.append([df2, df3], ignore_index=<span class="literal">True</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#     a    b    c    d</span></span><br><span class="line"><span class="comment"># 0  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 1  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 2  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 3  1.0  1.0  1.0  1.0</span></span><br><span class="line"><span class="comment"># 4  1.0  1.0  1.0  1.0</span></span><br><span class="line"><span class="comment"># 5  1.0  1.0  1.0  1.0</span></span><br><span class="line"><span class="comment"># 6  1.0  1.0  1.0  1.0</span></span><br><span class="line"><span class="comment"># 7  1.0  1.0  1.0  1.0</span></span><br><span class="line"><span class="comment"># 8  1.0  1.0  1.0  1.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#合并series，将s1合并至df1，以及重置index，并打印出结果</span></span><br><span class="line">res = df1.append(s1, ignore_index=<span class="literal">True</span>)</span><br><span class="line">print(res)</span><br><span class="line"><span class="comment">#     a    b    c    d</span></span><br><span class="line"><span class="comment"># 0  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 1  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 2  0.0  0.0  0.0  0.0</span></span><br><span class="line"><span class="comment"># 3  1.0  2.0  3.0  4.0</span></span><br></pre></td></tr></table></figure></p>
-<pre><code>     a    b    c    d
-0  0.0  0.0  0.0  0.0
-1  0.0  0.0  0.0  0.0
-2  0.0  0.0  0.0  0.0
-3  1.0  1.0  1.0  1.0
-4  1.0  1.0  1.0  1.0
-5  1.0  1.0  1.0  1.0
-     a    b    c    d
-0  0.0  0.0  0.0  0.0
-1  0.0  0.0  0.0  0.0
-2  0.0  0.0  0.0  0.0
-3  1.0  1.0  1.0  1.0
-4  1.0  1.0  1.0  1.0
-5  1.0  1.0  1.0  1.0
-6  1.0  1.0  1.0  1.0
-7  1.0  1.0  1.0  1.0
-8  1.0  1.0  1.0  1.0
-     a    b    c    d
-0  0.0  0.0  0.0  0.0
-1  0.0  0.0  0.0  0.0
-2  0.0  0.0  0.0  0.0
-3  1.0  2.0  3.0  4.0
-</code></pre>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
-<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="noopener">pandas docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2017/12/31/python/numpy-pandas/py-pandas-6-concat-join-append/">Read More</a>
+          </p> 
+        
       
     </div>
 	
@@ -1785,36 +1052,11 @@ K2  A2  B2  C2  D2
       
         <p><code>pandas</code> 可以读取与存取的资料格式有很多种，像 <code>csv</code>、<code>excel</code>、<code>json</code>、<code>html</code> 与 <code>pickle</code> 等…</p>
 <p>详细请看<a href="http://pandas.pydata.org/pandas-docs/stable/io.html" target="_blank" rel="noopener">官方文档</a></p>
-<p>&lt;!-- more --&gt;</p>
-<h2>读取csv</h2>
-<p>示范档案下载 - student.csv</p>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd <span class="comment">#加载模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#读取csv</span></span><br><span class="line">data = pd.read_csv(<span class="string">'students.csv'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#打印出data</span></span><br><span class="line">print(data)</span><br></pre></td></tr></table></figure></p>
-<pre><code>    Student ID  name   age  gender
-0         1100  Kelly   22  Female
-1         1101    Clo   21  Female
-2         1102  Tilly   22  Female
-3         1103   Tony   24    Male
-4         1104  David   20    Male
-5         1105  Catty   22  Female
-6         1106      M    3  Female
-7         1107      N   43    Male
-8         1108      A   13    Male
-9         1109      S   12    Male
-10        1110  David   33    Male
-11        1111     Dw    3  Female
-12        1112      Q   23    Male
-13        1113      W   21  Female
-</code></pre>
-<h2>将资料存取成pickle</h2>
-<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">data.to_pickle(<span class="string">'student.pickle'</span>)</span><br></pre></td></tr></table></figure></p>
-<h2>Reference</h2>
-<ul>
-<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
-<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="noopener">pandas docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
-<li><a href="http://pandas.pydata.org/pandas-docs/stable/io.html" target="_blank" rel="noopener">pandas IO Tools</a></li>
-</ul>
-
+         
+          <p class="article-more-link">
+            <a href="/2017/12/30/python/numpy-pandas/py-pandas-5-import-output/">Read More</a>
+          </p> 
+        
       
     </div>
 	
