@@ -114,9 +114,11 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <img src="/images/deeplearning/AI-Challenger-11.png" width="550" alt="AI-Challenger"/>
+
 <a id="more"></a>
+
 <p><a href="https://challenger.ai/" target="_blank" rel="noopener">Challenger.AI</a></p>
-<p>Online reviews have become the critical factor to make consumption decision in recent years. They not only have a profound impact on the incisive understanding of shops, users, and the implied sentiment, but also have been widely used in Internet and e-commerce industry, such as personalized recommendation, intelligent search, product feedback, and business security. In this challenge, we provide a dataset of user reviews for fine-grained sentiment analysis from the catering industry, containning 335K public user reviews from <a href="http://Dianping.com" target="_blank" rel="noopener">Dianping.com</a>. The dataset builds a two-layer labeling system according to the granularity, which contains 6 categories and 20 fine-grained elements.</p>
+<p>Online reviews have become the critical factor to make consumption decision in recent years. They not only have a profound impact on the incisive understanding of shops, users, and the implied sentiment, but also have been widely used in Internet and e-commerce industry, such as personalized recommendation, intelligent search, product feedback, and business security. In this challenge, we provide a dataset of user reviews for fine-grained sentiment analysis from the catering industry, containning 335K public user reviews from Dianping.com. The dataset builds a two-layer labeling system according to the granularity, which contains 6 categories and 20 fine-grained elements.</p>
 <blockquote>
 <p>Training set: 105K</p>
 <p>Verification set: 15K</p>
@@ -125,29 +127,30 @@ var _hmt = _hmt || [];
 </blockquote>
 <p>There are four sentimental types for every fine-grained element: Positive, Neutral, Negative and Not mentioned, which are labelled as 1, 0, -1 and-2. The meaning of these four labels are listed below.</p>
 <img src="/images/deeplearning/AI-Challenger-14.png" width="650" alt=""/>
+
 <p>An example of one labelled review:</p>
 <blockquote>
 <p>“味道不错的面馆，性价比也相当之高，分量很足～女生吃小份，胃口小的，可能吃不完呢。环境在面馆来说算是好的，至少看上去堂子很亮，也比较干净，一般苍蝇馆子还是比不上这个卫生状况的。中午饭点的时候，人很多，人行道上也是要坐满的，隔壁的冒菜馆子，据说是一家，有时候也会开放出来坐吃面的人。“</p>
 </blockquote>
 <img src="/images/deeplearning/AI-Challenger-13.png" width="650" alt=""/>
-<hr />
+
+<hr>
 <p>「AI Challenger」是面向全球人工智能人才的开源数据集和编程竞赛平台。AI Challenger 2018 由创新工场、搜狗、美团点评、美图公司联合主办。有上万支团队参赛， 覆盖 81 个国家、1100 所高校、990 家公司。</p>
 <!--<img src="/images/deeplearning/AI-Challenger-21.webp" width="850" alt=""/>
 -->
-<h2 id="整体流程"><a class="markdownIt-Anchor" href="#整体流程"></a> 整体流程</h2>
-<ul>
+
+<h2 id="整体流程"><a href="#整体流程" class="headerlink" title="整体流程"></a>整体流程</h2><ul>
 <li><strong>问题建模</strong></li>
 <li><strong>模型基本架构</strong></li>
-<li><strong>数据处理</strong><br />
-。。。</li>
+<li><strong>数据处理</strong><br>。。。</li>
 </ul>
 <img src="/images/deeplearning/AI-Challenger-22.webp" width="890" alt=""/>
+
 <p>有20个粒度的评价指标，每个粒度又有4种情感状态，从官方baseline来看，分别训练了20个（4标签）分类器。</p>
 <blockquote>
 <p>FastText（0.573）、Attention-RNN (0.637)、Attention-RCNN (0.669)、ELMO-like（0.68830）</p>
 </blockquote>
-<h2 id="1-fasttext-baseline"><a class="markdownIt-Anchor" href="#1-fasttext-baseline"></a> 1. FastText baseline</h2>
-<blockquote>
+<h2 id="1-FastText-baseline"><a href="#1-FastText-baseline" class="headerlink" title="1. FastText baseline"></a>1. FastText baseline</h2><blockquote>
 <p>skift：scikit-learn wrappers for Python fastText.</p>
 </blockquote>
 <p>什么是 skift?</p>
@@ -161,7 +164,7 @@ var _hmt = _hmt || [];
 <li>采用word粒度，而非char粒度</li>
 </ol>
 </blockquote>
-<p>例如句子:</p>
+<p>例如句子: </p>
 <blockquote>
 <p>我喜歡去中國， 如果採用char粒度，則使用2-gram的話，產生的特徵爲:</p>
 <p>我喜 喜歡 歡中 中國</p>
@@ -179,17 +182,16 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>默认配置参数训练 fasttext 多模型，f1均值 约为 0.5513 的 fasttext 多分类模型(20个）</p>
 </blockquote>
-<h3 id="11-数据情况记录"><a class="markdownIt-Anchor" href="#11-数据情况记录"></a> 1.1 数据情况记录</h3>
-<p>fastText 时候， 词的粒度</p>
+<h3 id="1-1-数据情况记录"><a href="#1-1-数据情况记录" class="headerlink" title="1.1 数据情况记录"></a>1.1 数据情况记录</h3><p>fastText 时候， 词的粒度</p>
 <ul>
 <li>jieba 分词</li>
 <li>建立词典时，过滤掉出现次数小于 2~5 的词</li>
 <li>训练集、验证集 以及 测试集A组成的语料，词典大小为 66347</li>
 <li>预测和训练时，词典没有出现的词 用 <code>&lt;UNK&gt;</code> 代替</li>
 </ul>
-<h3 id="12-main-code"><a class="markdownIt-Anchor" href="#12-main-code"></a> 1.2 main code</h3>
-<p>利用训练集，来训练 <strong>20 个</strong> 4分类 分类器, 训练 15 分钟</p>
+<h3 id="1-2-main-code"><a href="#1-2-main-code" class="headerlink" title="1.2 main code"></a>1.2 main code</h3><p>利用训练集，来训练 <strong>20 个</strong> 4分类 分类器, 训练 15 分钟</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">sk_clf = FirstColFtClassifier(lr=learning_rate, epoch=epoch,</span><br><span class="line">                              wordNgrams=word_ngrams,</span><br><span class="line">                              minCount=min_count, verbose=<span class="number">2</span>)</span><br><span class="line">sk_clf.fit(train_data_format, train_label)</span><br></pre></td></tr></table></figure>
+
 <!--
 验证集，计算 macro F1
 
@@ -203,29 +205,30 @@ var _hmt = _hmt || [];
 
     f1_score = np.mean(list(f1_score_dict.values()))
 -->
+
 <blockquote>
 <p>min_count设置为2貌似也有一些负向影响， word_ngrams 2， epoch 10 .</p>
 </blockquote>
-<h3 id="13-baseline-效果"><a class="markdownIt-Anchor" href="#13-baseline-效果"></a> 1.3 baseline 效果</h3>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">service_wait_time:0.5247890022873511</span><br><span class="line">service_waiters_attitude:0.6781093513108542</span><br><span class="line">service_parking_convenience:0.5828932335474249</span><br><span class="line">service_serving_speed:0.6146828053320519</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">f1_score: 0.5513</span><br></pre></td></tr></table></figure>
+<h3 id="1-3-baseline-效果"><a href="#1-3-baseline-效果" class="headerlink" title="1.3 baseline 效果"></a>1.3 baseline 效果</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">service_wait_time:0.5247890022873511</span><br><span class="line">service_waiters_attitude:0.6781093513108542</span><br><span class="line">service_parking_convenience:0.5828932335474249</span><br><span class="line">service_serving_speed:0.6146828053320519</span><br><span class="line">...</span><br><span class="line">...</span><br><span class="line">f1_score: 0.5513</span><br></pre></td></tr></table></figure>
+
 <p>调参：</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">python main_train.py -mn fasttext_model_wn2.pkl -wn <span class="number">2</span></span><br></pre></td></tr></table></figure>
+
 <p>约跑15分钟左右，存储的模型大约在17G，验证集 macro F1值结果如下：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">service_wait_time:0.5247890022873511</span><br><span class="line">service_waiters_attitude:0.6881098513108542</span><br><span class="line">service_parking_convenience:0.5828935095474249</span><br><span class="line">service_serving_speed:0.6168828054420539</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">f1_score: 0.5783</span><br></pre></td></tr></table></figure>
+
 <p>这个结果看起来还不错，我们可以基于这个fasttext多分类模型进行测试集的预测：</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">python main_predict.py -mn fasttext_wn2_model.pkl</span><br></pre></td></tr></table></figure>
+
 <p>优化方法： 去停用词和去一些标点符号，调参，learning_rate的影响是比较直接的，min_count</p>
-<h3 id="14-fasttext-速度快"><a class="markdownIt-Anchor" href="#14-fasttext-速度快"></a> 1.4 fastText 速度快</h3>
-<p>能够做到效果好，速度快，主要依靠两个秘密武器：</p>
+<h3 id="1-4-fastText-速度快"><a href="#1-4-fastText-速度快" class="headerlink" title="1.4 fastText 速度快"></a>1.4 fastText 速度快</h3><p>能够做到效果好，速度快，主要依靠两个秘密武器：</p>
 <blockquote>
 <ol>
 <li>利用了 词内的n-gram信息 (subword n-gram information)</li>
 <li>用到了 层次化Softmax回归 (Hierarchical Softmax) 的训练 trick.</li>
 </ol>
 </blockquote>
-<h2 id="2-attention-rnn-rcnn"><a class="markdownIt-Anchor" href="#2-attention-rnn-rcnn"></a> 2. Attention RNN、RCNN</h2>
-<h3 id="21-预处理-data"><a class="markdownIt-Anchor" href="#21-预处理-data"></a> 2.1 预处理 data</h3>
-<p>粗暴使用char模型，用到的停用词也不多。</p>
+<h2 id="2-Attention-RNN、RCNN"><a href="#2-Attention-RNN、RCNN" class="headerlink" title="2. Attention RNN、RCNN"></a>2. Attention RNN、RCNN</h2><h3 id="2-1-预处理-data"><a href="#2-1-预处理-data" class="headerlink" title="2.1 预处理 data"></a>2.1 预处理 data</h3><p>粗暴使用char模型，用到的停用词也不多。</p>
 <ul>
 <li>trainsets lines：  501132， 合法例子 ： 105000</li>
 <li>validationset lines：  70935, 合法例子 ： 15000</li>
@@ -233,12 +236,14 @@ var _hmt = _hmt || [];
 </ul>
 <p>数据预处理，生成 train_char.csv、test_char.csv、test_char.csv 三个文件:</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">-rw-r--r--  1 blair 10:36 test_char.csv</span><br><span class="line">-rw-r--r--  1 blair 10:09 train_char.csv</span><br><span class="line">-rw-r--r--  1 blair 10:32 validation_char.csv</span><br></pre></td></tr></table></figure>
+
 <p><strong>word2vec：</strong> 维度 100， 窗口 10， 过滤掉次数小于 1~2 的字</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">3.1M chars.vector</span><br></pre></td></tr></table></figure>
+
 <p>过滤掉低频词之后：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">word2vec/chars.vector 为 7983 * 100</span><br></pre></td></tr></table></figure>
-<h3 id="22-attention-rcnn"><a class="markdownIt-Anchor" href="#22-attention-rcnn"></a> 2.2 Attention RCNN</h3>
-<blockquote>
+
+<h3 id="2-2-Attention-RCNN"><a href="#2-2-Attention-RCNN" class="headerlink" title="2.2 Attention RCNN"></a>2.2 Attention RCNN</h3><blockquote>
 <p>Attention-RNN (0.637)、Attention-RCNN (0.669)</p>
 </blockquote>
 <ul>
@@ -246,35 +251,37 @@ var _hmt = _hmt || [];
 </ul>
 <p>Kaggle 常见文本分类结构: 2层GRU 接Attention层，然后和 avgpool、maxpool concat 接起来.</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">model</span><span class="params">(self, embeddings_matrix, maxlen, word_index, num_class)</span>:</span></span><br></pre></td></tr></table></figure>
+
 <p>为了之后 summary 看清楚网络结构，所以我们一些参数先写死看一下：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> keras</span><br><span class="line"><span class="keyword">from</span> keras <span class="keyword">import</span> Model</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> *</span><br><span class="line"><span class="comment"># from JoinAttLayer import Attention</span></span><br><span class="line"></span><br><span class="line">maxlen=<span class="number">1200</span></span><br><span class="line"></span><br><span class="line">inp = Input(shape=(maxlen,)) <span class="comment"># 当输入序列的长度固定时，该值为其长度 1200 （一个文档doc的最大长度）</span></span><br><span class="line"></span><br><span class="line">encode = Bidirectional(CuDNNGRU(<span class="number">128</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line">encode2 = Bidirectional(CuDNNGRU(<span class="number">128</span>, return_sequences=<span class="literal">True</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># attention = Attention(maxlen)</span></span><br><span class="line"></span><br><span class="line">x_4 = Embedding(<span class="number">7555</span>+ <span class="number">1</span>,<span class="comment">#7983+1 # 词汇表大小， 即，最大整数 index + 1, len(word_index) + 1, # input_dim</span></span><br><span class="line">                <span class="number">100</span>, <span class="comment"># output_dim: int &gt;= 0。词向量的维度。</span></span><br><span class="line">                input_length=maxlen, <span class="comment"># maxlen=1200, 一个 doc 最大长度</span></span><br><span class="line">                trainable=<span class="literal">True</span>)(inp)</span><br></pre></td></tr></table></figure>
+
 <p>接下来：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x_3 = encode(x_4)</span><br><span class="line">x_3 = encode2(x_3)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 输入shape， 形如（samples，steps，features）的3D张量</span></span><br><span class="line"><span class="comment"># 输出shape， 形如(samples, features)的2D张量</span></span><br><span class="line">avg_pool_3 = GlobalAveragePooling1D()(x_3) <span class="comment"># GlobalAveragePooling1D 为时域信号施加全局平均值池化</span></span><br><span class="line">max_pool_3 = GlobalMaxPooling1D()(x_3) <span class="comment"># 对于时间信号的全局最大池化</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># attention_3 = attention(x_3)</span></span><br><span class="line"></span><br><span class="line">x = keras.layers.concatenate([avg_pool_3, max_pool_3], name=<span class="string">"fc"</span>)</span><br><span class="line">x = Dense(<span class="number">4</span>, activation=<span class="string">"softmax"</span>)(x)</span><br><span class="line"></span><br><span class="line">adam = keras.optimizers.Adam(lr=<span class="number">0.001</span>, beta_1=<span class="number">0.9</span>, beta_2=<span class="number">0.999</span>, epsilon=<span class="number">1e-08</span>, amsgrad=<span class="literal">True</span>)</span><br><span class="line">rmsprop = keras.optimizers.RMSprop(lr=<span class="number">0.001</span>, rho=<span class="number">0.9</span>, epsilon=<span class="number">1e-06</span>)</span><br><span class="line">model = Model(inputs=inp, outputs=x)</span><br><span class="line"></span><br><span class="line">model.compile(</span><br><span class="line">    loss=<span class="string">'categorical_crossentropy'</span>,</span><br><span class="line">    optimizer=adam)</span><br><span class="line"></span><br><span class="line"><span class="comment"># categorical_crossentropy 用来做多分类问题</span></span><br><span class="line"><span class="comment"># binary_crossentropy 用来做多标签分类问题</span></span><br><span class="line"></span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+
 <p>RNN：</p>
 <img src="/images/deeplearning/AI-Challenger-16-1.png" width="900" alt=""/>
+
 <p>RCNN：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x_4 = Embedding(<span class="number">7555</span>+ <span class="number">1</span>,<span class="comment">#7983+1 # 词汇表大小， 即，最大整数 index + 1</span></span><br><span class="line">                <span class="number">100</span>,</span><br><span class="line">                input_length=maxlen,</span><br><span class="line">                trainable=<span class="literal">True</span>)(inp)</span><br><span class="line"></span><br><span class="line">x_3 = encode(x_4)</span><br><span class="line">x_3 = encode2(x_3)</span><br><span class="line"></span><br><span class="line">x_3 = Conv1D(<span class="number">64</span>, kernel_size=<span class="number">3</span>, padding=<span class="string">"valid"</span>, kernel_initializer=<span class="string">"glorot_uniform"</span>)(x_3)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 输入shape， 形如（samples，steps，features）的3D张量</span></span><br><span class="line"><span class="comment"># 输出shape， 形如(samples, features)的2D张量</span></span><br><span class="line">avg_pool_3 = GlobalAveragePooling1D()(x_3) <span class="comment"># GlobalAveragePooling1D 为时域信号施加全局平均值池化</span></span><br><span class="line">max_pool_3 = GlobalMaxPooling1D()(x_3) <span class="comment"># 对于时间信号的全局最大池化</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># attention_3 = attention(x_3)</span></span><br><span class="line"></span><br><span class="line">x = keras.layers.concatenate([avg_pool_3, max_pool_3], name=<span class="string">"fc"</span>)</span><br><span class="line">x = Dense(<span class="number">4</span>, activation=<span class="string">"softmax"</span>)(x)</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
+
 <img src="/images/deeplearning/AI-Challenger-17-1.png" width="900" alt=""/>
+
+
 <blockquote>
 <p>Input 一个网络层次，输入层 在 keras</p>
-<p>SpatialDropout1D ，那么常规的 dropout 将无法使激活正则化，且导致有效的学习速率降低。<br />
-SpatialDropout1D ，在这种情况下，SpatialDropout1D 将有助于提高特征图之间的独立性，应该使用它来代替 Dropout。</p>
-<p>CuDNNGRU 是 基于CuDNN的快速GRU实现，只能在GPU上运行，只能使用 tensoflow 为后端<br />
-CuDNNLSTM 是 基于CuDNN的快速LSTM实现，只能在GPU上运行，只能使用 tensoflow 为后端</p>
+<p>SpatialDropout1D ，那么常规的 dropout 将无法使激活正则化，且导致有效的学习速率降低。<br>SpatialDropout1D ，在这种情况下，SpatialDropout1D 将有助于提高特征图之间的独立性，应该使用它来代替 Dropout。</p>
+<p>CuDNNGRU 是 基于CuDNN的快速GRU实现，只能在GPU上运行，只能使用 tensoflow 为后端<br>CuDNNLSTM 是 基于CuDNN的快速LSTM实现，只能在GPU上运行，只能使用 tensoflow 为后端</p>
 <p>attention = Attention(maxlen)</p>
 <p>Embedding嵌入层将正整数（下标）转换为具有固定大小的向量，如[<a href="https://blog.csdn.net/liuchonge/article/details/77140719" target="_blank" rel="noopener">4</a>, [20]]-&gt;[[0.25, 0.1], [0.6, -0.2]]</p>
 </blockquote>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">keras.layers.embeddings.Embedding(</span><br><span class="line">    input_dim, </span><br><span class="line">    output_dim, </span><br><span class="line">    embeddings_initializer=<span class="string">'uniform'</span>, <span class="comment"># embeddings_regularizer=None, </span></span><br><span class="line">    activity_regularizer=<span class="literal">None</span>,  <span class="comment"># embeddings_constraint=None,              </span></span><br><span class="line">    mask_zero=<span class="literal">False</span>, </span><br><span class="line">    input_length=<span class="literal">None</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
 <p>Embedding 的一些参数解释：</p>
 <blockquote>
 <p>Embedding层只能作为模型的第一层</p>
-<p>input_dim: int &gt; 0。词汇表大小， 即，最大整数 index + 1。<br />
-output_dim: int &gt;= 0。词向量的维度。<br />
-embeddings_initializer: 嵌入矩阵的初始化方法，为预定义初始化方法名的字符串，或用于初始化权重的初始化器。参考initializers<br />
-input_length：当输入序列的长度固定时，该值为其长度。如果要在该层后接Flatten层，然后接Dense层，则必须指定该参数，否则Dense层的输出维度无法自动推断。</p>
+<p>input_dim: int &gt; 0。词汇表大小， 即，最大整数 index + 1。<br>output_dim: int &gt;= 0。词向量的维度。<br>embeddings_initializer: 嵌入矩阵的初始化方法，为预定义初始化方法名的字符串，或用于初始化权重的初始化器。参考initializers<br>input_length：当输入序列的长度固定时，该值为其长度。如果要在该层后接Flatten层，然后接Dense层，则必须指定该参数，否则Dense层的输出维度无法自动推断。</p>
 </blockquote>
-<p><a href="/2018/08/21/deeplearning/Convolutional-Neural-Networks-week1/#4-1-%E8%BF%90%E7%94%A8-Padding-%E7%9A%84%E5%8E%9F%E5%9B%A0">Convolutional Neural Networks (week1) - CNN , 运用 Padding</a><br />
-<a href="https://blog.csdn.net/wuzqChom/article/details/74785643" target="_blank" rel="noopener">TensorFlow中CNN的两种padding方式“SAME”和“VALID”</a></p>
+<p><a href="/2018/08/21/deeplearning/Convolutional-Neural-Networks-week1/#4-1-运用-Padding-的原因">Convolutional Neural Networks (week1) - CNN , 运用 Padding</a><br><a href="https://blog.csdn.net/wuzqChom/article/details/74785643" target="_blank" rel="noopener">TensorFlow中CNN的两种padding方式“SAME”和“VALID”</a></p>
 <blockquote>
 <p>word2vec : 7983 100 word2vec/chars.vector 过滤掉低频词</p>
 </blockquote>
@@ -293,29 +300,28 @@ input_length：当输入序列的长度固定时，该值为其长度。如果�
 <p>我们可以把CNN类比N-gram模型，N-gram也是基于词窗范围这种局部的方式对文本进行特征提取，与CNN的做法很类似</p>
 </blockquote>
 <ul>
-<li><a href="https://plushunter.github.io/2018/03/08/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E7%B3%BB%E5%88%97%EF%BC%888%EF%BC%89%EF%BC%9ARCNN/" target="_blank" rel="noopener">自然语言处理系列（8）：RCNN</a></li>
+<li><a href="https://plushunter.github.io/2018/03/08/自然语言处理系列（8）：RCNN/" target="_blank" rel="noopener">自然语言处理系列（8）：RCNN</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/29201491" target="_blank" rel="noopener">Keras之文本分类实现</a></li>
 </ul>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> keras.backend.tensorflow_backend <span class="keyword">import</span> set_session</span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line">config = tf.ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth = <span class="literal">True</span></span><br><span class="line">set_session(tf.Session(config=config))</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line">random.seed = <span class="number">42</span></span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> tensorflow <span class="keyword">import</span> set_random_seed</span><br><span class="line">set_random_seed(<span class="number">42</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> keras.preprocessing <span class="keyword">import</span> text, sequence</span><br><span class="line"><span class="keyword">from</span> keras.callbacks <span class="keyword">import</span> ModelCheckpoint, Callback</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> sklearn.metrics <span class="keyword">import</span> f1_score, recall_score, precision_score</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> classifier_bigru <span class="keyword">import</span> TextClassifier</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> gensim.models.keyedvectors <span class="keyword">import</span> KeyedVectors</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pickle</span><br><span class="line"><span class="keyword">import</span> gc</span><br></pre></td></tr></table></figure>
-<h3 id="23-loss-function"><a class="markdownIt-Anchor" href="#23-loss-function"></a> 2.3 loss function</h3>
-<p><a href="https://blog.csdn.net/qinglv1/article/details/85701106" target="_blank" rel="noopener">多分类和多标签分类</a>, <a href="https://blog.csdn.net/sinat_26917383/article/details/69803018" target="_blank" rel="noopener">gensim训练word2vec及相关函数</a></p>
+
+<h3 id="2-3-loss-function"><a href="#2-3-loss-function" class="headerlink" title="2.3 loss function"></a>2.3 loss function</h3><p><a href="https://blog.csdn.net/qinglv1/article/details/85701106" target="_blank" rel="noopener">多分类和多标签分类</a>, <a href="https://blog.csdn.net/sinat_26917383/article/details/69803018" target="_blank" rel="noopener">gensim训练word2vec及相关函数</a></p>
 <blockquote>
-<p>多分类：类别数目大于2个，类别之间是互斥的。比如是猫，就不能是狗、猪<br />
-categorical crossentropy 用来做多分类问题<br />
-binary crossentropy 用来做多标签分类问题</p>
+<p>多分类：类别数目大于2个，类别之间是互斥的。比如是猫，就不能是狗、猪<br>categorical crossentropy 用来做多分类问题<br>binary crossentropy 用来做多标签分类问题</p>
 </blockquote>
 <p><a href="https://www.zhihu.com/question/36307214" target="_blank" rel="noopener">sigmoid,softmax,binary/categorical crossentropy的联系？</a></p>
 <blockquote>
-<p><strong>Binary cross-entropy</strong> 常用于二分类问题，当然也可以用于多分类问题，通常需要在网络的最后一层添加sigmoid进行配合使用</p>
+<p><strong>Binary cross-entropy</strong> 常用于二分类问题，当然也可以用于多分类问题，通常需要在网络的最后一层添加sigmoid进行配合使用 </p>
 <p><strong>Categorical cross-entropy</strong> 适用于多分类问题，并使用softmax作为输出层的激活函数的情况。</p>
 </blockquote>
-<h3 id="24-early-stop"><a class="markdownIt-Anchor" href="#24-early-stop"></a> 2.4 Early Stop</h3>
-<p>需要在每个 epoch 结束之后去计算模型的 F1 值，这样可以更好的掌握模型的训练情况。</p>
+<h3 id="2-4-Early-Stop"><a href="#2-4-Early-Stop" class="headerlink" title="2.4 Early Stop"></a>2.4 Early Stop</h3><p>需要在每个 epoch 结束之后去计算模型的 F1 值，这样可以更好的掌握模型的训练情况。</p>
 <blockquote>
 <p>Tips 如果我们在训练中设置 metric 的话，得到是每个 batch 的 F1 值, 是不靠谱的.</p>
 </blockquote>
-<p>类似这样:</p>
+<p>类似这样: </p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getClassification</span><span class="params">(arr)</span>:</span></span><br><span class="line">    arr = list(arr)</span><br><span class="line">    <span class="keyword">if</span> arr.index(max(arr)) == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-2</span></span><br><span class="line">    <span class="keyword">elif</span> arr.index(max(arr)) == <span class="number">1</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">    <span class="keyword">elif</span> arr.index(max(arr)) == <span class="number">2</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Metrics</span><span class="params">(Callback)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_train_begin</span><span class="params">(self, logs=&#123;&#125;)</span>:</span></span><br><span class="line">        self.val_f1s = []</span><br><span class="line">        self.val_recalls = []</span><br><span class="line">        self.val_precisions = []</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">on_epoch_end</span><span class="params">(self, epoch, logs=&#123;&#125;)</span>:</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="keyword">return</span></span><br></pre></td></tr></table></figure>
+
+
 <blockquote>
 <p>early_stop，就是在训练模型的时候，当在验证集上效果不再提升的时候，就提前停止训练，节约时间。</p>
 </blockquote>
@@ -326,15 +332,15 @@ binary crossentropy 用来做多标签分类问题</p>
 一般而言，当数据集样本不均衡的时候，通过设置正负样本权重，可以提高一些效果，但是在这道题目里面，我对4个类别分别设置了class_weight 之后，我发现效果竟然变得更差了。
 
 -->
-<h3 id="26-max-length-padding"><a class="markdownIt-Anchor" href="#26-max-length-padding"></a> 2.6 Max Length (padding)</h3>
-<blockquote>
+
+<h3 id="2-6-Max-Length-padding"><a href="#2-6-Max-Length-padding" class="headerlink" title="2.6 Max Length (padding)"></a>2.6 Max Length (padding)</h3><blockquote>
 <p>所有评论平均的长度是 200 左右，max_length 取 2 * 200，效果一直不给力.</p>
 <p>将 max_length 改为 1200 ，macro f-score 效果明显提升</p>
 <p>Tips： 多分类问题中，那些长度很长的评论可能会有部分属于那些样本数很少的类别，padding过短会导致这些长评论无法被正确划分。</p>
 </blockquote>
-<h2 id="3-elmo-like"><a class="markdownIt-Anchor" href="#3-elmo-like"></a> 3. ELMO-Like</h2>
-<!--<img src="/images/deeplearning/AI-Challenger-23.webp" width="850" alt=""/>
+<h2 id="3-ELMO-Like"><a href="#3-ELMO-Like" class="headerlink" title="3. ELMO-Like"></a>3. ELMO-Like</h2><!--<img src="/images/deeplearning/AI-Challenger-23.webp" width="850" alt=""/>
 -->
+
 <p>（腾讯词向量 16G， 800W * 200 = 5W * 200 + 自训词向 5W * 128 ） + BiGRU 中层语义 + BiGRU 高层语义</p>
 <blockquote>
 <p>10W+ 数据集，词频前5W的词, 每个评论一个 epoch 输入1次， 参数共享</p>
@@ -355,13 +361,11 @@ binary crossentropy 用来做多标签分类问题</p>
 <p>每个评论一个 epoch 输入1次， 参数共享</p>
 <p>maxLen 500 左右</p>
 </blockquote>
-<hr />
+<hr>
 <blockquote>
-<p>1.5W 跑一次测试集 1~2 分钟.<br />
-20W, 跑一次测试集 10多分钟 左右</p>
+<p>1.5W 跑一次测试集 1~2 分钟.<br>20W, 跑一次测试集 10多分钟 左右</p>
 </blockquote>
-<h2 id="4-summary"><a class="markdownIt-Anchor" href="#4-summary"></a> 4. Summary</h2>
-<blockquote>
+<h2 id="4-Summary"><a href="#4-Summary" class="headerlink" title="4. Summary"></a>4. Summary</h2><blockquote>
 <ol>
 <li>RNN 优点： 最大程度捕捉上下文信息，这可能有利于捕获长文本的语义。</li>
 <li>RNN 缺点： 是一个有偏倚的模型，在这个模型中，后面的单词比先前的单词更具优势。因此，当它被用于捕获整个文档的语义时，它可能会降低效率，因为关键组件可能出现在文档中的任何地方，而不是最后。</li>
@@ -369,7 +373,7 @@ binary crossentropy 用来做多标签分类问题</p>
 <li>CNN 优点： 一个可以自动判断哪些特性在文本分类中扮演关键角色的池化层，以捕获文本中的关键组件。</li>
 </ol>
 </blockquote>
-<hr />
+<hr>
 <p>在文本分类任务中，有哪些对性能有重要影响的tricks？</p>
 <blockquote>
 <ol>
@@ -382,8 +386,7 @@ binary crossentropy 用来做多标签分类问题</p>
 <li>文本领域用过数据增强的方法，就是对文本进行随机的shuffle和drop等操作来增加数据量</li>
 </ol>
 </blockquote>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://blog.csdn.net/liuchonge/article/details/77140719" target="_blank" rel="noopener">深度学习与文本分类总结第一篇–常用模型总结</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/25928551" target="_blank" rel="noopener">用深度学习（CNN RNN Attention）解决大规模文本分类问题 - 综述和实践</a></li>
 <li><a href="https://www.zhihu.com/question/59236897" target="_blank" rel="noopener">严重数据倾斜文本分类，比如正反比1:20～100，适合什么model</a></li>
@@ -400,9 +403,10 @@ binary crossentropy 用来做多标签分类问题</p>
 - [AI Challenger 2018 细粒度用户评论情感分析 fastText Baseline][w7]
 
 -->
+
 <ul>
-<li><a href="http://www.52nlp.cn/ai-challenger-2018-%E6%96%87%E6%9C%AC%E6%8C%96%E6%8E%98%E7%B1%BB%E7%AB%9E%E8%B5%9B%E7%9B%B8%E5%85%B3%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88%E5%8F%8A%E4%BB%A3%E7%A0%81%E6%B1%87%E6%80%BB" target="_blank" rel="noopener">ai-challenger-2018-文本挖掘类竞赛相关解决方案及代码汇总</a></li>
-<li><a href="http://www.52nlp.cn/qa%E9%97%AE%E7%AD%94%E7%B3%BB%E7%BB%9F%E4%B8%AD%E7%9A%84%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0" target="_blank" rel="noopener">QA问答系统中的深度学习技术实现</a></li>
+<li><a href="http://www.52nlp.cn/ai-challenger-2018-文本挖掘类竞赛相关解决方案及代码汇总" target="_blank" rel="noopener">ai-challenger-2018-文本挖掘类竞赛相关解决方案及代码汇总</a></li>
+<li><a href="http://www.52nlp.cn/qa问答系统中的深度学习技术实现" target="_blank" rel="noopener">QA问答系统中的深度学习技术实现</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/42517760" target="_blank" rel="noopener">深度学习代码复现之减少随机性的影响</a></li>
 </ul>
 
@@ -448,7 +452,7 @@ binary crossentropy 用来做多标签分类问题</p>
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#整体流程"><span class="toc-text"> 整体流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-fasttext-baseline"><span class="toc-text"> 1. FastText baseline</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-数据情况记录"><span class="toc-text"> 1.1 数据情况记录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-main-code"><span class="toc-text"> 1.2 main code</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-baseline-效果"><span class="toc-text"> 1.3 baseline 效果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-fasttext-速度快"><span class="toc-text"> 1.4 fastText 速度快</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-attention-rnn-rcnn"><span class="toc-text"> 2. Attention RNN、RCNN</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-预处理-data"><span class="toc-text"> 2.1 预处理 data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-attention-rcnn"><span class="toc-text"> 2.2 Attention RCNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-loss-function"><span class="toc-text"> 2.3 loss function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-early-stop"><span class="toc-text"> 2.4 Early Stop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#26-max-length-padding"><span class="toc-text"> 2.6 Max Length (padding)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-elmo-like"><span class="toc-text"> 3. ELMO-Like</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-summary"><span class="toc-text"> 4. Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#整体流程"><span class="toc-text">整体流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-FastText-baseline"><span class="toc-text">1. FastText baseline</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-数据情况记录"><span class="toc-text">1.1 数据情况记录</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-main-code"><span class="toc-text">1.2 main code</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-baseline-效果"><span class="toc-text">1.3 baseline 效果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-4-fastText-速度快"><span class="toc-text">1.4 fastText 速度快</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Attention-RNN、RCNN"><span class="toc-text">2. Attention RNN、RCNN</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-预处理-data"><span class="toc-text">2.1 预处理 data</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Attention-RCNN"><span class="toc-text">2.2 Attention RCNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-loss-function"><span class="toc-text">2.3 loss function</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Early-Stop"><span class="toc-text">2.4 Early Stop</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-Max-Length-padding"><span class="toc-text">2.6 Max Length (padding)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-ELMO-Like"><span class="toc-text">3. ELMO-Like</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Summary"><span class="toc-text">4. Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     

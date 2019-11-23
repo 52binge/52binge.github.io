@@ -110,32 +110,31 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>上篇 <code>PTB</code> 数据集 batching 中我们介绍了如何对 <code>PTB</code> 数据集进行 连接、切割 成多个 batch，作为 NNLM 的输入。</p>
-<p>本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。</p>
+<p>本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。 </p>
 <a id="more"></a>
+
 <img src="/images/tensorflow/tf-nlp-9.2.3_1.jpg" width="700" />
-<h2 id="1-embedding-层"><a class="markdownIt-Anchor" href="#1-embedding-层"></a> 1. Embedding 层</h2>
-<p>将 word 编号 转化为 word embedding 两大作用 :</p>
+
+<h2 id="1-Embedding-层"><a href="#1-Embedding-层" class="headerlink" title="1. Embedding 层"></a>1. Embedding 层</h2><p>将 word 编号 转化为 word embedding 两大作用 :</p>
 <table>
 <thead>
 <tr>
-<th style="text-align:center">No.</th>
-<th style="text-align:center">function</th>
-<th style="text-align:center">desc</th>
+<th align="center">No.</th>
+<th align="center">function</th>
+<th align="center">desc</th>
 </tr>
 </thead>
-<tbody>
-<tr>
-<td style="text-align:center">1.</td>
-<td style="text-align:center">降低输入的维度</td>
-<td style="text-align:center">词向量的维度通常在 200 ~ 1000 之间, 大大减少 RNN 网络的参数数量 与 计算量</td>
+<tbody><tr>
+<td align="center">1.</td>
+<td align="center">降低输入的维度</td>
+<td align="center">词向量的维度通常在 200 ~ 1000 之间, 大大减少 RNN 网络的参数数量 与 计算量</td>
 </tr>
 <tr>
-<td style="text-align:center">2.</td>
-<td style="text-align:center">增加语义信息</td>
-<td style="text-align:center">简单的单词编号是不包含任何语义信息的.</td>
+<td align="center">2.</td>
+<td align="center">增加语义信息</td>
+<td align="center">简单的单词编号是不包含任何语义信息的.</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <blockquote>
 <p>词向量维度: EMB_SIZE，词汇表大小: VOCAB_SIZE</p>
 <p>所有单词的词向量可以放入一个大小为 <strong>(EMB_SIZE, VOCAB_SIZE)</strong> 的矩阵内</p>
@@ -143,23 +142,23 @@ var _hmt = _hmt || [];
 <p>用 tf.Variable 来表示词向量，这样就可以采用任意初始化的词向量，学习过程中也会优化词向量。</p>
 </blockquote>
 <img src="/images/tensorflow/tf-nlp-9.2.3_2.jpg" width="700" />
+
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义单词的词向量矩阵</span></span><br><span class="line">embedding = tf.get_variable(<span class="string">"embedding"</span>, [VOCAB_SIZE, EMB_SIZE])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将数据转化为词向量表示</span></span><br><span class="line">inputs = tf.nn.embedding_lookup(embedding, input_data)</span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>其中输入数据 input_data 的维度是 (batch_size * num_steps)</p>
-<p>而输出的 input_embedding 的维度成为 (batch_size * num_steps * EMB_SIZE).</p>
-<p>在本文中，我们输入数据维度是 (<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>20</mn><mo>×</mo><mn>35</mn></mrow><annotation encoding="application/x-tex">20 \times 35</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">5</span></span></span></span>) ，EMB_SIZE = 300, 输入词向量维度时 (<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>20</mn><mo>×</mo><mn>35</mn><mo>×</mo><mn>300</mn></mrow><annotation encoding="application/x-tex">20 \times 35 \times 300</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">3</span><span class="mord">5</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">0</span><span class="mord">0</span></span></span></span>) .</p>
+<p>而输出的 input_embedding 的维度成为 (batch_size * num_steps * EMB_SIZE). </p>
+<p>在本文中，我们输入数据维度是 ($20 \times 35$) ，EMB_SIZE = 300, 输入词向量维度时 ($20 \times 35 \times 300$) .</p>
 </blockquote>
-<h2 id="2-softmax-层"><a class="markdownIt-Anchor" href="#2-softmax-层"></a> 2. Softmax 层</h2>
-<p>Softmax层 的作用是将 RNN 的输出 转化为一个单词表中每个单词的输出概率，为此需要两个步骤：</p>
-<h3 id="21-第一步"><a class="markdownIt-Anchor" href="#21-第一步"></a> 2.1 第一步</h3>
-<p>使用一个线性映射将 RNN 的输出映射为一个维度与词汇表大小相同的向量，这一步的输出叫做 <strong>logits</strong>. 代码如下所示：</p>
+<h2 id="2-Softmax-层"><a href="#2-Softmax-层" class="headerlink" title="2. Softmax 层"></a>2. Softmax 层</h2><p>Softmax层 的作用是将 RNN 的输出 转化为一个单词表中每个单词的输出概率，为此需要两个步骤：</p>
+<h3 id="2-1-第一步"><a href="#2-1-第一步" class="headerlink" title="2.1 第一步"></a>2.1 第一步</h3><p>使用一个线性映射将 RNN 的输出映射为一个维度与词汇表大小相同的向量，这一步的输出叫做 <strong>logits</strong>. 代码如下所示：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 首先定义映射用到的参数</span></span><br><span class="line"><span class="comment"># HIDDEN_SIZE 是 RNN 的隐藏状态维度，VOCAB_SIZE 是词汇表大小</span></span><br><span class="line">weight = tf.get_variable(<span class="string">"weight"</span>, [HIDDEN_ZIZE, VOCAB_SIZE])</span><br><span class="line">bias = tf.get_variable(<span class="string">"bias"</span>, [VOCAB_SIZE])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算线性映射</span></span><br><span class="line">logits = tf.matmul(output, weight) + bias</span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>其中 output 是 RNN 的输出，维度是 [batch_size * num_steps, <strong>HIDDEN_SIZE</strong>]</p>
 <p>经过线性映射后，输出结果是 [batch_size * num_steps, <strong>VOCAB_SIZE</strong>].</p>
 </blockquote>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">tensorflow.org</a></li>
 <li><a href="https://www.zhihu.com/question/52250059/answer/146260654" target="_blank" rel="noopener">tf.nn.embedding_lookup函数原理？</a></li>
 <li><a href="https://www.zhihu.com/question/48107602/answer/159801895" target="_blank" rel="noopener">求通俗讲解下tensorflow的embedding_lookup接口的意思？</a></li>
@@ -210,7 +209,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-embedding-层"><span class="toc-text"> 1. Embedding 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-softmax-层"><span class="toc-text"> 2. Softmax 层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-第一步"><span class="toc-text"> 2.1 第一步</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Embedding-层"><span class="toc-text">1. Embedding 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Softmax-层"><span class="toc-text">2. Softmax 层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-第一步"><span class="toc-text">2.1 第一步</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
