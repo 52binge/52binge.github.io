@@ -110,11 +110,60 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>处理 <code>NaN</code> 数据, 一些 空 或者 <code>NaN</code> 数据, 如何删除或者填补这些 <code>NaN</code> 数据.</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/30/python/numpy-pandas/py-pandas-4-deal-NaN-value/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>创建含 NaN 的矩阵</h2>
+<p>建立了一个6X4的矩阵数据并且把两个位置置为空.</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">dates = pd.date_range(<span class="string">'20130101'</span>, periods=<span class="number">6</span>)</span><br><span class="line">df = pd.DataFrame(np.arange(<span class="number">24</span>).reshape((<span class="number">6</span>,<span class="number">4</span>)),index=dates, columns=[<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'C'</span>,<span class="string">'D'</span>])</span><br><span class="line">df.iloc[<span class="number">0</span>,<span class="number">1</span>] = np.nan</span><br><span class="line">df.iloc[<span class="number">1</span>,<span class="number">2</span>] = np.nan</span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A     B     C   D
+2013-01-01   0   NaN   2.0   3
+2013-01-02   4   5.0   NaN   7
+2013-01-03   8   9.0  10.0  11
+2013-01-04  12  13.0  14.0  15
+2013-01-05  16  17.0  18.0  19
+2013-01-06  20  21.0  22.0  23
+</code></pre>
+<h2>pd.dropna()</h2>
+<p>如果想直接去掉有 <code>NaN</code> 的行或列, 可以使用 <code>dropna</code></p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df1 = df.dropna(</span><br><span class="line">    axis=<span class="number">0</span>,     <span class="comment"># 0: 对行进行操作; 1: 对列进行操作</span></span><br><span class="line">    how=<span class="string">'any'</span>   <span class="comment"># 'any': 只要存在 NaN 就 drop 掉; 'all': 必须全部是 NaN 才 drop </span></span><br><span class="line">    ) </span><br><span class="line">print(df1)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A     B     C   D
+2013-01-03   8   9.0  10.0  11
+2013-01-04  12  13.0  14.0  15
+2013-01-05  16  17.0  18.0  19
+2013-01-06  20  21.0  22.0  23
+</code></pre>
+<h2>pd.fillna()</h2>
+<p>如果是将 <code>NaN</code> 的值用其他值代替, 比如代替成 <code>0</code>:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df2 = df.fillna(value=<span class="number">0</span>)</span><br><span class="line">print(df2)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A     B     C   D
+2013-01-01   0   0.0   2.0   3
+2013-01-02   4   5.0   0.0   7
+2013-01-03   8   9.0  10.0  11
+2013-01-04  12  13.0  14.0  15
+2013-01-05  16  17.0  18.0  19
+2013-01-06  20  21.0  22.0  23
+</code></pre>
+<h2>pd.isnull()</h2>
+<p>判断是否有缺失数据 <code>NaN</code>, 为 <code>True</code> 表示缺失数据:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df.isnull())</span><br></pre></td></tr></table></figure></p>
+<pre><code>                A      B      C      D
+2013-01-01  False   True  False  False
+2013-01-02  False  False   True  False
+2013-01-03  False  False  False  False
+2013-01-04  False  False  False  False
+2013-01-05  False  False  False  False
+2013-01-06  False  False  False  False
+</code></pre>
+<p>检测在数据中是否存在 <code>NaN</code>, 如果存在就返回 <code>True</code>:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">np.any(df.isnull()) == <span class="literal">True</span>  </span><br><span class="line"><span class="comment"># True</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>True
+</code></pre>
+<h2>Reference</h2>
+<ul>
+<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
+<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="noopener">pandas docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -177,11 +226,70 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>我们可以根据自己的需求, 用 pandas 进行更改数据里面的值, 或者加上一些空的,或者有数值的列.</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/30/python/numpy-pandas/py-pandas-3-set-value/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>创建数据</h2>
+<p>首先建立了一个 6X4 的矩阵数据</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">dates = pd.date_range(<span class="string">'20130101'</span>, periods=<span class="number">6</span>) <span class="comment"># 2013-01-01 结果一样</span></span><br><span class="line">df = pd.DataFrame(np.arange(<span class="number">24</span>).reshape((<span class="number">6</span>,<span class="number">4</span>)),index=dates, columns=[<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'C'</span>,<span class="string">'D'</span>])</span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A   B   C   D
+2013-01-01   0   1   2   3
+2013-01-02   4   5   6   7
+2013-01-03   8   9  10  11
+2013-01-04  12  13  14  15
+2013-01-05  16  17  18  19
+2013-01-06  20  21  22  23
+</code></pre>
+<h2>设置 loc 和 iloc</h2>
+<p>我们可以利用索引或者标签确定需要修改值的位置</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df.iloc[<span class="number">2</span>,<span class="number">2</span>] = <span class="number">1111</span></span><br><span class="line">df.loc[<span class="string">'2013-01-01'</span>,<span class="string">'B'</span>] = <span class="number">2222</span></span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A     B     C   D
+2013-01-01   0  2222     2   3
+2013-01-02   4     5     6   7
+2013-01-03   8     0  1111  11
+2013-01-04  12     0    14  15
+2013-01-05  16     0    18  19
+2013-01-06  20     0    22  23
+</code></pre>
+<h2>根据条件设置</h2>
+<p>如果现在的判断条件是这样, 我们想要更改B中的数, 而更改的位置是取决于 A 的. 对于A大于4的位置. 更改B在相应位置上的数为0</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df.B[df.A&gt;<span class="number">4</span>] = <span class="number">0</span></span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A     B     C   D
+2013-01-01   0  2222     2   3
+2013-01-02   4     5     6   7
+2013-01-03   8     0  1111  11
+2013-01-04  12     0    14  15
+2013-01-05  16     0    18  19
+2013-01-06  20     0    22  23
+</code></pre>
+<h2>按行或列设置</h2>
+<p>如果对整列做批处理, 加上一列 ‘F’, 并将 F 列全改为 NaN, 如下:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df[<span class="string">'F'</span>] = np.nan</span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A     B     C   D   F
+2013-01-01   0  2222     2   3 NaN
+2013-01-02   4     5     6   7 NaN
+2013-01-03   8     0  1111  11 NaN
+2013-01-04  12     0    14  15 NaN
+2013-01-05  16     0    18  19 NaN
+2013-01-06  20     0    22  23 NaN
+</code></pre>
+<h2>添加数据</h2>
+<p>用上面的方法也可以加上 Series 序列（但是长度必须对齐）</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df[<span class="string">'E'</span>] = pd.Series([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>], index=pd.date_range(<span class="string">'20130101'</span>,periods=<span class="number">6</span>)) </span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A     B     C   D   F  E
+2013-01-01   0  2222     2   3 NaN  1
+2013-01-02   4     5     6   7 NaN  2
+2013-01-03   8     0  1111  11 NaN  3
+2013-01-04  12     0    14  15 NaN  4
+2013-01-05  16     0    18  19 NaN  5
+2013-01-06  20     0    22  23 NaN  6
+</code></pre>
+<p>这样我们大概学会了如何对 <code>DataFrame</code> 中在自己想要的地方赋值或者增加数据。</p>
+<h2>Reference</h2>
+<ul>
+<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
+<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="noopener">pandas docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -244,11 +352,134 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>pandas 选择数据, 首先我们建立了一个 6X4 的矩阵数据</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/28/python/numpy-pandas/py-pandas-2-select-data/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">dates = pd.date_range(<span class="string">'20130101'</span>, periods=<span class="number">6</span>)</span><br><span class="line">df = pd.DataFrame(np.arange(<span class="number">24</span>).reshape((<span class="number">6</span>,<span class="number">4</span>)),index=dates, columns=[<span class="string">'A'</span>,<span class="string">'B'</span>,<span class="string">'C'</span>,<span class="string">'D'</span>])</span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A   B   C   D
+2013-01-01   0   1   2   3
+2013-01-02   4   5   6   7
+2013-01-03   8   9  10  11
+2013-01-04  12  13  14  15
+2013-01-05  16  17  18  19
+2013-01-06  20  21  22  23
+</code></pre>
+<h2>简单的筛选</h2>
+<p>如果我们想选取 DataFrame 中的数据，下面描述了两种途径, 他们都能达到同一个目的：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df[<span class="string">'A'</span>])</span><br><span class="line">print(df.A)</span><br></pre></td></tr></table></figure></p>
+<pre><code>2013-01-01     0
+2013-01-02     4
+2013-01-03     8
+2013-01-04    12
+2013-01-05    16
+2013-01-06    20
+Freq: D, Name: A, dtype: int64
+
+2013-01-01     0
+2013-01-02     4
+2013-01-03     8
+2013-01-04    12
+2013-01-05    16
+2013-01-06    20
+Freq: D, Name: A, dtype: int64
+</code></pre>
+<p>让选择跨越多行或多列:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df[<span class="number">0</span>:<span class="number">3</span>])</span><br></pre></td></tr></table></figure></p>
+<pre><code>            A  B   C   D
+2013-01-01  0  1   2   3
+2013-01-02  4  5   6   7
+2013-01-03  8  9  10  11
+</code></pre>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df[<span class="number">3</span>:<span class="number">3</span>])</span><br></pre></td></tr></table></figure></p>
+<pre><code>Empty DataFrame
+Columns: [A, B, C, D]
+Index: []
+</code></pre>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df[<span class="string">'20130102'</span>:<span class="string">'20130104'</span>])</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A   B   C   D
+2013-01-02   4   5   6   7
+2013-01-03   8   9  10  11
+2013-01-04  12  13  14  15
+</code></pre>
+<p>如果 <code>df[3:3]</code> 将会是一个空对象。后者选择 <code>20130102</code> 到 <code>20130104</code> 标签之间的数据，并且包括这两个标签</p>
+<h2>根据标签 loc</h2>
+<p>可以使用标签来选择数据 <code>loc</code>, 本例子主要通过标签名字选择某一行数据， 或者通过选择某行或者所有行（<code>:</code>代表所有行）然后选其中某一列或几列数据 :</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df.loc[<span class="string">'20130102'</span>])</span><br></pre></td></tr></table></figure></p>
+<pre><code>A    4
+B    5
+C    6
+D    7
+Name: 2013-01-02 00:00:00, dtype: int64
+</code></pre>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df.loc[:,[<span class="string">'A'</span>,<span class="string">'B'</span>]])</span><br></pre></td></tr></table></figure></p>
+<pre><code>             A   B
+2013-01-01   0   1
+2013-01-02   4   5
+2013-01-03   8   9
+2013-01-04  12  13
+2013-01-05  16  17
+2013-01-06  20  21
+</code></pre>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df.loc[<span class="string">'20130102'</span>,[<span class="string">'A'</span>,<span class="string">'B'</span>]])</span><br></pre></td></tr></table></figure>
+A    4
+B    5
+Name: 2013-01-02 00:00:00, dtype: int64</p>
+<h2>根据序列 iloc</h2>
+<p>可以采用位置进行选择 <code>iloc</code>, 在这里我们可以通过位置选择在不同情况下所需要的数据例如选某一个，连续选或者跨行选等操作。</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df.iloc[<span class="number">3</span>,<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+13</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df.iloc[<span class="number">3</span>:<span class="number">5</span>,<span class="number">1</span>:<span class="number">3</span>])</span><br></pre></td></tr></table></figure></p>
+<pre><code>             B   C
+2013-01-04  13  14
+2013-01-05  17  18
+</code></pre>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df.iloc[[<span class="number">1</span>,<span class="number">3</span>,<span class="number">5</span>],<span class="number">1</span>:<span class="number">3</span>])</span><br></pre></td></tr></table></figure></p>
+<pre><code>             B   C
+2013-01-02   5   6
+2013-01-04  13  14
+2013-01-06  21  22
+</code></pre>
+<p>在这里我们可以通过位置选择在不同情况下所需要的数据, 例如选某一个，连续选或者跨行选等操作。</p>
+<h2>根据混合两种 ix</h2>
+<p>当然我们可以采用混合选择 <code>ix</code>, 其中选择’A’和’C’的两列，并选择前三行的数据。</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df.ix[:<span class="number">3</span>,[<span class="string">'A'</span>,<span class="string">'C'</span>]])</span><br></pre></td></tr></table></figure></p>
+<pre><code>            A   C
+2013-01-01  0   2
+2013-01-02  4   6
+2013-01-03  8  10
+
+
+/Users/blair/.pyenv/versions/anaconda3/lib/python3.6/site-packages/ipykernel_launcher.py:1: DeprecationWarning: 
+.ix is deprecated. Please use
+.loc for label based indexing or
+.iloc for positional indexing
+
+See the documentation here:
+http://pandas.pydata.org/pandas-docs/stable/indexing.html#ix-indexer-is-deprecated
+  &quot;&quot;&quot;Entry point for launching an IPython kernel.
+</code></pre>
+<h2>通过判断的筛选</h2>
+<p>最后我们可以采用判断指令 (Boolean indexing) 进行选择. 我们可以约束某项条件然后选择出当前所有数据.</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df[df.A&gt;<span class="number">8</span>])</span><br><span class="line">df.A&gt;<span class="number">8</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>             A   B   C   D
+2013-01-04  12  13  14  15
+2013-01-05  16  17  18  19
+2013-01-06  20  21  22  23
+
+2013-01-01    False
+2013-01-02    False
+2013-01-03    False
+2013-01-04     True
+2013-01-05     True
+2013-01-06     True
+Freq: D, Name: A, dtype: bool
+</code></pre>
+<p>下节我们将会讲到Pandas中如何设置值。</p>
+<h2>Reference</h2>
+<ul>
+<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
+<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="noopener">pandas docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -311,11 +542,143 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>如果用列表和字典来作比较, 那么可以说 Numpy 是列表形式的，没有数值标签，而 Pandas 就是字典形式</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/27/python/numpy-pandas/py-pandas-1-intro/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<p>Pandas是基于Numpy构建的，让Numpy为中心的应用变得更加简单。</p>
+<p>要使用pandas，首先需要了解他主要两个数据结构：Series 和 DataFrame。</p>
+<h2>Series</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">s = pd.Series([<span class="number">1</span>,<span class="number">3</span>,<span class="number">6</span>,np.nan,<span class="number">44</span>,<span class="number">1</span>])</span><br><span class="line"></span><br><span class="line">print(s)</span><br></pre></td></tr></table></figure></p>
+<pre><code>0     1.0
+1     3.0
+2     6.0
+3     NaN
+4    44.0
+5     1.0
+dtype: float64
+</code></pre>
+<p><code>Series</code> 的字符串表现形式为：索引在左边，值在右边。
+由于我们没有为数据指定索引。于是会自动创建一个0到N-1（N为长度）的整数型索引。</p>
+<h2>DataFrame 矩阵创建</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">dates = pd.date_range(<span class="string">'20160101'</span>,periods=<span class="number">6</span>)</span><br><span class="line">df = pd.DataFrame(np.random.randn(<span class="number">6</span>,<span class="number">4</span>),index=dates,columns=[<span class="string">'a'</span>,<span class="string">'b'</span>,<span class="string">'c'</span>,<span class="string">'d'</span>])</span><br><span class="line"></span><br><span class="line">print(df)</span><br></pre></td></tr></table></figure></p>
+<pre><code>                   a         b         c         d
+2016-01-01 -0.186992  0.228857  0.572464 -0.842974
+2016-01-02 -0.689623 -1.491299  0.647805  0.819846
+2016-01-03 -1.294425  0.138935  1.729793 -1.270880
+2016-01-04  0.088744  0.745256  0.380425  0.048070
+2016-01-05  0.003135 -2.240388  0.188038 -0.069044
+2016-01-06 -1.358217 -0.820133  1.606467 -1.622589
+</code></pre>
+<p><code>DataFrame</code> 是一个表格型的数据结构，它包含有一组有序的列，每列可以是不同的值类型（数值，字符串，布尔值等）。<br>
+<code>DataFrame</code> 既有行索引也有列索引， 它可以被看做由 <code>Series</code> 组成的大字典。</p>
+<p>我们可以根据每一个不同的索引来挑选数据, 比如挑选 <code>b</code> 的元素:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df[<span class="string">'b'</span>])</span><br></pre></td></tr></table></figure></p>
+<pre><code>2016-01-01    0.228857
+2016-01-02   -1.491299
+2016-01-03    0.138935
+2016-01-04    0.745256
+2016-01-05   -2.240388
+2016-01-06   -0.820133
+Freq: D, Name: b, dtype: float64
+</code></pre>
+<p>我们在创建一组没有给定行标签和列标签的数据 <code>df1</code>:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df1 = pd.DataFrame(np.arange(<span class="number">12</span>).reshape((<span class="number">3</span>,<span class="number">4</span>)))</span><br><span class="line">print(df1)</span><br></pre></td></tr></table></figure></p>
+<pre><code>   0  1   2   3
+0  0  1   2   3
+1  4  5   6   7
+2  8  9  10  11
+</code></pre>
+<p>这样,他就会采取默认的从0开始 index.</p>
+<h2>DataFrame 字典创建</h2>
+<p>还有一种生成 <code>df</code> 的方法, 如下 <code>df2</code>:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df2 = pd.DataFrame(&#123;<span class="string">'A'</span> : [<span class="number">1</span>, <span class="number">3</span>, <span class="number">7</span>, <span class="number">5</span>],</span><br><span class="line">                    <span class="string">'B'</span> : pd.Timestamp(<span class="string">'20130102'</span>),</span><br><span class="line">                    <span class="string">'C'</span> : pd.Series(<span class="number">1</span>,index=list(range(<span class="number">4</span>)),dtype=<span class="string">'float32'</span>),</span><br><span class="line">                    <span class="string">'D'</span> : np.array([<span class="number">3</span>] * <span class="number">4</span>,dtype=<span class="string">'int32'</span>),</span><br><span class="line">                    <span class="string">'E'</span> : pd.Categorical([<span class="string">"test"</span>,<span class="string">"train"</span>,<span class="string">"test"</span>,<span class="string">"train"</span>]),</span><br><span class="line">                    <span class="string">'F'</span> : <span class="string">'foo'</span>&#125;)</span><br><span class="line">                    </span><br><span class="line">print(df2)</span><br></pre></td></tr></table></figure></p>
+<pre><code>   A          B    C  D      E    F
+0  1 2013-01-02  1.0  3   test  foo
+1  3 2013-01-02  1.0  3  train  foo
+2  7 2013-01-02  1.0  3   test  foo
+3  5 2013-01-02  1.0  3  train  foo
+</code></pre>
+<p>这种方法能对每一列的数据进行特殊对待. 如果想要查看数据中的类型, 我们可以用 <code>dtype</code> 这个属性:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.dtypes)</span><br></pre></td></tr></table></figure></p>
+<pre><code>A             int64
+B    datetime64[ns]
+C           float32
+D             int32
+E          category
+F            object
+dtype: object
+</code></pre>
+<p>如果想看对列的序号:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.index)</span><br></pre></td></tr></table></figure></p>
+<pre><code>Int64Index([0, 1, 2, 3], dtype='int64')
+</code></pre>
+<p>同样, 每种数据的名称也能看到:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.columns)</span><br></pre></td></tr></table></figure></p>
+<pre><code>Index(['A', 'B', 'C', 'D', 'E', 'F'], dtype='object')
+</code></pre>
+<p>如果只想看所有 <code>df2</code> 的值:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.values)</span><br></pre></td></tr></table></figure></p>
+<pre><code>[[1 Timestamp('2013-01-02 00:00:00') 1.0 3 'test' 'foo']
+ [3 Timestamp('2013-01-02 00:00:00') 1.0 3 'train' 'foo']
+ [7 Timestamp('2013-01-02 00:00:00') 1.0 3 'test' 'foo']
+ [5 Timestamp('2013-01-02 00:00:00') 1.0 3 'train' 'foo']]
+</code></pre>
+<p>想知道数据的总结, 可以用 <code>describe()</code>:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">df2.describe()</span><br></pre></td></tr></table></figure></p>
+<pre><code>		A	C	D
+	count	4.000000	4.0	4.0
+	mean	4.000000	1.0	3.0
+	std	2.581989	0.0	0.0
+	min	1.000000	1.0	3.0
+	25%	2.500000	1.0	3.0
+	50%	4.000000	1.0	3.0
+	75%	5.500000	1.0	3.0
+	max	7.000000	1.0	3.0
+</code></pre>
+<p>如果想翻转数据, <code>transpose</code>:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.T)</span><br></pre></td></tr></table></figure></p>
+<pre><code>                     0                    1                    2  \
+A                    1                    3                    7   
+B  2013-01-02 00:00:00  2013-01-02 00:00:00  2013-01-02 00:00:00   
+C                    1                    1                    1   
+D                    3                    3                    3   
+E                 test                train                 test   
+F                  foo                  foo                  foo   
+
+                     3  
+A                    5  
+B  2013-01-02 00:00:00  
+C                    1  
+D                    3  
+E                train  
+F                  foo  
+</code></pre>
+<p>如果想对数据的 <code>index</code> 进行排序并输出:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.sort_index(axis=<span class="number">1</span>, ascending=<span class="literal">False</span>)) <span class="comment"># 对列名称进行排序，索引名，倒排序</span></span><br><span class="line"></span><br><span class="line">print(df2.sort_index(axis=<span class="number">0</span>, ascending=<span class="literal">False</span>)) <span class="comment"># 对列名称进行排序，索引名，倒排序</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>     F      E  D    C          B  A
+0  foo   test  3  1.0 2013-01-02  1
+1  foo  train  3  1.0 2013-01-02  3
+2  foo   test  3  1.0 2013-01-02  7
+3  foo  train  3  1.0 2013-01-02  5
+   A          B    C  D      E    F
+3  5 2013-01-02  1.0  3  train  foo
+2  7 2013-01-02  1.0  3   test  foo
+1  3 2013-01-02  1.0  3  train  foo
+0  1 2013-01-02  1.0  3   test  foo
+</code></pre>
+<p>如果是对数据 值 排序输出:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(df2.sort_values(by=<span class="string">'E'</span>))</span><br></pre></td></tr></table></figure></p>
+<pre><code>   A          B    C  D      E    F
+0  1 2013-01-02  1.0  3   test  foo
+2  7 2013-01-02  1.0  3   test  foo
+1  3 2013-01-02  1.0  3  train  foo
+3  5 2013-01-02  1.0  3  train  foo
+</code></pre>
+<h2>Reference</h2>
+<ul>
+<li><a href="https://pandas.pydata.org/" target="_blank" rel="noopener">pandas.pydata.org</a></li>
+<li><a href="http://pandas.pydata.org/pandas-docs/version/0.21/" target="_blank" rel="noopener">pandas docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -378,11 +741,28 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>numpy copy &amp; deep copy</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/27/python/numpy-pandas/py-numpy-8-copy-deep-copy/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>= 的赋值方式会带有关联性</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">a = np.arange(<span class="number">4</span>)</span><br><span class="line"><span class="comment"># array([0, 1, 2, 3])</span></span><br><span class="line"></span><br><span class="line">b = a</span><br><span class="line">c = a</span><br><span class="line">d = b</span><br></pre></td></tr></table></figure></p>
+<p>改变<code>a</code>的第一个值，<code>b</code>、<code>c</code>、<code>d</code>的第一个值也会同时改变。</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a[<span class="number">0</span>] = <span class="number">11</span></span><br><span class="line">print(a)</span><br><span class="line"><span class="comment"># array([11,  1,  2,  3])</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[11  1  2  3]
+</code></pre>
+<p>确认<code>b</code>、<code>c</code>、<code>d</code>是否与<code>a</code>相同</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">b <span class="keyword">is</span> a  <span class="comment"># True</span></span><br><span class="line">c <span class="keyword">is</span> a  <span class="comment"># True</span></span><br><span class="line">d <span class="keyword">is</span> a  <span class="comment"># True</span></span><br></pre></td></tr></table></figure></p>
+<h2>copy() 的赋值方式没有关联性</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">b = a.copy()    <span class="comment"># deep copy</span></span><br><span class="line">print(b)        <span class="comment"># array([11, 22, 33,  3])</span></span><br><span class="line">a[<span class="number">3</span>] = <span class="number">44</span></span><br><span class="line">print(a)        <span class="comment"># array([11, 22, 33, 44])</span></span><br><span class="line">print(b)        <span class="comment"># array([11, 22, 33,  3])</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[11  1  2  3]
+[11  1  2 44]
+[11  1  2  3]
+</code></pre>
+<h2>Reference</h2>
+<ul>
+<li><a href="http://www.numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+<li><a href="https://docs.scipy.org/doc/numpy-dev/user/quickstart.html" target="_blank" rel="noopener">numpy docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -445,11 +825,31 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>Numpy array 横向分割、纵向分割、等量分割、非等量分割</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/27/python/numpy-pandas/py-numpy-7-Split/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>创建数据</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">A = np.arange(<span class="number">12</span>).reshape((<span class="number">3</span>, <span class="number">4</span>))</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([[ 0,  1,  2,  3],</span></span><br><span class="line"><span class="string">    [ 4,  5,  6,  7],</span></span><br><span class="line"><span class="string">    [ 8,  9, 10, 11]])</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line">print(A)</span><br></pre></td></tr></table></figure></p>
+<pre><code>[[ 0  1  2  3]
+ [ 4  5  6  7]
+ [ 8  9 10 11]]
+</code></pre>
+<h2>纵向分割</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(np.split(A, <span class="number">2</span>, axis=<span class="number">1</span>))</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">[array([[0, 1],</span></span><br><span class="line"><span class="string">        [4, 5],</span></span><br><span class="line"><span class="string">        [8, 9]]), array([[ 2,  3],</span></span><br><span class="line"><span class="string">        [ 6,  7],</span></span><br><span class="line"><span class="string">        [10, 11]])]</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<h2>横向分割</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(np.split(A, <span class="number">3</span>, axis=<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># [array([[0, 1, 2, 3]]), array([[4, 5, 6, 7]]), array([[ 8,  9, 10, 11]])]</span></span><br></pre></td></tr></table></figure></p>
+<h2>不等量的分割</h2>
+<p>在机器学习时经常会需要将数据做不等量的分割，因此解决办法为<code>np.array_split()</code></p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(np.array_split(A, <span class="number">3</span>, axis=<span class="number">1</span>))</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">[array([[0, 1],</span></span><br><span class="line"><span class="string">        [4, 5],</span></span><br><span class="line"><span class="string">        [8, 9]]), array([[ 2],</span></span><br><span class="line"><span class="string">        [ 6],</span></span><br><span class="line"><span class="string">        [10]]), array([[ 3],</span></span><br><span class="line"><span class="string">        [ 7],</span></span><br><span class="line"><span class="string">        [11]])]</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<p>成功将Array不等量分割!</p>
+<h2>其他的分割方式</h2>
+<p>在Numpy里还有<code>np.vsplit()</code>与横<code>np.hsplit()</code>方式可用。</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(np.vsplit(A, <span class="number">3</span>)) <span class="comment">#等于 print(np.split(A, 3, axis=0))</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># [array([[0, 1, 2, 3]]), array([[4, 5, 6, 7]]), array([[ 8,  9, 10, 11]])]</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">print(np.hsplit(A, <span class="number">2</span>)) <span class="comment">#等于 print(np.split(A, 2, axis=1))</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">[array([[0, 1],</span></span><br><span class="line"><span class="string">       [4, 5],</span></span><br><span class="line"><span class="string">       [8, 9]]), array([[ 2,  3],</span></span><br><span class="line"><span class="string">        [ 6,  7],</span></span><br><span class="line"><span class="string">        [10, 11]])]</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<h2>Reference</h2>
+<ul>
+<li><a href="http://www.numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+<li><a href="https://docs.scipy.org/doc/numpy-dev/user/quickstart.html" target="_blank" rel="noopener">numpy docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -512,11 +912,64 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>对于一个<code>array</code>的合并，我们可以想到按行、按列等多种方式进行合并</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/26/python/numpy-pandas/py-numpy-6-Array-Merge/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>np.vstack()</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">A = np.array([<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>])</span><br><span class="line">B = np.array([<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>])</span><br><span class="line">         </span><br><span class="line">print(np.vstack((A,B)))    <span class="comment"># vertical stack</span></span><br><span class="line"></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">[[1,1,1]</span></span><br><span class="line"><span class="string"> [2,2,2]]</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line">np.vstack((A,B))</span><br></pre></td></tr></table></figure></p>
+<pre><code>[[1 1 1]
+ [2 2 2]]
+
+array([[1, 1, 1],
+       [2, 2, 2]])
+</code></pre>
+<p>vertical stack 本身属于一种上下合并，即对括号中的两个整体进行对应操作。此时我们对组合而成的矩阵进行属性探究：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">C = np.vstack((A,B))      </span><br><span class="line">print(A.shape,C.shape)</span><br><span class="line"></span><br><span class="line"><span class="comment"># (3,) (2,3) # A 是序列, 序列合并后 C 为矩阵</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>(3,) (2, 3)
+</code></pre>
+<p>利用shape函数可以让我们很容易地知道A和C的属性，从打印出的结果来看，A仅仅是一个拥有3项元素的数组（数列），而合并后得到的C是一个2行3列的矩阵。</p>
+<h2>np.hstack() 左右合并：</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">D = np.hstack((A,B))       <span class="comment"># horizontal stack</span></span><br><span class="line"></span><br><span class="line">print(D)</span><br><span class="line"><span class="comment"># [1,1,1,2,2,2]</span></span><br><span class="line"></span><br><span class="line">print(A.shape,D.shape)</span><br><span class="line"><span class="comment"># (3,) (6,)</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[1 1 1 2 2 2]
+(3,) (6,)
+</code></pre>
+<p>不能用 A.T 这样的方法，将一个序列变为矩阵</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(A.T)</span><br><span class="line">print(A.T.shape)</span><br></pre></td></tr></table></figure></p>
+<pre><code>[1 1 1]
+(3,)
+</code></pre>
+<p>通过打印出的结果可以看出：D本身来源于A，B两个数列的左右合并，而且新生成的D本身也是一个含有6项元素的序列。</p>
+<h2>np.newaxis()</h2>
+<p>如果面对如同前文所述的A序列， 转置操作便很有可能无法对其进行转置（因为A并不是矩阵的属性），此时就需要我们借助其他的函数操作进行转置：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(A[np.newaxis,:])</span><br><span class="line"><span class="comment"># [[1 1 1]]</span></span><br><span class="line"></span><br><span class="line">print(A[np.newaxis,:].shape)</span><br><span class="line"><span class="comment"># (1,3)</span></span><br><span class="line"></span><br><span class="line">print(A[:,np.newaxis])</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">[[1]</span></span><br><span class="line"><span class="string">[1]</span></span><br><span class="line"><span class="string">[1]]</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line">print(A[:,np.newaxis].shape)</span><br><span class="line"><span class="comment"># (3,1)</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[[1 1 1]]
+(1, 3)
+[[1]
+ [1]
+ [1]]
+(3, 1)
+</code></pre>
+<p>此时我们便将具有3个元素的<code>array</code>转换为了1行3列以及3行1列的矩阵了。</p>
+<h2>综合总结</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">A = np.array([<span class="number">1</span>,<span class="number">1</span>,<span class="number">1</span>])[:,np.newaxis]</span><br><span class="line">B = np.array([<span class="number">2</span>,<span class="number">2</span>,<span class="number">2</span>])[:,np.newaxis]</span><br><span class="line">         </span><br><span class="line">C = np.vstack((A,B))   <span class="comment"># vertical stack</span></span><br><span class="line">D = np.hstack((A,B))   <span class="comment"># horizontal stack</span></span><br><span class="line"></span><br><span class="line">print(D)</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">[[1 2]</span></span><br><span class="line"><span class="string">[1 2]</span></span><br><span class="line"><span class="string">[1 2]]</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line">print(A.shape,D.shape)</span><br><span class="line"><span class="comment"># (3,1) (3,2)</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[[1 2]
+ [1 2]
+ [1 2]]
+(3, 1) (3, 2)
+</code></pre>
+<h2>np.concatenate()</h2>
+<p>当你的合并操作需要针对多个矩阵或序列时，借助concatenate函数可能会让你使用起来比前述的函数更加方便：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">C = np.concatenate((A,B,B,A),axis=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">print(C)</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([[1],</span></span><br><span class="line"><span class="string">       [1],</span></span><br><span class="line"><span class="string">       [1],</span></span><br><span class="line"><span class="string">       [2],</span></span><br><span class="line"><span class="string">       [2],</span></span><br><span class="line"><span class="string">       [2],</span></span><br><span class="line"><span class="string">       [2],</span></span><br><span class="line"><span class="string">       [2],</span></span><br><span class="line"><span class="string">       [2],</span></span><br><span class="line"><span class="string">       [1],</span></span><br><span class="line"><span class="string">       [1],</span></span><br><span class="line"><span class="string">       [1]])</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"></span><br><span class="line">D = np.concatenate((A,B,B,A),axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">print(D)</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([[1, 2, 2, 1],</span></span><br><span class="line"><span class="string">       [1, 2, 2, 1],</span></span><br><span class="line"><span class="string">       [1, 2, 2, 1]])</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[[1 2 2 1]
+ [1 2 2 1]
+ [1 2 2 1]]
+</code></pre>
+<p><code>axis</code> 参数很好的控制了矩阵的纵向或是横向打印，相比较 <code>vstack</code> 和 <code>hstack</code> 函数显得更加方便。</p>
+<h2>Reference</h2>
+<ul>
+<li><a href="http://www.numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+<li><a href="https://docs.scipy.org/doc/numpy-dev/user/quickstart.html" target="_blank" rel="noopener">numpy docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -579,11 +1032,53 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>在元素列表或者数组中，我们可以用如同 <code>a[2]</code> 一样的表示方法，同样的，Numpy中也有相应的表示方法</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/26/python/numpy-pandas/py-numpy-5-Index/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>一维索引</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">A = np.arange(<span class="number">3</span>,<span class="number">15</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># array([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])</span></span><br><span class="line">         </span><br><span class="line">print(A[<span class="number">3</span>])    <span class="comment"># 6</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>6
+</code></pre>
+<p>让我们将矩阵转换为二维的，此时进行同样的操作：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">A = np.arange(<span class="number">3</span>,<span class="number">15</span>).reshape((<span class="number">3</span>,<span class="number">4</span>))</span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([[ 3,  4,  5,  6]</span></span><br><span class="line"><span class="string">       [ 7,  8,  9, 10]</span></span><br><span class="line"><span class="string">       [11, 12, 13, 14]])</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">         </span><br><span class="line">print(A[<span class="number">2</span>])         </span><br><span class="line"><span class="comment"># [11 12 13 14]</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[11 12 13 14]
+</code></pre>
+<p>实际上这时的 <code>A[2]</code> 对应的就是 矩阵A 中第三行(从0开始算第一行)的所有元素。</p>
+<h2>二维索引</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(A[<span class="number">1</span>][<span class="number">1</span>])      <span class="comment"># 8</span></span><br><span class="line">print(A[<span class="number">1</span>, <span class="number">1</span>])      <span class="comment"># 8</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>8
+8
+</code></pre>
+<p>在Python的 list 中，我们可以利用:对一定范围内的元素进行切片操作，在Numpy中我们依然可以给出相应的方法：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(A[<span class="number">1</span>, <span class="number">1</span>:<span class="number">3</span>])    <span class="comment"># [8 9]</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[8 9]
+</code></pre>
+<p>这一表示形式即针对第二行中第2到第4列元素进行切片输出（不包含第4列）。 此时我们适当的利用for函数进行打印：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> row <span class="keyword">in</span> A:</span><br><span class="line">    print(row)</span><br><span class="line"><span class="string">"""    </span></span><br><span class="line"><span class="string">[ 3,  4,  5, 6]</span></span><br><span class="line"><span class="string">[ 7,  8,  9, 10]</span></span><br><span class="line"><span class="string">[11, 12, 13, 14]</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<p>此时它会逐行进行打印操作。如果想进行逐列打印，就需要稍稍变化一下：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> column <span class="keyword">in</span> A.T:</span><br><span class="line">    print(column)</span><br><span class="line"><span class="string">"""  </span></span><br><span class="line"><span class="string">[ 3,  7,  11]</span></span><br><span class="line"><span class="string">[ 4,  8,  12]</span></span><br><span class="line"><span class="string">[ 5,  9,  13]</span></span><br><span class="line"><span class="string">[ 6, 10,  14]</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<p>说一些关于迭代输出的问题：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">A = np.arange(<span class="number">3</span>,<span class="number">15</span>).reshape((<span class="number">3</span>,<span class="number">4</span>))</span><br><span class="line">         </span><br><span class="line">print(A.flatten())   </span><br><span class="line"><span class="comment"># array([3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> A.flat:</span><br><span class="line">    print(item)</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 3</span></span><br><span class="line"><span class="comment"># 4</span></span><br><span class="line"><span class="comment"># ……</span></span><br><span class="line"><span class="comment"># 14</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[ 3  4  5  6  7  8  9 10 11 12 13 14]
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</code></pre>
+<p>这一脚本中的flatten是一个展开性质的函数，将多维的矩阵进行展开成1行的数列。而flat是一个迭代器，本身是一个object属性。</p>
+<h2>Reference</h2>
+<ul>
+<li><a href="http://www.numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+<li><a href="https://docs.scipy.org/doc/numpy-dev/user/quickstart.html" target="_blank" rel="noopener">numpy docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -646,11 +1141,78 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>numpy 矩阵的基本操作，argmin/argmax、mean/average、cumsum、sort、transpose/A.T、clip</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/25/python/numpy-pandas/py-numpy-4-basic-operation-2/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>argmin &amp; argmax</h2>
+<p>矩阵对应元素的索引也是非常重要的</p>
+<p>其中的 <code>argmin()</code> 和 <code>argmax()</code> 两个函数分别对应着求矩阵中最小元素和最大元素的索引。相应的，在矩阵的12个元素中，最小值即2，对应索引0，最大值为13，对应索引为11。</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">A = np.arange(<span class="number">2</span>,<span class="number">14</span>).reshape((<span class="number">3</span>,<span class="number">4</span>)) </span><br><span class="line"></span><br><span class="line"><span class="comment"># array([[ 2, 3, 4, 5]</span></span><br><span class="line"><span class="comment">#        [ 6, 7, 8, 9]</span></span><br><span class="line"><span class="comment">#        [10,11,12,13]])</span></span><br><span class="line">         </span><br><span class="line">print(np.argmin(A))    <span class="comment"># 0</span></span><br><span class="line">print(np.argmax(A))    <span class="comment"># 11</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>0
+11
+</code></pre>
+<h2>mean &amp; average</h2>
+<p>统计中的均值，可以利用下面的方式，将整个矩阵的均值求出来：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(np.mean(A))        <span class="comment"># 7.5</span></span><br><span class="line">print(np.average(A))     <span class="comment"># 7.5</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>7.5
+7.5
+</code></pre>
+<p>仿照着前一节中dot() 的使用法则，mean()函数还有另外一种写法：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(A.mean())          <span class="comment"># 7.5</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>7.5
+</code></pre>
+<h2>cumsum</h2>
+<p>和matlab中的cumsum()累加函数类似，Numpy中也具有cumsum()函数，其用法如下：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(np.cumsum(A)) </span><br><span class="line"></span><br><span class="line"><span class="comment"># [2 5 9 14 20 27 35 44 54 65 77 90]</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[ 2  5  9 14 20 27 35 44 54 65 77 90]
+</code></pre>
+<p>在cumsum()函数中：生成的每一项矩阵元素均是从原矩阵首项累加到对应项的元素之和。比如元素9，在cumsum()生成的矩阵中序号为3，即原矩阵中2，3，4三个元素的和。</p>
+<h2>diff</h2>
+<p>相应的有累差运算函数：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(np.diff(A))    </span><br><span class="line"></span><br><span class="line"><span class="comment"># [[1 1 1]</span></span><br><span class="line"><span class="comment">#  [1 1 1]</span></span><br><span class="line"><span class="comment">#  [1 1 1]]</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[[1 1 1]
+ [1 1 1]
+ [1 1 1]]
+</code></pre>
+<p>该函数计算的便是每一行中后一项与前一项之差。故一个3行4列矩阵通过函数计算得到的矩阵便是3行3列的矩阵。</p>
+<blockquote>
+<p><code>nonzero()</code> 函数, 觉得用处不大未学。</p>
+</blockquote>
+<h2>sort</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">A = np.arange(<span class="number">14</span>,<span class="number">2</span>, <span class="number">-1</span>).reshape((<span class="number">3</span>,<span class="number">4</span>)) </span><br><span class="line"></span><br><span class="line"><span class="comment"># array([[14, 13, 12, 11],</span></span><br><span class="line"><span class="comment">#       [10,  9,  8,  7],</span></span><br><span class="line"><span class="comment">#       [ 6,  5,  4,  3]])</span></span><br><span class="line"></span><br><span class="line">print(np.sort(A))    </span><br><span class="line"></span><br><span class="line"><span class="comment"># array([[11,12,13,14]</span></span><br><span class="line"><span class="comment">#        [ 7, 8, 9,10]</span></span><br><span class="line"><span class="comment">#        [ 3, 4, 5, 6]])</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[[11 12 13 14]
+ [ 7  8  9 10]
+ [ 3  4  5  6]]
+</code></pre>
+<h2>transpose &amp; A.T</h2>
+<p>矩阵的转置有两种表示方法：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(np.transpose(A))    </span><br><span class="line">print(A.T)</span><br><span class="line"></span><br><span class="line"><span class="comment"># array([[14,10, 6]</span></span><br><span class="line"><span class="comment">#        [13, 9, 5]</span></span><br><span class="line"><span class="comment">#        [12, 8, 4]</span></span><br><span class="line"><span class="comment">#        [11, 7, 3]])</span></span><br><span class="line"><span class="comment"># array([[14,10, 6]</span></span><br><span class="line"><span class="comment">#        [13, 9, 5]</span></span><br><span class="line"><span class="comment">#        [12, 8, 4]</span></span><br><span class="line"><span class="comment">#        [11, 7, 3]])</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[[14 10  6]
+ [13  9  5]
+ [12  8  4]
+ [11  7  3]]
+[[14 10  6]
+ [13  9  5]
+ [12  8  4]
+ [11  7  3]]
+</code></pre>
+<h2>clip</h2>
+<p>特别的，在Numpy中具有clip()函数，例子如下：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(A)</span><br><span class="line"><span class="comment"># array([[14,13,12,11]</span></span><br><span class="line"><span class="comment">#        [10, 9, 8, 7]</span></span><br><span class="line"><span class="comment">#        [ 6, 5, 4, 3]])</span></span><br><span class="line"></span><br><span class="line">print(np.clip(A,<span class="number">5</span>,<span class="number">9</span>))    </span><br><span class="line"><span class="comment"># array([[ 9, 9, 9, 9]</span></span><br><span class="line"><span class="comment">#        [ 9, 9, 8, 7]</span></span><br><span class="line"><span class="comment">#        [ 6, 5, 5, 5]])</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[[14 13 12 11]
+ [10  9  8  7]
+ [ 6  5  4  3]]
+[[9 9 9 9]
+ [9 9 8 7]
+ [6 5 5 5]]
+</code></pre>
+<p>这个函数的格式是clip(Array,Array_min,Array_max)，顾名思义，Array指的是将要被执行用的矩阵，而后面的最小值最大值则用于让函数判断矩阵中元素是否有比最小值小的或者比最大值大的元素，并将这些指定的元素转换为最小值或者最大值。</p>
+<p>实际上每一个Numpy中大多数函数均具有很多变量可以操作，你可以指定行、列甚至某一范围中的元素。更多具体的使用细节请记得查阅Numpy官方文档。</p>
+<h2>Reference</h2>
+<ul>
+<li><a href="http://www.numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+<li><a href="https://docs.scipy.org/doc/numpy-dev/user/quickstart.html" target="_blank" rel="noopener">numpy docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -713,11 +1275,79 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>numpy 矩阵的基本运算，加减乘除、数学函数、最大最小值、axis 查找 等</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/25/python/numpy-pandas/py-numpy-3-basic-operation-1/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>numpy 生成矩阵</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">a=np.array([<span class="number">10</span>,<span class="number">20</span>,<span class="number">30</span>,<span class="number">40</span>])   <span class="comment"># array([10, 20, 30, 40])</span></span><br><span class="line">b=np.arange(<span class="number">4</span>)              <span class="comment"># array([0, 1, 2, 3])</span></span><br><span class="line">b</span><br></pre></td></tr></table></figure></p>
+<pre><code>array([0, 1, 2, 3])
+</code></pre>
+<h2>numpy 加减乘除</h2>
+<p>上述代码中的 <code>a</code> 和 <code>b</code> 是两个属性为 array 也就是矩阵的变量，而且二者都是1行4列的矩阵， 其中b矩阵中的元素分别是从0到3。</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">c=a-b  <span class="comment"># array([10, 19, 28, 37])</span></span><br><span class="line">print(c)</span><br><span class="line">c=a+b   <span class="comment"># array([10, 21, 32, 43])</span></span><br><span class="line">print(c)</span><br><span class="line">c=a*b   <span class="comment"># array([  0,  20,  60, 120])</span></span><br><span class="line">print(c)</span><br><span class="line"></span><br><span class="line">c=b**<span class="number">2</span>  <span class="comment"># array([0, 1, 4, 9])</span></span><br><span class="line">print(c)</span><br></pre></td></tr></table></figure></p>
+<pre><code>[10 19 28 37]
+[10 21 32 43]
+[  0  20  60 120]
+[0 1 4 9]
+</code></pre>
+<h2>numpy 数学函数</h2>
+<p>numpy 三角函数等，当我们需要对矩阵中每一项元素进行函数运算时，可以很简便的调用它们（以sin函数为例）：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">c=<span class="number">10</span>*np.sin(a)  </span><br><span class="line"><span class="comment"># array([-5.44021111,  9.12945251, -9.88031624,  7.4511316 ])</span></span><br><span class="line">print(c)</span><br></pre></td></tr></table></figure></p>
+<pre><code>[-5.44021111  9.12945251 -9.88031624  7.4511316 ]
+</code></pre>
+<h2>print 函数进行逻辑判断</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(b&lt;<span class="number">3</span>)  </span><br><span class="line"><span class="comment"># array([ True,  True,  True, False], dtype=bool)</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[ True  True  True False]
+</code></pre>
+<p>上述运算均是建立在一维矩阵，即只有一行的矩阵上面的计算，如果我们想要对多行多维度的矩阵进行操作，需要对开始的脚本进行一些修改：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a=np.array([[<span class="number">1</span>,<span class="number">1</span>],[<span class="number">0</span>,<span class="number">1</span>]])</span><br><span class="line">b=np.arange(<span class="number">4</span>).reshape((<span class="number">2</span>,<span class="number">2</span>))</span><br><span class="line"></span><br><span class="line">print(a)</span><br><span class="line"><span class="comment"># array([[1, 1],</span></span><br><span class="line"><span class="comment">#       [0, 1]])</span></span><br><span class="line"></span><br><span class="line">print(b)</span><br><span class="line"><span class="comment"># array([[0, 1],</span></span><br><span class="line"><span class="comment">#       [2, 3]])</span></span><br><span class="line"></span><br><span class="line">print(b &gt; <span class="number">2</span>)</span><br></pre></td></tr></table></figure></p>
+<pre><code>[[1 1]
+ [0 1]]
+[[0 1]
+ [2 3]]
+[[False False]
+ [False  True]]
+</code></pre>
+<h2>numpy 两种矩阵乘法</h2>
+<p>此时构造出来的矩阵a和b便是2行2列的，其中 reshape 操作是对矩阵的形状进行重构， 其重构的形状便是括号中给出的数字。 稍显不同的是，Numpy 中的矩阵乘法分为两种， 其一是前文中的对应元素相乘，其二是标准的矩阵乘法运算，即对应行乘对应列得到相应元素：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(a)</span><br><span class="line">print(b)</span><br><span class="line"></span><br><span class="line">c_dot = np.dot(a,b)</span><br><span class="line"><span class="comment"># array([[2, 4],</span></span><br><span class="line"><span class="comment">#       [2, 3]])</span></span><br><span class="line">print(<span class="string">"========"</span>)</span><br><span class="line">print(c_dot)</span><br></pre></td></tr></table></figure></p>
+<pre><code>[[1 1]
+ [0 1]]
+[[0 1]
+ [2 3]]
+========
+[[2 4]
+ [2 3]]
+</code></pre>
+<p>除此之外还有另外的一种关于<code>dot</code>的表示方法，即：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">c_dot_2 = a.dot(b)</span><br><span class="line"><span class="comment"># array([[2, 4],</span></span><br><span class="line"><span class="comment">#       [2, 3]])</span></span><br></pre></td></tr></table></figure></p>
+<h2>sum(), min(), max()</h2>
+<p>下面我们将重新定义一个脚本, 来看看关于 <code>sum()</code>, <code>min()</code>, <code>max()</code> 的使用：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">a=np.random.random((<span class="number">2</span>,<span class="number">4</span>))</span><br><span class="line">print(a)</span><br><span class="line"><span class="comment"># array([[ 0.94692159,  0.20821798,  0.35339414,  0.2805278 ],</span></span><br><span class="line"><span class="comment">#       [ 0.04836775,  0.04023552,  0.44091941,  0.21665268]])</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[[ 0.38281924  0.40654978  0.69744113  0.90707595]
+ [ 0.40572074  0.652105    0.24226191  0.95931459]]
+</code></pre>
+<p>因为是随机生成数字, 所以你的结果可能会不一样. 在第二行中对a的操作是令a中生成一个2行4列的矩阵，且每一元素均是来自从0到1的随机数。 在这个随机生成的矩阵中，我们可以对元素进行求和以及寻找极值的操作，具体如下：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">np.sum(a)   <span class="comment"># 4.6532883360785817</span></span><br><span class="line">np.min(a)   <span class="comment"># 0.24226191007863129</span></span><br><span class="line">np.max(a)   <span class="comment"># 0.95931458707579575</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>0.95931458707579575
+</code></pre>
+<h2>axis 进行赋值</h2>
+<p>对应的便是对矩阵中所有元素进行求和，寻找最小值，寻找最大值的操作。 可以通过print()函数对相应值进行打印检验。</p>
+<p>如果你需要对行或者列进行查找运算，就需要在上述代码中为 axis 进行赋值。</p>
+<p>当axis的值为0的时候，将会以列作为查找单元， 当axis的值为1的时候，将会以行作为查找单元。</p>
+<p>为了更加清晰，在刚才的例子中我们继续进行查找：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">print(<span class="string">"a ="</span>,a)</span><br><span class="line"><span class="comment"># a = [[ 0.23651224  0.41900661  0.84869417  0.46456022]</span></span><br><span class="line"><span class="comment"># [ 0.60771087  0.9043845   0.36603285  0.55746074]]</span></span><br><span class="line"></span><br><span class="line">print(<span class="string">"sum ="</span>,np.sum(a,axis=<span class="number">1</span>))</span><br><span class="line"><span class="comment"># sum = [ 1.96877324  2.43558896]</span></span><br><span class="line"></span><br><span class="line">print(<span class="string">"min ="</span>,np.min(a,axis=<span class="number">0</span>))</span><br><span class="line"><span class="comment"># min = [ 0.23651224  0.41900661  0.36603285  0.46456022]</span></span><br><span class="line"></span><br><span class="line">print(<span class="string">"max ="</span>,np.max(a,axis=<span class="number">1</span>))</span><br><span class="line"><span class="comment"># max = [ 0.84869417  0.9043845 ]</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>a = [[ 0.38281924  0.40654978  0.69744113  0.90707595]
+ [ 0.40572074  0.652105    0.24226191  0.95931459]]
+sum = [ 2.3938861   2.25940224]
+min = [ 0.38281924  0.40654978  0.24226191  0.90707595]
+max = [ 0.90707595  0.95931459]
+</code></pre>
+<h2>Reference</h2>
+<ul>
+<li><a href="http://www.numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+<li><a href="https://docs.scipy.org/doc/numpy-dev/user/quickstart.html" target="_blank" rel="noopener">numpy docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -780,11 +1410,63 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>创建 array 有很多 形式</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/22/python/numpy-pandas/py-numpy-2-array/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>关键字</h2>
+<ul>
+<li><code>array</code>：创建数组</li>
+<li><code>dtype</code>：指定数据类型</li>
+<li><code>zeros</code>：数据全为0</li>
+<li><code>ones</code>：数据全为1</li>
+<li><code>arrange</code>：按指定范围创建数据</li>
+<li><code>linspace</code>：创建线段</li>
+</ul>
+<blockquote>
+<p>与 List 区别之一 : 没有逗号分隔</p>
+</blockquote>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = np.array([<span class="number">2</span>,<span class="number">23</span>,<span class="number">4</span>])</span><br><span class="line">print(a)</span><br><span class="line"><span class="comment"># [ 2 23  4]</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>[ 2 23  4]
+int64
+</code></pre>
+<h2>指定数据</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = np.array([<span class="number">2</span>,<span class="number">23</span>,<span class="number">4</span>], dtype=np.int) <span class="comment"># 默认 int 为 int64</span></span><br><span class="line">print(a.dtype) </span><br><span class="line"><span class="comment">#int64</span></span><br><span class="line"></span><br><span class="line">a = np.array([<span class="number">2</span>,<span class="number">23</span>,<span class="number">4</span>],dtype=np.int32)</span><br><span class="line">print(a.dtype)</span><br><span class="line"><span class="comment"># int32</span></span><br><span class="line"></span><br><span class="line">a = np.array([<span class="number">2</span>,<span class="number">23.1</span>,<span class="number">4.0</span>], dtype=np.float) <span class="comment"># 默认 float 为 float64</span></span><br><span class="line">print(a)</span><br><span class="line">print(a.dtype)</span><br><span class="line"><span class="comment"># float64</span></span><br><span class="line"></span><br><span class="line">a = np.array([<span class="number">2</span>,<span class="number">23</span>,<span class="number">4</span>],dtype=np.float32)</span><br><span class="line">print(a.dtype)</span><br><span class="line"><span class="comment"># float32</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>int64
+int32
+[  2.   23.1   4. ]
+float64
+float32
+</code></pre>
+<h2>创建特定数据</h2>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = np.array(</span><br><span class="line">    [</span><br><span class="line">        [<span class="number">2</span>,<span class="number">23</span>,<span class="number">4</span>],</span><br><span class="line">        [<span class="number">2</span>,<span class="number">23</span>,<span class="number">4</span>]</span><br><span class="line">    ]</span><br><span class="line">)  <span class="comment"># 2d 矩阵 2行3列</span></span><br><span class="line">print(a)</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">[[ 2 23  4]</span></span><br><span class="line"><span class="string"> [ 2 32  4]]</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<h3>全零数组</h3>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 创建全零数组</span></span><br><span class="line">a = np.zeros((<span class="number">3</span>,<span class="number">4</span>))  <span class="comment"># 数据全为0，3行4列</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([[ 0.,  0.,  0.,  0.],</span></span><br><span class="line"><span class="string">       [ 0.,  0.,  0.,  0.],</span></span><br><span class="line"><span class="string">       [ 0.,  0.,  0.,  0.]])</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">print(a)</span><br></pre></td></tr></table></figure></p>
+<h3>全一数组</h3>
+<blockquote>
+<p>同时也能指定这些特定数据的 <code>dtype</code>:</p>
+</blockquote>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = np.ones((<span class="number">3</span>,<span class="number">4</span>),dtype = np.int)   <span class="comment"># 数据为1，3行4列</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([[1, 1, 1, 1],</span></span><br><span class="line"><span class="string">       [1, 1, 1, 1],</span></span><br><span class="line"><span class="string">       [1, 1, 1, 1]])</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">print(a)</span><br></pre></td></tr></table></figure></p>
+<h3>全空数组</h3>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">np.empty( (<span class="number">2</span>,<span class="number">3</span>) ) <span class="comment"># 这个方法最大的好处就是速度快，因为少了初始化空间的操作</span></span><br></pre></td></tr></table></figure></p>
+<pre><code>array([[  9.88131292e-324,   1.13635099e-322,   1.97626258e-323],
+       [  9.88131292e-324,   1.13635099e-322,   1.97626258e-323]])
+</code></pre>
+<h3>连续数组<code>arange</code></h3>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = np.arange(<span class="number">10</span>,<span class="number">20</span>,<span class="number">2</span>) <span class="comment"># 10-19 的数据，2步长</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([10, 12, 14, 16, 18])</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">print(a)</span><br><span class="line"></span><br><span class="line">b = np.arange(<span class="number">12</span>)</span><br><span class="line">b</span><br></pre></td></tr></table></figure></p>
+<pre><code>[10 12 14 16 18]
+array([ 0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11])
+</code></pre>
+<h3>改变数据的形状<code>reshape</code></h3>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = np.arange(<span class="number">12</span>).reshape((<span class="number">3</span>,<span class="number">4</span>))    <span class="comment"># 3行4列，0到11</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([[ 0,  1,  2,  3],</span></span><br><span class="line"><span class="string">       [ 4,  5,  6,  7],</span></span><br><span class="line"><span class="string">       [ 8,  9, 10, 11]])</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">a</span><br></pre></td></tr></table></figure></p>
+<h3>线段型数据<code>linspace</code></h3>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = np.linspace(<span class="number">1</span>,<span class="number">10</span>,<span class="number">20</span>)    <span class="comment"># 开始端1，结束端10，且分割成20个数据，生成线段</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([  1.        ,   1.47368421,   1.94736842,   2.42105263,</span></span><br><span class="line"><span class="string">         2.89473684,   3.36842105,   3.84210526,   4.31578947,</span></span><br><span class="line"><span class="string">         4.78947368,   5.26315789,   5.73684211,   6.21052632,</span></span><br><span class="line"><span class="string">         6.68421053,   7.15789474,   7.63157895,   8.10526316,</span></span><br><span class="line"><span class="string">         8.57894737,   9.05263158,   9.52631579,  10.        ])</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line">a</span><br></pre></td></tr></table></figure></p>
+<p>也能进行 <code>reshape</code> 工作:</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">a = np.linspace(<span class="number">1</span>,<span class="number">10</span>,<span class="number">20</span>).reshape((<span class="number">5</span>,<span class="number">4</span>)) <span class="comment"># 更改shape</span></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">array([[  1.        ,   1.47368421,   1.94736842,   2.42105263],</span></span><br><span class="line"><span class="string">       [  2.89473684,   3.36842105,   3.84210526,   4.31578947],</span></span><br><span class="line"><span class="string">       [  4.78947368,   5.26315789,   5.73684211,   6.21052632],</span></span><br><span class="line"><span class="string">       [  6.68421053,   7.15789474,   7.63157895,   8.10526316],</span></span><br><span class="line"><span class="string">       [  8.57894737,   9.05263158,   9.52631579,  10.        ]])</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<h2>Reference</h2>
+<ul>
+<li><a href="http://www.numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+<li><a href="https://docs.scipy.org/doc/numpy-dev/user/quickstart.html" target="_blank" rel="noopener">numpy docs</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/data-manipulation/np-pd/2-2-np-array/" target="_blank" rel="noopener">morvanzhou</a></li>
+</ul>
+
       
     </div>
 	
@@ -847,11 +1529,20 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>numpy 的几种属性 维度、行列个数、元素个数</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/21/python/numpy-pandas/py-numpy-1-attribute/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<ul>
+<li><code>ndim</code>：维度</li>
+<li><code>shape</code>：行数和列数</li>
+<li><code>size</code>：元素个数</li>
+</ul>
+<p>列表转化为矩阵：</p>
+<p><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">array1 = np.array(</span><br><span class="line">    [</span><br><span class="line">        [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>],</span><br><span class="line">        [<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>]</span><br><span class="line">    ]</span><br><span class="line">)</span><br><span class="line">print(array1)</span><br><span class="line">print(<span class="string">'number of dim:'</span>, array1.ndim)</span><br><span class="line">print(<span class="string">'shape:'</span>, array1.shape)</span><br><span class="line">print(<span class="string">'size:'</span>, array1.size)</span><br><span class="line"></span><br><span class="line"><span class="string">"""</span></span><br><span class="line"><span class="string">    [[1 2 3]</span></span><br><span class="line"><span class="string">     [2 3 4]]</span></span><br><span class="line"><span class="string">    number of dim: 2</span></span><br><span class="line"><span class="string">    shape: (2, 3)</span></span><br><span class="line"><span class="string">    size: 6</span></span><br><span class="line"><span class="string">"""</span></span><br></pre></td></tr></table></figure></p>
+<h2>Reference</h2>
+<ul>
+<li><a href="http://www.numpy.org/" target="_blank" rel="noopener">numpy.org</a></li>
+<li><a href="https://docs.scipy.org/doc/numpy-dev/user/quickstart.html" target="_blank" rel="noopener">numpy docs</a></li>
+</ul>
+
       
     </div>
 	
@@ -917,11 +1608,101 @@ var _hmt = _hmt || [];
 <li>一定要不断重复，不要相信自己的耳朵，要相信音标</li>
 <li>最开始练习，一定要超级夸张，一个音一个音读</li>
 </ul>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/10/English/english-ielts-speaking-yangshuai-2/">Read More</a>
-          </p> 
-        
+<p>&lt;!--more--&gt;</p>
+<table>
+<thead>
+<tr>
+<th>音标</th>
+<th>读法</th>
+<th>常见组合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>/i:/</strong></td>
+<td>长元紧张音</td>
+<td>ee, ea, e, ie, ei</td>
+</tr>
+<tr>
+<td><strong>/i/</strong></td>
+<td>短元放松音</td>
+<td>i, y, e</td>
+</tr>
+<tr>
+<td><strong>/ɛ/</strong></td>
+<td>/i/ 嘴型稍微大些</td>
+<td>e、ea、a、ai</td>
+</tr>
+<tr>
+<td><strong>/æ/</strong></td>
+<td>/ɛ/+/a:/</td>
+<td>a</td>
+</tr>
+<tr>
+<td><strong>/ɒ/</strong></td>
+<td>嘴张开、无变化</td>
+<td>o、a</td>
+</tr>
+<tr>
+<td><strong>/ɔ:/</strong></td>
+<td>有点像 ‘沃’</td>
+<td>or、our、ar、al、au、ou</td>
+</tr>
+<tr>
+<td><strong>/aʊ/</strong></td>
+<td>/æ/+/u/</td>
+<td>ou、ow</td>
+</tr>
+</tbody>
+</table>
+<p>&lt;!--more--&gt;</p>
+<table>
+<thead>
+<tr>
+<th>   </th>
+<th>i:、i、u:、u、ɛ、æ、ɒ、ɔ:、aʊ</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>i:</code></strong></td>
+<td><em>seat、deed、least、feet、colleague [ˈkɒli:g]、eat、beat、leave、steel、steal</em></td>
+</tr>
+<tr>
+<td><strong><code>i</code></strong></td>
+<td><em>sit、did、list、fit、college、it、bit、live、still</em></td>
+</tr>
+<tr>
+<td><strong><code>u:</code></strong></td>
+<td><em>food、pool、fool、mood、moon、room、school、lose、true、blue、glue</em></td>
+</tr>
+<tr>
+<td><strong><code>ʊ</code></strong></td>
+<td><em>look、good、foot、book、cook、full、pull、push、put、should、would、could</em></td>
+</tr>
+<tr>
+<td><strong><code>ɛ</code></strong></td>
+<td><strong><em>bed、better、get、internet、lesson、desk、sell、slept、then、help、very、never、head、bread、pleasure、treasure、health、breath、said、there、their、where、everywhere、any、many、guess</em></strong></td>
+</tr>
+<tr>
+<td><strong><code>æ</code></strong></td>
+<td><strong><em>flag、cat、back、that、have、activity、natural、travel、relax、attractive、casual、magazine、fancy</em></strong></td>
+</tr>
+<tr>
+<td><strong><code>ɒ</code></strong></td>
+<td><strong><em>not、lost、loss、box、mop、collar、shop、job、top、soccer、biography、psychology、novel、want</em></strong></td>
+</tr>
+<tr>
+<td><strong><code>ɔ:</code></strong></td>
+<td><em>horse、more、short、store、court、course、mourn、warm、quarter、small、wall、ball、talk、walk、autumn、caught、taught、bought、thought、brought</em></td>
+</tr>
+<tr>
+<td><strong><code>aʊ</code></strong></td>
+<td><em>house、out、about、loud、down、town、cow、however、now、how、mouse、mouth、around、ground、found、accounting、sound</em></td>
+</tr>
+</tbody>
+</table>
+
       
     </div>
 	
@@ -984,11 +1765,31 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>pyenv install anaconda3-5.0.0 无法下载包的情况下使用的，因为网速实在太慢了T T</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/07/devops/ops-pyenv-Anaconda3-note/">Read More</a>
-          </p> 
-        
+<p>&lt;!-- more --&gt;</p>
+<h2>Anaconda3</h2>
+<p><a href="https://repo.continuum.io/archive/Anaconda3-5.0.1-MacOSX-x86_64.sh" target="_blank" rel="noopener">官网</a> 下载了.sh文件，在该.sh文件目录使用下面的命令安装该文件</p>
+<p>Anaconda3-5.0.1-MacOSX-x86_64.sh</p>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  mv Anaconda3-5.0.1-MacOSX-x86_64.sh ~/.pyenv/cache/</span><br><span class="line">➜  cache git:(master) sh Anaconda3-5.0.1-MacOSX-x86_64.sh</span><br></pre></td></tr></table></figure></p>
+<p>安装过程需要操作的地方：</p>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Please, press ENTER to continue</span><br><span class="line">&gt;&gt;&gt;</span><br><span class="line">...</span><br><span class="line">Do you accept the license terms? [yes|no]</span><br><span class="line">[no] &gt;&gt;&gt; yes</span><br></pre></td></tr></table></figure></p>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Anaconda3 will now be installed into this location:</span><br><span class="line">/Users/blair/anaconda3	</span><br><span class="line">- Press ENTER to confirm the location</span><br><span class="line">- Press CTRL-C to abort the installation</span><br><span class="line">- Or specify a different location below</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>[/Users/blair/anaconda3] 改为 /Users/blair/.pyenv/versions/anaconda3</p>
+<p>输入需要安装的目录，因为要添加到pyenv管理器中，所以与其他以安装的Python版本放在同一目录下。</p>
+</blockquote>
+<p>开始输出安装信息，会安装许多包：</p>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[/Users/blair/anaconda3] &gt;&gt;&gt; /Users/blair/.pyenv/versions/anaconda3</span><br><span class="line">PREFIX=/Users/blair/.pyenv/versions/anaconda3</span><br><span class="line">installing: python-3.6.3-h6804ab2_0 ...</span><br><span class="line">Python 3.6.3 :: Anaconda, Inc.</span><br><span class="line">installing: bzip2-1.0.6-h92991f9_1 ...</span><br><span class="line">installing: ca-certificates-2017.08.26-ha1e5d58_0 ...</span><br><span class="line">installing: conda-env-2.6.0-h36134e3_0 ...</span><br><span class="line">……</span><br></pre></td></tr></table></figure></p>
+<p>然后出现提示，输入yes即可</p>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">installation finished.</span><br><span class="line">Do you wish the installer to prepend the Anaconda3 install location</span><br><span class="line">to PATH in your /Users/blair/.bash_profile ? [yes|no]</span><br><span class="line">[yes] &gt;&gt;&gt; yes</span><br></pre></td></tr></table></figure></p>
+<p>安装成功！</p>
+<p><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜ pyenv versions</span><br><span class="line">  system</span><br><span class="line">  2.7.14</span><br><span class="line">  2.7.14/envs/vpy2</span><br><span class="line">  3.5.4</span><br><span class="line">  3.5.4/envs/vpy3.5</span><br><span class="line">* anaconda3 (<span class="built_in">set</span> by /Users/blair/.pyenv/version)</span><br><span class="line">  anaconda3/envs/vconda3</span><br><span class="line">  vconda3</span><br><span class="line">  vpy2</span><br><span class="line">  vpy3.5</span><br><span class="line">(anaconda3)</span><br><span class="line"><span class="comment"># ~/ghome [10:34:54]</span></span><br></pre></td></tr></table></figure></p>
+<p>为anaconda3创建虚拟环境</p>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  cache git:(master) pyenv virtualenv vconda3</span><br></pre></td></tr></table></figure></p>
+<p>可能会装一些更新包，会有提示：</p>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#</span><br><span class="line"># To activate this environment, use:</span><br><span class="line"># &gt; source activate vconda3</span><br><span class="line">#</span><br><span class="line"># To deactivate an active environment, use:</span><br><span class="line"># &gt; source deactivate</span><br></pre></td></tr></table></figure></p>
+<p>根据提示激活：</p>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  cache git:(master) source activate vconda3</span><br></pre></td></tr></table></figure></p>
+
       
     </div>
 	
@@ -1051,14 +1852,109 @@ var _hmt = _hmt || [];
     <div class="article-entry" itemprop="articleBody">
       
         <p>把发音练好的方法就是重复, 语言学习的本质就是模仿</p>
-<p>but you’re old…</p>
+<p>but you're old...</p>
 <p>0 ~ 6 years 可以通过耳朵识别 140 个不同的音, 也可以马上模仿</p>
-<p>6 岁之后，这种能力逐渐下降…， 所以你天天听剑桥英语，或者你去外国10几年，还是中式发音</p>
-         
-          <p class="article-more-link">
-            <a href="/2017/12/03/English/english-ielts-speaking-yangshuai-1/">Read More</a>
-          </p> 
-        
+<p>6 岁之后，这种能力逐渐下降...， 所以你天天听剑桥英语，或者你去外国10几年，还是中式发音</p>
+<p>&lt;!--more--&gt;</p>
+<h2>1. 理论 + 模仿</h2>
+<p>Less is more.</p>
+<p>Practice makes progress</p>
+<blockquote>
+<p>少而精，融入血液，融入骨髓</p>
+</blockquote>
+<blockquote>
+<p>理论 - 不用天天 (让模仿更加有效果)
+模仿 - 是天天需要的</p>
+</blockquote>
+<h2>2. 发音学习的几大注意:</h2>
+<ul>
+<li>懂音标 (自学)</li>
+<li>一定要不断重复</li>
+<li>不要相信自己的耳朵，要相信音标</li>
+<li>最开始练习，一定要超级夸张</li>
+<li>一个音一个音读</li>
+</ul>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">experience [ɪkˈspɪriəns]</span><br><span class="line">serious [ˈsɪriəs]</span><br><span class="line">series [ˈsɪri:z]</span><br><span class="line">down [daʊn]</span><br></pre></td></tr></table></figure></p>
+<h3>推荐字典</h3>
+<p><a href="http://www.ox.ac.uk/" target="_blank" rel="noopener">Oxford</a> (英音)
+<a href="https://www.merriam-webster.com/" target="_blank" rel="noopener">Merriam Webster</a> (美音)</p>
+<ol>
+<li>最易错元音 -- 保6</li>
+<li>辅音 + 语调 (重读、连读) -- 争7</li>
+<li>略读 + 英美音主要区别 -- 带你装带你飞</li>
+</ol>
+<h3>从英到美</h3>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">flat [flæt]、cat [kæt]</span><br><span class="line">kite [kaɪt]、 dog [dɒg] [dɔ:g] </span><br><span class="line">bed [bed]、[bɛd]</span><br><span class="line">bought [bɔ:t]、[bɔt]</span><br><span class="line">usually [ˈju:ʒuəli]、 [ˈjuːʒuəli] </span><br><span class="line">garage [ˈgærɑ:ʒ]、[gəˈrɑ:ʒ] </span><br><span class="line">......</span><br></pre></td></tr></table></figure></p>
+<h3>中国人问题最大的三个元音</h3>
+<p><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/ai/ /æ/ /ɛ/</span><br></pre></td></tr></table></figure></p>
+<p><strong>/ai/ = /a:/-/i/</strong></p>
+<ul>
+<li>字母组合: 主要 <strong><em>i，ie，y，igh，uy</em></strong></li>
+</ul>
+<blockquote>
+<p><strong><em>t&lt;font color=#c7254e&gt;i&lt;/font&gt;me，wh&lt;font color=#c7254e&gt;i&lt;/font&gt;te，d&lt;font color=#c7254e&gt;ie&lt;/font&gt;，t&lt;font color=#c7254e&gt;ie&lt;/font&gt;d
+dry，why，July
+h&lt;font color=blue&gt;igh&lt;/font&gt;t，n&lt;font color=blue&gt;igh&lt;/font&gt;t、r&lt;font color=blue&gt;igh&lt;/font&gt;t
+bu&lt;font color=#c7254e&gt;y&lt;/font&gt;，gu&lt;font color=#c7254e&gt;y&lt;/font&gt;
+k&lt;font color=#c7254e&gt;i&lt;/font&gt;nd，m&lt;font color=#c7254e&gt;i&lt;/font&gt;nd，w&lt;font color=#c7254e&gt;i&lt;/font&gt;nd
+all kinds of，spring to mind，wind down，unwind</em></strong></p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>word</th>
+<th>phonetic symbol</th>
+<th>sentence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>die</td>
+<td>[dai]</td>
+<td>I don't want to die.</td>
+</tr>
+<tr>
+<td>died</td>
+<td>[daid]</td>
+<td>My dog died yesterday.</td>
+</tr>
+<tr>
+<td>dying</td>
+<td>[ˈdaɪɪŋ]</td>
+<td>The man is dying.</td>
+</tr>
+<tr>
+<td>dead</td>
+<td>[ded]，[dɛd]</td>
+<td>Her cat is dead.</td>
+</tr>
+</tbody>
+</table>
+<h3>长短音的区分</h3>
+<ul>
+<li>长音: <code>tense</code>(紧张音) -- 长元紧张音 - beach</li>
+<li>短音: <code>lax</code> (放松音) -- 短元放松音 - bitch</li>
+</ul>
+<p><strong>/i:/</strong> 不放松音 , 字母组合: 主要 <strong><em>ee，ea，e，ie，ei</em></strong></p>
+<blockquote>
+<p><strong><em>w&lt;font color=#c7254e&gt;ee&lt;/font&gt;k，w&lt;font color=#c7254e&gt;ea&lt;/font&gt;k，tr&lt;font color=#c7254e&gt;ee&lt;/font&gt;，m&lt;font color=#c7254e&gt;ee&lt;/font&gt;t，thr&lt;font color=#c7254e&gt;ee&lt;/font&gt;，s&lt;font color=#c7254e&gt;ee&lt;/font&gt;，s&lt;font color=#c7254e&gt;ee&lt;/font&gt;k，m&lt;font color=#c7254e&gt;ea&lt;/font&gt;t，l&lt;font color=#c7254e&gt;ea&lt;/font&gt;ve，&lt;font color=#c7254e&gt;ea&lt;/font&gt;t，b&lt;font color=#c7254e&gt;ea&lt;/font&gt;t
+l&lt;font color=#c7254e&gt;ea&lt;/font&gt;d，&lt;font color=#c7254e&gt;ea&lt;/font&gt;ch，coll&lt;font color=#c7254e&gt;ea&lt;/font&gt;gue，t&lt;font color=#c7254e&gt;ea&lt;/font&gt;m，r&lt;font color=#c7254e&gt;ea&lt;/font&gt;d，sp&lt;font color=#c7254e&gt;ea&lt;/font&gt;k，pl&lt;font color=#c7254e&gt;ea&lt;/font&gt;se，p&lt;font color=#c7254e&gt;ie&lt;/font&gt;ce，rec&lt;font color=#c7254e&gt;ei&lt;/font&gt;ve
+extr&lt;font color=#c7254e&gt;e&lt;/font&gt;mely，m&lt;font color=#c7254e&gt;e&lt;/font&gt;dia</em></strong></p>
+</blockquote>
+<p><strong>/ei/</strong> 一定要饱满 , 字母组合: 主要 <strong><em>ay，a</em></strong></p>
+<blockquote>
+<p><strong><em>tree. tray &lt;font color=#c7254e&gt;[trei]&lt;/font&gt;
+see. say &lt;font color=#c7254e&gt;[sei]&lt;/font&gt;
+week. wake &lt;font color=#c7254e&gt;[weik]&lt;/font&gt;
+piece. pace &lt;font color=#c7254e&gt;[peis]&lt;/font&gt;</em></strong></p>
+</blockquote>
+<p><strong>/i/ 是 /i:/</strong> 的放松不用力音 , 字母组合: 主要 <strong><em>i，y</em></strong></p>
+<blockquote>
+<p><strong><em>sit，it，is，live，did，this，kid，list，six
+fix，fit，click，if，big，give，gift，trip
+still，miss，finish，habit，m&lt;font color=#c7254e&gt;y&lt;/font&gt;stery [ˈmɪstəri]，coll&lt;font color=#c7254e&gt;e&lt;/font&gt;ge [ˈkɑ:lɪdʒ]</em></strong></p>
+</blockquote>
+
       
     </div>
 	
