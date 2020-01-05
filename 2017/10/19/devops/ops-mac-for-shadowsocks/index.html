@@ -13,10 +13,8 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="first, you need to have vps second, you need to have shadowsocks app">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;ops&#x2F;ops-vpn-shadowsocks.png">
 <meta property="og:updated_time" content="2019-10-20T04:30:34.989Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;ops&#x2F;ops-vpn-shadowsocks.png">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -113,19 +111,25 @@ var _hmt = _hmt || [];
 <li>second, you need to have shadowsocks app</li>
 </ol>
 <a id="more"></a>
-<p><img src="/images/ops/ops-vpn-shadowsocks.png" width="520" height="300" align="middle" /img>  </p>
-<h2 id="install"><a href="#install" class="headerlink" title="install"></a>install</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">brew install polipo</span><br></pre></td></tr></table></figure>
-<h2 id="config"><a href="#config" class="headerlink" title="config"></a>config</h2><p>设置每次登陆启动polipo</p>
+<p>&lt;img src=&quot;/images/ops/ops-vpn-shadowsocks.png&quot; width=“520” height=“300” align=“middle” /img&gt;</p>
+<h2 id="install"><a class="markdownIt-Anchor" href="#install"></a> install</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">brew install polipo</span><br></pre></td></tr></table></figure>
+<h2 id="config"><a class="markdownIt-Anchor" href="#config"></a> config</h2>
+<p>设置每次登陆启动polipo</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">ln -sfv /usr/local/opt/polipo/*.plist ~/Library/LaunchAgents</span><br></pre></td></tr></table></figure>
 <p>修改文件 <code>/usr/local/opt/polipo/homebrew.mxcl.polipo.plist</code> 设置parentProxy</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span><br><span class="line">&lt;!DOCTYPE plist PUBLIC &quot;-//Apple//DTD PLIST 1.0//EN&quot; &quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;&gt;</span><br><span class="line">&lt;plist version=&quot;1.0&quot;&gt;</span><br><span class="line">  &lt;dict&gt;</span><br><span class="line">    &lt;key&gt;Label&lt;/key&gt;</span><br><span class="line">    &lt;string&gt;homebrew.mxcl.polipo&lt;/string&gt;</span><br><span class="line">    &lt;key&gt;RunAtLoad&lt;/key&gt;</span><br><span class="line">    &lt;true/&gt;</span><br><span class="line">    &lt;key&gt;KeepAlive&lt;/key&gt;</span><br><span class="line">    &lt;true/&gt;</span><br><span class="line">    &lt;key&gt;ProgramArguments&lt;/key&gt;</span><br><span class="line">    &lt;array&gt;</span><br><span class="line">        &lt;string&gt;/usr/local/opt/polipo/bin/polipo&lt;/string&gt;</span><br><span class="line">        &lt;string&gt;socksParentProxy=localhost:1080&lt;/string&gt;</span><br><span class="line">    &lt;/array&gt;</span><br><span class="line">    &lt;!-- Set `ulimit -n 20480`. The default OS X limit is 256, that&apos;s</span><br><span class="line">         not enough for Polipo (displays &apos;too many files open&apos; errors).</span><br><span class="line">         It seems like you have no reason to lower this limit</span><br><span class="line">         (and unlikely will want to raise it). --&gt;</span><br><span class="line">    &lt;key&gt;SoftResourceLimits&lt;/key&gt;</span><br><span class="line">    &lt;dict&gt;</span><br><span class="line">      &lt;key&gt;NumberOfFiles&lt;/key&gt;</span><br><span class="line">      &lt;integer&gt;20480&lt;/integer&gt;</span><br><span class="line">    &lt;/dict&gt;</span><br><span class="line">  &lt;/dict&gt;</span><br><span class="line">&lt;/plist&gt;</span><br></pre></td></tr></table></figure>
 <p>修改的地方是增加了 <code>&lt;string&gt;socksParentProxy=localhost:1080&lt;/string&gt;</code></p>
-<h2 id="start-stop"><a href="#start-stop" class="headerlink" title="start / stop"></a>start / stop</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.polipo.plist</span><br><span class="line">launchctl load ~/Library/LaunchAgents/homebrew.mxcl.polipo.plist</span><br></pre></td></tr></table></figure>
-<h2 id="setting-profile"><a href="#setting-profile" class="headerlink" title="setting profile"></a>setting profile</h2><p>vim ~/.zshrc</p>
+<h2 id="start-stop"><a class="markdownIt-Anchor" href="#start-stop"></a> start / stop</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">launchctl unload ~/Library/LaunchAgents/homebrew.mxcl.polipo.plist</span><br><span class="line">launchctl load ~/Library/LaunchAgents/homebrew.mxcl.polipo.plist</span><br></pre></td></tr></table></figure>
+<h2 id="setting-profile"><a class="markdownIt-Anchor" href="#setting-profile"></a> setting profile</h2>
+<p>vim ~/.zshrc</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#export http_proxy=http://localhost:8123</span><br><span class="line">alias hp=&quot;http_proxy=http://localhost:8123&quot;</span><br></pre></td></tr></table></figure>
 <p>source ~/.zshrc</p>
-<h2 id="test"><a href="#test" class="headerlink" title="test"></a>test</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜ hp curl ip.cn</span><br><span class="line">当前 IP：97.64.**.** 来自：美国</span><br></pre></td></tr></table></figure>
-<h2 id="reference-article"><a href="#reference-article" class="headerlink" title="reference article"></a>reference article</h2><ul>
+<h2 id="test"><a class="markdownIt-Anchor" href="#test"></a> test</h2>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜ hp curl ip.cn</span><br><span class="line">当前 IP：97.64.**.** 来自：美国</span><br></pre></td></tr></table></figure>
+<h2 id="reference-article"><a class="markdownIt-Anchor" href="#reference-article"></a> reference article</h2>
+<ul>
 <li><a href="http://droidyue.com/blog/2016/04/04/set-shadowsocks-proxy-for-terminal/" target="_blank" rel="noopener">技术小黑屋</a></li>
 <li><a href="https://segmentfault.com/a/1190000008449046" target="_blank" rel="noopener">Mac+shadowsocks+polipo快捷实现终端科学上网</a></li>
 <li><a href="http://blog.liujiangbei.com/14532622130324.html" target="_blank" rel="noopener">VPS-install-shadowsocks-proxy</a></li>
@@ -173,7 +177,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#install"><span class="toc-text">install</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#config"><span class="toc-text">config</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#start-stop"><span class="toc-text">start / stop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setting-profile"><span class="toc-text">setting profile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#test"><span class="toc-text">test</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference-article"><span class="toc-text">reference article</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#install"><span class="toc-text"> install</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#config"><span class="toc-text"> config</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#start-stop"><span class="toc-text"> start / stop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setting-profile"><span class="toc-text"> setting profile</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#test"><span class="toc-text"> test</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference-article"><span class="toc-text"> reference article</span></a></li></ol>
       </div>
     
     
