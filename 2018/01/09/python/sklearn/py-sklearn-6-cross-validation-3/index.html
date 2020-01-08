@@ -114,15 +114,14 @@ var _hmt = _hmt || [];
       
         <p>交叉验证(cross validation)让我们知道在机器学习中验证是有多么的重要, 这一次的 sklearn 中我们用到了<code>sklearn.learning_curve</code>当中的另外一种, 叫做<code>validation_curve</code>,用这一种曲线我们就能更加直观看出改变模型中的参数的时候有没有过拟合(overfitting)的问题了. 这也是可以让我们更好的选择参数的方法.</p>
 <a id="more"></a>
-<h2 id="validation_curve-检视过拟合"><a class="markdownIt-Anchor" href="#validation_curve-检视过拟合"></a> validation_curve 检视过拟合</h2>
-<p>验证<code>SVC</code>中的一个参数 <code>gamma</code> 在什么范围内能使 <code>model</code> 产生好的结果. 以及过拟合和 <code>gamma</code> 取值的关系.</p>
+<h2 id="validation-curve-检视过拟合"><a href="#validation-curve-检视过拟合" class="headerlink" title="validation_curve 检视过拟合"></a>validation_curve 检视过拟合</h2><p>验证<code>SVC</code>中的一个参数 <code>gamma</code> 在什么范围内能使 <code>model</code> 产生好的结果. 以及过拟合和 <code>gamma</code> 取值的关系.</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.learning_curve <span class="keyword">import</span> validation_curve <span class="comment">#validation_curve模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_digits </span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC </span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment">#digits数据集</span></span><br><span class="line">digits = load_digits()</span><br><span class="line">X = digits.data</span><br><span class="line">y = digits.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#建立参数测试集</span></span><br><span class="line">param_range = np.logspace(<span class="number">-6</span>, <span class="number">-2.3</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用validation_curve快速找出参数对模型的影响</span></span><br><span class="line">train_loss, test_loss = validation_curve(</span><br><span class="line">    SVC(), X, y, param_name=<span class="string">'gamma'</span>, param_range=param_range, cv=<span class="number">10</span>, scoring=<span class="string">'mean_squared_error'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#平均每一轮的平均方差</span></span><br><span class="line">train_loss_mean = -np.mean(train_loss, axis=<span class="number">1</span>)</span><br><span class="line">test_loss_mean = -np.mean(test_loss, axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#可视化图形</span></span><br><span class="line">plt.plot(param_range, train_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"r"</span>,</span><br><span class="line">         label=<span class="string">"Training"</span>)</span><br><span class="line">plt.plot(param_range, test_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"g"</span>,</span><br><span class="line">        label=<span class="string">"Cross-validation"</span>)</span><br><span class="line"></span><br><span class="line">plt.xlabel(<span class="string">"gamma"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Loss"</span>)</span><br><span class="line">plt.legend(loc=<span class="string">"best"</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
 <div class="limg1">
 <img src="/images/python/sklearn-6-cross-validation-3-output_1_1.png" width="400" />
 </div>
+
 <p>由图中可以明显看到 <code>gamma</code> 值大于 <code>0.001</code>，模型就会有过拟合(<code>Overfitting</code>)的问题。</p>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
 <li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
 <li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
@@ -170,7 +169,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#validation_curve-检视过拟合"><span class="toc-text"> validation_curve 检视过拟合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#validation-curve-检视过拟合"><span class="toc-text">validation_curve 检视过拟合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
