@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>XLNET： Generalized Autoregressive Pretraining for Language - Melbourne Australia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="BERT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="XLNET： Generalized Autoregressive Pretraining for Language">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;02&#x2F;26&#x2F;nlp&#x2F;BERT_tutorial_5_post3&#x2F;index.html">
+<meta property="og:site_name" content="Melbourne Australia">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;XLNET-logo.jpg">
+<meta property="og:updated_time" content="2020-02-26T15:19:16.288Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;XLNET-logo.jpg">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/reading">Read</a>
+        
+          <a class="main-nav-link" href="/leetcode">LC</a>
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/tensorflow">Keras</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-nlp/BERT_tutorial_5_post3" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      XLNET： Generalized Autoregressive Pretraining for Language
+      <small class=article-detail-date-index>&nbsp; 2020-02-26</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2020/02/26/nlp/BERT_tutorial_5_post3/" class="article-date">
+  <time datetime="2020-02-26T14:00:21.000Z" itemprop="datePublished">2020-02-26</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2020/02/26/nlp/BERT_tutorial_5_post3/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <img src="/images/nlp/bert5/XLNET-logo.jpg" width="550" alt="UniLM" />
+<a id="more"></a>
+<h2 id="0背景"><a class="markdownIt-Anchor" href="#0背景"></a> 0.背景</h2>
+<ul>
+<li>机构：谷歌大脑、CMU</li>
+<li>时间：19 Jun. 2019</li>
+<li>作者：Zhilin Yang, Zihang Dai, Yiming Yang…</li>
+<li>面向任务：Language Understanding</li>
+<li>论文地址：<a href="https://arxiv.org/abs/1906.08237" target="_blank" rel="noopener">https://arxiv.org/abs/1906.08237</a></li>
+<li>论文代码：<a href="https://github.com/zihangdai/xlnet" target="_blank" rel="noopener">https://github.com/zihangdai/xlnet</a></li>
+</ul>
+<p><strong>XLNet</strong> 带着开源的代码和 20 项 SOTA 的成绩发布了。从 BERT 到 XLNet…</p>
+<p><strong>XLNet</strong> 诞生之路上最重要的三篇论文：</p>
+<blockquote>
+<ul>
+<li>Attention Is All You Need (12 Jun. 2017)</li>
+<li>Transformer-XL: Attentive Language Models Beyond a Fixed-Length Context (9 Jan. 2019)</li>
+<li>XLNet: Generalized <code>Autoregressive</code> Pretraining for Language Understanding (19 Jun. 2019)</li>
+</ul>
+</blockquote>
+<h2 id="1-xlnet-诞生背景"><a class="markdownIt-Anchor" href="#1-xlnet-诞生背景"></a> 1. XLNet 诞生背景</h2>
+<ol>
+<li>AR</li>
+<li>AE</li>
+</ol>
+<h2 id="2-ar与ae语言模型"><a class="markdownIt-Anchor" href="#2-ar与ae语言模型"></a> 2. AR与AE语言模型</h2>
+<p><strong>AR</strong>: <span style="background-color: rgb(255, 102, 0);">Aotoregressive Lanuage Modeling</span></p>
+<blockquote>
+<p>它指的是，依据前面(或后面)出现的tokens来预测当前时刻的token，代表模型有ELMO、GTP等。</p>
+<p><strong>缺点</strong>：它只能利用单向语义而不能同时利用上下文信息。</p>
+<p>ELMO 通过双向都做AR 模型，然后进行拼接，但从结果来看，效果并不是太好。</p>
+<p><strong>优点</strong>： 对自然语言生成任务(NLG)友好，天然符合生成式任务的生成过程。这也是 GPT 能够编故事的原因。</p>
+</blockquote>
+<p><strong>AE</strong>: <span style="background-color: rgb(255, 102, 0);">Autoencoding Language Modeling</span></p>
+<blockquote>
+<p>通过上下文信息来预测当前被mask的token，代表有BERT。</p>
+<p><strong>缺点</strong>： 由于训练中采用了 [MASK] 标记，导致预训练与微调阶段不一致的问题。</p>
+<p>此外对于生成式问题， AE 模型也显得捉襟见肘，这也是目前 BERT 为数不多实现大的突破的领域。</p>
+<p><strong>优点</strong>： 能够很好的编码上下文语义信息， 在自然语言理解(NLU)相关的下游任务上表现突出。</p>
+</blockquote>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a href="https://www.cnblogs.com/Christbao/p/12347501.html" target="_blank" rel="noopener">从bert到XLnet</a></li>
+<li><a href="https://easyai.tech/blog/nlp-xlnet-bert/" target="_blank" rel="noopener">谷歌更强NLP模型XLNet开源：20项任务全面碾压BERT！</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/84559048" target="_blank" rel="noopener">从BERT, XLNet, RoBERTa到ALBERT</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0背景"><span class="toc-text"> 0.背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-xlnet-诞生背景"><span class="toc-text"> 1. XLNet 诞生背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-ar与ae语言模型"><span class="toc-text"> 2. AR与AE语言模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/BERT/" rel="tag">BERT</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/02/23/nlp/BERT_tutorial_5_post2/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">BERT 肩膀上的 NLP 新秀： UNILM (既能阅读又能自动生成的预训练模型)&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2020/02/26/nlp/BERT_tutorial_5_post3/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
