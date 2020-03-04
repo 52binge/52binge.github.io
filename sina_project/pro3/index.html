@@ -5,12 +5,12 @@
   
   <title>Melbourne Australia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="3. 离线分析调度框架 这是一个 shell 等其他语言配合写成的灵活调度框架. 该示例模块架 适用于离线分析调度，特别是每天跑的crontab任务，或者是每周、每月跑的任务. 多用于 hive 语句 或 其他脚本离线运行.  提供一些 best practice 提高各模块结构及代码的一致性 降低开发新模块的成本 便于离线大数据分析流程控制 具备报警，日志定位，常用检测依赖库函数 等功能 当然">
+  <meta name="description" content="3. 离线分析调度框架这是一个 shell 等其他语言配合写成的灵活调度框架. 该示例模块架 适用于离线分析调度，特别是每天跑的crontab任务，或者是每周、每月跑的任务. 多用于 hive 语句 或 其他脚本离线运行.  提供一些 best practice 提高各模块结构及代码的一致性 降低开发新模块的成本 便于离线大数据分析流程控制 具备报警，日志定位，常用检测依赖库函数 等功能 当然它也">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Melbourne Australia">
 <meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;sina_project&#x2F;pro3&#x2F;index.html">
 <meta property="og:site_name" content="Melbourne Australia">
-<meta property="og:description" content="3. 离线分析调度框架 这是一个 shell 等其他语言配合写成的灵活调度框架. 该示例模块架 适用于离线分析调度，特别是每天跑的crontab任务，或者是每周、每月跑的任务. 多用于 hive 语句 或 其他脚本离线运行.  提供一些 best practice 提高各模块结构及代码的一致性 降低开发新模块的成本 便于离线大数据分析流程控制 具备报警，日志定位，常用检测依赖库函数 等功能 当然">
+<meta property="og:description" content="3. 离线分析调度框架这是一个 shell 等其他语言配合写成的灵活调度框架. 该示例模块架 适用于离线分析调度，特别是每天跑的crontab任务，或者是每周、每月跑的任务. 多用于 hive 语句 或 其他脚本离线运行.  提供一些 best practice 提高各模块结构及代码的一致性 降低开发新模块的成本 便于离线大数据分析流程控制 具备报警，日志定位，常用检测依赖库函数 等功能 当然它也">
 <meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2019-10-20T04:30:33.516Z">
 <meta name="twitter:card" content="summary">
@@ -91,8 +91,7 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="3-离线分析调度框架"><a class="markdownIt-Anchor" href="#3-离线分析调度框架"></a> 3. 离线分析调度框架</h2>
-<p>这是一个 shell 等其他语言配合写成的灵活调度框架. 该示例模块架 适用于离线分析调度，特别是每天跑的crontab任务，或者是每周、每月跑的任务. 多用于 hive 语句 或 其他脚本离线运行.</p>
+        <h2 id="3-离线分析调度框架"><a href="#3-离线分析调度框架" class="headerlink" title="3. 离线分析调度框架"></a>3. 离线分析调度框架</h2><p>这是一个 shell 等其他语言配合写成的灵活调度框架. 该示例模块架 适用于离线分析调度，特别是每天跑的crontab任务，或者是每周、每月跑的任务. 多用于 hive 语句 或 其他脚本离线运行.</p>
 <ol>
 <li>提供一些 best practice</li>
 <li>提高各模块结构及代码的一致性</li>
@@ -105,33 +104,87 @@ var _hmt = _hmt || [];
 <p>不同人负责的模块不同，模块目录结构是一样的，如下所示</p>
 <p>开发模块的时候，每个人只需要编写自己模块 script 下脚本 和 少量 crontab_job 脚本的改动即可.</p>
 </blockquote>
-<p>目录结构 | 功能 | 详细说明<br />
-:— | :-- | -:-<br />
-─ <strong>crontab_job</strong> | crontab 脚本 | 由 linux crontab 触发, 检测整条流水线任务依赖关系, 调用 script 目录脚本等<br />
-─ <strong>script</strong> | 主脚本 | shell、python脚本. shell 里主为 hql 或 streaming MR、spark-submit 任务等<br />
-─ conf | 配置文件 | default.conf、vars.conf、alert.conf<br />
-─ <strong>log</strong> | 日志文件 | 主脚本log (多次运行多个log file)、crontab 脚本log (一个log file)<br />
-─ flag | 标记文件 | (标志该模块已运行，或运行完毕， crontab 会轮询检测) <br>          crontab_label.2017-12-13、ods_e_coupon/2017-12-13.all.done<br />
-─ util | 工具脚本 | <code>logging</code>、<code>static_functions</code>、<code>static_hive_lib</code>、<code>crontab_job_env</code>、<code>env</code><br />
-─ alert | 报警封装 | (发送报警邮件的封装 <code>alert</code>、<code>send_mail.py</code>、<code>constant_mail.py</code>)<br />
-| |<br />
-─ create_table | 建表脚本 | 建里 hive table 的语句<br />
-─ jar | jar包 | 如 无 则不需要建立<br />
-─ java | udf、udaf | 如 无 则不需要建立</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">目录结构</th>
+<th style="text-align:left">功能</th>
+<th>详细说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">─ <strong>crontab_job</strong></td>
+<td style="text-align:left">crontab 脚本</td>
+<td>由 linux crontab 触发, 检测整条流水线任务依赖关系, 调用 script 目录脚本等</td>
+</tr>
+<tr>
+<td style="text-align:left">─ <strong>script</strong></td>
+<td style="text-align:left">主脚本</td>
+<td>shell、python脚本. shell 里主为 hql 或 streaming MR、spark-submit 任务等</td>
+</tr>
+<tr>
+<td style="text-align:left">─ conf</td>
+<td style="text-align:left">配置文件</td>
+<td>default.conf、vars.conf、alert.conf</td>
+</tr>
+<tr>
+<td style="text-align:left">─ <strong>log</strong></td>
+<td style="text-align:left">日志文件</td>
+<td>主脚本log (多次运行多个log file)、crontab 脚本log (一个log file)</td>
+</tr>
+<tr>
+<td style="text-align:left">─ flag</td>
+<td style="text-align:left">标记文件</td>
+<td>(标志该模块已运行，或运行完毕， crontab 会轮询检测) <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; crontab_label.2017-12-13、ods_e_coupon/2017-12-13.all.done</td>
+</tr>
+<tr>
+<td style="text-align:left">─ util</td>
+<td style="text-align:left">工具脚本</td>
+<td><code>logging</code>、<code>static_functions</code>、<code>static_hive_lib</code>、<code>crontab_job_env</code>、<code>env</code></td>
+</tr>
+<tr>
+<td style="text-align:left">─ alert</td>
+<td style="text-align:left">报警封装</td>
+<td>(发送报警邮件的封装 <code>alert</code>、<code>send_mail.py</code>、<code>constant_mail.py</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">─ create_table</td>
+<td style="text-align:left">建表脚本</td>
+<td>建里 hive table 的语句</td>
+</tr>
+<tr>
+<td style="text-align:left">─ jar</td>
+<td style="text-align:left">jar包</td>
+<td>如 无 则不需要建立</td>
+</tr>
+<tr>
+<td style="text-align:left">─ java</td>
+<td style="text-align:left">udf、udaf</td>
+<td>如 无 则不需要建立</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p><strong>conf/default.conf</strong></p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#系统环境变量</span></span><br><span class="line"><span class="built_in">export</span> HADOOP=<span class="string">"<span class="variable">$&#123;HADOOP_HOME&#125;</span>/bin/hadoop"</span></span><br><span class="line"><span class="built_in">export</span> HIVE=<span class="string">"<span class="variable">$&#123;HIVE_HOME&#125;</span>/bin/hive"</span></span><br><span class="line"><span class="built_in">export</span> JAVA=<span class="string">"<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin/java"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#hadoop jar</span></span><br><span class="line">hadoop_jar=<span class="string">"<span class="variable">$&#123;HADOOP_HOME&#125;</span>/share/packages/hadoop2/hadoop-streaming-2.7.2.jar"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#log_util</span></span><br><span class="line">scheduler_log_script=<span class="string">"<span class="variable">$&#123;util_dir&#125;</span>/logging"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#控制日志运行方式</span></span><br><span class="line">open_log=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#运行hadoop任务的用户名</span></span><br><span class="line">user=<span class="string">"data_mining"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#hive表路径</span></span><br><span class="line">ods_hive_dir=<span class="string">"/data_mining/dm/ods/"</span></span><br><span class="line">mds_hive_dir=<span class="string">"/data_mining/dm/mds/"</span></span><br><span class="line">tmp_hive_dir=<span class="string">"/data_mining/dm/tmp/"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## OSS</span></span><br><span class="line">OSS_URL=<span class="string">"oss://your-key:your-value@x-bigdata.oss-cn-hangzhou-internal.aliyuncs.com"</span></span><br></pre></td></tr></table></figure>
 <p>crontab_job</p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#check crontab_label whether exist</span></span><br><span class="line"><span class="keyword">if</span> check_local_crontab_label <span class="variable">$&#123;flag_dir&#125;</span> <span class="variable">$&#123;d1&#125;</span></span><br><span class="line">  <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"[INFO] script already run!"</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">"[INFO] check dependention"</span></span><br><span class="line"> </span><br><span class="line">  check_hive_partitions tablename 2018-04-19</span><br><span class="line"><span class="comment">#  check_local_file()</span></span><br><span class="line"><span class="comment">#  check_hdfs_file()</span></span><br><span class="line"><span class="comment"># ...</span></span><br><span class="line">  </span><br><span class="line">  <span class="built_in">echo</span> <span class="string">"[INFO] script run!"</span></span><br><span class="line"><span class="comment"># generate crontab_label</span></span><br><span class="line">  touch_local_crontab_label <span class="variable">$&#123;flag_dir&#125;</span> <span class="variable">$&#123;d1&#125;</span></span><br><span class="line"><span class="comment"># run main script</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">"[INFO] start run..."</span></span><br><span class="line"></span><br><span class="line">  sh ods_dm_e_coupon.sh <span class="variable">$d1</span></span><br><span class="line"></span><br><span class="line">  check_crontab_success <span class="variable">$&#123;flag_dir&#125;</span> <span class="variable">$&#123;d1&#125;</span></span><br><span class="line">  </span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">echo_ex <span class="string">"run <span class="variable">$0</span> end!"</span></span><br></pre></td></tr></table></figure>
 <p><a href="https://github.com/blair101/bigdata/tree/master/bigdata-offline-demo" target="_blank" rel="noopener">bigdata-offline-demo 更多项目详情请点击…</a></p>
-<h2 id="next"><a class="markdownIt-Anchor" href="#next"></a> next…</h2>
-
+<h2 id="next"><a href="#next" class="headerlink" title="next.."></a>next..</h2>
       
     
     </div>
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-离线分析调度框架"><span class="toc-text"> 3. 离线分析调度框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next"><span class="toc-text"> next…</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-离线分析调度框架"><span class="toc-text">3. 离线分析调度框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next"><span class="toc-text">next..</span></a></li></ol>
       </div>
     
     
