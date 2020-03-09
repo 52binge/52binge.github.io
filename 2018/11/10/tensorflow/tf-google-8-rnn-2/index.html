@@ -5,13 +5,13 @@
   
   <title>TensorFlow：第8章 LSTM &amp; Bi-RNN &amp; Deep RNN - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="LSTM 可以学习到距离很远的信息，解决了RNN无法长期依赖的问题。 Bidirectional RNN 解决的是 当前时刻的输出不仅和之前的状态有关系，也和之后的状态相关。 Deep RNNs 是 为了增强模型的表达能力，可以在网络中设置多个循环层，将每层 RNN 的输出传给下一层处理。">
+  <meta name="description" content="LSTM 可以学习到距离很远的信息，解决了RNN无法长期依赖的问题。  Bidirectional RNN 解决的是 当前时刻的输出不仅和之前的状态有关系，也和之后的状态相关。 Deep RNNs 是 为了增强模型的表达能力，可以在网络中设置多个循环层，将每层 RNN 的输出传给下一层处理。">
 <meta name="keywords" content="RNN">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TensorFlow：第8章 LSTM &amp; Bi-RNN &amp; Deep RNN">
 <meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;11&#x2F;10&#x2F;tensorflow&#x2F;tf-google-8-rnn-2&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
-<meta property="og:description" content="LSTM 可以学习到距离很远的信息，解决了RNN无法长期依赖的问题。 Bidirectional RNN 解决的是 当前时刻的输出不仅和之前的状态有关系，也和之后的状态相关。 Deep RNNs 是 为了增强模型的表达能力，可以在网络中设置多个循环层，将每层 RNN 的输出传给下一层处理。">
+<meta property="og:description" content="LSTM 可以学习到距离很远的信息，解决了RNN无法长期依赖的问题。  Bidirectional RNN 解决的是 当前时刻的输出不仅和之前的状态有关系，也和之后的状态相关。 Deep RNNs 是 为了增强模型的表达能力，可以在网络中设置多个循环层，将每层 RNN 的输出传给下一层处理。">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;tensorflow&#x2F;tf-google-8-2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;tensorflow&#x2F;tf-google-8-5.jpg">
@@ -116,14 +116,12 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>LSTM 可以学习到距离很远的信息，解决了RNN无法长期依赖的问题。</p>
+        <p>LSTM 可以学习到距离很远的信息，解决了RNN无法长期依赖的问题。 </p>
 <p>Bidirectional RNN 解决的是 当前时刻的输出不仅和之前的状态有关系，也和之后的状态相关。</p>
 <p>Deep RNNs 是 为了增强模型的表达能力，可以在网络中设置多个循环层，将每层 RNN 的输出传给下一层处理。</p>
 <a id="more"></a>
-<h2 id="1-lstm"><a class="markdownIt-Anchor" href="#1-lstm"></a> 1. LSTM</h2>
-<img src="/images/tensorflow/tf-google-8-2.jpg" width="600" />
-<h3 id="单层lstm结构实现"><a class="markdownIt-Anchor" href="#单层lstm结构实现"></a> 单层LSTM结构实现</h3>
-<p>Tensorflow中实现了以下模块 :tf.nn.rnn_cell，包括了10个类：</p>
+<h2 id="1-LSTM"><a href="#1-LSTM" class="headerlink" title="1. LSTM"></a>1. LSTM</h2><p><img src="/images/tensorflow/tf-google-8-2.jpg" width="600" /></p>
+<h3 id="单层LSTM结构实现"><a href="#单层LSTM结构实现" class="headerlink" title="单层LSTM结构实现"></a>单层LSTM结构实现</h3><p>Tensorflow中实现了以下模块 :tf.nn.rnn_cell，包括了10个类：</p>
 <ol>
 <li>class BasicLSTMCell: Basic LSTM recurrent network cell.</li>
 <li>class BasicRNNCell: The most basic RNN cell.</li>
@@ -146,21 +144,19 @@ var _hmt = _hmt || [];
 <li>activation 表示内部状态的激活函数，默认是 tanh</li>
 <li>name 表示这一层的名字，同样名字的层会共享权重，如果为了避免这样的情况需要设置reuse=True</li>
 </ul>
-<img src="/images/tensorflow/tf-google-8-5.jpg" width="600" />
+<p><img src="/images/tensorflow/tf-google-8-5.jpg" width="600" /></p>
 <p>采用<strong>BasicLSTMCell来声明LSTM结构如下所示</strong>，我们用伪代码和注释来进行说明。</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义一个lstm结构，在tensorflow中通过一句话就能实现一个完整的lstm结构</span></span><br><span class="line"><span class="comment"># lstm_hidden_size 表示 LSTM cell 中神经元的数量。 cell其实就是一个RNN的网络。</span></span><br><span class="line">lstm = tf.nn.rnn_cell.BasicLSTMCell(lstm_hidden_size)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将lstm中的状态初始化为全0数组，BasicLSTMCell提供了zero_state来生成全0数组</span></span><br><span class="line"><span class="comment"># 在优化RNN时每次也会使用一个batch的训练样本，batch_size给出了一个batch的大小</span></span><br><span class="line">state = lstm.zero_state(batch_size, tf.float32)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义损失函数</span></span><br><span class="line">loss = <span class="number">0.0</span></span><br><span class="line"><span class="comment"># 为了在训练中避免梯度弥散的情况，规定一个最大的序列长度num_steps</span></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(num_steps):</span><br><span class="line">    <span class="comment"># 在第一个时刻声明lstm结构中使用的变量，在之后的时刻都需要重复使用之前定义好的变量</span></span><br><span class="line">    <span class="keyword">if</span> i&gt;<span class="number">0</span>:</span><br><span class="line">        tf.get_variable_scope().reuse_variables()</span><br><span class="line">    <span class="comment"># 每一步处理时间序列中的一个时刻，将当前输入current_input和前一时刻状态state传入LSTM结构</span></span><br><span class="line">    <span class="comment"># 就可以得到当前lstm结构的输出lstm_output和更新后的状态state</span></span><br><span class="line">    lstm_output, state = lstm(current_input, state)</span><br><span class="line">    <span class="comment"># 将当前时刻lstm输出传入一个全连接层得到最后的输出</span></span><br><span class="line">    final_output = fully_connected(lstm_output)</span><br><span class="line">    <span class="comment"># 计算当前时刻输出的损失</span></span><br><span class="line">    loss += calc_loss(final_output, expected_output)</span><br></pre></td></tr></table></figure>
-<h2 id="2-bidirectional-rnn"><a class="markdownIt-Anchor" href="#2-bidirectional-rnn"></a> 2. Bidirectional RNN</h2>
-<ul>
+<h2 id="2-Bidirectional-RNN"><a href="#2-Bidirectional-RNN" class="headerlink" title="2. Bidirectional RNN"></a>2. Bidirectional RNN</h2><ul>
 <li>Bidirectional RNN 双向递归神经网络. 该神经网络首先从正面理解一遍这句话，再从反方向理解一遍.</li>
 </ul>
-<img src="/images/tensorflow/tf-google-8-3.jpg" width="600" />
-<h2 id="3-deep-rnns"><a class="markdownIt-Anchor" href="#3-deep-rnns"></a> 3. Deep RNNs</h2>
-<ul>
+<p><img src="/images/tensorflow/tf-google-8-3.jpg" width="600" /></p>
+<h2 id="3-Deep-RNNs"><a href="#3-Deep-RNNs" class="headerlink" title="3. Deep RNNs"></a>3. Deep RNNs</h2><ul>
 <li>Deep RNNs 深层，顾名思义就是层次增。 横向表示时间展开，纵向则是层次展开。</li>
 </ul>
 <!--<img src="/images/tensorflow/tf-google-8-4.jpg" width="600" />
 -->
-<img src="/images/deeplearning/C5W1-47_1.png" width="750" />
+<p><img src="/images/deeplearning/C5W1-47_1.png" width="750" /></p>
 <p>MultiRNNCell的初始化方法如下</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">__init__(</span><br><span class="line">    cells,</span><br><span class="line">    state_is_tuple=<span class="literal">True</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
 <p>其中</p>
@@ -172,8 +168,7 @@ var _hmt = _hmt || [];
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">zero_state(</span><br><span class="line">    batch_size,</span><br><span class="line">    dtype</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
 <p>我们接下来用伪代码和注释来说明Deep RNN如何实现</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义一个基本的LSTM结构作为循环体的基础结构，当然也支持使用其他的循环体结构</span></span><br><span class="line">lstm_cell = tf.nn.rnn_cell.BasicLSTMCell</span><br><span class="line"><span class="comment"># 通过MultiRNNCells类来实现Deep RNN，其中number_of_layers表示有多少层，lstm_size表示每层的单元数量</span></span><br><span class="line">stacked_lstm = tf.nn.rnn_cell.MultiRNNCell([lstm_cell(lstm_size) <span class="keyword">for</span> _ <span class="keyword">in</span> range(number_of_layers)])</span><br><span class="line"><span class="comment"># 初始化并获取初始状态</span></span><br><span class="line">state = stacked_lstm.zeros_state(batch_size, tf.float32)</span><br><span class="line"></span><br><span class="line">foor i <span class="keyword">in</span> range(len(num_steps)):</span><br><span class="line">    <span class="keyword">if</span> i &gt; <span class="number">0</span>:</span><br><span class="line">        tf.get_variable_scope().reuse_variables()</span><br><span class="line">    <span class="comment"># 根据当前输入current_input(x_t) 和前一阶段状态state(h_(t-1), s_(t-1)) 来前向计算得到当前状态state(h_t, s_t) 和输出stacked_lstm_output (h_t)</span></span><br><span class="line">    stacked_lstm_output, state = stacked_lstm(current_input, state)</span><br><span class="line">    <span class="comment"># 输出喂给全联接层</span></span><br><span class="line">    final_output = fully_connected(stacked_lstm_output)</span><br><span class="line">    <span class="comment"># 计算损失</span></span><br><span class="line">    loss += calc_loss(final_output, expected_output)</span><br><span class="line">    <span class="comment"># 进行优化</span></span><br><span class="line">    .......</span><br></pre></td></tr></table></figure>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://www.ctolib.com/docs-Tensorflow-c-Tensorflow5.html" target="_blank" rel="noopener">深入浅出Tensorflow（五）：循环神经网络简介</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/37070414" target="_blank" rel="noopener">Tensorflow实战(1): 实现深层循环神经网络</a></li>
 <li><a href="https://zh.gluon.ai/" target="_blank" rel="noopener">zh.gluon.ai 动手学深度学习</a></li>
@@ -222,7 +217,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-lstm"><span class="toc-text"> 1. LSTM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#单层lstm结构实现"><span class="toc-text"> 单层LSTM结构实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-bidirectional-rnn"><span class="toc-text"> 2. Bidirectional RNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-deep-rnns"><span class="toc-text"> 3. Deep RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-LSTM"><span class="toc-text">1. LSTM</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#单层LSTM结构实现"><span class="toc-text">单层LSTM结构实现</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Bidirectional-RNN"><span class="toc-text">2. Bidirectional RNN</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Deep-RNNs"><span class="toc-text">3. Deep RNNs</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
