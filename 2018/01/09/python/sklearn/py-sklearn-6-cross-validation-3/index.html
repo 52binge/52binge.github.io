@@ -6,17 +6,17 @@
   <title>Sklearn Cross-validation 3 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="交叉验证(cross validation)让我们知道在机器学习中验证是有多么的重要, 这一次的 sklearn 中我们用到了sklearn.learning_curve当中的另外一种, 叫做validation_curve,用这一种曲线我们就能更加直观看出改变模型中的参数的时候有没有过拟合(overfitting)的问题了. 这也是可以让我们更好的选择参数的方法.">
-<meta name="keywords" content="Sklearn">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Sklearn Cross-validation 3">
-<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;01&#x2F;09&#x2F;python&#x2F;sklearn&#x2F;py-sklearn-6-cross-validation-3&#x2F;index.html">
+<meta property="og:url" content="http://shopee.ai/2018/01/09/python/sklearn/py-sklearn-6-cross-validation-3/index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="交叉验证(cross validation)让我们知道在机器学习中验证是有多么的重要, 这一次的 sklearn 中我们用到了sklearn.learning_curve当中的另外一种, 叫做validation_curve,用这一种曲线我们就能更加直观看出改变模型中的参数的时候有没有过拟合(overfitting)的问题了. 这也是可以让我们更好的选择参数的方法.">
-<meta property="og:locale" content="en">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;python&#x2F;sklearn-6-cross-validation-3-output_1_1.png">
-<meta property="og:updated_time" content="2019-10-20T04:30:35.008Z">
+<meta property="og:image" content="http://shopee.ai/images/python/sklearn-6-cross-validation-3-output_1_1.png">
+<meta property="og:updated_time" content="2019-10-09T14:38:47.314Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;python&#x2F;sklearn-6-cross-validation-3-output_1_1.png">
+<meta name="twitter:title" content="Sklearn Cross-validation 3">
+<meta name="twitter:description" content="交叉验证(cross validation)让我们知道在机器学习中验证是有多么的重要, 这一次的 sklearn 中我们用到了sklearn.learning_curve当中的另外一种, 叫做validation_curve,用这一种曲线我们就能更加直观看出改变模型中的参数的时候有没有过拟合(overfitting)的问题了. 这也是可以让我们更好的选择参数的方法.">
+<meta name="twitter:image" content="http://shopee.ai/images/python/sklearn-6-cross-validation-3-output_1_1.png">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -31,21 +31,12 @@
 <body>
   <div id="container">
     <!-- blair add baidu tongji start... @2017.10.03 -->
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
 <!-- blair add baidu tongji end ! @2017.10.03 -->
 
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -62,7 +53,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
         </div>
       </nav>
     </div>
@@ -101,7 +92,7 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2018/01/09/python/sklearn/py-sklearn-6-cross-validation-3/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://shopee.ai/2018/01/09/python/sklearn/py-sklearn-6-cross-validation-3/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -112,15 +103,13 @@ var _hmt = _hmt || [];
 <a id="more"></a>
 <h2 id="validation-curve-检视过拟合"><a href="#validation-curve-检视过拟合" class="headerlink" title="validation_curve 检视过拟合"></a>validation_curve 检视过拟合</h2><p>验证<code>SVC</code>中的一个参数 <code>gamma</code> 在什么范围内能使 <code>model</code> 产生好的结果. 以及过拟合和 <code>gamma</code> 取值的关系.</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.learning_curve <span class="keyword">import</span> validation_curve <span class="comment">#validation_curve模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_digits </span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC </span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment">#digits数据集</span></span><br><span class="line">digits = load_digits()</span><br><span class="line">X = digits.data</span><br><span class="line">y = digits.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#建立参数测试集</span></span><br><span class="line">param_range = np.logspace(<span class="number">-6</span>, <span class="number">-2.3</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用validation_curve快速找出参数对模型的影响</span></span><br><span class="line">train_loss, test_loss = validation_curve(</span><br><span class="line">    SVC(), X, y, param_name=<span class="string">'gamma'</span>, param_range=param_range, cv=<span class="number">10</span>, scoring=<span class="string">'mean_squared_error'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#平均每一轮的平均方差</span></span><br><span class="line">train_loss_mean = -np.mean(train_loss, axis=<span class="number">1</span>)</span><br><span class="line">test_loss_mean = -np.mean(test_loss, axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#可视化图形</span></span><br><span class="line">plt.plot(param_range, train_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"r"</span>,</span><br><span class="line">         label=<span class="string">"Training"</span>)</span><br><span class="line">plt.plot(param_range, test_loss_mean, <span class="string">'o-'</span>, color=<span class="string">"g"</span>,</span><br><span class="line">        label=<span class="string">"Cross-validation"</span>)</span><br><span class="line"></span><br><span class="line">plt.xlabel(<span class="string">"gamma"</span>)</span><br><span class="line">plt.ylabel(<span class="string">"Loss"</span>)</span><br><span class="line">plt.legend(loc=<span class="string">"best"</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-<div class="limg1">
-<img src="/images/python/sklearn-6-cross-validation-3-output_1_1.png" width="400" />
-</div>
+<div class="limg1"><br><img src="/images/python/sklearn-6-cross-validation-3-output_1_1.png" width="400"><br></div>
 
 <p>由图中可以明显看到 <code>gamma</code> 值大于 <code>0.001</code>，模型就会有过拟合(<code>Overfitting</code>)的问题。</p>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
-<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
-<li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
+<li><a href="http://scikit-learn.org/" target="_blank" rel="external">scikit-learn.org</a></li>
+<li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="external">scikit-learn docs</a></li>
+<li><a href="https://morvanzhou.github.io" target="_blank" rel="external">scikit-learn morvanzhou</a></li>
 </ul>
 
       
@@ -154,7 +143,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -182,7 +171,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/Sklearn/" rel="tag">Sklearn</a>
+    <a class="article-tag-link" href="/tags/Sklearn/">Sklearn</a>
   </div>
 
 
@@ -222,8 +211,8 @@ var _hmt = _hmt || [];
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
     </div>
   </div>
 </footer>
@@ -246,7 +235,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2018/01/09/python/sklearn/py-sklearn-6-cross-validation-3/';
+  var disqus_url = 'http://shopee.ai/2018/01/09/python/sklearn/py-sklearn-6-cross-validation-3/';
   
   (function(){
     var dsq = document.createElement('script');

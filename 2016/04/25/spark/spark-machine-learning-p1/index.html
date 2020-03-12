@@ -6,15 +6,15 @@
   <title>Spark Machine Learning p1 - Spark编程入门 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="Spark 的环境搭建与运行, 接触了 RDD 与 SparkContext, 启动 Spark-Shell 以及如何使用 Scala、Python 编写 Spark 程序.">
-<meta name="keywords" content="spark">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spark Machine Learning p1 - Spark编程入门">
-<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2016&#x2F;04&#x2F;25&#x2F;spark&#x2F;spark-machine-learning-p1&#x2F;index.html">
+<meta property="og:url" content="http://shopee.ai/2016/04/25/spark/spark-machine-learning-p1/index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="Spark 的环境搭建与运行, 接触了 RDD 与 SparkContext, 启动 Spark-Shell 以及如何使用 Scala、Python 编写 Spark 程序.">
-<meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-10-20T04:30:35.077Z">
+<meta property="og:updated_time" content="2019-01-20T01:01:36.492Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark Machine Learning p1 - Spark编程入门">
+<meta name="twitter:description" content="Spark 的环境搭建与运行, 接触了 RDD 与 SparkContext, 启动 Spark-Shell 以及如何使用 Scala、Python 编写 Spark 程序.">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -29,21 +29,12 @@
 <body>
   <div id="container">
     <!-- blair add baidu tongji start... @2017.10.03 -->
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
 <!-- blair add baidu tongji end ! @2017.10.03 -->
 
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -60,7 +51,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
         </div>
       </nav>
     </div>
@@ -99,7 +90,7 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2016/04/25/spark/spark-machine-learning-p1/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://shopee.ai/2016/04/25/spark/spark-machine-learning-p1/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -115,8 +106,8 @@ var _hmt = _hmt || [];
 </blockquote>
 <p><strong>Spark 的四种运行模式</strong></p>
 <ol>
-<li>本地单机模式 — Spark 进程 all run in one JVM</li>
-<li>集群单机模式 — 使用 Spark 自己内置的 任务调度框架</li>
+<li>本地单机模式 – Spark 进程 all run in one JVM</li>
+<li>集群单机模式 – 使用 Spark 自己内置的 任务调度框架</li>
 <li>基于 Mesos 一个开源集群计算框架</li>
 <li>基于 YARN 与 Hadoop2 关联形成集群计算和资源调度框架</li>
 </ol>
@@ -187,7 +178,7 @@ var _hmt = _hmt || [];
 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">scala&gt; rddFromTextFile.cache</span><br><span class="line">res4: rddFromTextFile.<span class="keyword">type</span> = <span class="type">MapPartitionsRDD</span>[<span class="number">2</span>] at textFile at &lt;console&gt;:<span class="number">21</span></span><br><span class="line"></span><br><span class="line">scala&gt; <span class="keyword">val</span> aveLengthOfRecordChainedFromCached = rddFromTextFile.map(line =&gt; line.size).sum / rddFromTextFile.count</span><br><span class="line">aveLengthOfRecordChainedFromCached: <span class="type">Double</span> = <span class="number">58.034013605442176</span></span><br></pre></td></tr></table></figure>
 <p>在RDD首次调用一个执行操作时，这个操作对应的计算会立即执行，数据会从数据源里读出并保存到内存。因此，首次调用cache函数所需要的时间会部分取决于Spark从输入源读取数据所需要的时间。但是，当下一次访问该数据集的时候，数据可以直接从内存中读出从而减少低效的I/O操作，加快计算。多数情况下，这会取得数倍的速度提升。</p>
 <blockquote>
-<p>Spark支持更为细化的缓存策略。通过persist函数可以指定Spark的数据缓存策略。关于RDD缓存的更多信息可参见：<a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence。" target="_blank" rel="noopener">http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence。</a></p>
+<p>Spark支持更为细化的缓存策略。通过persist函数可以指定Spark的数据缓存策略。关于RDD缓存的更多信息可参见：<a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence。" target="_blank" rel="external">http://spark.apache.org/docs/latest/programming-guide.html#rdd-persistence。</a></p>
 </blockquote>
 <h3 id="3-4-广播变量和累加器"><a href="#3-4-广播变量和累加器" class="headerlink" title="3.4 广播变量和累加器"></a>3.4 广播变量和累加器</h3><p>Spark的另一个核心功能是能创建两种特殊类型的变量：<strong>广播变量</strong> 和 累加器。</p>
 <p>广播变量（broadcast variable）为只读变量，它由运行SparkContext的驱动程序创建后发送给会参与计算的节点。对那些需要让各工作节点高效地访问相同数据的应用场景，比如机器学习，这非常有用。</p>
@@ -201,20 +192,20 @@ var _hmt = _hmt || [];
 <p>高负荷的处理应尽可能地在整个集群上进行，从而避免驱动程序成为系统瓶颈。然而在不少情况下，将结果收集到驱动程序的确是有必要的。很多机器学习算法的迭代过程便属于这类情况。</p>
 <p><strong>累加器</strong>（accumulator）也是一种被广播到工作节点的变量。累加器与广播变量的关键不同，是后者只能读取而前者却可累加。</p>
 <blockquote>
-<p>关于累加器的更多信息，可参见《Spark编程指南》：<a href="http://spark.apache.org/docs/latest/programming-guide.html#shared-variables。" target="_blank" rel="noopener">http://spark.apache.org/docs/latest/programming-guide.html#shared-variables。</a></p>
+<p>关于累加器的更多信息，可参见《Spark编程指南》：<a href="http://spark.apache.org/docs/latest/programming-guide.html#shared-variables。" target="_blank" rel="external">http://spark.apache.org/docs/latest/programming-guide.html#shared-variables。</a></p>
 </blockquote>
-<h2 id="4-Spark-Scala-编程入门"><a href="#4-Spark-Scala-编程入门" class="headerlink" title="4. Spark Scala 编程入门"></a>4. Spark Scala 编程入门</h2><p><a href="https://github.com/blair1/spark/tree/master/Spark-Machine-Learning_8519OSCode/Chapter%2001/scala-spark-app" target="_blank" rel="noopener">scala-spark-app</a></p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.spark.<span class="type">SparkContext</span></span><br><span class="line"><span class="keyword">import</span> org.apache.spark.<span class="type">SparkContext</span>._</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * A simple Spark app in Scala</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ScalaApp</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]) &#123;</span><br><span class="line">    <span class="keyword">val</span> sc = <span class="keyword">new</span> <span class="type">SparkContext</span>(<span class="string">"local[2]"</span>, <span class="string">"First Spark App"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// we take the raw data in CSV format and convert it into a set of records of the form (user, product, price)</span></span><br><span class="line">    <span class="keyword">val</span> data = sc.textFile(<span class="string">"data/UserPurchaseHistory.csv"</span>)</span><br><span class="line">      .map(line =&gt; line.split(<span class="string">","</span>))</span><br><span class="line">      .map(purchaseRecord =&gt; (purchaseRecord(<span class="number">0</span>), purchaseRecord(<span class="number">1</span>), purchaseRecord(<span class="number">2</span>)))</span><br><span class="line"></span><br><span class="line">    <span class="comment">// let's count the number of purchases</span></span><br><span class="line">    <span class="keyword">val</span> numPurchases = data.count()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// let's count how many unique users made purchases</span></span><br><span class="line">    <span class="keyword">val</span> uniqueUsers = data.map &#123; <span class="keyword">case</span> (user, product, price) =&gt; user &#125;.distinct().count()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// let's sum up our total revenue</span></span><br><span class="line">    <span class="keyword">val</span> totalRevenue = data.map &#123; <span class="keyword">case</span> (user, product, price) =&gt; price.toDouble &#125;.sum()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// let's find our most popular product</span></span><br><span class="line">    <span class="keyword">val</span> productsByPopularity = data</span><br><span class="line">      .map &#123; <span class="keyword">case</span> (user, product, price) =&gt; (product, <span class="number">1</span>) &#125;</span><br><span class="line">      .reduceByKey(_ + _)</span><br><span class="line">      .collect()</span><br><span class="line">      .sortBy(-_._2)</span><br><span class="line">    <span class="keyword">val</span> mostPopular = productsByPopularity(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// finally, print everything out</span></span><br><span class="line">    println(<span class="string">"Total purchases: "</span> + numPurchases)</span><br><span class="line">    println(<span class="string">"Unique users: "</span> + uniqueUsers)</span><br><span class="line">    println(<span class="string">"Total revenue: "</span> + totalRevenue)</span><br><span class="line">    println(<span class="string">"Most popular product: %s with %d purchases"</span>.format(mostPopular._1, mostPopular._2))</span><br><span class="line"></span><br><span class="line">    sc.stop()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="4-Spark-Scala-编程入门"><a href="#4-Spark-Scala-编程入门" class="headerlink" title="4. Spark Scala 编程入门"></a>4. Spark Scala 编程入门</h2><p><a href="https://github.com/blair1/spark/tree/master/Spark-Machine-Learning_8519OSCode/Chapter%2001/scala-spark-app" target="_blank" rel="external">scala-spark-app</a></p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.spark.<span class="type">SparkContext</span></span><br><span class="line"><span class="keyword">import</span> org.apache.spark.<span class="type">SparkContext</span>._</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * A simple Spark app in Scala</span><br><span class="line"> */</span></span><br><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">ScalaApp</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">main</span></span>(args: <span class="type">Array</span>[<span class="type">String</span>]) &#123;</span><br><span class="line">    <span class="keyword">val</span> sc = <span class="keyword">new</span> <span class="type">SparkContext</span>(<span class="string">"local[2]"</span>, <span class="string">"First Spark App"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// we take the raw data in CSV format and convert it into a set of records of the form (user, product, price)</span></span><br><span class="line">    <span class="keyword">val</span> data = sc.textFile(<span class="string">"data/UserPurchaseHistory.csv"</span>)</span><br><span class="line">      .map(line =&gt; line.split(<span class="string">","</span>))</span><br><span class="line">      .map(purchaseRecord =&gt; (purchaseRecord(<span class="number">0</span>), purchaseRecord(<span class="number">1</span>), purchaseRecord(<span class="number">2</span>)))</span><br><span class="line"></span><br><span class="line">    <span class="comment">// let's count the number of purchases</span></span><br><span class="line">    <span class="keyword">val</span> numPurchases = data.count()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// let's count how many unique users made purchases</span></span><br><span class="line">    <span class="keyword">val</span> uniqueUsers = data.map &#123; <span class="keyword">case</span> (user, product, price) =&gt; user &#125;.distinct().count()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// let's sum up our total revenue</span></span><br><span class="line">    <span class="keyword">val</span> totalRevenue = data.map &#123; <span class="keyword">case</span> (user, product, price) =&gt; price.toDouble &#125;.sum()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// let's find our most popular product</span></span><br><span class="line">    <span class="keyword">val</span> productsByPopularity = data</span><br><span class="line">      .map &#123; <span class="keyword">case</span> (user, product, price) =&gt; (product, <span class="number">1</span>) &#125;</span><br><span class="line">      .reduceByKey(_ + _)</span><br><span class="line">      .collect()</span><br><span class="line">      .sortBy(-_._2)</span><br><span class="line">    <span class="keyword">val</span> mostPopular = productsByPopularity(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// finally, print everything out</span></span><br><span class="line">    println(<span class="string">"Total purchases: "</span> + numPurchases)</span><br><span class="line">    println(<span class="string">"Unique users: "</span> + uniqueUsers)</span><br><span class="line">    println(<span class="string">"Total revenue: "</span> + totalRevenue)</span><br><span class="line">    println(<span class="string">"Most popular product: %s with %d purchases"</span>.format(mostPopular._1, mostPopular._2))</span><br><span class="line"></span><br><span class="line">    sc.stop()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="5-Spark-Java-编程入门"><a href="#5-Spark-Java-编程入门" class="headerlink" title="5. Spark Java 编程入门"></a>5. Spark Java 编程入门</h2><p>Java API与Scala API本质上很相似。Scala代码可以很方便地调用Java代码，但某些Scala代码却无法在Java里调用，特别是那些使用了隐式类型转换、默认参数和采用了某些Scala反射机制的代码。</p>
 <p>SparkContext有了对应的Java版本JavaSparkContext，而RDD则对应JavaRDD。<br>Spark提供对Java 8匿名函数（lambda）语法的支持。</p>
 <p>用Scala编写时，键/值对记录的RDD能支持一些特别的操作（比如reduceByKey和saveAsSequenceFile）。这些操作可以通过隐式类型转换而自动被调用。用Java编写时，则需要特别类型的JavaRDD来支持这些操作。它们包括用于键/值对的JavaPairRDD，以及用于数值记录的JavaDoubleRDD。</p>
-<p>Java 8 RDD以及Java 8 lambda表达式更多信息可参见《Spark编程指南》：<a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-operations。" target="_blank" rel="noopener">http://spark.apache.org/docs/latest/programming-guide.html#rdd-operations。</a></p>
-<h2 id="6-Spark-Python-编程入门"><a href="#6-Spark-Python-编程入门" class="headerlink" title="6. Spark Python 编程入门"></a>6. Spark Python 编程入门</h2><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="string">"""用Python编写的一个简单Spark应用"""</span></span><br><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkContext</span><br><span class="line"></span><br><span class="line">sc = SparkContext(<span class="string">"local[2]"</span>, <span class="string">"First Spark App"</span>)</span><br><span class="line"><span class="comment"># 将CSV格式的原始数据转化为(user,product,price)格式的记录集</span></span><br><span class="line">data = sc.textFile(<span class="string">"data/UserPurchaseHistory.csv"</span>).map(<span class="keyword">lambda</span> line:</span><br><span class="line">line.split(<span class="string">","</span>)).map(<span class="keyword">lambda</span> record: (record[<span class="number">0</span>], record[<span class="number">1</span>], record[<span class="number">2</span>]))</span><br><span class="line"><span class="comment"># 求总购买次数</span></span><br><span class="line">numPurchases = data.count()</span><br><span class="line"><span class="comment"># 求有多少不同客户购买过商品</span></span><br><span class="line">uniqueUsers = data.map(<span class="keyword">lambda</span> record: record[<span class="number">0</span>]).distinct().count()</span><br><span class="line"><span class="comment"># 求和得出总收入</span></span><br><span class="line">totalRevenue = data.map(<span class="keyword">lambda</span> record: float(record[<span class="number">2</span>])).sum()</span><br><span class="line"><span class="comment"># 求最畅销的产品是什么</span></span><br><span class="line">products = data.map(<span class="keyword">lambda</span> record: (record[<span class="number">1</span>], <span class="number">1.0</span>)).</span><br><span class="line">reduceByKey(<span class="keyword">lambda</span> a, b: a + b).collect()</span><br><span class="line">mostPopular = sorted(products, key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>], reverse=<span class="literal">True</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Total purchases: %d"</span> % numPurchases</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Unique users: %d"</span> % uniqueUsers</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Total revenue: %2.2f"</span> % totalRevenue</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Most popular product: %s with %d purchases"</span> % (mostPopular[<span class="number">0</span>], mostPopular[<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
+<p>Java 8 RDD以及Java 8 lambda表达式更多信息可参见《Spark编程指南》：<a href="http://spark.apache.org/docs/latest/programming-guide.html#rdd-operations。" target="_blank" rel="external">http://spark.apache.org/docs/latest/programming-guide.html#rdd-operations。</a></p>
+<h2 id="6-Spark-Python-编程入门"><a href="#6-Spark-Python-编程入门" class="headerlink" title="6. Spark Python 编程入门"></a>6. Spark Python 编程入门</h2><figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="string">"""用Python编写的一个简单Spark应用"""</span></span><br><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkContext</span><br><span class="line"></span><br><span class="line">sc = SparkContext(<span class="string">"local[2]"</span>, <span class="string">"First Spark App"</span>)</span><br><span class="line"><span class="comment"># 将CSV格式的原始数据转化为(user,product,price)格式的记录集</span></span><br><span class="line">data = sc.textFile(<span class="string">"data/UserPurchaseHistory.csv"</span>).map(<span class="keyword">lambda</span> line:</span><br><span class="line">line.split(<span class="string">","</span>)).map(<span class="keyword">lambda</span> record: (record[<span class="number">0</span>], record[<span class="number">1</span>], record[<span class="number">2</span>]))</span><br><span class="line"><span class="comment"># 求总购买次数</span></span><br><span class="line">numPurchases = data.count()</span><br><span class="line"><span class="comment"># 求有多少不同客户购买过商品</span></span><br><span class="line">uniqueUsers = data.map(<span class="keyword">lambda</span> record: record[<span class="number">0</span>]).distinct().count()</span><br><span class="line"><span class="comment"># 求和得出总收入</span></span><br><span class="line">totalRevenue = data.map(<span class="keyword">lambda</span> record: float(record[<span class="number">2</span>])).sum()</span><br><span class="line"><span class="comment"># 求最畅销的产品是什么</span></span><br><span class="line">products = data.map(<span class="keyword">lambda</span> record: (record[<span class="number">1</span>], <span class="number">1.0</span>)).</span><br><span class="line">reduceByKey(<span class="keyword">lambda</span> a, b: a + b).collect()</span><br><span class="line">mostPopular = sorted(products, key=<span class="keyword">lambda</span> x: x[<span class="number">1</span>], reverse=<span class="keyword">True</span>)[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">"Total purchases: %d"</span> % numPurchases</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Unique users: %d"</span> % uniqueUsers</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Total revenue: %2.2f"</span> % totalRevenue</span><br><span class="line"><span class="keyword">print</span> <span class="string">"Most popular product: %s with %d purchases"</span> % (mostPopular[<span class="number">0</span>], mostPopular[<span class="number">1</span>])</span><br></pre></td></tr></table></figure>
 <p>匿名函数在Python语言中亦称lambda函数，lambda也是语法表达上的关键字。</p>
 <p>用Scala编写时，一个将输入x映射为输出y的匿名函数表示为x =&gt; y，而在Python中则是lambda x : y。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  python-spark-app git:(master) ✗ <span class="built_in">pwd</span></span><br><span class="line">/Users/hp/ghome/hadoop-spark/spark/Spark-Machine-Learning_8519OSCode/Chapter01/python-spark-app</span><br><span class="line">➜  python-spark-app git:(master) ✗ <span class="variable">$SPARK_HOME</span>/bin/spark-submit pythonapp.py</span><br><span class="line">Using Spark<span class="string">'s default log4j profile: org/apache/spark/log4j-defaults.properties</span></span><br><span class="line"><span class="string">16/08/26 15:56:02 INFO SparkContext: Running Spark version 1.5.2</span></span><br><span class="line"><span class="string">...</span></span><br><span class="line"><span class="string">Total purchases: 5</span></span><br><span class="line"><span class="string">Unique users: 4</span></span><br><span class="line"><span class="string">Total revenue: 39.91</span></span><br><span class="line"><span class="string">Most popular product: iPhone Cover with 2 purchases</span></span><br><span class="line"><span class="string">16/08/26 15:56:07 INFO SparkUI: Stopped Spark web UI at http://192.168.143.84:4040</span></span><br><span class="line"><span class="string">...</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">➜  python-spark-app git:(master) ✗ <span class="built_in">pwd</span></span><br><span class="line">/Users/hp/ghome/hadoop-spark/spark/Spark-Machine-Learning_8519OSCode/Chapter01/python-spark-app</span><br><span class="line">➜  python-spark-app git:(master) ✗ <span class="variable">$SPARK_HOME</span>/bin/spark-submit pythonapp.py</span><br><span class="line">Using Spark<span class="string">'s default log4j profile: org/apache/spark/log4j-defaults.properties</span><br><span class="line">16/08/26 15:56:02 INFO SparkContext: Running Spark version 1.5.2</span><br><span class="line">...</span><br><span class="line">Total purchases: 5</span><br><span class="line">Unique users: 4</span><br><span class="line">Total revenue: 39.91</span><br><span class="line">Most popular product: iPhone Cover with 2 purchases</span><br><span class="line">16/08/26 15:56:07 INFO SparkUI: Stopped Spark web UI at http://192.168.143.84:4040</span><br><span class="line">...</span></span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>Spark的Python API几乎覆盖了所有Scala API所能提供的功能. 但的确有些特性，比如Spark Streaming和个别的API方法，暂不支持。<br><a href="http://spark.apache.org/docs/latest/programming-guide.html" target="_blank" rel="noopener">具体参见《Spark编程指南》的Python部分</a></p>
+<p>Spark的Python API几乎覆盖了所有Scala API所能提供的功能. 但的确有些特性，比如Spark Streaming和个别的API方法，暂不支持。<br><a href="http://spark.apache.org/docs/latest/programming-guide.html" target="_blank" rel="external">具体参见《Spark编程指南》的Python部分</a></p>
 </blockquote>
 <h2 id="7-小结"><a href="#7-小结" class="headerlink" title="7. 小结"></a>7. 小结</h2><p>体会了 函数式 编程的威力， scala、python 都可以。java 不适合写 spark 程序</p>
 
@@ -249,7 +240,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -277,7 +268,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/spark/" rel="tag">spark</a>
+    <a class="article-tag-link" href="/tags/spark/">spark</a>
   </div>
 
 
@@ -317,8 +308,8 @@ var _hmt = _hmt || [];
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
     </div>
   </div>
 </footer>
@@ -341,7 +332,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2016/04/25/spark/spark-machine-learning-p1/';
+  var disqus_url = 'http://shopee.ai/2016/04/25/spark/spark-machine-learning-p1/';
   
   (function(){
     var dsq = document.createElement('script');

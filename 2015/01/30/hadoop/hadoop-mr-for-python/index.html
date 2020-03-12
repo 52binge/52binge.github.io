@@ -6,15 +6,15 @@
   <title>MapReduce for Python - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="我们可以用 hadoop-streaming 的方式，通过 python 等其他语言来编写 MR 程序.">
-<meta name="keywords" content="hadoop">
 <meta property="og:type" content="article">
 <meta property="og:title" content="MapReduce for Python">
-<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2015&#x2F;01&#x2F;30&#x2F;hadoop&#x2F;hadoop-mr-for-python&#x2F;index.html">
+<meta property="og:url" content="http://shopee.ai/2015/01/30/hadoop/hadoop-mr-for-python/index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="我们可以用 hadoop-streaming 的方式，通过 python 等其他语言来编写 MR 程序.">
-<meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2019-10-20T04:30:35.048Z">
+<meta property="og:updated_time" content="2019-01-20T01:01:36.458Z">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MapReduce for Python">
+<meta name="twitter:description" content="我们可以用 hadoop-streaming 的方式，通过 python 等其他语言来编写 MR 程序.">
   
   
     <link rel="icon" href="/css/images/favicon.ico">
@@ -29,21 +29,12 @@
 <body>
   <div id="container">
     <!-- blair add baidu tongji start... @2017.10.03 -->
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
 <!-- blair add baidu tongji end ! @2017.10.03 -->
 
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -60,7 +51,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
         </div>
       </nav>
     </div>
@@ -99,7 +90,7 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2015/01/30/hadoop/hadoop-mr-for-python/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://shopee.ai/2015/01/30/hadoop/hadoop-mr-for-python/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -113,15 +104,15 @@ var _hmt = _hmt || [];
 <p>为了是脚本可执行，增加mapper.py的可执行权限</p>
 </blockquote>
 <p>当然，<code>Map</code>阶段， 你也可以不作处理原样输出: 只写一个 <code>cat</code></p>
-<h2 id="Reduce阶段：reducer-py"><a href="#Reduce阶段：reducer-py" class="headerlink" title="Reduce阶段：reducer.py"></a>Reduce阶段：reducer.py</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># Copyright 2013 x Inc. All Rights Reserved</span></span><br><span class="line"></span><br><span class="line">__author__ = <span class="string">'Blair Chan'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> constant</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> EsHelper <span class="keyword">import</span> EsHelper</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">insert_user_basic_consume_info</span><span class="params">(items,  esHelper)</span>:</span></span><br><span class="line"></span><br><span class="line">    basic_consume_info_doc = get_user_basic_consume_info_doc(items)</span><br><span class="line">    <span class="keyword">if</span> basic_consume_info_doc <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">        </span><br><span class="line">    _id = basic_consume_info_doc[<span class="string">'mobile_number'</span>]</span><br><span class="line">    basic_consume_info_index = <span class="string">"basic_consume_info_index"</span></span><br><span class="line"></span><br><span class="line">    esHelper.index(index=basic_consume_info_index, doc_type=basic_consume_info_index, id=_id, data=basic_consume_info_doc)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_user_basic_consume_info_doc</span><span class="params">(items)</span>:</span></span><br><span class="line">    doc = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        doc = &#123;</span><br><span class="line">            <span class="string">"mobile_number"</span>: items[<span class="number">0</span>],</span><br><span class="line">            <span class="string">"first_consume_time"</span>: items[<span class="number">1</span>]</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">except</span> BaseException <span class="keyword">as</span> e:</span><br><span class="line">        print(<span class="string">"Exist Exception : %s About get_user_basic_consume_info_doc, mobile_number: %s"</span> % (str(e), mobile_number))</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> doc</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line"></span><br><span class="line">    esHelper = EsHelper(constant.ES_URL)</span><br><span class="line">    success_sum = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> sys.stdin:</span><br><span class="line"></span><br><span class="line">        line = line.strip()</span><br><span class="line">        items = line.split(<span class="string">'\001'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> len(items) &lt; <span class="number">2</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        insert_user_basic_consume_info(items, esHelper)</span><br><span class="line">        success_sum = success_sum + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    print(<span class="string">"Success:%d"</span> % success_sum)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<h2 id="Reduce阶段：reducer-py"><a href="#Reduce阶段：reducer-py" class="headerlink" title="Reduce阶段：reducer.py"></a>Reduce阶段：reducer.py</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># Copyright 2013 x Inc. All Rights Reserved</span></span><br><span class="line"></span><br><span class="line">__author__ = <span class="string">'Blair Chan'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> constant</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> EsHelper <span class="keyword">import</span> EsHelper</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">insert_user_basic_consume_info</span><span class="params">(items,  esHelper)</span>:</span></span><br><span class="line"></span><br><span class="line">    basic_consume_info_doc = get_user_basic_consume_info_doc(items)</span><br><span class="line">    <span class="keyword">if</span> basic_consume_info_doc <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">        </span><br><span class="line">    _id = basic_consume_info_doc[<span class="string">'mobile_number'</span>]</span><br><span class="line">    basic_consume_info_index = <span class="string">"basic_consume_info_index"</span></span><br><span class="line"></span><br><span class="line">    esHelper.index(index=basic_consume_info_index, doc_type=basic_consume_info_index, id=_id, data=basic_consume_info_doc)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_user_basic_consume_info_doc</span><span class="params">(items)</span>:</span></span><br><span class="line">    doc = <span class="keyword">None</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        doc = &#123;</span><br><span class="line">            <span class="string">"mobile_number"</span>: items[<span class="number">0</span>],</span><br><span class="line">            <span class="string">"first_consume_time"</span>: items[<span class="number">1</span>]</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">except</span> BaseException <span class="keyword">as</span> e:</span><br><span class="line">        print(<span class="string">"Exist Exception : %s About get_user_basic_consume_info_doc, mobile_number: %s"</span> % (str(e), mobile_number))</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> doc</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">()</span>:</span></span><br><span class="line"></span><br><span class="line">    esHelper = EsHelper(constant.ES_URL)</span><br><span class="line">    success_sum = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> sys.stdin:</span><br><span class="line"></span><br><span class="line">        line = line.strip()</span><br><span class="line">        items = line.split(<span class="string">'\001'</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> len(items) &lt; <span class="number">2</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        insert_user_basic_consume_info(items, esHelper)</span><br><span class="line">        success_sum = success_sum + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    print(<span class="string">"Success:%d"</span> % success_sum)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
 <h2 id="本地测试"><a href="#本地测试" class="headerlink" title="本地测试"></a>本地测试</h2><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cat data.txt | python mapper.py | sort | reducer.py</span><br></pre></td></tr></table></figure>
-<h2 id="提交Hadoop"><a href="#提交Hadoop" class="headerlink" title="提交Hadoop"></a>提交Hadoop</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"></span><br><span class="line">input_file=<span class="string">"<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;mds_hive_dir&#125;</span>/<span class="variable">$&#123;table_user_basic_consume_info&#125;</span>/*"</span></span><br><span class="line">output_file=<span class="string">"<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;tmp_hive_dir&#125;</span>/<span class="variable">$&#123;table_user_basic_consume_info&#125;</span>/dt=<span class="variable">$&#123;d1&#125;</span>"</span></span><br><span class="line">reducer=<span class="string">"reducer.py"</span></span><br><span class="line">reducer_depend1=<span class="string">"constant.py"</span></span><br><span class="line">reducer_depend2=<span class="string">"EsHelper.py"</span></span><br><span class="line">archive=<span class="string">"<span class="variable">$&#123;OSS_URL&#125;</span>/share/packages/elasticsearch-5.0.0.tar.gz#elasticsearch-5.0.0"</span> </span><br><span class="line"><span class="comment">## archive 表示的依赖包需要上传到 hdfs 上，#后面表示的是解压后的目录名</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;HADOOP&#125;</span> fs -rmr <span class="variable">$&#123;output_file&#125;</span></span><br><span class="line"></span><br><span class="line">cmd=<span class="string">"<span class="variable">$&#123;HADOOP&#125;</span> jar <span class="variable">$&#123;hadoop_streaming_jar&#125;</span></span></span><br><span class="line"><span class="string">     -D mapred.map.tasks=100</span></span><br><span class="line"><span class="string">     -D mapred.reduce.tasks=100</span></span><br><span class="line"><span class="string">     -D stream.map.input.ignoreKey=true</span></span><br><span class="line"><span class="string">     -input <span class="variable">$&#123;input_file&#125;</span></span></span><br><span class="line"><span class="string">     -output <span class="variable">$&#123;output_file&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer_depend1&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer_depend2&#125;</span></span></span><br><span class="line"><span class="string">     -mapper cat</span></span><br><span class="line"><span class="string">     -reducer <span class="variable">$&#123;reducer&#125;</span></span></span><br><span class="line"><span class="string">     -cacheArchive <span class="variable">$&#123;archive&#125;</span>"</span></span><br><span class="line"></span><br><span class="line">echo_ex <span class="string">"<span class="variable">$cmd</span>"</span></span><br><span class="line"><span class="variable">$cmd</span></span><br><span class="line">check_success</span><br></pre></td></tr></table></figure>
+<h2 id="提交Hadoop"><a href="#提交Hadoop" class="headerlink" title="提交Hadoop"></a>提交Hadoop</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"></span><br><span class="line">input_file=<span class="string">"<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;mds_hive_dir&#125;</span>/<span class="variable">$&#123;table_user_basic_consume_info&#125;</span>/*"</span></span><br><span class="line">output_file=<span class="string">"<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;tmp_hive_dir&#125;</span>/<span class="variable">$&#123;table_user_basic_consume_info&#125;</span>/dt=<span class="variable">$&#123;d1&#125;</span>"</span></span><br><span class="line">reducer=<span class="string">"reducer.py"</span></span><br><span class="line">reducer_depend1=<span class="string">"constant.py"</span></span><br><span class="line">reducer_depend2=<span class="string">"EsHelper.py"</span></span><br><span class="line">archive=<span class="string">"<span class="variable">$&#123;OSS_URL&#125;</span>/share/packages/elasticsearch-5.0.0.tar.gz#elasticsearch-5.0.0"</span> </span><br><span class="line"><span class="comment">## archive 表示的依赖包需要上传到 hdfs 上，#后面表示的是解压后的目录名</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;HADOOP&#125;</span> fs -rmr <span class="variable">$&#123;output_file&#125;</span></span><br><span class="line"></span><br><span class="line">cmd=<span class="string">"<span class="variable">$&#123;HADOOP&#125;</span> jar <span class="variable">$&#123;hadoop_streaming_jar&#125;</span></span><br><span class="line">     -D mapred.map.tasks=100</span><br><span class="line">     -D mapred.reduce.tasks=100</span><br><span class="line">     -D stream.map.input.ignoreKey=true</span><br><span class="line">     -input <span class="variable">$&#123;input_file&#125;</span></span><br><span class="line">     -output <span class="variable">$&#123;output_file&#125;</span></span><br><span class="line">     -file <span class="variable">$&#123;reducer&#125;</span></span><br><span class="line">     -file <span class="variable">$&#123;reducer_depend1&#125;</span></span><br><span class="line">     -file <span class="variable">$&#123;reducer_depend2&#125;</span></span><br><span class="line">     -mapper cat</span><br><span class="line">     -reducer <span class="variable">$&#123;reducer&#125;</span></span><br><span class="line">     -cacheArchive <span class="variable">$&#123;archive&#125;</span>"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span>_ex <span class="string">"<span class="variable">$cmd</span>"</span></span><br><span class="line"><span class="variable">$cmd</span></span><br><span class="line">check_success</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>hadoop_streaming_jar=”/home/data_mining/share/packages/hadoop2/hadoop-streaming-2.7.2.jar”</p>
 <p>以上仅仅是一个例子，虽然插入 ES 出现异常，但本篇仅仅说明如何用 python 写 mapreduce 程序</p>
 </blockquote>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="http://www.cnblogs.com/kaituorensheng/p/3826114.html" target="_blank" rel="noopener">用python写MapReduce函数——以WordCount为例</a></li>
+<li><a href="http://www.cnblogs.com/kaituorensheng/p/3826114.html" target="_blank" rel="external">用python写MapReduce函数——以WordCount为例</a></li>
 </ul>
 
       
@@ -155,7 +146,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -183,7 +174,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/hadoop/" rel="tag">hadoop</a>
+    <a class="article-tag-link" href="/tags/hadoop/">hadoop</a>
   </div>
 
 
@@ -223,8 +214,8 @@ var _hmt = _hmt || [];
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2019 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
     </div>
   </div>
 </footer>
@@ -247,7 +238,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2015/01/30/hadoop/hadoop-mr-for-python/';
+  var disqus_url = 'http://shopee.ai/2015/01/30/hadoop/hadoop-mr-for-python/';
   
   (function(){
     var dsq = document.createElement('script');
