@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>从 Transformer 到 BERT模型 (by 葛翰骋 Amazon) - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="BERT">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从 Transformer 到 BERT模型 (by 葛翰骋 Amazon)">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;04&#x2F;05&#x2F;nlp&#x2F;BERT_tutorial_5_Summary&#x2F;index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;bert5-2.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-1.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-2.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-3.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-6.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-7.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-8.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-9.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-10.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-11.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-12.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-13.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-14.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-15.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-16.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-17.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-18.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-19.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-20.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-21.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-22.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;Transformer-to-Bert-23.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;bert5-3.png">
+<meta property="og:updated_time" content="2020-04-05T12:52:40.815Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;nlp&#x2F;bert5&#x2F;bert5-2.png">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/reading">Read</a>
+        
+          <a class="main-nav-link" href="/leetcode">LC</a>
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/tensorflow">Keras</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-nlp/BERT_tutorial_5_Summary" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      从 Transformer 到 BERT模型 (by 葛翰骋 Amazon)
+      <small class=article-detail-date-index>&nbsp; 2020-04-05</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2020/04/05/nlp/BERT_tutorial_5_Summary/" class="article-date">
+  <time datetime="2020-04-05T03:00:21.000Z" itemprop="datePublished">2020-04-05</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2020/04/05/nlp/BERT_tutorial_5_Summary/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <img src="/images/nlp/bert5/bert5-2.png" width="400" alt="BERT tutorial" />
+<a id="more"></a>
+<p><strong>Paper</strong>: <a href="https://arxiv.org/abs/1810.04805" target="_blank" rel="noopener">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</a></p>
+<p>BERT的全称是: Bidirectional Encoder Representation from Transformers</p>
+<h2 id="1-transformer-to-bert"><a class="markdownIt-Anchor" href="#1-transformer-to-bert"></a> 1. Transformer to BERT</h2>
+<img src="/images/nlp/bert5/Transformer-to-Bert-1.png" width="650" alt="BERT tutorial" />
+<h3 id="11-elmo"><a class="markdownIt-Anchor" href="#11-elmo"></a> 1.1 ELMO</h3>
+<p>ELMO 全称： Embeddings from Language Models</p>
+<img src="/images/nlp/bert5/Transformer-to-Bert-2.png" width="650" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-3.png" width="650" alt="BERT tutorial" />
+<h3 id="12-transformer"><a class="markdownIt-Anchor" href="#12-transformer"></a> 1.2 Transformer</h3>
+<img src="/images/nlp/bert5/Transformer-to-Bert-6.png" width="650" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-7.png" width="650" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-8.png" width="650" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-9.png" width="500" alt="BERT tutorial" />
+<h3 id="13-bert"><a class="markdownIt-Anchor" href="#13-bert"></a> 1.3 Bert</h3>
+<img src="/images/nlp/bert5/Transformer-to-Bert-10.png" width="750" alt="BERT tutorial" />
+<hr />
+<img src="/images/nlp/bert5/Transformer-to-Bert-11.png" width="750" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-12.png" width="750" alt="BERT tutorial" />
+<p>E_A 代表这个 Token 属于 SentenceA 还是 Sentence B</p>
+<h3 id="14-pre-training-bert"><a class="markdownIt-Anchor" href="#14-pre-training-bert"></a> 1.4 Pre-training Bert</h3>
+<img src="/images/nlp/bert5/Transformer-to-Bert-13.png" width="700" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-14.png" width="700" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-15.png" width="700" alt="BERT tutorial" />
+<br>
+<img src="/images/nlp/bert5/Transformer-to-Bert-16.png" width="600" alt="BERT tutorial" />
+<br>
+<img src="/images/nlp/bert5/Transformer-to-Bert-17.png" width="800" alt="BERT tutorial" />
+<!--
+<img src="/images/nlp/bert5/Transformer-to-Bert-18.png" width="700" alt="BERT tutorial" />
+
+<img src="/images/nlp/bert5/Transformer-to-Bert-19.png" width="700" alt="BERT tutorial" />
+-->
+<p>为什么用2个 Sentences</p>
+<p>计算 Loss 时，只针对被 Mask 的 Token</p>
+<p>Training Tips</p>
+<p>1). 增加不同 Token 被 Mask 的机会<br />
+3). 不表示在 Word Level 做 Mask</p>
+<p>Looks Like：</p>
+<p>Bert 每个 Head 能抓住不同的 Feature</p>
+<p>对于每个层，head 的功能差不多，对于每个 Head 里面，每个不同的 head 表现的功能是不一样的</p>
+<h2 id="2-transformer-to-bert"><a class="markdownIt-Anchor" href="#2-transformer-to-bert"></a> 2. Transformer to BERT</h2>
+<!--
+<img src="/images/nlp/bert5/Transformer-to-Bert-20.png" width="700" alt="BERT tutorial" />-->
+<img src="/images/nlp/bert5/Transformer-to-Bert-21.png" width="660" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-22.png" width="660" alt="BERT tutorial" />
+<img src="/images/nlp/bert5/Transformer-to-Bert-23.png" width="660" alt="BERT tutorial" />
+<p>阅读理解是QA加难的版本</p>
+<h2 id="3-recap"><a class="markdownIt-Anchor" href="#3-recap"></a> 3. Recap</h2>
+<img src="/images/nlp/bert5/bert5-3.png" width="650" alt="BERT tutorial" />
+<blockquote>
+<p>每个word都是这句话的所有信息组成的</p>
+<p>Bert Training 40+ times, Fine-tune 2~4 times</p>
+<p>every token: 12 * 768， 12 层的 Transformer.</p>
+<p>Bert 主要的缺陷就是太大了.</p>
+</blockquote>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a href="https://mp.weixin.qq.com/s/H4at_BDLwZWqlBHLjMZWRQ" target="_blank" rel="noopener">一步步理解BERT</a></li>
+<li><a href="%E4%BB%8E%E8%AF%AD%E8%A8%80%E6%A8%A1%E5%9E%8B%E5%88%B0Seq2Seq%EF%BC%9ATransformer%E5%A6%82%E6%88%8F%EF%BC%8C%E5%85%A8%E9%9D%A0Mask">从语言模型到Seq2Seq：Transformer如戏，全靠Mask</a></li>
+<li><a href="https://terrifyzhao.github.io/2019/01/17/BERT%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97.html" target="_blank" rel="noopener">BERT完全指南</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/67444533" target="_blank" rel="noopener">可视化Bert</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-transformer-to-bert"><span class="toc-text"> 1. Transformer to BERT</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-elmo"><span class="toc-text"> 1.1 ELMO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-transformer"><span class="toc-text"> 1.2 Transformer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-bert"><span class="toc-text"> 1.3 Bert</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#14-pre-training-bert"><span class="toc-text"> 1.4 Pre-training Bert</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-transformer-to-bert"><span class="toc-text"> 2. Transformer to BERT</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-recap"><span class="toc-text"> 3. Recap</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nlp/">nlp</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/BERT/" rel="tag">BERT</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/03/18/nlp/SBERT-WK-Sentence-Embedding/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">SBERT-WK-Sentence-Embedding&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2020/04/05/nlp/BERT_tutorial_5_Summary/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
