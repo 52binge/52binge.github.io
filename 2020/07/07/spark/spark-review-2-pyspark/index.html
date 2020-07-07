@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark Tutorial 2 - 执行过程 - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark Tutorial 2 - 执行过程">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;07&#x2F;07&#x2F;spark&#x2F;spark-review-2-pyspark&#x2F;index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-2.1-logo.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-2.2.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-2.3.jpg">
+<meta property="og:updated_time" content="2020-07-07T03:05:43.213Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-2.1-logo.png">
+  
+  
+    <link rel="icon" href="/css/images/favicon.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/leetcode">LC</a>
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/dw">DW</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/spark-review-2-pyspark" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark Tutorial 2 - 执行过程
+      <small class=article-detail-date-index>&nbsp; 2020-07-07</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2020/07/07/spark/spark-review-2-pyspark/" class="article-date">
+  <time datetime="2020-07-07T02:07:21.000Z" itemprop="datePublished">2020-07-07</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2020/07/07/spark/spark-review-2-pyspark/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/spark/spark-2.1-logo.png" width="450" alt="Spark" /></p>
+<a id="more"></a>
+<h2 id="1-Spark-执行过程"><a href="#1-Spark-执行过程" class="headerlink" title="1. Spark 执行过程"></a>1. Spark 执行过程</h2><p><img src="/images/spark/spark-2.2.png" width="700" alt="Spark Exec" /></p>
+<h2 id="2-pyspark-小试牛刀"><a href="#2-pyspark-小试牛刀" class="headerlink" title="2. pyspark 小试牛刀"></a>2. pyspark 小试牛刀</h2><p>要对这些RDD进行操作，有两种方法 :</p>
+<ol>
+<li>Transformation</li>
+<li>Action</li>
+</ol>
+<p>Transformation - 这些操作应用于RDD以创建新的RDD。Filter，groupBy和map是转换的示例。</p>
+<p>Action - 这些是应用于RDD的操作，它指示Spark执行计算并将结果发送回驱动程序。</p>
+<h3 id="2-1-count"><a href="#2-1-count" class="headerlink" title="2.1 count()"></a>2.1 count()</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkContext</span><br><span class="line">sc = SparkContext(<span class="string">"local"</span>, <span class="string">"count app"</span>)</span><br><span class="line">words = sc.parallelize(</span><br><span class="line">    [<span class="string">"scala"</span>,</span><br><span class="line">     <span class="string">"java"</span>,</span><br><span class="line">     <span class="string">"hadoop"</span>,</span><br><span class="line">     <span class="string">"spark"</span>,</span><br><span class="line">     <span class="string">"akka"</span>,</span><br><span class="line">     <span class="string">"spark vs hadoop"</span>,</span><br><span class="line">     <span class="string">"pyspark"</span>,</span><br><span class="line">     <span class="string">"pyspark and spark"</span></span><br><span class="line">     ])</span><br><span class="line">counts = words.count()</span><br><span class="line">print(<span class="string">"Number of elements in RDD -&gt; %i"</span> % counts)</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-collect"><a href="#2-2-collect" class="headerlink" title="2.2 collect()"></a>2.2 collect()</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkContext</span><br><span class="line">sc = SparkContext(<span class="string">"local"</span>, <span class="string">"collect app"</span>)</span><br><span class="line">words = sc.parallelize(</span><br><span class="line">    [<span class="string">"scala"</span>,</span><br><span class="line">     <span class="string">"java"</span>,</span><br><span class="line">     <span class="string">"hadoop"</span>,</span><br><span class="line">     <span class="string">"spark"</span>,</span><br><span class="line">     <span class="string">"akka"</span>,</span><br><span class="line">     <span class="string">"spark vs hadoop"</span>,</span><br><span class="line">     <span class="string">"pyspark"</span>,</span><br><span class="line">     <span class="string">"pyspark and spark"</span></span><br><span class="line">     ])</span><br><span class="line">coll = words.collect()</span><br><span class="line">print(<span class="string">"Elements in RDD -&gt; %s"</span> % coll)</span><br></pre></td></tr></table></figure>
+<h2 id="3-Spark-执行图"><a href="#3-Spark-执行图" class="headerlink" title="3. Spark 执行图"></a>3. Spark 执行图</h2><p><img src="/images/spark/spark-2.3.jpg" width="600" alt="Spark Exec" /></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://www.jianshu.com/p/5a42fe0eed4d" target="_blank" rel="noopener">大数据入门与实战-PySpark的使用教程</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Spark-执行过程"><span class="toc-text">1. Spark 执行过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-pyspark-小试牛刀"><span class="toc-text">2. pyspark 小试牛刀</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-count"><span class="toc-text">2.1 count()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-collect"><span class="toc-text">2.2 collect()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Spark-执行图"><span class="toc-text">3. Spark 执行图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/spark/" rel="tag">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/06/29/spark/spark-review-1-introduce/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Spark Tutorial 1 - Introduce&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2020/07/07/spark/spark-review-2-pyspark/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
