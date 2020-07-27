@@ -15,7 +15,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-3.2.1.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-3.2.2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-3.2.3.jpg">
-<meta property="og:updated_time" content="2020-07-27T00:57:51.605Z">
+<meta property="og:updated_time" content="2020-07-27T06:21:43.626Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-3.2.1.jpg">
   
@@ -111,14 +111,9 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <img src="/images/spark/spark-aura-3.2.1.jpg" width="700" />
+        <img src="/images/spark/spark-aura-3.2.1.jpg" width="600" />
 <a id="more"></a>
 <h2 id="1-第1部分"><a class="markdownIt-Anchor" href="#1-第1部分"></a> 1. 第1部分</h2>
-<p>第一天spark内容的部分残留</p>
-<blockquote>
-<p>WordCountJava7<br />
-WordCountJava8</p>
-</blockquote>
 <p>任务的提交：</p>
 <blockquote>
 <p>(1). run-example SparkPi 100<br />
@@ -126,9 +121,12 @@ WordCountJava8</p>
 (3). spark-submit</p>
 </blockquote>
 <p>–master:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">local</span> <span class="built_in">local</span>[2] <span class="built_in">local</span>\[\*\]</span><br><span class="line">spark://hadoop02:7077, hadoop04:7077</span><br><span class="line">yarn</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">local</span> <span class="built_in">local</span>[2] <span class="built_in">local</span>[*]</span><br><span class="line">spark://hadoop02:7077, hadoop04:7077</span><br><span class="line">yarn</span><br></pre></td></tr></table></figure>
 <p>HDFS 处理 myha01 这个 nameservice 的方式非常的暴力:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">所有的请求，其实都会给每个 namenode 都发送, 但是只有 active 的 namenode才会进行处理，进行回复</span><br><span class="line"><span class="keyword">if</span> (namenode.getServiceStage() == <span class="string">"standby"</span>) &#123;&#125; <span class="keyword">else</span> : ...</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>所有的请求，其实都会给每个 namenode 都发送, 但是只有 active 的 namenode才会进行处理，进行回复<br />
+if (namenode.getServiceStage() == “standby”) {} else : …</p>
+</blockquote>
 <h2 id="2-第2部分"><a class="markdownIt-Anchor" href="#2-第2部分"></a> 2. 第2部分</h2>
 <p>核心功能: SparkContext, 存储体系， 执行引擎 DAGScheduler, 部署魔术</p>
 <p>扩展功能: SQL, Streaming, GraphX, MLlib, SparkR, Pyspark</p>
@@ -138,6 +136,8 @@ WordCountJava8</p>
 Job   切分标准: 从前往后找action的算子<br />
 Stage 切分标准: 从后往前找宽依赖的算子<br />
 Task</p>
+<p>在spark中，Task的类型分为2种：ShuffleMapTask和ResultTask；简单来说，DAG的最后一个阶段会为每个结果的partition生成一个ResultTask，即每个Stage里面的Task的数量是由该Stage中最后一个RDD的Partition的数量所决定的！</p>
+<p>而其余所有阶段都会生成ShuffleMapTask；之所以称之为ShuffleMapTask是因为它需要将自己的计算结果通过shuffle到下一个stage中。</p>
 </blockquote>
 <img src="/images/spark/spark-aura-3.2.1.jpg" width="750" />
 <p><strong>Driver Application</strong>: 客户端驱动程序, 也可以理解为客户端应用程序，用于将任何程序转换为 RDD 和 DAG, 并与 Cluster Manager 进行通信与调度.</p>
