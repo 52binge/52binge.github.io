@@ -15,7 +15,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-3.2.1.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-3.2.2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-3.2.3.jpg">
-<meta property="og:updated_time" content="2020-07-27T06:21:43.626Z">
+<meta property="og:updated_time" content="2020-07-28T02:17:52.920Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-3.2.1.jpg">
   
@@ -120,7 +120,7 @@ var _hmt = _hmt || [];
 (2). spark-shell<br />
 (3). spark-submit</p>
 </blockquote>
-<p>–master:</p>
+<p><strong><code>--master</code></strong>:</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">local</span> <span class="built_in">local</span>[2] <span class="built_in">local</span>[*]</span><br><span class="line">spark://hadoop02:7077, hadoop04:7077</span><br><span class="line">yarn</span><br></pre></td></tr></table></figure>
 <p>HDFS 处理 myha01 这个 nameservice 的方式非常的暴力:</p>
 <blockquote>
@@ -128,7 +128,7 @@ var _hmt = _hmt || [];
 if (namenode.getServiceStage() == “standby”) {} else : …</p>
 </blockquote>
 <h2 id="2-第2部分"><a class="markdownIt-Anchor" href="#2-第2部分"></a> 2. 第2部分</h2>
-<p>核心功能: SparkContext, 存储体系， 执行引擎 DAGScheduler, 部署魔术</p>
+<p>核心功能: SparkContext, 存储体系, 执行引擎 DAGScheduler, 部署模式</p>
 <p>扩展功能: SQL, Streaming, GraphX, MLlib, SparkR, Pyspark</p>
 <p><strong>核心概念</strong>:</p>
 <blockquote>
@@ -136,10 +136,10 @@ if (namenode.getServiceStage() == “standby”) {} else : …</p>
 Job   切分标准: 从前往后找action的算子<br />
 Stage 切分标准: 从后往前找宽依赖的算子<br />
 Task</p>
-<p>在spark中，Task的类型分为2种：ShuffleMapTask和ResultTask；简单来说，DAG的最后一个阶段会为每个结果的partition生成一个ResultTask，即每个Stage里面的Task的数量是由该Stage中最后一个RDD的Partition的数量所决定的！</p>
+<p>在spark中，Task的类型分为2种：ShuffleMapTask 和 ResultTask；简单来说，DAG的最后一个阶段会为每个结果的 partition 生成一个 ResultTask, 即每个Stage里面的Task的数量是由该Stage中最后一个RDD的Partition的数量所决定的！</p>
 <p>而其余所有阶段都会生成ShuffleMapTask；之所以称之为ShuffleMapTask是因为它需要将自己的计算结果通过shuffle到下一个stage中。</p>
 </blockquote>
-<img src="/images/spark/spark-aura-3.2.1.jpg" width="750" />
+<img src="/images/spark/spark-aura-3.2.1.jpg" width="700" />
 <p><strong>Driver Application</strong>: 客户端驱动程序, 也可以理解为客户端应用程序，用于将任何程序转换为 RDD 和 DAG, 并与 Cluster Manager 进行通信与调度.</p>
 <blockquote>
 <p>ClusterManager<br />
@@ -182,7 +182,7 @@ sparkCore 一模一样<br />
 </blockquote>
 <p>(2). 五大属性</p>
 <blockquote>
-<p>分区<br />
+<p>分区 (A list of partitions)<br />
 作用在每个分区之上的一个函数<br />
 依赖： 宽依赖 &amp; 窄依赖<br />
 KeyValueRDD 分区器<br />
@@ -199,7 +199,7 @@ RDD 优先位置列表</p>
 <p><strong>WordCount 各种流程的划分</strong>：</p>
 <img src="/images/spark/spark-aura-3.2.2.jpg" width="950" alt="WorCount 各种流程划分" />
 <p><strong>WordCount DAG 有向无环图</strong>：</p>
-<img src="/images/spark/spark-aura-3.2.3.jpg" width="950" alt="WorCount DAG有向无环图" />
+<img src="/images/spark/spark-aura-3.2.3.jpg" width="850" alt="WorCount DAG有向无环图" />
 <h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <ul>
 <li>
@@ -288,6 +288,14 @@ RDD 优先位置列表</p>
   
     
 <nav id="article-nav">
+  
+    <a href="/2020/07/28/spark/spark-aura-4.1-SparkContext/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          spark 启动任务接收器 4.1
+        
+      </div>
+    </a>
   
   
     <a href="/2020/07/23/spark/spark-aura-3.1-RDD-detail/" id="article-nav-older" class="article-nav-link-wrap">
