@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>SparkCore 中的工作原理 - 任务执行流程 5.1 - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SparkCore 中的工作原理 - 任务执行流程 5.1">
+<meta property="og:url" content="http://shopee.ai/2020/07/31/spark/spark-aura-5.1-sparkCore/index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:description">
+<meta property="og:image" content="http://shopee.ai/images/spark/spark-aura-5.1.2.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/spark-aura-5.1.1.jpg">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200630214023905.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25ncWkyNTEz,size_16,color_FFFFFF,t_70">
+<meta property="og:updated_time" content="2020-08-03T11:53:03.046Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SparkCore 中的工作原理 - 任务执行流程 5.1">
+<meta name="twitter:description">
+<meta name="twitter:image" content="http://shopee.ai/images/spark/spark-aura-5.1.2.jpg">
+  
+  
+    <link rel="icon" href="/css/images/favicon-Tiktok.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/tensorflow">TF/Keras</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/spark-aura-5.1-sparkCore" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      SparkCore 中的工作原理 - 任务执行流程 5.1
+      <small class=article-detail-date-index>&nbsp; 2020-07-31</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2020/07/31/spark/spark-aura-5.1-sparkCore/" class="article-date">
+  <time datetime="2020-07-31T02:07:21.000Z" itemprop="datePublished">2020-07-31</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://shopee.ai/2020/07/31/spark/spark-aura-5.1-sparkCore/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/spark/spark-aura-5.1.2.jpg" width="950" alt="executor 一定属于某个 Application"></p>
+<a id="more"></a>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">–</th>
+<th style="text-align:center">–</th>
+<th style="text-align:center">–</th>
+<th style="text-align:center">–</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>application</strong></td>
+<td style="text-align:center"><strong>job</strong></td>
+<td style="text-align:center"><strong>stage</strong></td>
+<td style="text-align:center"><strong>task</strong></td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>master</strong></td>
+<td style="text-align:center"><strong>worker</strong></td>
+<td style="text-align:center"><strong>executor</strong></td>
+<td style="text-align:center"><strong>driver</strong></td>
+</tr>
+</tbody>
+</table>
+<p>整个 Spark 应用程序的运行分成三个阶段：</p>
+<p><strong>1). 编写代码，使用 spark-submit</strong> 去交任务到集群运行,一直到我们自己编写的main方法运行为止</p>
+<blockquote>
+<p>1.1) 编写代码<br>1.2) 打成 Jar<br>1.3) 编写 spark-submit 脚本提交任务<br>1.4) 脚本解析 和 执行 最终转到 main 方法执行 SparkSubmit</p>
+</blockquote>
+<p><strong>2). sparkContext 的初始化</strong> </p>
+<blockquote>
+<p> new SparkContext(sparkConf)</p>
+<p> 两条线:</p>
+<p><strong>(1) 在 driver 端执行的代码</strong></p>
+<ul>
+<li>init TaskScheduler —-&gt; TaskSchedulerImpl</li>
+<li>init SchedulerBackend —-&gt; StandAloneSchedulerBackend</li>
+<li>init DAGScheduler —-&gt; DAGScheduler</li>
+</ul>
+<p><strong>(2) 在 worker 和 master 端执行的各种代码</strong></p>
+<p>业务功能实现:</p>
+<ul>
+<li>1、 master 注册</li>
+<li>2、 worker 负责启动 executor</li>
+</ul>
+</blockquote>
+<p><strong>3). action 算子</strong></p>
+<hr>
+<h2 id="1-SparkSubmit"><a href="#1-SparkSubmit" class="headerlink" title="1. SparkSubmit"></a>1. SparkSubmit</h2><table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th style="text-align:center">Spark 任务的提交流程   </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">(1)</td>
+<td style="text-align:center">首先将程序打成 jar 包</td>
+</tr>
+<tr>
+<td style="text-align:center">(2)</td>
+<td style="text-align:center">使用 spark-submit 脚本提交任务到集群上运行</td>
+</tr>
+<tr>
+<td style="text-align:center">(3)</td>
+<td style="text-align:center">运行 sparkSubmit 的 main 方法，在这个方法中通过反射的方式创建我们编写的主类的实例对象，然后调用 main 方法，开始执行我们的代码（注意，我们的 spark 程序中的 driver就运行在 sparkSubmit 进程中）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-SparkContext-初始化"><a href="#2-SparkContext-初始化" class="headerlink" title="2. SparkContext 初始化"></a>2. SparkContext 初始化</h2><table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th style="text-align:center">SparkContext 初始化</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">(4)</td>
+<td style="text-align:center">当代码运行到创建 SparkContext 对象时，那就开始初始化 SparkContext 对象了</td>
+</tr>
+<tr>
+<td style="text-align:center">(5)</td>
+<td style="text-align:center">在初始化 SparkContext 对象的时候，会创建两个特别重要的对象，分别是：<br><br> <code>1. DAGScheduler</code> （RDD-&gt;Stage,—&gt; taskSet） <br> <code>2. TaskScheduler</code> (SchedulerBackEnd-&gt;Actor) <br><br>【DAGScheduler 的作用】将 RDD 的依赖切分成一个一个的 stage，然后将 stage 作为 taskSet 提交给 DriverActor</td>
+</tr>
+<tr>
+<td style="text-align:center">6</td>
+<td style="text-align:center">在构建 TaskScheduler 的同时，会创建两个非常重要的对象，分别是: <br><br> <code>1. ClientActor</code>： 向 master 注册用户提交的任务 —————— <br> <code>2. DriverActor</code>： 接受 executor 反向注册, 将任务提交给 executor</td>
+</tr>
+<tr>
+<td style="text-align:center">(7)</td>
+<td style="text-align:center">当 ClientActor 启动后，会将用户提交的任务和相关的参数封装到 ApplicationDescription对象中，然后提交给 master 进行任务的注册</td>
+</tr>
+<tr>
+<td style="text-align:center">(8)</td>
+<td style="text-align:center">当 master 接受到 clientActor 提交的任务请求时，会将请求参数进行解析，并封装成 Application，然后将其持久化，然后将其加入到任务队列 waitingApps 中</td>
+</tr>
+<tr>
+<td style="text-align:center">(9)</td>
+<td style="text-align:center">当轮到我们提交的任务运行时，就开始调用 schedule()，进行任务资源的调度</td>
+</tr>
+<tr>
+<td style="text-align:center">(10)</td>
+<td style="text-align:center">master 将调度好的资源封装到 launchExecutor 中发送给指定的 worker</td>
+</tr>
+<tr>
+<td style="text-align:center">(11)</td>
+<td style="text-align:center">worker 接受到 Master 发送来的 launchExecutor 时，会将其解压并封装到 ExecutorRunner中，然后调用这个对象的 start(), 启动 Executor</td>
+</tr>
+<tr>
+<td style="text-align:center">(12)</td>
+<td style="text-align:center">Executor 启动后会向 DriverActor 进行反向注册</td>
+</tr>
+<tr>
+<td style="text-align:center">(13)</td>
+<td style="text-align:center">driverActor 会发送注册成功的消息给 Executor</td>
+</tr>
+<tr>
+<td style="text-align:center">(14)</td>
+<td style="text-align:center">Executor 接受到 DriverActor 注册成功的消息后会创建一个线程池，用于执行 DriverActor发送过来的 task 任务</td>
+</tr>
+<tr>
+<td style="text-align:center">(15)</td>
+<td style="text-align:center">当属于这个任务的所有的 Executor 启动并反向注册成功后，就意味着运行这个任务的环境已经准备好了，driver 会结束 SparkContext 对象的初始化，也就意味着 new SparkContext这句代码运行完成</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd-partition"><a href="#3-action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd-partition" class="headerlink" title="3. action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd partition"></a>3. action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd partition</h2><table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th style="text-align:center">Spark 任务的提交流程 &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">(16)</td>
+<td style="text-align:center">当初始化 sc 成功后，driver 端就会继续运行我们编写的代码，然后开始创建初始的 RDD，然后进行一系列转换操作，当遇到一个 action 算子时，也就意味着触发了一个 job</td>
+</tr>
+<tr>
+<td style="text-align:center">(17)</td>
+<td style="text-align:center">driver 会将这个 job 提交给 DAGScheduler</td>
+</tr>
+<tr>
+<td style="text-align:center">(18)</td>
+<td style="text-align:center">DAGScheduler 将接受到的 job，从最后一个算子向前推导，将 DAG 依据宽依赖划分成一个一个的 stage，然后将 stage 封装成 taskSet，并将 taskSet 中的 task 提交给 DriverActor</td>
+</tr>
+<tr>
+<td style="text-align:center">(19)</td>
+<td style="text-align:center">DriverActor 接受到 DAGScheduler 发送过来的 task，会拿到一个序列化器，对 task 进行序列化，然后将序列化好的 task 封装到 launchTask 中，然后将 launchTask 发送给指定的Executor</td>
+</tr>
+<tr>
+<td style="text-align:center">(20)</td>
+<td style="text-align:center">Executor 接受到了 DriverActor 发送过来的 launchTask 时，会拿到一个反序列化器，对launchTask 进行反序列化，封装到 TaskRunner 中，然后从 Executor 这个线程池中获取一个线程，将反序列化好的 <code>task</code> 中的算子作用在 RDD 对应的分区上</td>
+</tr>
+</tbody>
+</table>
+<p><img src="/images/spark/spark-aura-5.1.1.jpg" width="950"></p>
+<p>spark1.x RPC AKKA<br>spark2.x RPC netty</p>
+<h1 id="Spark的任务提交和执行流程详解："><a href="#Spark的任务提交和执行流程详解：" class="headerlink" title="Spark的任务提交和执行流程详解："></a>Spark的任务提交和执行流程详解：</h1><p><a href="https://blog.csdn.net/zhongqi2513/article/details/107051253" target="_blank" rel="external">马中华：Spark的任务提交和执行流程详解</a></p>
+<p><img src="https://img-blog.csdnimg.cn/20200630214023905.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25ncWkyNTEz,size_16,color_FFFFFF,t_70" alt=""></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://blog.csdn.net/qq_39150361/article/details/107380115" target="_blank" rel="external">Spark任务的提交流程</a></li>
+<li><a href="https://blog.csdn.net/huang66666666/article/details/102517737" target="_blank" rel="external">不急吃口药: spark任务提交流程图 (马中华类)</a></li>
+<li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="external">大数据资料笔记整理</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-SparkSubmit"><span class="toc-text">1. SparkSubmit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SparkContext-初始化"><span class="toc-text">2. SparkContext 初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd-partition"><span class="toc-text">3. action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd partition</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark的任务提交和执行流程详解："><span class="toc-text">Spark的任务提交和执行流程详解：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/spark/">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/31/spark/spark-aura-zhouzhihu/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          周志湖 Spark 系列
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/07/31/spark/spark-aura-4.3-Action-Review/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Spark 算子复习 4.3&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://shopee.ai/2020/07/31/spark/spark-aura-5.1-sparkCore/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
