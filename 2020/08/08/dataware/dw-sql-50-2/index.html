@@ -12,8 +12,9 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;sql-50-logo.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;sql-50-11.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;sql-50-table-logo.jpg">
-<meta property="og:updated_time" content="2020-08-08T10:57:47.289Z">
+<meta property="og:updated_time" content="2020-08-09T05:50:20.062Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;sql-50-logo.jpg">
   
@@ -118,7 +119,87 @@ var _hmt = _hmt || [];
 <p><strong>(1). 查询课程编号为“01”的课程比“02”的课程成绩高的所有学生的学号（重点）</strong></p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    t1.s_id <span class="keyword">as</span> t1_s_id,</span><br><span class="line">    t2.s_id <span class="keyword">as</span> t2_s_id,</span><br><span class="line">    t3.s_name,</span><br><span class="line">    t1.s_score <span class="keyword">as</span> s_score_01,</span><br><span class="line">    t2.s_score <span class="keyword">as</span> s_score_02</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    (<span class="keyword">select</span> s_id, c_id, s_score <span class="keyword">from</span> Score <span class="keyword">WHERE</span> c_id = <span class="string">'01'</span>) <span class="keyword">as</span> t1</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line">    (<span class="keyword">select</span> s_id, c_id, s_score <span class="keyword">from</span> Score <span class="keyword">WHERE</span> c_id = <span class="string">'02'</span>) <span class="keyword">as</span> t2</span><br><span class="line"><span class="keyword">ON</span> t1.s_id = t2.s_id</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line">    Student <span class="keyword">as</span> t3 </span><br><span class="line"><span class="keyword">ON</span> t1.s_id = t3.s_id</span><br><span class="line"><span class="keyword">where</span> t1.s_score &gt; t2.s_score</span><br></pre></td></tr></table></figure>
 <p><strong>(2). 查询平均成绩大于60分的学生的学号和平均成绩（简单，第二道重点）</strong></p>
-<img src="/images/dataware/sql-50-table-logo.jpg" width="850" alt="" />
+<p><a href="https://www.bilibili.com/video/BV1q4411G7Lw?p=5" target="_blank" rel="noopener">bilibili analysis</a></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    s_id, <span class="keyword">avg</span>(s_score)</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    score</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id <span class="keyword">HAVING</span> <span class="keyword">avg</span>(s_score) &gt; <span class="number">60</span></span><br></pre></td></tr></table></figure>
+<p><strong>(9). 查询所有课程成绩小于60分的学生的学号、姓名</strong></p>
+<ol>
+<li>得出同学课程成绩小于 60分 的课程数</li>
+<li>统计同学总共学了几门课</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> a.s_id, t.s_name</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line"></span><br><span class="line">(</span><br><span class="line"><span class="keyword">SELECT</span> s_id, <span class="keyword">count</span>(c_id) <span class="keyword">as</span> cnt</span><br><span class="line"><span class="keyword">FROM</span> Score</span><br><span class="line"><span class="keyword">WHERE</span> s_score &lt; <span class="number">60</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id</span><br><span class="line">) a</span><br><span class="line"></span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line"></span><br><span class="line">(</span><br><span class="line"><span class="keyword">SELECT</span> s_id, <span class="keyword">count</span>(c_id) <span class="keyword">as</span> cnt <span class="keyword">FROM</span> Score</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id</span><br><span class="line">) b</span><br><span class="line"><span class="keyword">ON</span> a.s_id = b.s_id</span><br><span class="line"></span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line"></span><br><span class="line">Student <span class="keyword">as</span> t <span class="keyword">ON</span> a.s_id=t.s_id</span><br><span class="line"></span><br><span class="line"><span class="keyword">WHERE</span> a.cnt = b.cnt</span><br></pre></td></tr></table></figure>
+<p><strong>(3). 查询所有学生的学号、姓名、选课数、总成绩</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">学号</th>
+<th style="text-align:center">姓名</th>
+<th style="text-align:center">课程编号</th>
+<th style="text-align:center">这门课成绩</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">小张</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">60</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">小张</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">70</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	t1.s_id,</span><br><span class="line">	t1.s_name,</span><br><span class="line">	<span class="keyword">COUNT</span>( t2.c_id ),</span><br><span class="line">	<span class="keyword">SUM</span>(<span class="keyword">case</span> <span class="keyword">when</span> t2.s_score <span class="keyword">is</span> <span class="literal">NULL</span> <span class="keyword">then</span> <span class="number">0</span> <span class="keyword">else</span> t2.s_score <span class="keyword">END</span>) </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	Student <span class="keyword">AS</span> t1</span><br><span class="line">	<span class="keyword">LEFT</span> <span class="keyword">JOIN</span> Score <span class="keyword">AS</span> t2 <span class="keyword">ON</span> t1.s_id = t2.s_id</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id, t1.s_name</span><br></pre></td></tr></table></figure>
+<p><strong>(4). 查询姓“猴”的老师的个数（不重要）</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	<span class="keyword">count</span>(t_id)</span><br><span class="line"><span class="keyword">FROM</span> teacher</span><br><span class="line"><span class="keyword">WHERE</span> t_name <span class="keyword">LIKE</span> <span class="string">'张%'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	<span class="keyword">count</span>(<span class="keyword">distinct</span> t_name)</span><br><span class="line"><span class="keyword">FROM</span> teacher</span><br><span class="line"><span class="keyword">WHERE</span> t_name <span class="keyword">LIKE</span> <span class="string">'张%'</span></span><br></pre></td></tr></table></figure>
+<p><strong>(5). 查询没学过“张三”老师课的学生的学号、姓名（重点）</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">学号</th>
+<th style="text-align:center">课程号</th>
+<th style="text-align:center">成绩</th>
+<th style="text-align:center">教师号</th>
+<th style="text-align:center">教师姓名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">s_1</td>
+<td style="text-align:center">c_1</td>
+<td style="text-align:center">90</td>
+<td style="text-align:center">t_1</td>
+<td style="text-align:center">张三</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> s_id, s_name <span class="keyword">from</span> Student</span><br><span class="line"><span class="keyword">WHERE</span> s_id <span class="keyword">not</span> <span class="keyword">in</span> (</span><br><span class="line">	<span class="keyword">SELECT</span> s_id <span class="keyword">FROM</span> Score s</span><br><span class="line">	<span class="keyword">INNER</span> <span class="keyword">JOIN</span> Course c <span class="keyword">ON</span> s.c_id = c.c_id</span><br><span class="line">	<span class="keyword">INNER</span> <span class="keyword">JOIN</span> Teacher t <span class="keyword">ON</span> c.t_id = t.t_id</span><br><span class="line">	<span class="keyword">WHERE</span> t.t_name=<span class="string">'张三'</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><strong>(6). 查询学过“张三”老师所教的所有课的同学的学号、姓名（重点)</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> st.s_id, st.s_name </span><br><span class="line"><span class="keyword">FROM</span> </span><br><span class="line">   Student <span class="keyword">as</span> st</span><br><span class="line">   <span class="keyword">INNER</span> <span class="keyword">JOIN</span> Score s <span class="keyword">ON</span> s.s_id = st.s_id</span><br><span class="line">   <span class="keyword">INNER</span> <span class="keyword">JOIN</span> Course c <span class="keyword">ON</span> s.c_id = c.c_id</span><br><span class="line">   <span class="keyword">INNER</span> <span class="keyword">JOIN</span> Teacher t <span class="keyword">ON</span> c.t_id = t.t_id</span><br><span class="line">   <span class="keyword">WHERE</span> t.t_name=<span class="string">'张三'</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>平时做的时候表太大，我们会先过滤用 ’张三‘ 的条件，做成 temp table 在开始做 JOIN.</p>
+</blockquote>
+<p><strong>(7). 查询学过编号为“01”的课程并且也学过编号为“02”的课程的学生的学号、姓名（重点）</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> STUDENT <span class="keyword">WHERE</span> s_id <span class="keyword">IN</span></span><br><span class="line">(</span><br><span class="line">    <span class="keyword">SELECT</span> a.s_id </span><br><span class="line">    <span class="keyword">FROM</span></span><br><span class="line">        (<span class="keyword">SELECT</span> s_id, c_id <span class="keyword">FROM</span> Score <span class="keyword">WHERE</span> c_id = <span class="string">'01'</span>) a</span><br><span class="line">        <span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line">        (<span class="keyword">SELECT</span> s_id, c_id <span class="keyword">FROM</span> Score <span class="keyword">WHERE</span> c_id = <span class="string">'02'</span>) b</span><br><span class="line">    <span class="keyword">ON</span> a.s_id = b.s_id</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><strong>(8). 查询课程编号为“02”的总成绩（不重点）</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(s_score)</span><br><span class="line"><span class="keyword">FROM</span> Score</span><br><span class="line">wWHERE c_id = <span class="string">'02'</span></span><br></pre></td></tr></table></figure>
+<p><strong>(10). 查询没有学全所有课的学生的学号、姓名(重点)</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> course</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> Score</span><br></pre></td></tr></table></figure>
+<p>Error Version:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> s_id, s_name <span class="keyword">FROM</span> Student <span class="keyword">WHERE</span> s_id <span class="keyword">IN</span> </span><br><span class="line">(</span><br><span class="line">  <span class="keyword">SELECT</span> s_id <span class="keyword">FROM</span> Score</span><br><span class="line">  <span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id <span class="keyword">HAVING</span> <span class="keyword">count</span>(<span class="keyword">distinct</span> c_id) &lt; (<span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="keyword">distinct</span> c_id) <span class="keyword">FROM</span> Course)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 一门课都没有学，上面的 SQL 就漏掉了.</span></span><br></pre></td></tr></table></figure>
+<p>Right Version:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> st.*, sc.*</span><br><span class="line"><span class="keyword">FROM</span> Student <span class="keyword">as</span> st</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> Score <span class="keyword">as</span> sc <span class="keyword">ON</span> st.s_id=sc.s_id</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> st.s_id <span class="keyword">HAVING</span> <span class="keyword">count</span>(<span class="keyword">distinct</span> sc.c_id) &lt; (<span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="keyword">distinct</span> c_id) <span class="keyword">FROM</span> Course)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 一门课都没有学，上面的 SQL 就漏掉了.</span></span><br></pre></td></tr></table></figure>
+<p><strong>(11). 查询至少有一门课与学号为“01”的学生所学课程相同的学生的学号和姓名（重点）</strong></p>
+<ol>
+<li>and在括号外用</li>
+<li>distinct 不知道什么时候用？</li>
+</ol>
+<img src="/images/dataware/sql-50-11.jpg" width="850" alt="" />
+<img src="/images/dataware/sql-50-table-logo.jpg" width="800" alt="" />
 <h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <ul>
 <li><a href="https://zhuanlan.zhihu.com/p/38354000" target="_blank" rel="noopener">常见的SQL面试题：经典50题 - 知乎</a></li>
