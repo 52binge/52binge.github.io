@@ -4,29 +4,351 @@
   
     
     <entry>
-      <title><![CDATA[Data Analysis - SQL 50]]></title>
+      <title><![CDATA[Spark shuffle 调优概述]]></title>
+      <url>http://shopee.ai/2020/08/10/spark/spark-aura-6.7-shuffle-optimization-introduce/</url>
+      <content type="html"><![CDATA[<p><img src="/images/spark/spark-aura-6.7-shuffle-logo.png" width="550" alt=""></p>
+<a id="more"></a>
+<p>调优:</p>
+<blockquote>
+<ol>
+<li><strong>开发调优</strong></li>
+<li><strong>资源调优</strong></li>
+<li><strong>数据倾斜</strong></li>
+<li><strong>shuffle</strong></li>
+</ol>
+<p>旧知识点: 数据倾斜, 开发调优的一部分</p>
+<p>新知识: spark的内存模型, spark的资源调优, spark的shuffle</p>
+</blockquote>
+<p>今天的内容:</p>
+<blockquote>
+<ol>
+<li>开发调优</li>
+<li>数据倾斜</li>
+</ol>
+</blockquote>
+<h1 id="Shuffle-调优-10点"><a href="#Shuffle-调优-10点" class="headerlink" title="Shuffle 调优 10点"></a>Shuffle 调优 10点</h1><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://tech.meituan.com/2016/04/29/spark-tuning-basic.html" target="_blank" rel="external">Spark性能优化指南——基础篇</a></li>
+<li><a href="https://tech.meituan.com/2016/05/12/spark-tuning-pro.html" target="_blank" rel="external">Spark性能优化指南——高级篇</a></li>
+<li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="external">大数据资料笔记整理</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Spark 开发调优 6,7]]></title>
+      <url>http://shopee.ai/2020/08/10/spark/spark-aura-6.4-dev-optimization-6-7/</url>
+      <content type="html"><![CDATA[<p><img src="/images/spark/spark-aura-6.2-logo.png" width="550" alt=""></p>
+<a id="more"></a>
+<p>调优:</p>
+<blockquote>
+<ol>
+<li><strong>开发调优</strong></li>
+<li><strong>资源调优</strong></li>
+<li><strong>数据倾斜</strong></li>
+<li><strong>shuffle</strong></li>
+</ol>
+<p>旧知识点: 数据倾斜, 开发调优的一部分</p>
+<p>新知识: spark的内存模型, spark的资源调优, spark的shuffle</p>
+</blockquote>
+<p>今天的内容:</p>
+<blockquote>
+<ol>
+<li>开发调优</li>
+<li>数据倾斜</li>
+</ol>
+</blockquote>
+<h1 id="开发调优-10点"><a href="#开发调优-10点" class="headerlink" title="开发调优 10点"></a>开发调优 10点</h1><h2 id="6-使用高性能算子"><a href="#6-使用高性能算子" class="headerlink" title="6. 使用高性能算子"></a>6. 使用高性能算子</h2><h3 id="6-1-使用reduceByKey-aggregateByKey替代groupByKey"><a href="#6-1-使用reduceByKey-aggregateByKey替代groupByKey" class="headerlink" title="6.1 使用reduceByKey/aggregateByKey替代groupByKey"></a>6.1 使用reduceByKey/aggregateByKey替代groupByKey</h3><p>详情见“原则五：使用map-side预聚合的shuffle操作”。</p>
+<h3 id="6-2-用-foreachPartitions-替代-foreach"><a href="#6-2-用-foreachPartitions-替代-foreach" class="headerlink" title="6.2 用 foreachPartitions 替代 foreach"></a>6.2 用 foreachPartitions 替代 foreach</h3><p>需求： 如果 rdd 有 10000 条数据， 10个分区：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 获取了 10000 个连接</span></span><br><span class="line">rdd.map(x =&gt; &#123;</span><br><span class="line">    <span class="keyword">val</span> connect = <span class="type">Connect</span>.getConnect() <span class="comment">// 模拟获取数据库连接</span></span><br><span class="line">    connect.insert(x)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取了10次连接</span></span><br><span class="line">rdd.mapPartitions(data =&gt; &#123;</span><br><span class="line">    <span class="keyword">val</span> connect = <span class="type">Connect</span>.getConnect() <span class="comment">// 模拟获取数据库连接</span></span><br><span class="line">    <span class="keyword">for</span>( element &lt;- data) &#123;</span><br><span class="line">        connect.insert(element) </span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>原则： 如果一个操作能针对 partition 完成，就不要针对单个元素</p>
+<p><strong>DStream RDD</strong></p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">dstreams.foreachRDD(rdd =&gt; &#123;</span><br><span class="line">    rdd.foreachPartition(ptn =&gt; &#123;</span><br><span class="line">        rdd.foreach(element =&gt; &#123;</span><br><span class="line">        </span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="6-3-使用-filter-后-coalesce-操作"><a href="#6-3-使用-filter-后-coalesce-操作" class="headerlink" title="6.3 使用 filter 后 coalesce 操作"></a>6.3 使用 filter 后 coalesce 操作</h3><p>rdd.filter(奇数).coalesce(6).map(平方)</p>
+<p>rdd.map(平方).filter(奇数)</p>
+<h3 id="6-4-使用repartitionAndSortWithinPartitions替代repartition与sort类操作"><a href="#6-4-使用repartitionAndSortWithinPartitions替代repartition与sort类操作" class="headerlink" title="6.4 使用repartitionAndSortWithinPartitions替代repartition与sort类操作"></a>6.4 使用repartitionAndSortWithinPartitions替代repartition与sort类操作</h3><p>repartitionAndSortWithinPartitions是Spark官网推荐的一个算子，官方建议，如果需要在repartition重分区之后，还要进行排序，建议直接使用repartitionAndSortWithinPartitions算子。因为该算子可以一边进行重分区的shuffle操作，一边进行排序。shuffle与sort两个操作同时进行，比先shuffle再sort来说，性能可能是要高的。</p>
+<ol>
+<li>rdd.repartition.sort</li>
+<li>rdd.repartitionAndSortWithinPartitions</li>
+</ol>
+<p>第一个式子效率差</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">rdd.repartition = rdd2   rdd2.sort = rdd3</span><br></pre></td></tr></table></figure>
+<h2 id="7-广播大变量"><a href="#7-广播大变量" class="headerlink" title="7. 广播大变量"></a>7. 广播大变量</h2><p>有时在开发过程中，会遇到需要在算子函数中使用外部变量的场景（尤其是大变量，比如100M以上的大集合），那么此时就应该使用Spark的广播（Broadcast）功能来提升性能。</p>
+<p>一句话： </p>
+<ul>
+<li><p><strong>目的：</strong> 让多个 task 都要使用的在 driver 中声明的变量都要维持一个独立副本， 编程让这个 executor 的内存占用量就减少了</p>
+</li>
+<li><p><strong>效果：</strong> executor 的内存占用量就减少了. 网络数据传输量也减少了</p>
+</li>
+<li><p><strong>原则：</strong> 要广播的数据越大, 进行广播这个操作之后得到的收益越好的.</p>
+</li>
+</ul>
+<p>mapreduce: DistributedCache<br>spark: BroadCastManager SparkContext</p>
+<h2 id="8-使用Kryo优化序列化性能"><a href="#8-使用Kryo优化序列化性能" class="headerlink" title="8. 使用Kryo优化序列化性能"></a>8. 使用Kryo优化序列化性能</h2><ol>
+<li>java: </li>
+<li>mapreduce</li>
+<li>他们的区别</li>
+</ol>
+<p><strong>java中创建对象的方式:</strong></p>
+<ol>
+<li>构造器</li>
+<li>静态工厂方法 (私有化了构造器)</li>
+<li>反射</li>
+<li>克隆</li>
+<li>反序列化</li>
+</ol>
+<p><strong>java： 实现序列化:</strong></p>
+<pre><code>让参与序列化的类型 implements Serializable
+
+ObjectOutputStream oos = new ...
+oos.writeObject(student)
+    网络IO，FileIO
+Redis: String
+    把一个对象： toString, 序列化, JSON
+</code></pre><p>有个缺点:</p>
+<p> 除了把当前这个对象的属性的值给存储/携带之外, 还会把当前这个对象的类型的信息都携带.</p>
+<p>加入要传入 10000 个对象：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1  :  类型信息    对象信息</span><br><span class="line">2  :  类型信息    对象信息</span><br><span class="line">...</span><br><span class="line">1000  :  类型信息    对象信息</span><br></pre></td></tr></table></figure>
+<p><strong>mapreduce:</strong></p>
+<p>序列化，自定义规则</p>
+<p>对于类型信息，只会携带一次</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">1  :  对象信息</span><br><span class="line">2  :  对象信息</span><br><span class="line">...</span><br><span class="line">1000  :  对象信息</span><br></pre></td></tr></table></figure>
+<p>java 原生序列组件的原因</p>
+<p>实现方式:</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Student</span> <span class="keyword">implements</span> <span class="title">Writable</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> id;</span><br><span class="line">    <span class="keyword">private</span> String name;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 序列化</span></span><br><span class="line">    write(out) &#123;</span><br><span class="line">        out.writeInt(id);</span><br><span class="line">        out.writeUTF(name);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 反序列化</span></span><br><span class="line">    readFields(in) &#123;</span><br><span class="line">        <span class="keyword">this</span>.id = in.readInt();</span><br><span class="line">        <span class="keyword">this</span>.name = in.readUTF();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>他们的区别：</p>
+<p>  mapreduce 的序列化机制, 只序列化要进行传输的属性的值，不重复序列化对象的类型信息</p>
+<p><strong>spark：</strong></p>
+<ol>
+<li>默认情况下, 是支持 java 原生序列化机制</li>
+<li>使用 KryoSerializer </li>
+</ol>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">使用方式:</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创建SparkConf对象。</span></span><br><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>().setMaster(...).setAppName(...)</span><br><span class="line"><span class="comment">// 设置序列化器为KryoSerializer。</span></span><br><span class="line">conf.set(<span class="string">"spark.serializer"</span>, <span class="string">"org.apache.spark.serializer.KryoSerializer"</span>)</span><br><span class="line"><span class="comment">// 注册要序列化的自定义类型。</span></span><br><span class="line">conf.registerKryoClasses(<span class="type">Array</span>(classOf[<span class="type">MyClass1</span>], classOf[<span class="type">MyClass2</span>]))</span><br></pre></td></tr></table></figure>
+<h2 id="9-优化数据结构"><a href="#9-优化数据结构" class="headerlink" title="9. 优化数据结构"></a>9. 优化数据结构</h2><p>Java中，有三种类型比较耗费内存： </p>
+<blockquote>
+<ul>
+<li>对象，每个Java对象都有对象头、引用等额外的信息，因此比较占用内存空间。 </li>
+<li>字符串，每个字符串内部都有一个字符数组以及长度等额外信息。 </li>
+<li>集合类型，比如HashMap、LinkedList等，因为集合类型内部通常会使用一些内部类来封装集合元素，比如Map.Entry。</li>
+</ul>
+</blockquote>
+<p>因此Spark建议，在Spark编码实现中，特别是对于算子函数中的代码，尽量不要使用上述三种数据结构，尽量使用</p>
+<blockquote>
+<ul>
+<li>字符串替代对象，使用原始类型（比如Int、Long）替代字符串，</li>
+<li>数组替代集合类型，这样尽可能地减少内存占用，从而降低GC频率，提升性能。</li>
+</ul>
+<p><strong><code>不要刻意去这么做</code></strong>, 也要注意可读性.</p>
+</blockquote>
+<p>但是在笔者的编码实践中发现，要做到该原则其实并不容易。因为我们同时要考虑到代码的可维护性，如果一个代码中，完全没有任何对象抽象，全部是字符串拼接的方式，那么对于后续的代码维护和修改，无疑是一场巨大的灾难。同理，如果所有操作都基于数组实现，而不使用HashMap、LinkedList等集合类型，那么对于我们的编码难度以及代码可维护性，也是一个极大的挑战。因此笔者建议，在可能以及合适的情况下，使用占用内存较少的数据结构，但是前提是要保证代码的可维护性。</p>
+<h2 id="10-融会贯通"><a href="#10-融会贯通" class="headerlink" title="10. 融会贯通"></a>10. 融会贯通</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://tech.meituan.com/2016/04/29/spark-tuning-basic.html" target="_blank" rel="external">Spark性能优化指南——基础篇</a></li>
+<li><a href="https://tech.meituan.com/2016/05/12/spark-tuning-pro.html" target="_blank" rel="external">Spark性能优化指南——高级篇</a></li>
+<li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="external">大数据资料笔记整理</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Spark 开发调优 4,5]]></title>
+      <url>http://shopee.ai/2020/08/10/spark/spark-aura-6.3-dev-optimization-4-5/</url>
+      <content type="html"><![CDATA[<p><img src="/images/spark/spark-aura-6.2-logo.png" width="550" alt=""></p>
+<a id="more"></a>
+<p>调优:</p>
+<blockquote>
+<ol>
+<li><strong>开发调优</strong></li>
+<li><strong>资源调优</strong></li>
+<li><strong>数据倾斜</strong></li>
+<li><strong>shuffle</strong></li>
+</ol>
+<p>旧知识点: 数据倾斜, 开发调优的一部分</p>
+<p>新知识: spark的内存模型, spark的资源调优, spark的shuffle</p>
+</blockquote>
+<p>今天的内容:</p>
+<blockquote>
+<ol>
+<li>开发调优</li>
+<li>数据倾斜</li>
+</ol>
+</blockquote>
+<h1 id="开发调优-10点"><a href="#开发调优-10点" class="headerlink" title="开发调优 10点"></a>开发调优 10点</h1><h2 id="4-尽量避免使用-Shuffle-类算子"><a href="#4-尽量避免使用-Shuffle-类算子" class="headerlink" title="4. 尽量避免使用 Shuffle 类算子"></a>4. 尽量避免使用 Shuffle 类算子</h2><p>shuffle 到底有什么坏处?</p>
+<p>分布式计算 决定了 一定会有 shuffle</p>
+<blockquote>
+<p><strong>join</strong>: mapjoin, reducejoin</p>
+</blockquote>
+<p><strong>shuffle 类算子:</strong></p>
+<ol>
+<li>reduceByKey</li>
+<li>groupBy</li>
+<li>sortBy</li>
+<li>distinct</li>
+</ol>
+<blockquote>
+<p>聚合类操作基本都有 shuffle. (union、join[按照hash分区, 分区数还成倍数, 就没shuffle])</p>
+</blockquote>
+<p>xxxByKey (groupBy + xxxx)</p>
+<p>rdd1.join(rdd2) (reducejoin)<br>// 如何避免 join 中的 shuffle</p>
+<p>mapjoin</p>
+<blockquote>
+<p>在 mapreduce 当中, 我们知道如何定义 mapreduce 的 join 实现程序<br>但是在 spark中 你知道如何实现么？</p>
+</blockquote>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">job.addCacheFile() <span class="comment">// 通过底层的 DistributedCache 这个组件。 来给我们 () 中的文件进行全局分发</span></span><br><span class="line">                   <span class="comment">// 全局分发： 发送文件到所有的要执行的 mapTask 节点</span></span><br></pre></td></tr></table></figure>
+<p>spark 实现伪代码</p>
+<p>  BroadCast</p>
+<p>  rdd1.join(rdd2)<br>  rdd1.foreachPartition(data =&gt; {</p>
+<pre><code>val data2 = bc.value // 小表数据
+val data1 = data     // 大小数据的一个 Partition
+
+data1.join(data2)  // 这个无shuffle, 因为这一句代码,这个操作是在每个阶段独立执行的.
+</code></pre><p>  })</p>
+<p>  mapper  3分钟<br>  shuffle 2分钟<br>  reduce  2分钟</p>
+<h2 id="5-使用-map-side-预聚合-combina-的-shuffle-操作"><a href="#5-使用-map-side-预聚合-combina-的-shuffle-操作" class="headerlink" title="5. 使用 map-side 预聚合(combina)的 shuffle 操作"></a>5. 使用 map-side 预聚合(combina)的 shuffle 操作</h2><p><img src="/images/spark/spark-aura-6.3.1.png" width="850" alt=""></p>
+<p>shuffle 类算子有第3个缺点：</p>
+<p> 数据倾斜</p>
+<p>wordcount： File  block1 block1 block2</p>
+<p>在使用 shuffle 操作的算子的时候， 如果右 map-side 预聚合操作的话<br>那么 shuffle 的代价还是会小很多</p>
+<p>附带的好效果： <strong>降低数据倾斜的程度</strong></p>
+<p><strong>(1) 没有 map-side 预聚合的算子：</strong></p>
+<p>groupByKey  有 shuffle, 没有聚合<br>coGroup val rdd: RDD[String, Iterable[Int], Iterable[String]]</p>
+<p><strong>(2) 有预聚合的 shuffle 算子：</strong></p>
+<p>执行流程上, 执行阶段<br>reduceByKey = groupByKey + reduce</p>
+<p>最终效率上：</p>
+<p>reduceByKey &gt; groupByKey + reduce</p>
+<p>reduceByKey, combineByKey, aggregateByKey</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://tech.meituan.com/2016/04/29/spark-tuning-basic.html" target="_blank" rel="external">Spark性能优化指南——基础篇</a></li>
+<li><a href="https://tech.meituan.com/2016/05/12/spark-tuning-pro.html" target="_blank" rel="external">Spark性能优化指南——高级篇</a></li>
+<li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="external">大数据资料笔记整理</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Data Analysis - SQL 50 第2篇 Action]]></title>
+      <url>http://shopee.ai/2020/08/08/dataware/dw-sql-50-2/</url>
+      <content type="html"><![CDATA[<p><img src="/images/sql/sql-50-logo.jpg" width="550" alt=""></p>
+<a id="more"></a>
+<blockquote>
+<p>其中重点为：1/2/5/6/7/10/11/12/13/15/17/18/19/22/23/25/31/35/36/40/41/42/45/46 共16题</p>
+<p>超级重点 18和23、 22和25 、 41、46</p>
+</blockquote>
+<p><strong>(1). 查询课程编号为“01”的课程比“02”的课程成绩高的所有学生的学号（重点）</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    t1.s_id <span class="keyword">as</span> t1_s_id,</span><br><span class="line">    t2.s_id <span class="keyword">as</span> t2_s_id,</span><br><span class="line">    t3.s_name,</span><br><span class="line">    t1.s_score <span class="keyword">as</span> s_score_01,</span><br><span class="line">    t2.s_score <span class="keyword">as</span> s_score_02</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    (<span class="keyword">select</span> s_id, c_id, s_score <span class="keyword">from</span> Score <span class="keyword">WHERE</span> c_id = <span class="string">'01'</span>) <span class="keyword">as</span> t1</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line">    (<span class="keyword">select</span> s_id, c_id, s_score <span class="keyword">from</span> Score <span class="keyword">WHERE</span> c_id = <span class="string">'02'</span>) <span class="keyword">as</span> t2</span><br><span class="line"><span class="keyword">ON</span> t1.s_id = t2.s_id</span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line">    Student <span class="keyword">as</span> t3 </span><br><span class="line"><span class="keyword">ON</span> t1.s_id = t3.s_id</span><br><span class="line"><span class="keyword">where</span> t1.s_score &gt; t2.s_score</span><br></pre></td></tr></table></figure>
+<p><strong>(2). 查询平均成绩大于60分的学生的学号和平均成绩（简单，第二道重点）</strong></p>
+<p><a href="https://www.bilibili.com/video/BV1q4411G7Lw?p=5" target="_blank" rel="external">bilibili analysis</a></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    s_id, <span class="keyword">avg</span>(s_score)</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    score</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id <span class="keyword">HAVING</span> <span class="keyword">avg</span>(s_score) &gt; <span class="number">60</span></span><br></pre></td></tr></table></figure>
+<p><strong>(9). 查询所有课程成绩小于60分的学生的学号、姓名</strong></p>
+<ol>
+<li>得出同学课程成绩小于 60分 的课程数</li>
+<li>统计同学总共学了几门课</li>
+</ol>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> a.s_id, t.s_name</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line"></span><br><span class="line">(</span><br><span class="line"><span class="keyword">SELECT</span> s_id, <span class="keyword">count</span>(c_id) <span class="keyword">as</span> cnt</span><br><span class="line"><span class="keyword">FROM</span> Score</span><br><span class="line"><span class="keyword">WHERE</span> s_score &lt; <span class="number">60</span></span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id</span><br><span class="line">) a</span><br><span class="line"></span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line"></span><br><span class="line">(</span><br><span class="line"><span class="keyword">SELECT</span> s_id, <span class="keyword">count</span>(c_id) <span class="keyword">as</span> cnt <span class="keyword">FROM</span> Score</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id</span><br><span class="line">) b</span><br><span class="line"><span class="keyword">ON</span> a.s_id = b.s_id</span><br><span class="line"></span><br><span class="line"><span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line"></span><br><span class="line">Student <span class="keyword">as</span> t <span class="keyword">ON</span> a.s_id=t.s_id</span><br><span class="line"></span><br><span class="line"><span class="keyword">WHERE</span> a.cnt = b.cnt</span><br></pre></td></tr></table></figure>
+<p><strong>(3). 查询所有学生的学号、姓名、选课数、总成绩</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">学号</th>
+<th style="text-align:center">姓名</th>
+<th style="text-align:center">课程编号</th>
+<th style="text-align:center">这门课成绩</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">小张</td>
+<td style="text-align:center">1</td>
+<td style="text-align:center">60</td>
+</tr>
+<tr>
+<td style="text-align:center">1</td>
+<td style="text-align:center">小张</td>
+<td style="text-align:center">3</td>
+<td style="text-align:center">70</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	t1.s_id,</span><br><span class="line">	t1.s_name,</span><br><span class="line">	<span class="keyword">COUNT</span>( t2.c_id ),</span><br><span class="line">	<span class="keyword">SUM</span>(<span class="keyword">case</span> <span class="keyword">when</span> t2.s_score <span class="keyword">is</span> <span class="literal">NULL</span> <span class="keyword">then</span> <span class="number">0</span> <span class="keyword">else</span> t2.s_score <span class="keyword">END</span>) </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	Student <span class="keyword">AS</span> t1</span><br><span class="line">	<span class="keyword">LEFT</span> <span class="keyword">JOIN</span> Score <span class="keyword">AS</span> t2 <span class="keyword">ON</span> t1.s_id = t2.s_id</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id, t1.s_name</span><br></pre></td></tr></table></figure>
+<p><strong>(4). 查询姓“猴”的老师的个数（不重要）</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	<span class="keyword">count</span>(t_id)</span><br><span class="line"><span class="keyword">FROM</span> teacher</span><br><span class="line"><span class="keyword">WHERE</span> t_name <span class="keyword">LIKE</span> <span class="string">'张%'</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	<span class="keyword">count</span>(<span class="keyword">distinct</span> t_name)</span><br><span class="line"><span class="keyword">FROM</span> teacher</span><br><span class="line"><span class="keyword">WHERE</span> t_name <span class="keyword">LIKE</span> <span class="string">'张%'</span></span><br></pre></td></tr></table></figure>
+<p><strong>(5). 查询没学过“张三”老师课的学生的学号、姓名（重点）</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">学号</th>
+<th style="text-align:center">课程号</th>
+<th style="text-align:center">成绩</th>
+<th style="text-align:center">教师号</th>
+<th style="text-align:center">教师姓名</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">s_1</td>
+<td style="text-align:center">c_1</td>
+<td style="text-align:center">90</td>
+<td style="text-align:center">t_1</td>
+<td style="text-align:center">张三</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> s_id, s_name <span class="keyword">from</span> Student</span><br><span class="line"><span class="keyword">WHERE</span> s_id <span class="keyword">not</span> <span class="keyword">in</span> (</span><br><span class="line">	<span class="keyword">SELECT</span> s_id <span class="keyword">FROM</span> Score s</span><br><span class="line">	<span class="keyword">INNER</span> <span class="keyword">JOIN</span> Course c <span class="keyword">ON</span> s.c_id = c.c_id</span><br><span class="line">	<span class="keyword">INNER</span> <span class="keyword">JOIN</span> Teacher t <span class="keyword">ON</span> c.t_id = t.t_id</span><br><span class="line">	<span class="keyword">WHERE</span> t.t_name=<span class="string">'张三'</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><strong>(6). 查询学过“张三”老师所教的所有课的同学的学号、姓名（重点)</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> st.s_id, st.s_name </span><br><span class="line"><span class="keyword">FROM</span> </span><br><span class="line">   Student <span class="keyword">as</span> st</span><br><span class="line">   <span class="keyword">INNER</span> <span class="keyword">JOIN</span> Score s <span class="keyword">ON</span> s.s_id = st.s_id</span><br><span class="line">   <span class="keyword">INNER</span> <span class="keyword">JOIN</span> Course c <span class="keyword">ON</span> s.c_id = c.c_id</span><br><span class="line">   <span class="keyword">INNER</span> <span class="keyword">JOIN</span> Teacher t <span class="keyword">ON</span> c.t_id = t.t_id</span><br><span class="line">   <span class="keyword">WHERE</span> t.t_name=<span class="string">'张三'</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>平时做的时候表太大，我们会先过滤用 ’张三‘ 的条件，做成 temp table 在开始做 JOIN.</p>
+</blockquote>
+<p><strong>(7). 查询学过编号为“01”的课程并且也学过编号为“02”的课程的学生的学号、姓名（重点）</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> STUDENT <span class="keyword">WHERE</span> s_id <span class="keyword">IN</span></span><br><span class="line">(</span><br><span class="line">    <span class="keyword">SELECT</span> a.s_id </span><br><span class="line">    <span class="keyword">FROM</span></span><br><span class="line">        (<span class="keyword">SELECT</span> s_id, c_id <span class="keyword">FROM</span> Score <span class="keyword">WHERE</span> c_id = <span class="string">'01'</span>) a</span><br><span class="line">        <span class="keyword">INNER</span> <span class="keyword">JOIN</span></span><br><span class="line">        (<span class="keyword">SELECT</span> s_id, c_id <span class="keyword">FROM</span> Score <span class="keyword">WHERE</span> c_id = <span class="string">'02'</span>) b</span><br><span class="line">    <span class="keyword">ON</span> a.s_id = b.s_id</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p><strong>(8). 查询课程编号为“02”的总成绩（不重点）</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(s_score)</span><br><span class="line"><span class="keyword">FROM</span> Score</span><br><span class="line">wWHERE c_id = <span class="string">'02'</span></span><br></pre></td></tr></table></figure>
+<p><strong>(10). 查询没有学全所有课的学生的学号、姓名(重点)</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> course</span><br><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> Score</span><br></pre></td></tr></table></figure>
+<p>Error Version: </p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> s_id, s_name <span class="keyword">FROM</span> Student <span class="keyword">WHERE</span> s_id <span class="keyword">IN</span> </span><br><span class="line">(</span><br><span class="line">  <span class="keyword">SELECT</span> s_id <span class="keyword">FROM</span> Score</span><br><span class="line">  <span class="keyword">GROUP</span> <span class="keyword">BY</span> s_id <span class="keyword">HAVING</span> <span class="keyword">count</span>(<span class="keyword">distinct</span> c_id) &lt; (<span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="keyword">distinct</span> c_id) <span class="keyword">FROM</span> Course)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 一门课都没有学，上面的 SQL 就漏掉了.</span></span><br></pre></td></tr></table></figure>
+<p>Right Version:</p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> st.*, sc.*</span><br><span class="line"><span class="keyword">FROM</span> Student <span class="keyword">as</span> st</span><br><span class="line"><span class="keyword">LEFT</span> <span class="keyword">JOIN</span> Score <span class="keyword">as</span> sc <span class="keyword">ON</span> st.s_id=sc.s_id</span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span> st.s_id <span class="keyword">HAVING</span> <span class="keyword">count</span>(<span class="keyword">distinct</span> sc.c_id) &lt; (<span class="keyword">SELECT</span> <span class="keyword">COUNT</span>(<span class="keyword">distinct</span> c_id) <span class="keyword">FROM</span> Course)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 一门课都没有学，上面的 SQL 就漏掉了.</span></span><br></pre></td></tr></table></figure>
+<p><strong>(11). 查询至少有一门课与学号为“01”的学生所学课程相同的学生的学号和姓名（重点）</strong></p>
+<ol>
+<li>and在括号外用</li>
+<li>distinct 不知道什么时候用？</li>
+</ol>
+<p><img src="/images/sql/sql-50-11.jpg" width="850" alt=""></p>
+<p><strong>(12). 查询和“01”号同学所学课程完全相同的其他同学的学号(重点)</strong></p>
+<p><img src="/images/sql/sql-50-12.jpg" width="800" alt=""></p>
+<p><img src="/images/sql/sql-50-table-logo.jpg" width="800" alt=""></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://zhuanlan.zhihu.com/p/38354000" target="_blank" rel="external">常见的SQL面试题：经典50题 - 知乎</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/43289968" target="_blank" rel="external">SQL面试必会50题 - 知乎</a><br><br></li>
+<li><a href="https://www.bilibili.com/video/BV1q4411G7Lw/?spm_id_from=333.788.videocard.1" target="_blank" rel="external">bilibili【数据分析】- SQL面试50题 - 跟我一起打怪升级 一起成为数据科学家</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/103386372" target="_blank" rel="external">数据分析师成长之路</a><br><br></li>
+<li><a href="https://zhuanlan.zhihu.com/p/113173133" target="_blank" rel="external">【SQL】SQL面试50题 分类梳理与解答</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/118633494" target="_blank" rel="external">【Python】数据分析前的入门教程 Python For Everybody P1：零基础程序设计</a></li>
+</ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Data Analysis - SQL 50 第1篇]]></title>
       <url>http://shopee.ai/2020/08/07/dataware/dw-sql-50-1/</url>
       <content type="html"><![CDATA[<p><img src="/images/dataware/sql-50-logo.jpeg" width="550" alt=""></p>
 <a id="more"></a>
 <p>本文汇总了不同版本的SQL面试50题的题目，删去了重复内容，并根据涉及知识点进行分类，按照由易到难、相似题放在一起的思路进行排序并重新编</p>
 <p><img src="/images/dataware/sql-50-table-logo.jpg" width="950" alt=""></p>
-<h2 id="Like"><a href="#Like" class="headerlink" title="Like"></a>Like</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 1. 查询「李」姓老师的数量 </span></span><br><span class="line"><span class="keyword">select</span> <span class="keyword">count</span>(*) <span class="keyword">from</span> teacher</span><br><span class="line"><span class="keyword">where</span> tname <span class="keyword">like</span> <span class="string">'李%'</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 2. 查询名字中含有「风」字的学生信息</span></span><br><span class="line"><span class="keyword">select</span> * <span class="keyword">from</span> student</span><br><span class="line"><span class="keyword">where</span> sname <span class="keyword">like</span> <span class="string">'%风%'</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="聚合函数、group-by和where的相爱相杀"><a href="#聚合函数、group-by和where的相爱相杀" class="headerlink" title="聚合函数、group by和where的相爱相杀"></a>聚合函数、group by和where的相爱相杀</h2><p>1.聚合函数sum/avg/count/max/min经常与好基友group by搭配使用</p>
-<p>2.在使用group by时，select后面只能放</p>
-<p>常数（如数字/字符/时间）<br>聚合函数<br>聚合键（也就是group by后面的列名）；<br>因此，在使用group by时，千万不要在select后面放聚合键以外的列名！</p>
-<p>3.where函数后面不能直接使用聚合函数！（考虑放在having后面/变成子查询放在where后面）</p>
-<p>3). 查询男生、女生人数【聚合函数】</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 3. 查询男生、女生人数</span></span><br><span class="line"><span class="keyword">select</span> ssex, <span class="keyword">count</span>(*) <span class="keyword">from</span> student</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> ssex;</span><br></pre></td></tr></table></figure>
-<p>4). 查询课程编号为02的总成绩【聚合函数】</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 4. 查询课程编号为02的总成绩</span></span><br><span class="line"><span class="keyword">select</span> cno, <span class="keyword">sum</span>(score) <span class="keyword">from</span> sc </span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> cno <span class="keyword">having</span> cno=<span class="string">'02'</span>;</span><br></pre></td></tr></table></figure>
-<p>5). 查询每门课程的平均成绩，结果按平均成绩降序排列，平均成绩相同时，按课程编号升序排列【聚合函数】</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 5. 查询每门课程的平均成绩，结果按平均成绩降序排列，平均成绩相同时，按课程编号升序排列</span></span><br><span class="line"><span class="keyword">select</span> cno, <span class="keyword">avg</span>(score) <span class="keyword">as</span> avg_score <span class="keyword">from</span> sc</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> cno</span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> avg_score <span class="keyword">desc</span>, cno;</span><br></pre></td></tr></table></figure>
-<p>6). 求每门课程的学生人数 【聚合函数】</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 6. 求每门课程的学生人数 </span></span><br><span class="line"><span class="keyword">select</span> cno, <span class="keyword">count</span>(sno) <span class="keyword">as</span> student_number</span><br><span class="line"><span class="keyword">from</span> sc <span class="keyword">group</span> <span class="keyword">by</span> cno;</span><br></pre></td></tr></table></figure>
-<p>7). 统计每门课程的学生选修人数（超过 5 人的课程才统计）【聚合函数】</p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 7. 统计每门课程的学生选修人数（超过 5 人的课程才统计）</span></span><br><span class="line"><span class="keyword">select</span> cno, <span class="keyword">count</span>(*) <span class="keyword">as</span> student_number </span><br><span class="line"><span class="keyword">from</span> sc <span class="keyword">group</span> <span class="keyword">by</span> cno <span class="keyword">having</span> <span class="keyword">count</span>(*)&gt;<span class="number">5</span></span><br><span class="line"><span class="keyword">order</span> <span class="keyword">by</span> student_number <span class="keyword">desc</span>, cno;</span><br></pre></td></tr></table></figure>
+<p>Table 关系图：</p>
+<p><img src="/images/dataware/sql-50-2.jpeg" width="750" alt=""></p>
+<ul>
+<li><a href="https://zhuanlan.zhihu.com/p/43289968" target="_blank" rel="external">SQL面试必会50题 - 知乎</a></li>
+</ul>
+<p><strong>建表 &amp; 准备数据：</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 建表</span></span><br><span class="line"><span class="comment">-- 学生表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`Student`</span>(</span><br><span class="line"><span class="string">`s_id`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line"><span class="string">`s_name`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span>,</span><br><span class="line"><span class="string">`s_birth`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span>,</span><br><span class="line"><span class="string">`s_sex`</span> <span class="built_in">VARCHAR</span>(<span class="number">10</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span>,</span><br><span class="line">PRIMARY <span class="keyword">KEY</span>(<span class="string">`s_id`</span>)</span><br><span class="line">);</span><br><span class="line"><span class="comment">-- 课程表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`Course`</span>(</span><br><span class="line"><span class="string">`c_id`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line"><span class="string">`c_name`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span>,</span><br><span class="line"><span class="string">`t_id`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">PRIMARY <span class="keyword">KEY</span>(<span class="string">`c_id`</span>)</span><br><span class="line">);</span><br><span class="line"><span class="comment">-- 教师表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`Teacher`</span>(</span><br><span class="line"><span class="string">`t_id`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line"><span class="string">`t_name`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">''</span>,</span><br><span class="line">PRIMARY <span class="keyword">KEY</span>(<span class="string">`t_id`</span>)</span><br><span class="line">);</span><br><span class="line"><span class="comment">-- 成绩表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`Score`</span>(</span><br><span class="line"><span class="string">`s_id`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line"><span class="string">`c_id`</span> <span class="built_in">VARCHAR</span>(<span class="number">20</span>),</span><br><span class="line"><span class="string">`s_score`</span> <span class="built_in">INT</span>(<span class="number">3</span>),</span><br><span class="line">PRIMARY <span class="keyword">KEY</span>(<span class="string">`s_id`</span>,<span class="string">`c_id`</span>)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">-- 插入学生表测试数据</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Student <span class="keyword">values</span>(<span class="string">'01'</span> , <span class="string">'赵雷'</span> , <span class="string">'1990-01-01'</span> , <span class="string">'男'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Student <span class="keyword">values</span>(<span class="string">'02'</span> , <span class="string">'钱电'</span> , <span class="string">'1990-12-21'</span> , <span class="string">'男'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Student <span class="keyword">values</span>(<span class="string">'03'</span> , <span class="string">'孙风'</span> , <span class="string">'1990-05-20'</span> , <span class="string">'男'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Student <span class="keyword">values</span>(<span class="string">'04'</span> , <span class="string">'李云'</span> , <span class="string">'1990-08-06'</span> , <span class="string">'男'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Student <span class="keyword">values</span>(<span class="string">'05'</span> , <span class="string">'周梅'</span> , <span class="string">'1991-12-01'</span> , <span class="string">'女'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Student <span class="keyword">values</span>(<span class="string">'06'</span> , <span class="string">'吴兰'</span> , <span class="string">'1992-03-01'</span> , <span class="string">'女'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Student <span class="keyword">values</span>(<span class="string">'07'</span> , <span class="string">'郑竹'</span> , <span class="string">'1989-07-01'</span> , <span class="string">'女'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Student <span class="keyword">values</span>(<span class="string">'08'</span> , <span class="string">'王菊'</span> , <span class="string">'1990-01-20'</span> , <span class="string">'女'</span>);</span><br><span class="line"><span class="comment">-- 课程表测试数据</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Course <span class="keyword">values</span>(<span class="string">'01'</span> , <span class="string">'语文'</span> , <span class="string">'02'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Course <span class="keyword">values</span>(<span class="string">'02'</span> , <span class="string">'数学'</span> , <span class="string">'01'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Course <span class="keyword">values</span>(<span class="string">'03'</span> , <span class="string">'英语'</span> , <span class="string">'03'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 教师表测试数据</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Teacher <span class="keyword">values</span>(<span class="string">'01'</span> , <span class="string">'张三'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Teacher <span class="keyword">values</span>(<span class="string">'02'</span> , <span class="string">'李四'</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Teacher <span class="keyword">values</span>(<span class="string">'03'</span> , <span class="string">'王五'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 成绩表测试数据</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'01'</span> , <span class="string">'01'</span> , <span class="number">80</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'01'</span> , <span class="string">'02'</span> , <span class="number">90</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'01'</span> , <span class="string">'03'</span> , <span class="number">99</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'02'</span> , <span class="string">'01'</span> , <span class="number">70</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'02'</span> , <span class="string">'02'</span> , <span class="number">60</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'02'</span> , <span class="string">'03'</span> , <span class="number">80</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'03'</span> , <span class="string">'01'</span> , <span class="number">80</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'03'</span> , <span class="string">'02'</span> , <span class="number">80</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'03'</span> , <span class="string">'03'</span> , <span class="number">80</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'04'</span> , <span class="string">'01'</span> , <span class="number">50</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'04'</span> , <span class="string">'02'</span> , <span class="number">30</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'04'</span> , <span class="string">'03'</span> , <span class="number">20</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'05'</span> , <span class="string">'01'</span> , <span class="number">76</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'05'</span> , <span class="string">'02'</span> , <span class="number">87</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'06'</span> , <span class="string">'01'</span> , <span class="number">31</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'06'</span> , <span class="string">'03'</span> , <span class="number">34</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'07'</span> , <span class="string">'02'</span> , <span class="number">89</span>);</span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> Score <span class="keyword">values</span>(<span class="string">'07'</span> , <span class="string">'03'</span> , <span class="number">98</span>);</span><br></pre></td></tr></table></figure>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://zhuanlan.zhihu.com/p/38354000" target="_blank" rel="external">常见的SQL面试题：经典50题 - 知乎</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/43289968" target="_blank" rel="external">SQL面试必会50题 - 知乎</a><br><br></li>
 <li><a href="https://www.bilibili.com/video/BV1q4411G7Lw/?spm_id_from=333.788.videocard.1" target="_blank" rel="external">bilibili【数据分析】- SQL面试50题 - 跟我一起打怪升级 一起成为数据科学家</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/103386372" target="_blank" rel="external">数据分析师成长之路</a><br><br></li>
 <li><a href="https://zhuanlan.zhihu.com/p/113173133" target="_blank" rel="external">【SQL】SQL面试50题 分类梳理与解答</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/118633494" target="_blank" rel="external">【Python】数据分析前的入门教程 Python For Everybody P1：零基础程序设计</a></li>
 </ul>
@@ -35,7 +357,7 @@
     
     <entry>
       <title><![CDATA[Spark 开发调优 1,2,3]]></title>
-      <url>http://shopee.ai/2020/08/05/spark/spark-aura-6.2-spark-opt/</url>
+      <url>http://shopee.ai/2020/08/05/spark/spark-aura-6.2-spark-dev-optimization-1-2-3/</url>
       <content type="html"><![CDATA[<p><img src="/images/spark/spark-aura-6.2-logo.png" width="550" alt=""></p>
 <a id="more"></a>
 <p>调优:</p>
@@ -66,7 +388,18 @@
 <p>如果是需要对一个文件进行多次的计算, 那么注意, 最好就 <strong>only read</strong> one time.</p>
 <p>RDD: <strong><code>不可变</code></strong>, 可分区的 弹性数据集</p>
 </blockquote>
-<h2 id="2-尽可能复用同一个RDD"><a href="#2-尽可能复用同一个RDD" class="headerlink" title="2. 尽可能复用同一个RDD"></a>2. 尽可能复用同一个RDD</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="2-尽可能复用同一个RDD"><a href="#2-尽可能复用同一个RDD" class="headerlink" title="2. 尽可能复用同一个RDD"></a>2. 尽可能复用同一个RDD</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">map(x =&gt; x+<span class="number">1</span>)</span><br><span class="line">map(x =&gt; x*<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">map(x =&gt; <span class="number">2</span> * (x+<span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="/images/spark/spark-aura-6.2.1.png" alt=""></p>
+<h2 id="3-对多次使用的RDD进行持久化"><a href="#3-对多次使用的RDD进行持久化" class="headerlink" title="3. 对多次使用的RDD进行持久化"></a>3. 对多次使用的RDD进行持久化</h2><figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">cache</span><br><span class="line">persist</span><br><span class="line">  </span><br><span class="line"><span class="keyword">val</span> rdd2 = rdd1.map.reduce</span><br><span class="line">rdd2.cache</span><br><span class="line">  </span><br><span class="line">rdd2.sort.map()</span><br><span class="line">rdd2.groupByKey</span><br><span class="line">  </span><br><span class="line">rdd1.map.reduce.sort.map()</span><br><span class="line">rdd1.map.reduce.groupByKey</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>程序运行过程中的 data 放置在 内存, 如程序运行 finish. 中间的数据会垃圾回收.</p>
+<p>如果在程序执行过程中, 生成了一些中间结果是另外一个程序需要使用的数据</p>
+<p>那么就可以把该 data persist 到内存中 或 磁盘中.</p>
+<p>另外一个程序就可以避免重复计算, 直接从磁盘或内存中进行读取.</p>
+<p>所以为了尽快的提交任务的执行效率, 尽量把重复利用的数据持久化到内存中.</p>
+</blockquote>
+<p><img src="/images/spark/spark-aura-6.2.2.png" alt=""></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://tech.meituan.com/2016/04/29/spark-tuning-basic.html" target="_blank" rel="external">Spark性能优化指南——基础篇</a></li>
 <li><a href="https://tech.meituan.com/2016/05/12/spark-tuning-pro.html" target="_blank" rel="external">Spark性能优化指南——高级篇</a></li>
 <li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="external">大数据资料笔记整理</a></li>
@@ -78,9 +411,28 @@
       <title><![CDATA[总结 20 道题搞定 leetcode - 二叉树]]></title>
       <url>http://shopee.ai/2020/08/03/leetcode/interview_binary_tree/</url>
       <content type="html"><![CDATA[<!--<img src="/images/icpc/BinaryTree-1.png" width="450" alt="" />-->
-<p><img src="/images/leetcode/binary_tree-1.jpg" width="600" alt=""></p>
+<p><img src="/images/leetcode/binary_tree-2.png" width="600" alt=""></p>
 <a id="more"></a>
-<h2 id="0-几个概念"><a href="#0-几个概念" class="headerlink" title="0. 几个概念"></a>0. 几个概念</h2><blockquote>
+<p><strong>easy：</strong></p>
+<blockquote>
+<ol>
+<li>递归： [求二叉树中的节点个数] ， f(root.lchild)+ f(root.rchild) + 1 ， <strong>✔️</strong></li>
+<li>递归： [求二叉树(最大深度)&amp;(最小深度)] ，max(max_depth(root.left), max_depth(root.right))+1</li>
+<li><p>递归： [求二叉树第K层的节点个数] ， f(root.left, k-1) + f(root.right, k-1) ， ✔️</p>
+</li>
+<li><p>递归： [求二叉树第K层的叶子节点个数] if(k==1 and root.left and root.right is null) return 1; ， ✔️</p>
+</li>
+<li>递归： [二叉树先序遍历/前序遍历]  (fIno(Node* root) { while(1) {if else}</li>
+<li>递归： [判断两棵二叉树是否结构相同] ， ✔️</li>
+<li>递归： [求二叉树的镜像（反转二叉树）] ， （左右递归交换）✔️ </li>
+<li>递归： [对称二叉树] （双函数，承接上题二叉树的镜像， good） ， ✔️</li>
+<li>递归： [求二叉树中两个节点的最低公共祖先节点 good] ， ✔️</li>
+<li>递归： [求二叉搜索树的最近公共祖先 good] ， ✔️</li>
+<li>递归： 根据前序和中序重建二叉树 ， ✔️</li>
+</ol>
+</blockquote>
+<p><strong>0. 几个概念</strong></p>
+<blockquote>
 <p>完全二叉树：若二叉树的高度是h，除第h层之外，其他（1h-1）层的节点数都达到了最大个数，并且第h层的节点都连续的集中在最左边。想到点什么没？实际上，完全二叉树和堆联系比较紧密哈</p>
 <p>满二叉树：除最后一层外，每一层上的所有节点都有两个子节点，最后一层都是叶子节点。</p>
 <p>哈夫曼树：给定n个权值作为n的叶子结点，构造一棵二叉树，若带权路径长度达到最小，称这样的二叉树为最优二叉树，也称为哈夫曼树(Huffman tree)。</p>
@@ -176,26 +528,76 @@
 <p>考虑通过递归对二叉树进行后序遍历，当遇到节点 p 或 q 时返回。<strong>从底至顶回溯</strong>，当节点 p, q 在节点 root 的异侧时，节点 root 即为最近公共祖先，则向上返回 root.</p>
 </blockquote>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">lowestCommonAncestor</span><span class="params">(root: TreeNode, p: TreeNode, q: TreeNode)</span>:</span></span><br><span class="line">    <span class="comment"># 当越过叶节点，则直接返回 null</span></span><br><span class="line">    <span class="comment"># 当 rootroot 等于 p, q， 则直接返回 root</span></span><br><span class="line">    <span class="keyword">if</span> root == <span class="keyword">None</span> <span class="keyword">or</span> root == p <span class="keyword">or</span> root == q:</span><br><span class="line">        <span class="keyword">return</span> root</span><br><span class="line">    </span><br><span class="line">    left = lowestCommonAncestor(root.left, p, q)</span><br><span class="line">    right = lowestCommonAncestor(root.right, p, q)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> left <span class="keyword">and</span> <span class="keyword">not</span> right: <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> left: <span class="keyword">return</span> right</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> right: <span class="keyword">return</span> left</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> root</span><br><span class="line">    <span class="comment">#if left != None and right != None:</span></span><br><span class="line">    <span class="comment">#    return root</span></span><br></pre></td></tr></table></figure>
-<h3 id="12-1-求二叉搜索树的最近公共祖先"><a href="#12-1-求二叉搜索树的最近公共祖先" class="headerlink" title="12.1 求二叉搜索树的最近公共祖先"></a>12.1 求二叉搜索树的最近公共祖先</h3><p>LeetCode：<a href="https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/description/" target="_blank" rel="external">Lowest Common Ancestor of a Binary Search Tree</a></p>
+<h3 id="12-1-求二叉搜索树的最近公共祖先"><a href="#12-1-求二叉搜索树的最近公共祖先" class="headerlink" title="12.1 求二叉搜索树的最近公共祖先"></a>12.1 求二叉搜索树的最近公共祖先</h3><p>LeetCode：<a href="https://leetcode-cn.com/problems/lowest-common-ancestor-of-a-binary-search-tree/description/" target="_blank" rel="external">Lowest Common Ancestor of a Binary Search Tree</a></p>
 <p>给定一个二叉搜索树, 找到该树中两个指定节点的最近公共祖先。</p>
 <p>百度百科中最近公共祖先的定义为：“对于有根树 T 的两个结点 p、q，最近公共祖先表示为一个结点 x，满足 x 是 p、q 的祖先且 x 的深度尽可能大（一个节点也可以是它自己的祖先）。”</p>
-<h2 id="13-求二叉树的直径"><a href="#13-求二叉树的直径" class="headerlink" title="13. 求二叉树的直径"></a>13. 求二叉树的直径</h2><p>LeetCode：Diameter of Binary Tree</p>
+<p><img src="/images/leetcode/binary-tree-7.png" width="550" alt=""></p>
+<p>笔记：p 和 q 其中的一个在 LCA 节点的左子树上，另一个在 LCA 节点的右子树上。</p>
+<p>也有可能是下面这种情况：</p>
+<p><img src="/images/leetcode/binary-tree-8.png" width="650" alt=""></p>
+<p>算法:</p>
+<ol>
+<li>从根节点开始遍历树</li>
+<li>如果节点 p 和节点 q 都在右子树上，那么以右孩子为根节点继续 1 的操作</li>
+<li>如果节点 p 和节点 q 都在左子树上，那么以左孩子为根节点继续 1 的操作</li>
+<li>如果条件 2 和条件 3 都不成立，这就意味着我们已经找到节 p 和节点 q 的 LCA 了</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">lowestCommonAncestor</span><span class="params">(self, root, p, q)</span>:</span></span><br><span class="line">        <span class="string">"""</span><br><span class="line">        :type root: TreeNode</span><br><span class="line">        :type p: TreeNode</span><br><span class="line">        :type q: TreeNode</span><br><span class="line">        :rtype: TreeNode</span><br><span class="line">        """</span></span><br><span class="line">        <span class="comment"># Value of current node or parent node.</span></span><br><span class="line">        parent_val = root.val</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Value of p</span></span><br><span class="line">        p_val = p.val</span><br><span class="line"></span><br><span class="line">        <span class="comment"># Value of q</span></span><br><span class="line">        q_val = q.val</span><br><span class="line"></span><br><span class="line">        <span class="comment"># If both p and q are greater than parent</span></span><br><span class="line">        <span class="keyword">if</span> p_val &gt; parent_val <span class="keyword">and</span> q_val &gt; parent_val:    </span><br><span class="line">            <span class="keyword">return</span> self.lowestCommonAncestor(root.right, p, q)</span><br><span class="line">        <span class="comment"># If both p and q are lesser than parent</span></span><br><span class="line">        <span class="keyword">elif</span> p_val &lt; parent_val <span class="keyword">and</span> q_val &lt; parent_val:    </span><br><span class="line">            <span class="keyword">return</span> self.lowestCommonAncestor(root.left, p, q)</span><br><span class="line">        <span class="comment"># We have found the split point, i.e. the LCA node.</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">return</span> root</span><br></pre></td></tr></table></figure>
+<h2 id="13-求二叉树的直径"><a href="#13-求二叉树的直径" class="headerlink" title="13. 求二叉树的直径"></a>13. 求二叉树的直径</h2><p>LeetCode：<a href="https://leetcode-cn.com/problems/diameter-of-binary-tree/solution/er-cha-shu-de-zhi-jing-by-leetcode-solution/" target="_blank" rel="external">Diameter of Binary Tree</a></p>
 <p>给定一棵二叉树，你需要计算它的直径长度。一棵二叉树的直径长度是任意两个结点路径长度中的最大值。这条路径可能穿过根结点。</p>
 <p>递归解法：对于每个节点，它的最长路径等于左子树的最长路径+右子树的最长路径</p>
-<h2 id="14-由前序遍历序列和中序遍历序列重建二叉树"><a href="#14-由前序遍历序列和中序遍历序列重建二叉树" class="headerlink" title="14. 由前序遍历序列和中序遍历序列重建二叉树"></a>14. 由前序遍历序列和中序遍历序列重建二叉树</h2><p>前序遍历 preorder = [3,9,20,15,7]<br>中序遍历 inorder = [9,3,15,20,7]</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">diameterOfBinaryTree</span><span class="params">(root)</span>:</span></span><br><span class="line">    ans = <span class="number">1</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">depth</span><span class="params">(node)</span>:</span></span><br><span class="line">        <span class="comment"># 访问到空节点了，返回0</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> node: <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">        <span class="comment"># 左儿子为根的子树的深度</span></span><br><span class="line">        L = depth(node.left)</span><br><span class="line">        <span class="comment"># 右儿子为根的子树的深度</span></span><br><span class="line">        R = depth(node.right)</span><br><span class="line">        <span class="comment"># 计算d_node即L+R+1 并更新ans</span></span><br><span class="line">        ans = max(ans, L+R+<span class="number">1</span>)</span><br><span class="line">        <span class="comment"># 返回该节点为根的子树的深度</span></span><br><span class="line">        <span class="keyword">return</span> max(L, R) + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    depth(root)</span><br><span class="line">    <span class="keyword">return</span> ans - <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h2 id="14-由前序遍历序列和中序遍历序列重建二叉树"><a href="#14-由前序遍历序列和中序遍历序列重建二叉树" class="headerlink" title="14. 由前序遍历序列和中序遍历序列重建二叉树"></a>14. 由前序遍历序列和中序遍历序列重建二叉树</h2><p>剑指offer：重建二叉树</p>
+<p>LeetCode：<a href="https://weiweiblog.cn/20tree/" target="_blank" rel="external">Construct Binary Tree from Preorder and Inorder Traversal</a></p>
+<p>如何遍历树, 遍历树有两种通用策略：</p>
+<ol>
+<li>深度优先遍历（DFS）</li>
+<li>广度优先遍历（BFS）</li>
+</ol>
+<p>按照高度顺序，从上往下逐层遍历节点。 先遍历上层节点再遍历下层节点。</p>
+<p>下图中按照不同的方法遍历对应子树，得到的序列都是 1-2-3-4-5。根据不同子树结构比较不同遍历方法的特点。</p>
+<p><img src="/images/leetcode/interview-bfs_dfs.pngg" width="550" alt=""></p>
+<p>LeetCode：<a href="https://leetcode-cn.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/description/" target="_blank" rel="external">从中序与后序遍历序列构造二叉树</a></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">buildTree</span><span class="params">(self, inorder: List[int], postorder: List[int])</span> -&gt; TreeNode:</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">helper</span><span class="params">(in_left, in_right)</span>:</span></span><br><span class="line">            <span class="comment"># if there is no elements to construct subtrees</span></span><br><span class="line">            <span class="keyword">if</span> in_left &gt; in_right:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment"># pick up the last element as a root</span></span><br><span class="line">            val = postorder.pop()</span><br><span class="line">            root = TreeNode(val)</span><br><span class="line"></span><br><span class="line">            <span class="comment"># root splits inorder list</span></span><br><span class="line">            <span class="comment"># into left and right subtrees</span></span><br><span class="line">            index = idx_map[val]</span><br><span class="line"> </span><br><span class="line">            <span class="comment"># build right subtree</span></span><br><span class="line">            root.right = helper(index + <span class="number">1</span>, in_right)</span><br><span class="line">            <span class="comment"># build left subtree</span></span><br><span class="line">            root.left = helper(in_left, index - <span class="number">1</span>)</span><br><span class="line">            <span class="keyword">return</span> root</span><br><span class="line">        </span><br><span class="line">        <span class="comment"># build a hashmap value -&gt; its index</span></span><br><span class="line">        idx_map = &#123;val:idx <span class="keyword">for</span> idx, val <span class="keyword">in</span> enumerate(inorder)&#125; </span><br><span class="line">        <span class="keyword">return</span> helper(<span class="number">0</span>, len(inorder) - <span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>前序遍历 preorder = [3,9,20,15,7]<br>中序遍历 inorder = [9,3,15,20,7]</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">buildTree</span><span class="params">(self, preorder, inorder)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> (preorder <span class="keyword">and</span> inorder):</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">    <span class="comment"># 根据前序数组的第一个元素，就可以确定根节点	</span></span><br><span class="line">    root = TreeNode(preorder[<span class="number">0</span>])</span><br><span class="line">    <span class="comment"># 用preorder[0]去中序数组中查找对应的元素</span></span><br><span class="line">    mid_idx = inorder.index(preorder[<span class="number">0</span>])</span><br><span class="line">    <span class="comment"># 递归的处理前序数组的左边部分和中序数组的左边部分</span></span><br><span class="line">    <span class="comment"># 递归处理前序数组右边部分和中序数组右边部分</span></span><br><span class="line">    root.left = self.buildTree(preorder[<span class="number">1</span>:mid_idx+<span class="number">1</span>],inorder[:mid_idx])</span><br><span class="line">    root.right = self.buildTree(preorder[mid_idx+<span class="number">1</span>:],inorder[mid_idx+<span class="number">1</span>:])</span><br><span class="line">    <span class="keyword">return</span> root</span><br></pre></td></tr></table></figure>
 <h2 id="15-判断二叉树是不是完全二叉树"><a href="#15-判断二叉树是不是完全二叉树" class="headerlink" title="15. 判断二叉树是不是完全二叉树"></a>15. 判断二叉树是不是完全二叉树</h2><p>完全二叉树是指最后一层左边是满的，右边可能慢也不能不满，然后其余层都是满的，根据这个特性，利用层遍历。如果我们当前遍历到了NULL结点，如果后续还有非NULL结点，说明是非完全二叉树</p>
-<h2 id="16-树的子结构"><a href="#16-树的子结构" class="headerlink" title="16. 树的子结构"></a>16. 树的子结构</h2><p>输入两棵二叉树A，B，判断B是不是A的子结构。</p>
-<h2 id="17-二叉树中和为某一值的路径"><a href="#17-二叉树中和为某一值的路径" class="headerlink" title="17. 二叉树中和为某一值的路径"></a>17. 二叉树中和为某一值的路径</h2><p>剑指offer：二叉树中和为某一值的路径</p>
-<p>输入一颗二叉树和一个整数，打印出二叉树中结点值的和为输入整数的所有路径。路径定义为从树的根结点开始往下一直到叶结点所经过的结点形成一条路径。</p>
-<h2 id="18-二叉树的下一个结点"><a href="#18-二叉树的下一个结点" class="headerlink" title="18. 二叉树的下一个结点"></a>18. 二叉树的下一个结点</h2><p>剑指offer：二叉树的下一个结点</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># from collections import deque</span></span><br><span class="line"><span class="comment"># queue = deque(), queue.pop(), queue.popleft(), queue.append, queue.appendleft</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Node</span><span class="params">(object)</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self,val=None)</span>:</span></span><br><span class="line">        self.val = val</span><br><span class="line">        self.left = <span class="keyword">None</span></span><br><span class="line">        self.right = <span class="keyword">None</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check_tree</span><span class="params">(Node root)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> root == <span class="keyword">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line"></span><br><span class="line">    queue = deque()</span><br><span class="line">    queue.append(root)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> (<span class="keyword">not</span> queue):</span><br><span class="line">        node = queue.popleft()</span><br><span class="line">        <span class="keyword">if</span> node <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">            falg = <span class="keyword">True</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">if</span> flag <span class="keyword">is</span> <span class="keyword">True</span>:</span><br><span class="line">                retrun <span class="keyword">False</span></span><br><span class="line">            queue.append(node.left)</span><br><span class="line">            queue.append(node.right)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">True</span></span><br></pre></td></tr></table></figure>
+<h2 id="16-树的子结构"><a href="#16-树的子结构" class="headerlink" title="16. 树的子结构"></a>16. 树的子结构</h2><p>剑指offer：<a href="https://leetcode-cn.com/problems/shu-de-zi-jie-gou-lcof/" target="_blank" rel="external">树的子结构</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">给定的树 A:</span><br><span class="line"></span><br><span class="line">     3</span><br><span class="line">    / \</span><br><span class="line">   4   5</span><br><span class="line">  / \</span><br><span class="line"> 1   2</span><br><span class="line">给定的树 B：</span><br><span class="line"></span><br><span class="line">   4 </span><br><span class="line">  /</span><br><span class="line"> 1</span><br><span class="line">返回 true，因为 B 与 A 的一个子树拥有相同的结构和节点值。</span><br><span class="line"></span><br><span class="line">输入：A = [3,4,5,1,2], B = [4,1]</span><br><span class="line">输出：true</span><br></pre></td></tr></table></figure>
+<p><a href="https://leetcode-cn.com/problems/shu-de-zi-jie-gou-lcof/solution/mian-shi-ti-26-shu-de-zi-jie-gou-xian-xu-bian-li-p/" target="_blank" rel="external">树的子结构:</a></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"># class TreeNode:</span></span><br><span class="line"><span class="comment">#     def __init__(self, x):</span></span><br><span class="line"><span class="comment">#         self.val = x</span></span><br><span class="line"><span class="comment">#         self.left = None</span></span><br><span class="line"><span class="comment">#         self.right = None</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">recur</span><span class="params">(A, root2)</span>:</span></span><br><span class="line">    <span class="keyword">if</span> root2 <span class="keyword">is</span> <span class="keyword">None</span>: </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">True</span></span><br><span class="line">    <span class="keyword">if</span> root1 <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">or</span> root1.val != root2.val: </span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">    <span class="keyword">return</span> recur(root1.left, root2.left) <span class="keyword">and</span> recur(root1.right, root2.right)</span><br><span class="line">            </span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">isSubStructure</span><span class="params">(root1: TreeNode, root2: TreeNode)</span> -&gt; bool:</span></span><br><span class="line">    <span class="keyword">if</span> root1 <span class="keyword">is</span> <span class="keyword">None</span> <span class="keyword">or</span> root2 <span class="keyword">is</span> <span class="keyword">None</span>:</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">False</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">return</span> IsSubtree(root1, root2) <span class="keyword">or</span></span><br><span class="line">           HasSubtree(root1.left, root2) <span class="keyword">or</span></span><br><span class="line">           HasSubtree(root1.right, root2)</span><br></pre></td></tr></table></figure>
+<p>输入两棵二叉树A，B，判断B是不是A的子结构。</p>
+<h2 id="17-二叉树中和为某一值的路径-递归dfs先根遍历"><a href="#17-二叉树中和为某一值的路径-递归dfs先根遍历" class="headerlink" title="17. 二叉树中和为某一值的路径 (递归dfs先根遍历)"></a>17. 二叉树中和为某一值的路径 (递归dfs先根遍历)</h2><p>剑指offer：<a href="https://leetcode-cn.com/problems/er-cha-shu-zhong-he-wei-mou-yi-zhi-de-lu-jing-lcof/solution/mian-shi-ti-34-er-cha-shu-zhong-he-wei-mou-yi-zh-5/" target="_blank" rel="external">二叉树中和为某一值的路径</a></p>
+<p><img src="/images/leetcode/binary-tree-17.png" width="650" alt=""></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">pathSum</span><span class="params">(self, root: TreeNode, sum: int)</span> -&gt; List[List[int]]:</span></span><br><span class="line">        res, path = [], []</span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">recur</span><span class="params">(root, tar)</span>:</span></span><br><span class="line">            <span class="keyword">if</span> <span class="keyword">not</span> root: <span class="keyword">return</span></span><br><span class="line">            path.append(root.val)</span><br><span class="line">            tar -= root.val</span><br><span class="line">            <span class="keyword">if</span> tar == <span class="number">0</span> <span class="keyword">and</span> <span class="keyword">not</span> root.left <span class="keyword">and</span> <span class="keyword">not</span> root.right:</span><br><span class="line">                res.append(list(path))</span><br><span class="line">            recur(root.left, tar)</span><br><span class="line">            recur(root.right, tar)</span><br><span class="line">            path.pop()</span><br><span class="line"></span><br><span class="line">        recur(root, sum)</span><br><span class="line">        <span class="keyword">return</span> res</span><br></pre></td></tr></table></figure>
+<h2 id="18-二叉树的下一个节点"><a href="#18-二叉树的下一个节点" class="headerlink" title="18. 二叉树的下一个节点"></a>18. 二叉树的下一个节点</h2><p>剑指offer：二叉树的下一个节点</p>
+<blockquote>
 <p>给定一个二叉树和其中的一个结点，请找出中序遍历顺序的下一个结点并且返回。注意，树中的结点不仅包含左右子结点，同时包含指向父结点的指针。</p>
-<h2 id="19-序列化二叉树"><a href="#19-序列化二叉树" class="headerlink" title="19. 序列化二叉树"></a>19. 序列化二叉树</h2><p>剑指offer：序列化二叉树</p>
-<p>LeetCode：Serialize and Deserialize Binary Tree</p>
+</blockquote>
+<p><img src="/images/leetcode/binary-tree-18.png" width="550" alt=""></p>
+<p><strong>解题思路 ：</strong> 中序遍历：左 -&gt; 根 -&gt; 右</p>
+<p>分3种情况：</p>
+<ul>
+<li>(1) 如果当前节点为空，直接返回空；</li>
+<li>(2) 如果当前节点有右子树，则返回右子树的最左子树</li>
+<li>(3) 如果当前节点没有右子树，再分两种情况：</li>
+</ul>
+<blockquote>
+<p>  (3.1) 看看当前节点是它的父节点的左子树，如果是，则返回它的父节点；  </p>
+<p>  (3.2) <strong>如果当前节点不是它的父节点的左子树，则把父节点赋给当前节点，再判断当前节点是不是它的父节点的左子树，直到当前节点是它的父节点的左子树，返回它的父节点。</strong> <code>H 节点，是一个例子</code></p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="comment"># class TreeLinkNode:</span></span><br><span class="line"><span class="comment">#     def __init__(self, x):</span></span><br><span class="line"><span class="comment">#         self.val = x</span></span><br><span class="line"><span class="comment">#         self.left = None</span></span><br><span class="line"><span class="comment">#         self.right = None</span></span><br><span class="line"><span class="comment">#         self.next = None</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">GetNext</span><span class="params">(self, pNode)</span>:</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> pNode: <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">        <span class="keyword">if</span> pNode.right:</span><br><span class="line">            pNode = pNode.right</span><br><span class="line">            <span class="keyword">while</span> pNode.left:</span><br><span class="line">                pNode = pNode.left</span><br><span class="line">            <span class="keyword">return</span> pNode</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="keyword">while</span> pNode.next:</span><br><span class="line">                <span class="keyword">if</span> pNode == pNode.next.left:</span><br><span class="line">                    <span class="keyword">return</span> pNode.next</span><br><span class="line">                pNode = pNode.next</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">None</span></span><br></pre></td></tr></table></figure>
+<h2 id="19-序列化二叉树"><a href="#19-序列化二叉树" class="headerlink" title="19. 序列化二叉树"></a>19. 序列化二叉树</h2><p>剑指offer：<a href="https://leetcode-cn.com/problems/serialize-and-deserialize-binary-tree/solution/ceng-xu-bian-li-by-tinylife/" target="_blank" rel="external">序列化二叉树</a></p>
+<p>LeetCode：<a href="https://leetcode.com/problems/serialize-and-deserialize-binary-tree/description/" target="_blank" rel="external">Serialize and Deserialize Binary Tree</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">你可以将以下二叉树：</span><br><span class="line"></span><br><span class="line">    1</span><br><span class="line">   / \</span><br><span class="line">  2   3</span><br><span class="line">     / \</span><br><span class="line">    4   5</span><br><span class="line"></span><br><span class="line">序列化为 &quot;[1,2,3,null,null,4,5]&quot;</span><br><span class="line"></span><br><span class="line">      1</span><br><span class="line">    /    \</span><br><span class="line">   2      3</span><br><span class="line">  / \    / \</span><br><span class="line">nul nul 4  nul</span><br><span class="line">       / \</span><br><span class="line">     nul nul</span><br></pre></td></tr></table></figure>
 <p>请实现两个函数，分别用来序列化和反序列化二叉树</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Codec</span>:</span></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">serialize</span><span class="params">(self, root)</span>:</span></span><br><span class="line">        <span class="string">"""Encodes a tree to a single string.</span><br><span class="line">        </span><br><span class="line">        :type root: TreeNode</span><br><span class="line">        :rtype: str</span><br><span class="line">        """</span></span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">not</span> root: <span class="keyword">return</span> <span class="string">"[]"</span></span><br><span class="line">        queue = collections.deque()</span><br><span class="line">        queue.append(root)</span><br><span class="line">        res = []</span><br><span class="line">        <span class="keyword">while</span> queue:</span><br><span class="line">            node = queue.popleft()</span><br><span class="line">            <span class="keyword">if</span> node:</span><br><span class="line">                res.append(str(node.val))</span><br><span class="line">                queue.append(node.left)</span><br><span class="line">                queue.append(node.right)</span><br><span class="line">            <span class="keyword">else</span>: res.append(<span class="string">"null"</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="string">'['</span> + <span class="string">','</span>.join(res) + <span class="string">']'</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">deserialize</span><span class="params">(self, data)</span>:</span></span><br><span class="line">        <span class="string">"""Decodes your encoded data to tree.</span><br><span class="line">        </span><br><span class="line">        :type data: str</span><br><span class="line">        :rtype: TreeNode</span><br><span class="line">        """</span></span><br><span class="line">        <span class="keyword">if</span> data==<span class="string">'[]'</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">None</span></span><br><span class="line">        vals, i = data[<span class="number">1</span>:<span class="number">-1</span>].split(<span class="string">','</span>), <span class="number">1</span></span><br><span class="line">        root = TreeNode(int(vals[<span class="number">0</span>]))</span><br><span class="line">        queue = collections.deque()</span><br><span class="line">        queue.append(root)</span><br><span class="line">        <span class="keyword">while</span> queue:</span><br><span class="line">            node = queue.popleft()</span><br><span class="line">            <span class="keyword">if</span> vals[i] != <span class="string">"null"</span>:</span><br><span class="line">                node.left = TreeNode(int(vals[i]))</span><br><span class="line">                queue.append(node.left)</span><br><span class="line">            i += <span class="number">1</span></span><br><span class="line">            <span class="keyword">if</span> vals[i] != <span class="string">"null"</span>:</span><br><span class="line">                node.right = TreeNode(int(vals[i]))</span><br><span class="line">                queue.append(node.right)</span><br><span class="line">            i += <span class="number">1</span></span><br><span class="line">        <span class="keyword">return</span> root</span><br></pre></td></tr></table></figure>
 <h2 id="20-二叉搜索树的第k个结点"><a href="#20-二叉搜索树的第k个结点" class="headerlink" title="20. 二叉搜索树的第k个结点"></a>20. 二叉搜索树的第k个结点</h2><p>剑指offer：二叉搜索树的第k个结点</p>
 <p>给定一棵二叉搜索树，请找出其中的第k小的结点。例如， （5，3，7，2，4，6，8）中，按结点数值大小顺序第三小结点的值为4。</p>
 <p>因为二叉搜索树按照中序遍历的顺序打印出来就是排好序的，所以，我们按照中序遍历找到第k个结点就是题目所求的结点。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">kthSmallest</span><span class="params">(TreeNode root, <span class="keyword">int</span> k)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(root == <span class="keyword">null</span>)</span><br><span class="line">             <span class="keyword">return</span> Integer.MIN_VALUE;</span><br><span class="line">        Stack&amp;lt;TreeNode&amp;gt; stack = <span class="keyword">new</span> Stack&amp;lt;&amp;gt;();</span><br><span class="line">        <span class="keyword">int</span> count = <span class="number">0</span>;</span><br><span class="line">        TreeNode p = root;</span><br><span class="line">        <span class="keyword">while</span>(p != <span class="keyword">null</span> || !stack.isEmpty())&#123;</span><br><span class="line">            <span class="keyword">if</span>(p != <span class="keyword">null</span>)&#123;</span><br><span class="line">                stack.push(p);</span><br><span class="line">                p = p.left;</span><br><span class="line">            &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">                TreeNode node = stack.pop();</span><br><span class="line">                count ++;</span><br><span class="line">                <span class="keyword">if</span>(count == k)</span><br><span class="line">                    <span class="keyword">return</span> node.val;</span><br><span class="line">                p = node.right;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Integer.MIN_VALUE;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://blog.csdn.net/fuxuemingzhu" target="_blank" rel="external">负雪明烛</a></li>
 <li><p><a href="https://blog.csdn.net/fuxuemingzhu/article/details/101900729" target="_blank" rel="external">【LeetCode】代码模板，刷题必会</a></p>
@@ -20318,105 +20720,6 @@ img {
     </entry>
     
     <entry>
-      <title><![CDATA[Elasticsearch installation plugins]]></title>
-      <url>http://shopee.ai/2016/05/17/elasticsearch/es-install-plugins/</url>
-      <content type="html"><![CDATA[<p> Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
-<a id="more"></a>
-<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
-<p><strong>Install es</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Config es</strong></p>
-<p>$ES_HOME/config/elasticsearch.yml</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
-<p><strong>Startup</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>运行之后，会产生 data 和 logs 目录</p>
-</blockquote>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
-<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
-<p>ES-Head的主要作用</p>
-<ul>
-<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
-<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
-<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
-</ul>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
-<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
-<hr>
-<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
-<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
-<p><strong>Install-Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
-<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
-<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
-<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
-<blockquote>
-<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
-<p>service log 在 logs/service.log 中。</p>
-<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
-<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
-</blockquote>
-<hr>
-<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
-<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
-<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
-<p><strong>Install-Verify</strong></p>
-<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
-<p><strong>Config http-basic param</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
-<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
-<p><strong>./bin/plugin –list</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
-<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
-<p><strong>install</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
-<p>download and add mysql-driver</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
-<p>停止river</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
-<p><strong>Verify</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
-<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
-<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p><strong>XPUT data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p><strong>XGET data</strong></p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
-<p>output</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
-<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
-<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
-<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
-<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
-<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
-<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
-<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
-</ol>
-]]></content>
-    </entry>
-    
-    <entry>
       <title><![CDATA[Elasticsearch * 入门]]></title>
       <url>http://shopee.ai/2016/05/17/elasticsearch/es-indoor/</url>
       <content type="html"><![CDATA[<p>Elasticsearch 是一个基于Apache Lucene(TM)的开源搜索引擎 、 实时分布式搜索 和 分析引擎。</p>
@@ -20568,6 +20871,105 @@ img {
 <li>将集群中任意一个节点上的请求路由到相应数据所在的节点。</li>
 <li>无论是增加节点，还是移除节点，分片都可以做到无缝的扩展和迁移。</li>
 </ul>
+]]></content>
+    </entry>
+    
+    <entry>
+      <title><![CDATA[Elasticsearch installation plugins]]></title>
+      <url>http://shopee.ai/2016/05/17/elasticsearch/es-install-plugins/</url>
+      <content type="html"><![CDATA[<p> Elasticsearch 扩展性非常好，有很多官方和第三方开发的插件</p>
+<a id="more"></a>
+<h2 id="1-Elasticsearch-Install"><a href="#1-Elasticsearch-Install" class="headerlink" title="1. Elasticsearch-Install"></a>1. Elasticsearch-Install</h2><p>官网 : <a href="https://www.elastic.co/" target="_blank" rel="external">https://www.elastic.co/</a></p>
+<p><strong>Install es</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">download elasticsearch-1.7.5.tar.gz</span><br><span class="line">cd usr/local/mySoft/deploy</span><br><span class="line">tar -xvf elasticsearch-1.7.5.tar.gz</span><br><span class="line">ln -s /usr/local/mySoft/deploy/elasticsearch-1.7.5/ elasticsearch</span><br><span class="line"></span><br><span class="line">------</span><br><span class="line"></span><br><span class="line">vim ~/.zshrc</span><br><span class="line">export ES_HOME=/usr/local/xSoft/elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Config es</strong></p>
+<p>$ES_HOME/config/elasticsearch.yml</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">cluster.name: elasticsearch_x</span><br><span class="line">node.name=test-node1</span><br></pre></td></tr></table></figure>
+<p><strong>Startup</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./bin/elasticsearch</span><br><span class="line"></span><br><span class="line">./bin/elasticsearch -d -Xms512m -Xmx512m</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>运行之后，会产生 data 和 logs 目录</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ll</span><br><span class="line">total 28</span><br><span class="line">-rw-r--r--  1 hp staff 11358 Feb  2 17:24 LICENSE.txt</span><br><span class="line">-rw-r--r--  1 hp staff   150 Feb  2 17:24 NOTICE.txt</span><br><span class="line">-rw-r--r--  1 hp staff  8700 Feb  2 17:24 README.textile</span><br><span class="line">drwxr-xr-x 14 hp staff   476 May 26 15:42 bin/</span><br><span class="line">drwxr-xr-x  4 hp staff   136 May 27 11:03 config/</span><br><span class="line">drwxr-xr-x  3 hp staff   102 May 26 11:01 data/</span><br><span class="line">drwxr-xr-x 26 hp staff   884 May 26 09:58 lib/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 09:58 logs/</span><br><span class="line">drwxr-xr-x  7 hp staff   238 May 27 10:48 plugins/</span><br><span class="line">➜  elasticsearch</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<p>open <a href="http://ip:9200/" target="_blank" rel="external">http://ip:9200/</a></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"status"</span> : <span class="number">200</span>,</span><br><span class="line">  <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"version"</span> : &#123;</span><br><span class="line">    <span class="attr">"number"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">    <span class="attr">"build_hash"</span> : <span class="string">"00f95f4ffca6de89d68b7ccaf80d148f1f70e4d4"</span>,</span><br><span class="line">    <span class="attr">"build_timestamp"</span> : <span class="string">"2016-02-02T09:55:30Z"</span>,</span><br><span class="line">    <span class="attr">"build_snapshot"</span> : <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">"lucene_version"</span> : <span class="string">"4.10.4"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"tagline"</span> : <span class="string">"You Know, for Search"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-Elasticsearch-Head"><a href="#2-Elasticsearch-Head" class="headerlink" title="2. Elasticsearch-Head"></a>2. Elasticsearch-Head</h2><p>ElasticSearch-Head 是一个与Elastic集群（Cluster）相交互的 Web 前台。</p>
+<p><img src="/images/elastic/es-header.png" alt="header.png"></p>
+<p>ES-Head的主要作用</p>
+<ul>
+<li>它展现ES集群的拓扑结构，并且可以通过它来进行索引（Index）和节点（Node）级别的操作</li>
+<li>它提供一组针对集群的查询API，并将结果以json和表格形式返回</li>
+<li>它提供一些快捷菜单，用以展现集群的各种状态</li>
+</ul>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">elasticsearch/bin/plugin install mobz/elasticsearch-head</span><br><span class="line">open ip:9200/_plugin/head/</span><br><span class="line">open ip:9200/_cluster/health?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="3-Elasticsearch-Kopf"><a href="#3-Elasticsearch-Kopf" class="headerlink" title="3. Elasticsearch-Kopf"></a>3. Elasticsearch-Kopf</h2><p>Kopf是一个ElasticSearch的管理工具，它也提供了对ES集群操作的API。</p>
+<p><img src="/images/elastic/es-kopf.png" alt="613455-20160224102628443-1084839027.png"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./elasticsearch/bin/plugin install lmenezes/elasticsearch-kopf/&#123;branch|version&#125;</span><br><span class="line">open http://localhost:9200/_plugin/kopf</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="4-Elasticsearch-bigdesk"><a href="#4-Elasticsearch-bigdesk" class="headerlink" title="4. Elasticsearch-bigdesk"></a>4. Elasticsearch-bigdesk</h2><p>Bigdesk为Elastic集群提供动态的图表与统计数据。</p>
+<p><img src="/images/elastic/es-bigdesk.jpeg" alt="613455-20160224102646365-1432943551.jpg"></p>
+<p><strong>Install-Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">bin/plugin -install lukas-vlcek/bigdesk</span><br><span class="line">删除bin/plugin --remove bigdesk</span><br><span class="line">open ip:9200/_plugin/bigdesk</span><br><span class="line">open ip:9200/_cluster/state?pretty</span><br></pre></td></tr></table></figure>
+<h2 id="5-Elasticsearch-service"><a href="#5-Elasticsearch-service" class="headerlink" title="5. Elasticsearch-service"></a>5. Elasticsearch-service</h2><p>elasticsearch 作为一个系统service应用 ，可以安装elasticsearch-servicewrapper插件</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">github-es-service</a></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">git clone https://github.com/elasticsearch/elasticsearch-servicewrapper</span><br><span class="line"></span><br><span class="line">下载该插件后，解压缩。将service目录拷贝到elasticsearch安装目录的bin目录下。</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  service ll</span><br><span class="line">total 76</span><br><span class="line">-rwxr-xr-x  1 hp staff 55710 May 26 15:42 elasticsearch*</span><br><span class="line">-rw-r--r--  1 hp staff  2610 May 26 15:42 elasticsearch.bat</span><br><span class="line">-rw-r--r--  1 hp staff  4754 May 26 15:42 elasticsearch.conf</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch32*</span><br><span class="line">-rwxr-xr-x  1 hp staff    64 May 26 15:42 elasticsearch64*</span><br><span class="line">drwxr-xr-x 16 hp staff   544 May 26 15:42 exec/</span><br><span class="line">drwxr-xr-x 17 hp staff   578 May 26 15:42 lib/</span><br><span class="line">➜  service</span><br></pre></td></tr></table></figure>
+<p>运行这个插件的好处是：elasticsearch 需要的jvm参数和其它配置都已经配置好了，非常方便。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sh elasticsearch start;</span><br><span class="line">sh elasticsearch restart;</span><br><span class="line">sh elasticsearch stop;</span><br></pre></td></tr></table></figure>
+<p>在实际生产环境中，该插件基本把参数都配置好了。我们只需要修改一下jvm分配的内存空间就好了，如 :</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">set.default.ES_HEAP_SIZE=16384</span><br><span class="line">set.default.ES_MIN_MEM=16384</span><br><span class="line">set.default.ES_MAX_MEM=19660</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>第一次运行 elaticsearch 会产生 data-dir 与 log-dir</p>
+<p>service log 在 logs/service.log 中。</p>
+<p><a href="https://github.com/elastic/elasticsearch-servicewrapper" target="_blank" rel="external">more_info-service</a></p>
+<p>Mac OS X Mountain Lion missing 32-bit Java<br>apple 6 maybe could</p>
+</blockquote>
+<hr>
+<h2 id="6-Http-basic-server-plugin"><a href="#6-Http-basic-server-plugin" class="headerlink" title="6. Http-basic-server-plugin"></a>6. Http-basic-server-plugin</h2><p>不要裸奔，穿一套比基尼吧。</p>
+<p>做一个简单的HTTP认证，elasticsearch-http-basic 提供了针对 ES HTTP 连接 的 IP白名单、密码权限 和  信任代理功能。</p>
+<p>github :<br><a href="https://github.com/Asquera/elasticsearch-http-basic" target="_blank" rel="external">Asquera_http_basic</a></p>
+<p><strong>Install-Verify</strong></p>
+<p>elasticsearch-http-basic还不支持ES标准的bin/plugin install [github-name]/[repo-name]的安装方式, 所以按照如下方式安装</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">mkdir -p plugins/http-basic; </span><br><span class="line">mv elasticsearch-http-basic-1.5.1.jar plugins/http-basic</span><br></pre></td></tr></table></figure>
+<p><strong>Config http-basic param</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">http.basic.enabled: true</span><br><span class="line">http.basic.user: &quot;admin&quot;</span><br><span class="line">http.basic.password: &quot;admin&quot;</span><br><span class="line">http.basic.ipwhitelist: [&quot;localhost&quot;, &quot;127.0.0.1&quot;]</span><br><span class="line">http.basic.trusted_proxy_chains: []</span><br><span class="line">http.basic.log: true</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h2 id="7-Elasticsearch-sql"><a href="#7-Elasticsearch-sql" class="headerlink" title="7. Elasticsearch-sql"></a>7. Elasticsearch-sql</h2><p><img src="/images/elastic/es-sql.jpeg" alt="图片描述"></p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_plugin/sql/</span><br></pre></td></tr></table></figure>
+<p><strong>./bin/plugin –list</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">➜  elasticsearch ./bin/plugin --list</span><br><span class="line">Installed plugins:</span><br><span class="line">    - bigdesk</span><br><span class="line">    - head</span><br><span class="line">    - http-basic</span><br><span class="line">    - jdbc</span><br><span class="line">    - kopf</span><br><span class="line">    - license</span><br><span class="line">    - shield</span><br><span class="line">    - sql</span><br></pre></td></tr></table></figure>
+<h2 id="8-Elasticsearch-jdbc"><a href="#8-Elasticsearch-jdbc" class="headerlink" title="8. Elasticsearch-jdbc"></a>8. Elasticsearch-jdbc</h2><p>关系型数据库的同步插件</p>
+<p><strong>install</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./plugin --install jdbc --url http://xbib.org/repository/org/xbib/elasticsearch/plugin/elasticsearch-river-jdbc/1.5.0.5/elasticsearch-river-jdbc-1.5.0.5-plugin.zip</span><br></pre></td></tr></table></figure>
+<p>download and add mysql-driver</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -o mysql-connector-java-5.1.33.zip -L &apos;http://dev.mysql.com/get/Downloads/Connector-J/mysql-connector-java-5.1.33.zip/from/http://cdn.mysql.com/&apos;</span><br><span class="line"></span><br><span class="line">cp mysql-connector-java-5.1.33-bin.jar $ES_HOME/plugins/jdbc/</span><br><span class="line"></span><br><span class="line">chmod 644 $ES_HOME/plugins/jdbc/*</span><br></pre></td></tr></table></figure>
+<p>停止river</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">curl -XDELETE &apos;localhost:9200/_river/my_jdbc_river/&apos;</span><br></pre></td></tr></table></figure>
+<p><strong>Verify</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">open http://node01:9200/_nodes/node01/plugins?pretty=true</span><br></pre></td></tr></table></figure>
+<h2 id="9-Basic-operation"><a href="#9-Basic-operation" class="headerlink" title="9. Basic operation"></a>9. Basic operation</h2><p><strong>查看该节点安装的所有插件列表</strong></p>
+<p><strong><em><a href="http://node01:9200/_nodes/node01/plugins?pretty=true" target="_blank" rel="external">http://node01:9200/_nodes/node01/plugins?pretty=true</a></em></strong></p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"cluster_name"</span> : <span class="string">"elasticsearch_x"</span>,</span><br><span class="line">  <span class="attr">"nodes"</span> : &#123;</span><br><span class="line">    <span class="attr">"nSitXzd8QvSxQRz3mni3BA"</span> : &#123;</span><br><span class="line">      <span class="attr">"name"</span> : <span class="string">"node01"</span>,</span><br><span class="line">      <span class="attr">"transport_address"</span> : <span class="string">"inet[/192.168.181.35:9300]"</span>,</span><br><span class="line">      <span class="attr">"host"</span> : <span class="string">"unix.local"</span>,</span><br><span class="line">      <span class="attr">"ip"</span> : <span class="string">"192.168.181.35"</span>,</span><br><span class="line">      <span class="attr">"version"</span> : <span class="string">"1.7.5"</span>,</span><br><span class="line">      <span class="attr">"build"</span> : <span class="string">"00f95f4"</span>,</span><br><span class="line">      <span class="attr">"http_address"</span> : <span class="string">"inet[/192.168.181.35:9200]"</span>,</span><br><span class="line">      <span class="attr">"plugins"</span> : [ &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"sql"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.4.5"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"Use sql to query elasticsearch."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/sql/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"http-basic-server-plugin"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"HTTP Basic Server Plugin"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">true</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">false</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"bigdesk"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/bigdesk/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"head"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"NA"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"No description found."</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/head/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125;, &#123;</span><br><span class="line">        <span class="attr">"name"</span> : <span class="string">"kopf"</span>,</span><br><span class="line">        <span class="attr">"version"</span> : <span class="string">"1.5.7-SNAPSHOT"</span>,</span><br><span class="line">        <span class="attr">"description"</span> : <span class="string">"kopf - simple web administration tool for ElasticSearch"</span>,</span><br><span class="line">        <span class="attr">"url"</span> : <span class="string">"/_plugin/kopf/"</span>,</span><br><span class="line">        <span class="attr">"jvm"</span> : <span class="literal">false</span>,</span><br><span class="line">        <span class="attr">"site"</span> : <span class="literal">true</span></span><br><span class="line">      &#125; ]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>XPUT data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -u admin:admin -XPUT http://node01:9200/megacorp/employee/1 -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "first_name" : "John",</span><br><span class="line">     "last_name" :  "Smith",</span><br><span class="line">     "age" :        25,</span><br><span class="line">     "about" :      "I love to go rock climbing",</span><br><span class="line">     "interests": [ "sports", "music" ]</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p><strong>XGET data</strong></p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">curl -XGET 'localhost:9200/_count?pretty' -d '</span><br><span class="line"> &#123;</span><br><span class="line">     "query": &#123;</span><br><span class="line">         "match_all": &#123;&#125;</span><br><span class="line">     &#125;</span><br><span class="line"> &#125;'</span><br></pre></td></tr></table></figure>
+<p>output</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"count"</span> : <span class="number">1</span>,</span><br><span class="line">  <span class="attr">"_shards"</span> : &#123;</span><br><span class="line">    <span class="attr">"total"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"successful"</span> : <span class="number">5</span>,</span><br><span class="line">    <span class="attr">"failed"</span> : <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="10-Reference-article"><a href="#10-Reference-article" class="headerlink" title="10. Reference article"></a>10. Reference article</h2><ol>
+<li><a href="http://www.cnblogs.com/richaaaard/p/5212044.html" target="_blank" rel="external">csdn-004-Elasticsearch插件的介绍</a></li>
+<li><a href="http://blog.csdn.net/shenfuli/article/details/49094935" target="_blank" rel="external">插件安装Head、Kopf与Bigdesk</a></li>
+<li><a href="http://www.chepoo.com/elasticsearch-service-install.html" target="_blank" rel="external">chepoo.com/elasticsearch-service</a></li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/setup-service.html" target="_blank" rel="external">elastic.co/guide/</a></li>
+<li><a href="https://github.com/NLPchina/elasticsearch-sql" target="_blank" rel="external">NLPchina/elasticsearch-sql</a></li>
+<li><a href="https://github.com/elasticfence/elasticsearch-http-user-auth" target="_blank" rel="external">elasticsearch-http-user-auth</a> (这个我没有使用)</li>
+<li><a href="http://guoze.me/2015/05/28/elasticsearch-http-basic-authentication/" target="_blank" rel="external">建造者说</a></li>
+</ol>
 ]]></content>
     </entry>
     
