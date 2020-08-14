@@ -5,18 +5,20 @@
   
   <title>SparkCore 中的工作原理 - 任务执行流程 5.1 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="keywords" content="spark">
+  <meta name="description">
 <meta property="og:type" content="article">
 <meta property="og:title" content="SparkCore 中的工作原理 - 任务执行流程 5.1">
-<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;07&#x2F;31&#x2F;spark&#x2F;spark-aura-5.1-sparkCore&#x2F;index.html">
+<meta property="og:url" content="http://shopee.ai/2020/07/31/spark/spark-aura-5.1-sparkCore/index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
-<meta property="og:locale" content="en">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-5.1.2.jpg">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-5.1.1.jpg">
-<meta property="og:image" content="https:&#x2F;&#x2F;img-blog.csdnimg.cn&#x2F;20200630214023905.jpg?x-oss-process=image&#x2F;watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25ncWkyNTEz,size_16,color_FFFFFF,t_70">
-<meta property="og:updated_time" content="2020-07-31T15:46:24.193Z">
+<meta property="og:description">
+<meta property="og:image" content="http://shopee.ai/images/spark/spark-aura-5.1.2.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/spark-aura-5.1.1.jpg">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20200630214023905.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25ncWkyNTEz,size_16,color_FFFFFF,t_70">
+<meta property="og:updated_time" content="2020-08-03T11:53:03.046Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-5.1.2.jpg">
+<meta name="twitter:title" content="SparkCore 中的工作原理 - 任务执行流程 5.1">
+<meta name="twitter:description">
+<meta name="twitter:image" content="http://shopee.ai/images/spark/spark-aura-5.1.2.jpg">
   
   
     <link rel="icon" href="/css/images/favicon-Tiktok.ico">
@@ -31,29 +33,18 @@
 <body>
   <div id="container">
     <!-- blair add baidu tongji start... @2017.10.03 -->
-<script>
-var _hmt = _hmt || [];
-(function() {
-  var hm = document.createElement("script");
-  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
-  var s = document.getElementsByTagName("script")[0]; 
-  s.parentNode.insertBefore(hm, s);
-})();
-</script>
 <!-- blair add baidu tongji end ! @2017.10.03 -->
 
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
-          <a class="main-nav-link" href="/leetcode">LC</a>
-        
           <a class="main-nav-link" href="/ai1">AI</a>
         
-          <a class="main-nav-link" href="/dw">DW</a>
+          <a class="main-nav-link" href="/tensorflow">TF/Keras</a>
         
           <a class="main-nav-link" href="/archives">Archives</a>
         
@@ -64,7 +55,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
         </div>
       </nav>
     </div>
@@ -103,14 +94,14 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2020/07/31/spark/spark-aura-5.1-sparkCore/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://shopee.ai/2020/07/31/spark/spark-aura-5.1-sparkCore/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <img src="/images/spark/spark-aura-5.1.2.jpg" width="950" alt="executor 一定属于某个 Application" />
+        <p><img src="/images/spark/spark-aura-5.1.2.jpg" width="950" alt="executor 一定属于某个 Application"></p>
 <a id="more"></a>
 <table>
 <thead>
@@ -139,20 +130,17 @@ var _hmt = _hmt || [];
 <p>整个 Spark 应用程序的运行分成三个阶段：</p>
 <p><strong>1). 编写代码，使用 spark-submit</strong> 去交任务到集群运行,一直到我们自己编写的main方法运行为止</p>
 <blockquote>
-<p>1.1) 编写代码<br />
-1.2) 打成 Jar<br />
-1.3) 编写 spark-submit 脚本提交任务<br />
-1.4) 脚本解析 和 执行 最终转到 main 方法执行 SparkSubmit</p>
+<p>1.1) 编写代码<br>1.2) 打成 Jar<br>1.3) 编写 spark-submit 脚本提交任务<br>1.4) 脚本解析 和 执行 最终转到 main 方法执行 SparkSubmit</p>
 </blockquote>
-<p><strong>2). sparkContext 的初始化</strong></p>
+<p><strong>2). sparkContext 的初始化</strong> </p>
 <blockquote>
-<p>new SparkContext(sparkConf)</p>
-<p>两条线:</p>
+<p> new SparkContext(sparkConf)</p>
+<p> 两条线:</p>
 <p><strong>(1) 在 driver 端执行的代码</strong></p>
 <ul>
-<li>init TaskScheduler ----&gt; TaskSchedulerImpl</li>
-<li>init SchedulerBackend ----&gt; StandAloneSchedulerBackend</li>
-<li>init DAGScheduler ----&gt; DAGScheduler</li>
+<li>init TaskScheduler —-&gt; TaskSchedulerImpl</li>
+<li>init SchedulerBackend —-&gt; StandAloneSchedulerBackend</li>
+<li>init DAGScheduler —-&gt; DAGScheduler</li>
 </ul>
 <p><strong>(2) 在 worker 和 master 端执行的各种代码</strong></p>
 <p>业务功能实现:</p>
@@ -162,13 +150,12 @@ var _hmt = _hmt || [];
 </ul>
 </blockquote>
 <p><strong>3). action 算子</strong></p>
-<hr />
-<h2 id="1-sparksubmit"><a class="markdownIt-Anchor" href="#1-sparksubmit"></a> 1. SparkSubmit</h2>
-<table>
+<hr>
+<h2 id="1-SparkSubmit"><a href="#1-SparkSubmit" class="headerlink" title="1. SparkSubmit"></a>1. SparkSubmit</h2><table>
 <thead>
 <tr>
 <th style="text-align:center">No.</th>
-<th style="text-align:center">Spark 任务的提交流程</th>
+<th style="text-align:center">Spark 任务的提交流程   </th>
 </tr>
 </thead>
 <tbody>
@@ -186,8 +173,7 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
-<h2 id="2-sparkcontext-初始化"><a class="markdownIt-Anchor" href="#2-sparkcontext-初始化"></a> 2. SparkContext 初始化</h2>
-<table>
+<h2 id="2-SparkContext-初始化"><a href="#2-SparkContext-初始化" class="headerlink" title="2. SparkContext 初始化"></a>2. SparkContext 初始化</h2><table>
 <thead>
 <tr>
 <th style="text-align:center">No.</th>
@@ -205,7 +191,7 @@ var _hmt = _hmt || [];
 </tr>
 <tr>
 <td style="text-align:center">6</td>
-<td style="text-align:center">在构建 TaskScheduler 的同时，会创建两个非常重要的对象，分别是: <br><br> <code>1. ClientActor</code>： 向 master 注册用户提交的任务 ------------------ <br> <code>2. DriverActor</code>： 接受 executor 反向注册, 将任务提交给 executor</td>
+<td style="text-align:center">在构建 TaskScheduler 的同时，会创建两个非常重要的对象，分别是: <br><br> <code>1. ClientActor</code>： 向 master 注册用户提交的任务 —————— <br> <code>2. DriverActor</code>： 接受 executor 反向注册, 将任务提交给 executor</td>
 </tr>
 <tr>
 <td style="text-align:center">(7)</td>
@@ -245,12 +231,11 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
-<h2 id="3-action-job-stage-taskset-driveractor-launchtask-executor-rdd-partition"><a class="markdownIt-Anchor" href="#3-action-job-stage-taskset-driveractor-launchtask-executor-rdd-partition"></a> 3. action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd partition</h2>
-<table>
+<h2 id="3-action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd-partition"><a href="#3-action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd-partition" class="headerlink" title="3. action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd partition"></a>3. action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd partition</h2><table>
 <thead>
 <tr>
 <th style="text-align:center">No.</th>
-<th style="text-align:center">Spark 任务的提交流程         </th>
+<th style="text-align:center">Spark 任务的提交流程 &nbsp;&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;</th>
 </tr>
 </thead>
 <tbody>
@@ -276,17 +261,14 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
-<img src="/images/spark/spark-aura-5.1.1.jpg" width="950" />
-<p>spark1.x RPC AKKA<br />
-spark2.x RPC netty</p>
-<h1 id="spark的任务提交和执行流程详解"><a class="markdownIt-Anchor" href="#spark的任务提交和执行流程详解"></a> Spark的任务提交和执行流程详解：</h1>
-<p><a href="https://blog.csdn.net/zhongqi2513/article/details/107051253" target="_blank" rel="noopener">马中华：Spark的任务提交和执行流程详解</a></p>
-<p><img src="https://img-blog.csdnimg.cn/20200630214023905.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25ncWkyNTEz,size_16,color_FFFFFF,t_70" alt="" /></p>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
-<li><a href="https://blog.csdn.net/qq_39150361/article/details/107380115" target="_blank" rel="noopener">Spark任务的提交流程</a></li>
-<li><a href="https://blog.csdn.net/huang66666666/article/details/102517737" target="_blank" rel="noopener">不急吃口药: spark任务提交流程图 (马中华类)</a></li>
-<li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="noopener">大数据资料笔记整理</a></li>
+<p><img src="/images/spark/spark-aura-5.1.1.jpg" width="950"></p>
+<p>spark1.x RPC AKKA<br>spark2.x RPC netty</p>
+<h1 id="Spark的任务提交和执行流程详解："><a href="#Spark的任务提交和执行流程详解：" class="headerlink" title="Spark的任务提交和执行流程详解："></a>Spark的任务提交和执行流程详解：</h1><p><a href="https://blog.csdn.net/zhongqi2513/article/details/107051253" target="_blank" rel="external">马中华：Spark的任务提交和执行流程详解</a></p>
+<p><img src="https://img-blog.csdnimg.cn/20200630214023905.jpg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pob25ncWkyNTEz,size_16,color_FFFFFF,t_70" alt=""></p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://blog.csdn.net/qq_39150361/article/details/107380115" target="_blank" rel="external">Spark任务的提交流程</a></li>
+<li><a href="https://blog.csdn.net/huang66666666/article/details/102517737" target="_blank" rel="external">不急吃口药: spark任务提交流程图 (马中华类)</a></li>
+<li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="external">大数据资料笔记整理</a></li>
 </ul>
 
       
@@ -320,7 +302,7 @@ spark2.x RPC netty</p>
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -331,7 +313,7 @@ spark2.x RPC netty</p>
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-sparksubmit"><span class="toc-text"> 1. SparkSubmit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-sparkcontext-初始化"><span class="toc-text"> 2. SparkContext 初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-action-job-stage-taskset-driveractor-launchtask-executor-rdd-partition"><span class="toc-text"> 3. action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd partition</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#spark的任务提交和执行流程详解"><span class="toc-text"> Spark的任务提交和执行流程详解：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-SparkSubmit"><span class="toc-text">1. SparkSubmit</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SparkContext-初始化"><span class="toc-text">2. SparkContext 初始化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd-partition"><span class="toc-text">3. action-job-stage-taskSet-DriverActor-launchTask-Executor-Rdd partition</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Spark的任务提交和执行流程详解："><span class="toc-text">Spark的任务提交和执行流程详解：</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
@@ -348,7 +330,7 @@ spark2.x RPC netty</p>
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/spark/" rel="tag">spark</a>
+    <a class="article-tag-link" href="/tags/spark/">spark</a>
   </div>
 
 
@@ -389,7 +371,7 @@ spark2.x RPC netty</p>
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2020 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
     </div>
   </div>
 </footer>
@@ -412,7 +394,7 @@ spark2.x RPC netty</p>
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2020/07/31/spark/spark-aura-5.1-sparkCore/';
+  var disqus_url = 'http://shopee.ai/2020/07/31/spark/spark-aura-5.1-sparkCore/';
   
   (function(){
     var dsq = document.createElement('script');
