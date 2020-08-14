@@ -6,17 +6,17 @@
   <title>TensorFlow 命名方法 name_scope / variable_scope - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="本例主要介绍 name_scope 和 variable_scope 的正确使用方式，学习并理解本例之后，你就能够真正读懂 TensorFlow 的很多代码并能够清晰地理解模型结构了.">
+<meta name="keywords" content="tensorflow">
 <meta property="og:type" content="article">
-<meta property="og:title" content="TensorFlow 命名方法 name_scope / variable_scope">
-<meta property="og:url" content="http://shopee.ai/2018/10/05/tensorflow/tf-4.3-name-variable_scope/index.html">
+<meta property="og:title" content="TensorFlow 命名方法 name_scope &#x2F; variable_scope">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;10&#x2F;05&#x2F;tensorflow&#x2F;tf-4.3-name-variable_scope&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="本例主要介绍 name_scope 和 variable_scope 的正确使用方式，学习并理解本例之后，你就能够真正读懂 TensorFlow 的很多代码并能够清晰地理解模型结构了.">
-<meta property="og:image" content="http://shopee.ai/images/tensorflow/tf-4.3_1.jpg">
-<meta property="og:updated_time" content="2020-07-15T00:27:51.059Z">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;tensorflow&#x2F;tf-4.3_1.jpg">
+<meta property="og:updated_time" content="2020-07-03T03:32:11.907Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="TensorFlow 命名方法 name_scope / variable_scope">
-<meta name="twitter:description" content="本例主要介绍 name_scope 和 variable_scope 的正确使用方式，学习并理解本例之后，你就能够真正读懂 TensorFlow 的很多代码并能够清晰地理解模型结构了.">
-<meta name="twitter:image" content="http://shopee.ai/images/tensorflow/tf-4.3_1.jpg">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;tensorflow&#x2F;tf-4.3_1.jpg">
   
   
     <link rel="icon" href="/css/images/favicon-Tiktok.ico">
@@ -31,18 +31,29 @@
 <body>
   <div id="container">
     <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
 <!-- blair add baidu tongji end ! @2017.10.03 -->
 
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
+          <a class="main-nav-link" href="/leetcode">LC</a>
+        
           <a class="main-nav-link" href="/ai1">AI</a>
         
-          <a class="main-nav-link" href="/tensorflow">TF/Keras</a>
+          <a class="main-nav-link" href="/dw">DW</a>
         
           <a class="main-nav-link" href="/archives">Archives</a>
         
@@ -53,7 +64,7 @@
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
         </div>
       </nav>
     </div>
@@ -92,7 +103,7 @@
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://shopee.ai/2018/10/05/tensorflow/tf-4.3-name-variable_scope/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2018/10/05/tensorflow/tf-4.3-name-variable_scope/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -104,7 +115,7 @@
 <p>scope 能让你命名变量的时候轻松很多. 同时也会在 reusing variable 代码中常常见到. 所以今天我们会来讨论下 tensorflow 当中的两种定义 scope 的方式. 最后并附加一个 RNN 运用 reuse variable 的例子.</p>
 <p>在 TensorFlow 中，经常看到 name_scope 和 variable_scope 两个东东，这到底是什么鬼，到底系做咩噶!!! 在做 LSTM 的时候遇到了下面的错误： <code>ValueError: Variable rnn/basic_lstm_cell/weights already exists, disallowed.</code></p>
 <h2 id="1-先说结论"><a href="#1-先说结论" class="headerlink" title="1. 先说结论"></a>1. 先说结论</h2><p>要理解  name_scope 和 variable_scope， 首先必须明确二者的使用目的。我们都知道，和普通模型相比，神经网络的节点非常多，节点节点之间的连接（权值矩阵）也非常多。所以我们费尽心思，准备搭建一个网络，然后有了图1的网络，WTF! 因为变量太多，我们构造完网络之后，一看，什么鬼，这个变量到底是哪层的？？</p>
-<p><img src="/images/tensorflow/tf-4.3_1.jpg" width="750"></p>
+<p><img src="/images/tensorflow/tf-4.3_1.jpg" width="750" /></p>
 <p>为了解决这个问题，我们引入了 <strong>name_scope</strong> 和 <strong>variable_scope</strong>， 二者又分别承担着不同的责任：</p>
 <ul>
 <li>name_scope: 为了更好地管理变量的命名空间而提出的。比如在 tensorboard 中，因为引入了 name_scope， 我们的 Graph 看起来才井然有序。</li>
@@ -113,7 +124,7 @@
 <p>下面通过两组实验来探索 TensorFlow 的命名机制。</p>
 <h2 id="2-name-scope-variable-scope-实验-🌰"><a href="#2-name-scope-variable-scope-实验-🌰" class="headerlink" title="2. name_scope/variable_scope 实验 🌰"></a>2. name_scope/variable_scope 实验 🌰</h2><p><strong>实验 1 三种方式创建变量：</strong></p>
 <p>三种方式创建变量： <strong>tf.placeholder</strong>, <strong>tf.Variable</strong>, <strong>tf.get_variable</strong></p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="comment"># 设置GPU按需增长</span></span><br><span class="line">config = tf.ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth = <span class="keyword">True</span></span><br><span class="line">sess = tf.Session(config=config)</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="comment"># 设置GPU按需增长</span></span><br><span class="line">config = tf.ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth = <span class="literal">True</span></span><br><span class="line">sess = tf.Session(config=config)</span><br></pre></td></tr></table></figure>
 <h3 id="2-1-placeholder"><a href="#2-1-placeholder" class="headerlink" title="2.1 placeholder"></a>2.1 placeholder</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 1.placeholder </span></span><br><span class="line">v1 = tf.placeholder(tf.float32, shape=[<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>])</span><br><span class="line">print(v1.name)</span><br><span class="line">v1 = tf.placeholder(tf.float32, shape=[<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>], name=<span class="string">'ph'</span>)</span><br><span class="line">print(v1.name)</span><br><span class="line">v1 = tf.placeholder(tf.float32, shape=[<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>], name=<span class="string">'ph'</span>)</span><br><span class="line">print(v1.name)</span><br><span class="line">print(type(v1))</span><br><span class="line">print(v1)</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Placeholder:0</span><br><span class="line">ph:0</span><br><span class="line">ph_1:0</span><br><span class="line">&lt;class &apos;tensorflow.python.framework.ops.Tensor&apos;&gt;</span><br><span class="line">Tensor(&quot;ph_1:0&quot;, shape=(2, 3, 4), dtype=float32)</span><br></pre></td></tr></table></figure>
 <h3 id="2-2-tf-Variable"><a href="#2-2-tf-Variable" class="headerlink" title="2.2 tf.Variable()"></a>2.2 tf.Variable()</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 2. tf.Variable()</span></span><br><span class="line">v2 = tf.Variable([<span class="number">1</span>,<span class="number">2</span>], dtype=tf.float32)</span><br><span class="line">print(v2.name)</span><br><span class="line">v2 = tf.Variable([<span class="number">1</span>,<span class="number">2</span>], dtype=tf.float32, name=<span class="string">'V'</span>)</span><br><span class="line">print(v2.name)</span><br><span class="line">v2 = tf.Variable([<span class="number">1</span>,<span class="number">2</span>], dtype=tf.float32, name=<span class="string">'V'</span>)</span><br><span class="line">print(v2.name)</span><br><span class="line">print(type(v2))</span><br><span class="line">print(v2)</span><br></pre></td></tr></table></figure>
@@ -160,8 +171,8 @@
 <p>这样, 不管两者的 <code>time_steps</code> 有多不同, 结构有多不同, <code>train_rnn</code> W, b 参数更新成什么样, <code>test_rnn</code> 的参数也更新成什么样.</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">'rnn'</span>) <span class="keyword">as</span> scope:</span><br><span class="line">    sess = tf.Session()</span><br><span class="line">    train_rnn = RNN(train_config)</span><br><span class="line">    scope.reuse_variables()</span><br><span class="line">    test_rnn = RNN(test_config)</span><br><span class="line">    sess.run(tf.global_variables_initializer())</span><br></pre></td></tr></table></figure>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://blog.csdn.net/jerr__y/article/category/6747409" target="_blank" rel="external">大学之道，在明明德 永永夜 Tensorflow学习之路</a></li>
-<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/5-12-scope/" target="_blank" rel="external">morvanzhou, scope 命名方法</a></li>
+<li><a href="https://blog.csdn.net/jerr__y/article/category/6747409" target="_blank" rel="noopener">大学之道，在明明德 永永夜 Tensorflow学习之路</a></li>
+<li><a href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/5-12-scope/" target="_blank" rel="noopener">morvanzhou, scope 命名方法</a></li>
 </ul>
 
       
@@ -195,7 +206,7 @@
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -223,7 +234,7 @@
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/tensorflow/">tensorflow</a>
+    <a class="article-tag-link" href="/tags/tensorflow/" rel="tag">tensorflow</a>
   </div>
 
 
@@ -264,7 +275,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2020 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
     </div>
   </div>
 </footer>
@@ -287,7 +298,7 @@
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://shopee.ai/2018/10/05/tensorflow/tf-4.3-name-variable_scope/';
+  var disqus_url = 'http://iequa.com/2018/10/05/tensorflow/tf-4.3-name-variable_scope/';
   
   (function(){
     var dsq = document.createElement('script');
