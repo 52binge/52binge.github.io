@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark Chap 7 内存模型和资源调优 - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark Chap 7 内存模型和资源调优">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;08&#x2F;17&#x2F;spark&#x2F;spark-aura-7.1-memory&#x2F;index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-7.1-memory.png">
+<meta property="og:updated_time" content="2020-08-18T02:30:36.449Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-7.1-memory.png">
+  
+  
+    <link rel="icon" href="/css/images/favicon-Tiktok.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/leetcode">LC</a>
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/dw">DW</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/spark-aura-7.1-memory" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark Chap 7 内存模型和资源调优
+      <small class=article-detail-date-index>&nbsp; 2020-08-17</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2020/08/17/spark/spark-aura-7.1-memory/" class="article-date">
+  <time datetime="2020-08-17T15:07:21.000Z" itemprop="datePublished">2020-08-17</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2020/08/17/spark/spark-aura-7.1-memory/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <img src="/images/spark/spark-aura-7.1-memory.png" width="500" alt="" />
+<a id="more"></a>
+<p>各种全理论：</p>
+<p><strong>1) spark 的内存模型</strong></p>
+<blockquote>
+<ul>
+<li>
+<p>堆内内存 + 堆外内存</p>
+</li>
+<li>
+<p>执行内存 + 存储内存</p>
+</li>
+<li>
+<p>静态内存模型 + 统一内存模型</p>
+</li>
+<li>
+<p>动态占用机制</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>2) 资源调优</strong></p>
+<blockquote>
+<ul>
+<li>
+<p>num-executors</p>
+</li>
+<li>
+<p>executor-memory</p>
+</li>
+<li>
+<p>total-executor-cores</p>
+</li>
+<li>
+<p>spark.shuffle.memoryFraction</p>
+</li>
+<li>
+<p>spark.storage.memoryFraction</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="概述"><a class="markdownIt-Anchor" href="#概述"></a> 概述</h2>
+<p>在执行 Spark 的应用程序时，Spark 集群会启动 Driver 和 Executor 两种 JVM 进程</p>
+<blockquote>
+<ol>
+<li>
+<p><strong><code>Driver</code></strong> 主控进程，负责创建 SparkContext，提交 Spark Job，并将作业转化为计算任务（Task），在各个 Executor 进程间协调任务的调度</p>
+</li>
+<li>
+<p><strong><code>Executor</code></strong> 负责在工作节点上执行具体的 计算 Task，并将结果返回给 Driver，同时为需要持久化的 RDD 提供存储功能[1]。</p>
+</li>
+</ol>
+<p>由于 Driver 的内存管理相对来说较为简单，本文主要对 Executor 的内存管理进行分析，下文中的 <code>Spark 内存均特指 Executor 的内存</code>。</p>
+</blockquote>
+<h2 id="1-spark-的-shuffle-调优"><a class="markdownIt-Anchor" href="#1-spark-的-shuffle-调优"></a> 1. Spark 的 shuffle 调优</h2>
+<h2 id="4-mapreduce的shuffle复习"><a class="markdownIt-Anchor" href="#4-mapreduce的shuffle复习"></a> 4. mapreduce的shuffle复习</h2>
+<h2 id="5-资源调优-2"><a class="markdownIt-Anchor" href="#5-资源调优-2"></a> 5. 资源调优 2</h2>
+<h2 id="6-spark的静态内存模型和统一内存模型详解-资源调优"><a class="markdownIt-Anchor" href="#6-spark的静态内存模型和统一内存模型详解-资源调优"></a> 6. spark的静态内存模型和统一内存模型详解 + 资源调优</h2>
+<h2 id="7-spark的内存管理宏观概述"><a class="markdownIt-Anchor" href="#7-spark的内存管理宏观概述"></a> 7. spark的内存管理宏观概述</h2>
+<h2 id="8-spark开发调优和数据倾斜复习"><a class="markdownIt-Anchor" href="#8-spark开发调优和数据倾斜复习"></a> 8. spark开发调优和数据倾斜复习</h2>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a href="https://blog.csdn.net/zhanaolu4821/article/details/102932209" target="_blank" rel="noopener">Spark学习之路 （十一）SparkCore的调优之Spark内存模型</a></li>
+<li><a href="https://study.163.com/course/courseLearn.htm?courseId=1208880821#/learn/video?lessonId=1278316678&amp;courseId=1208880821" target="_blank" rel="noopener">云课堂 SparkSQL 的数据源操作</a></li>
+<li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="noopener">大数据资料笔记整理</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text"> 概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-spark-的-shuffle-调优"><span class="toc-text"> 1. Spark 的 shuffle 调优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-mapreduce的shuffle复习"><span class="toc-text"> 4. mapreduce的shuffle复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-资源调优-2"><span class="toc-text"> 5. 资源调优 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-spark的静态内存模型和统一内存模型详解-资源调优"><span class="toc-text"> 6. spark的静态内存模型和统一内存模型详解 + 资源调优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-spark的内存管理宏观概述"><span class="toc-text"> 7. spark的内存管理宏观概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-spark开发调优和数据倾斜复习"><span class="toc-text"> 8. spark开发调优和数据倾斜复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/spark/" rel="tag">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/08/19/leetcode/summary_linkedlist/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          总结 17 道题 LinkList
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/08/15/spark/spark-aura-9.1-SparkSql/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">SparkSql - 结构化数据处理 (上)&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2020/08/17/spark/spark-aura-7.1-memory/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
