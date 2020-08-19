@@ -108,43 +108,67 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/images/spark/spark-aura-7.1-memory.png" width="500" alt="" /></p>
+        <img src="/images/spark/spark-aura-7.1-memory.png" width="500" alt="" />
 <a id="more"></a>
 <p>各种全理论：</p>
 <p><strong>1) spark 的内存模型</strong></p>
 <blockquote>
 <ul>
-<li>堆内内存 + 堆外内存</li>
-<li>执行内存 + 存储内存</li>
-<li><p>静态内存模型 + 统一内存模型</p>
+<li>
+<p>堆内内存 + 堆外内存</p>
 </li>
-<li><p>动态占用机制</p>
+<li>
+<p>执行内存 + 存储内存</p>
+</li>
+<li>
+<p>静态内存模型 + 统一内存模型</p>
+</li>
+<li>
+<p>动态占用机制</p>
 </li>
 </ul>
 </blockquote>
 <p><strong>2) 资源调优</strong></p>
 <blockquote>
 <ul>
-<li>num-executors</li>
-<li>executor-memory</li>
-<li>total-executor-cores   </li>
-</ul>
-<ul>
-<li>spark.shuffle.memoryFraction</li>
-<li>spark.storage.memoryFraction</li>
+<li>
+<p>num-executors</p>
+</li>
+<li>
+<p>executor-memory</p>
+</li>
+<li>
+<p>total-executor-cores</p>
+</li>
+<li>
+<p>spark.shuffle.memoryFraction</p>
+</li>
+<li>
+<p>spark.storage.memoryFraction</p>
+</li>
 </ul>
 </blockquote>
-<h2 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h2><p>在执行 Spark 的应用程序时，Spark 集群会启动 Driver 和 Executor 两种 JVM 进程</p>
+<h2 id="概述"><a class="markdownIt-Anchor" href="#概述"></a> 概述</h2>
+<p>在执行 Spark 的应用程序时，Spark 集群会启动 Driver 和 Executor 两种 JVM 进程</p>
 <blockquote>
 <ol>
-<li><p><strong><code>Driver</code></strong> 主控进程，负责创建 SparkContext，提交 Spark Job，并将作业转化为计算任务（Task），在各个 Executor 进程间协调任务的调度</p>
+<li>
+<p><strong><code>Driver</code></strong> 主控进程，负责创建 SparkContext，提交 Spark Job，并将作业转化为计算任务（Task），在各个 Executor 进程间协调任务的调度</p>
 </li>
-<li><p><strong><code>Executor</code></strong> 负责在工作节点上执行具体的 计算 Task，并将结果返回给 Driver，同时为需要持久化的 RDD 提供存储功能[1]。</p>
+<li>
+<p><strong><code>Executor</code></strong> 负责在工作节点上执行具体的 计算 Task，并将结果返回给 Driver，同时为需要持久化的 RDD 提供存储功能[1]。</p>
 </li>
 </ol>
 <p>由于 Driver 的内存管理相对来说较为简单，本文主要对 Executor 的内存管理进行分析，下文中的 <code>Spark 内存均特指 Executor 的内存</code>。</p>
 </blockquote>
-<h2 id="1-Spark-的-shuffle-调优"><a href="#1-Spark-的-shuffle-调优" class="headerlink" title="1. Spark 的 shuffle 调优"></a>1. Spark 的 shuffle 调优</h2><h2 id="4-mapreduce的shuffle复习"><a href="#4-mapreduce的shuffle复习" class="headerlink" title="4. mapreduce的shuffle复习"></a>4. mapreduce的shuffle复习</h2><h2 id="5-资源调优-2"><a href="#5-资源调优-2" class="headerlink" title="5. 资源调优 2"></a>5. 资源调优 2</h2><h2 id="6-spark的静态内存模型和统一内存模型详解-资源调优"><a href="#6-spark的静态内存模型和统一内存模型详解-资源调优" class="headerlink" title="6. spark的静态内存模型和统一内存模型详解 + 资源调优"></a>6. spark的静态内存模型和统一内存模型详解 + 资源调优</h2><h2 id="7-spark的内存管理宏观概述"><a href="#7-spark的内存管理宏观概述" class="headerlink" title="7. spark的内存管理宏观概述"></a>7. spark的内存管理宏观概述</h2><h2 id="8-spark开发调优和数据倾斜复习"><a href="#8-spark开发调优和数据倾斜复习" class="headerlink" title="8. spark开发调优和数据倾斜复习"></a>8. spark开发调优和数据倾斜复习</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="1-spark-的-shuffle-调优"><a class="markdownIt-Anchor" href="#1-spark-的-shuffle-调优"></a> 1. Spark 的 shuffle 调优</h2>
+<h2 id="4-mapreduce的shuffle复习"><a class="markdownIt-Anchor" href="#4-mapreduce的shuffle复习"></a> 4. mapreduce的shuffle复习</h2>
+<h2 id="5-资源调优-2"><a class="markdownIt-Anchor" href="#5-资源调优-2"></a> 5. 资源调优 2</h2>
+<h2 id="6-spark的静态内存模型和统一内存模型详解-资源调优"><a class="markdownIt-Anchor" href="#6-spark的静态内存模型和统一内存模型详解-资源调优"></a> 6. spark的静态内存模型和统一内存模型详解 + 资源调优</h2>
+<h2 id="7-spark的内存管理宏观概述"><a class="markdownIt-Anchor" href="#7-spark的内存管理宏观概述"></a> 7. spark的内存管理宏观概述</h2>
+<h2 id="8-spark开发调优和数据倾斜复习"><a class="markdownIt-Anchor" href="#8-spark开发调优和数据倾斜复习"></a> 8. spark开发调优和数据倾斜复习</h2>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a href="https://blog.csdn.net/zhanaolu4821/article/details/102932209" target="_blank" rel="noopener">Spark学习之路 （十一）SparkCore的调优之Spark内存模型</a></li>
 <li><a href="https://study.163.com/course/courseLearn.htm?courseId=1208880821#/learn/video?lessonId=1278316678&amp;courseId=1208880821" target="_blank" rel="noopener">云课堂 SparkSQL 的数据源操作</a></li>
 <li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="noopener">大数据资料笔记整理</a></li>
@@ -192,7 +216,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text">概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Spark-的-shuffle-调优"><span class="toc-text">1. Spark 的 shuffle 调优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-mapreduce的shuffle复习"><span class="toc-text">4. mapreduce的shuffle复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-资源调优-2"><span class="toc-text">5. 资源调优 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-spark的静态内存模型和统一内存模型详解-资源调优"><span class="toc-text">6. spark的静态内存模型和统一内存模型详解 + 资源调优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-spark的内存管理宏观概述"><span class="toc-text">7. spark的内存管理宏观概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-spark开发调优和数据倾斜复习"><span class="toc-text">8. spark开发调优和数据倾斜复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text"> 概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-spark-的-shuffle-调优"><span class="toc-text"> 1. Spark 的 shuffle 调优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-mapreduce的shuffle复习"><span class="toc-text"> 4. mapreduce的shuffle复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-资源调优-2"><span class="toc-text"> 5. 资源调优 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-spark的静态内存模型和统一内存模型详解-资源调优"><span class="toc-text"> 6. spark的静态内存模型和统一内存模型详解 + 资源调优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-spark的内存管理宏观概述"><span class="toc-text"> 7. spark的内存管理宏观概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-spark开发调优和数据倾斜复习"><span class="toc-text"> 8. spark开发调优和数据倾斜复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
       </div>
     
     
