@@ -128,6 +128,7 @@ var _hmt = _hmt || [];
 <div class="limg1">
 <img src="/images/ml/ensumble/ml_boosting_adaboost_binary_classification.png" width="400" />
 </div>
+
 <p>从图中可以看出，Adaboost算法随着模型复杂度的增加，测试误差（红色点线）基本保持稳定，并没有出现过拟合的现象。</p>
 <p>其实不仅是Adaboost算法有这种表现，Boosting方法的学习思想和模型结构上可以保证其不容易产生过拟合（除非Weak Learner本身出现过拟合）。</p>
 <p>下面我们主要是从损失函数的差异，来介绍Boosting的家族成员；然后我们针对每个具体的家族成员，详细介绍其学习过程和核心公式；最后从算法应用场景和工具方法给出简单的介绍。</p>
@@ -137,12 +138,10 @@ var _hmt = _hmt || [];
 <p>对于一个复杂任务来说，将多个专家的判定进行适当的综合得出的判断，要比其中任何一个专家单独的判断好。</p>
 <p>就是 “三个臭皮匠顶个诸葛亮” …😄😄😄</p>
 </blockquote>
-<h2 id="1-概率可学习性-pac"><a class="markdownIt-Anchor" href="#1-概率可学习性-pac"></a> 1. 概率可学习性 (PAC)</h2>
-<p>PAC理论是由2010年图灵奖的得主Valiant和Kearns提出的一套理论体系，主要讨论什么时候，一个问题是可以被学习的。</p>
+<h2 id="1-概率可学习性-PAC"><a href="#1-概率可学习性-PAC" class="headerlink" title="1. 概率可学习性 (PAC)"></a>1. 概率可学习性 (PAC)</h2><p>PAC理论是由2010年图灵奖的得主Valiant和Kearns提出的一套理论体系，主要讨论什么时候，一个问题是可以被学习的。</p>
 <blockquote>
 <p>PAC体系定义了学习算法的强弱：</p>
-<p>(1) 弱学习算法 : 如果存在一个多项式的学习算法能够学习它，学习的正确率仅比随机猜测略好，<br />
-(2) 强学习算法 : 存在一个多项式的学习算法能够学习它，并且正确率很高</p>
+<p>(1) 弱学习算法 : 如果存在一个多项式的学习算法能够学习它，学习的正确率仅比随机猜测略好，<br>(2) 强学习算法 : 存在一个多项式的学习算法能够学习它，并且正确率很高</p>
 </blockquote>
 <p>在概率近似正确（probably approximately correct，PAC）学习框架中：</p>
 <blockquote>
@@ -156,8 +155,7 @@ var _hmt = _hmt || [];
 <p>1996，Schapire提出一种新的名叫AdaBoost的算法证明了上述猜想。AdaBoost把多个不同的决策树用一种<strong>非随机的方式组合</strong>起来，表现出惊人的性能。同时，Schapire证明强可学习与弱可学习是等价的，也就是说，<strong>在PAC学习的框架下，一个概念是强可学习的充分必要条件是这个概念是弱可学习的</strong>。</p>
 </blockquote>
 <p>Summary : <code>强可学习⇔弱可学习</code></p>
-<h2 id="boosting"><a class="markdownIt-Anchor" href="#boosting"></a> Boosting</h2>
-<p>对于一个学习问题来说（以分类问题为例），给定训练数据集，求一个弱学习算法要比求一个强学习算法要容易的多。Boosting方法就是从弱学习算法出发，反复学习，得到一系列弱分类器，然后<strong>组合弱分类器，得到一个强分类器</strong>。Boosting方法在学习过程中通过<strong>改变训练数据的权值分布</strong>，针对不同的数据分布调用弱学习算法得到一系列弱分类器。</p>
+<h2 id="Boosting"><a href="#Boosting" class="headerlink" title="Boosting"></a>Boosting</h2><p>对于一个学习问题来说（以分类问题为例），给定训练数据集，求一个弱学习算法要比求一个强学习算法要容易的多。Boosting方法就是从弱学习算法出发，反复学习，得到一系列弱分类器，然后<strong>组合弱分类器，得到一个强分类器</strong>。Boosting方法在学习过程中通过<strong>改变训练数据的权值分布</strong>，针对不同的数据分布调用弱学习算法得到一系列弱分类器。</p>
 <blockquote>
 <p>还有就是，Boosting算法更加关注错分的样本，这点和Active Learning的寻找最有价值的训练样本有点遥相呼应的感觉</p>
 <p>很抽象对不对，但是过一会儿我们通过Adaboost来理解这个核心思想</p>
@@ -177,32 +175,30 @@ var _hmt = _hmt || [];
 </blockquote>
 <p>问题2，AdaBoost采取加权多数表决的方法 ：</p>
 <blockquote>
-<p>(1). 加大 分类误差率小 的弱分类器的权值，使其在表决中起较大的作用；<br />
-(2). 减小分类误差率大的弱分类器的权值，使其在表决中起较小的作用。</p>
+<p>(1). 加大 分类误差率小 的弱分类器的权值，使其在表决中起较大的作用；<br>(2). 减小分类误差率大的弱分类器的权值，使其在表决中起较小的作用。</p>
 </blockquote>
 <p>AdaBoost算法的巧妙之处就在于它将这些学习思路自然并且有效地在一个算法里面实现。</p>
-<h3 id="boosting算法代表-adaboostadaptive-boosting"><a class="markdownIt-Anchor" href="#boosting算法代表-adaboostadaptive-boosting"></a> Boosting算法代表 ：Adaboost(Adaptive Boosting)</h3>
-<blockquote>
+<h3 id="Boosting算法代表-：Adaboost-Adaptive-Boosting"><a href="#Boosting算法代表-：Adaboost-Adaptive-Boosting" class="headerlink" title="Boosting算法代表 ：Adaboost(Adaptive Boosting)"></a>Boosting算法代表 ：Adaboost(Adaptive Boosting)</h3><blockquote>
 <p>核心思想：一种迭代算法，针对同一个训练集训练不同的分类器(弱分类器)，然后进行分类，对于分类正确的样本权值低，分类错误的样本权值高（通常是边界附近的样本），最后的分类器是很多弱分类器的线性叠加（加权组合），分类器相当简单。实际上就是一个简单的弱分类算法提升(boost)的过程。</p>
 </blockquote>
 <p><strong>看图形来过一遍Adaboost算法</strong></p>
-<img src="/images/ml/ensumble/ml-ensumble-4-adaboost.jpeg" width="600" />
+<p><img src="/images/ml/ensumble/ml-ensumble-4-adaboost.jpeg" width="600" /></p>
 <blockquote>
 <p>算法开始前，需要将每个样本的权重初始化为 1/m, 这样一开始每个样本都是等概率的分布，每个分类器都会公正对待.</p>
 </blockquote>
-<img src="/images/ml/ensumble/ml-ensumble-5-adaboost.jpeg" width="600" />
+<p><img src="/images/ml/ensumble/ml-ensumble-5-adaboost.jpeg" width="600" /></p>
 <blockquote>
-<p>Round1，因为样本权重都一样，所以分类器开始划分，根据自己分类器的情况，只和分类器有关。划分之后发现分错了三个&quot;+&quot;号，那么这些分错的样本，在给下一个分类器的时候权重就得到提高,也就是会影响到下次取训练样本的分布，就是提醒下一个分类器，“诶！你注意点这几个小子，我上次栽在他们手里了！”</p>
+<p>Round1，因为样本权重都一样，所以分类器开始划分，根据自己分类器的情况，只和分类器有关。划分之后发现分错了三个”+”号，那么这些分错的样本，在给下一个分类器的时候权重就得到提高,也就是会影响到下次取训练样本的分布，就是提醒下一个分类器，“诶！你注意点这几个小子，我上次栽在他们手里了！”</p>
 </blockquote>
-<img src="/images/ml/ensumble/ml-ensumble-6-adaboost.jpeg" width="600" />
+<p><img src="/images/ml/ensumble/ml-ensumble-6-adaboost.jpeg" width="600" /></p>
 <blockquote>
-<p>Round2,第二代分类器信誓旦旦的对上一代分类器说&quot;我知道了，大哥！我一定睁大眼睛好好分着三个玩意！“ok，这次三个上次分错的都被分出来了，但是并不是全部正确，这次又栽倒在左下角三个”-“上了，然后临死前，第二代分类器对下一代分类器说&quot;这次我和上一代分类器已经把他们摸得差不多了，你再稍微注意下左下角那三个小子，也别忘了上面那三个(一代错分的那三个”+&quot;)！&quot;</p>
+<p>Round2,第二代分类器信誓旦旦的对上一代分类器说”我知道了，大哥！我一定睁大眼睛好好分着三个玩意！”ok，这次三个上次分错的都被分出来了，但是并不是全部正确，这次又栽倒在左下角三个”-“上了，然后临死前，第二代分类器对下一代分类器说”这次我和上一代分类器已经把他们摸得差不多了，你再稍微注意下左下角那三个小子，也别忘了上面那三个(一代错分的那三个”+”)！”</p>
 </blockquote>
-<img src="/images/ml/ensumble/ml-ensumble-7-adaboost.jpeg" width="600" />
+<p><img src="/images/ml/ensumble/ml-ensumble-7-adaboost.jpeg" width="600" /></p>
 <blockquote>
 <p>Round3:有了上面两位大哥的提醒，第三代分类器表示，我差不多都知道上次大哥们都错哪了，我只要小心这几个，应该没什么问题！只要把他们弄错的我给整对了，然后把我们收集的信息一对，这不就行了么！ok，第三代分类器不负众望，成功分对上面两代分类器重点关注的对象，至于分错的那几个小的，以前大哥们都分对了，我们坐下来核对一下就行了！</p>
 </blockquote>
-<img src="/images/ml/ensumble/ml-ensumble-8-adaboost.jpeg" width="600" />
+<p><img src="/images/ml/ensumble/ml-ensumble-8-adaboost.jpeg" width="600" /></p>
 <blockquote>
 <p>最后，三个分类器坐下来，各自谈了谈心得，分配了下权重，然后一个诸葛亮就诞生啦！这也就是 “三个臭皮匠顶个诸葛亮的故事” …😄😄😄, 是不是道理很简单！至于权重如何计算，暂不在本文讨论.</p>
 </blockquote>
@@ -218,28 +214,21 @@ var _hmt = _hmt || [];
 <blockquote>
 <ol>
 <li>Adaboost对于<strong>噪声是十分敏感</strong>的。Boosting方法本身对噪声点异常点很敏感，因此在每次迭代时候会给噪声点较大的权重，这不是我们系统所期望的。</li>
-<li>运行速度慢，凡是涉及迭代的基本上都无法采用并行计算，Adaboost是一种&quot;串行&quot;算法.所以GBDT(Gradient Boosting Decision Tree)也非常慢。</li>
+<li>运行速度慢，凡是涉及迭代的基本上都无法采用并行计算，Adaboost是一种”串行”算法.所以GBDT(Gradient Boosting Decision Tree)也非常慢。</li>
 </ol>
 </blockquote>
 <p><strong>Pay Attention</strong></p>
 <blockquote>
 <ol>
-<li>
-<p>Bagging 树&quot;并行&quot;生成,如 Random Forest ; Boosting：树&quot;串行&quot;生成,如Adaboost</p>
+<li>Bagging 树”并行”生成,如 Random Forest ; Boosting：树”串行”生成,如Adaboost</li>
+<li>Boosting 中基模型为弱模型，而 Random Forest 中的基树是强模型(大多数情况)</li>
+<li><p>Boosting 重采样的不是样本，而是样本的分布，每次迭代之后，样本的分布会发生变化，也就是被分错的样本会更多的出现在下一次训练集中</p>
 </li>
-<li>
-<p>Boosting 中基模型为弱模型，而 Random Forest 中的基树是强模型(大多数情况)</p>
-</li>
-<li>
-<p>Boosting 重采样的不是样本，而是样本的分布，每次迭代之后，样本的分布会发生变化，也就是被分错的样本会更多的出现在下一次训练集中</p>
-</li>
-<li>
-<p>明确一点，我们迭代也好(Adaboost), 并行(RF)也好，只和训练集有关，和测试集真的一毛钱关系都没有好么！我们先把原始数据分类测试集和训练集，然后测试集放一边，训练集里面再挑子集作为迭代算法用的训练集！这个和<a href="http://statweb.stanford.edu/~tibs/sta306bfiles/cvwrong.pdf" target="_blank" rel="noopener">K-Fold Cross-Validation</a>思想类似.</p>
+<li><p>明确一点，我们迭代也好(Adaboost), 并行(RF)也好，只和训练集有关，和测试集真的一毛钱关系都没有好么！我们先把原始数据分类测试集和训练集，然后测试集放一边，训练集里面再挑子集作为迭代算法用的训练集！这个和<a href="http://statweb.stanford.edu/~tibs/sta306bfiles/cvwrong.pdf" target="_blank" rel="noopener">K-Fold Cross-Validation</a>思想类似.</p>
 </li>
 </ol>
 </blockquote>
-<h2 id="reference-article"><a class="markdownIt-Anchor" href="#reference-article"></a> Reference article</h2>
-<ul>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
 <li><a href="https://www.jianshu.com/p/708dff71df3a" target="_blank" rel="noopener">总结：Bootstrap(自助法)，Bagging，Boosting(提升)</a></li>
 <li><a href="https://blog.csdn.net/xlinsist/article/details/51475345" target="_blank" rel="noopener">Bagging（Bootstrap aggregating）、随机森林（random forests）、AdaBoost</a></li>
 <li><a href="http://bbs.quanttech.cn/article/524" target="_blank" rel="noopener">机器学习选讲：AdaBoost方法详解</a></li>
@@ -290,7 +279,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-概率可学习性-pac"><span class="toc-text"> 1. 概率可学习性 (PAC)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#boosting"><span class="toc-text"> Boosting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#boosting算法代表-adaboostadaptive-boosting"><span class="toc-text"> Boosting算法代表 ：Adaboost(Adaptive Boosting)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference-article"><span class="toc-text"> Reference article</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-概率可学习性-PAC"><span class="toc-text">1. 概率可学习性 (PAC)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Boosting"><span class="toc-text">Boosting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Boosting算法代表-：Adaboost-Adaptive-Boosting"><span class="toc-text">Boosting算法代表 ：Adaboost(Adaptive Boosting)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-text">Reference article</span></a></li></ol>
       </div>
     
     
