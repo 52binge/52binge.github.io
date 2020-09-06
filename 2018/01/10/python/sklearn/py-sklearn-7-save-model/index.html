@@ -5,13 +5,13 @@
   
   <title>Sklearn Save Model - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="我们训练好了一个 Model 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。 这次主要介绍两种保存Model的模块 pickle 与 joblib">
+  <meta name="description" content="我们训练好了一个 Model 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。这次主要介绍两种保存Model的模块 pickle 与 joblib">
 <meta name="keywords" content="Sklearn">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Sklearn Save Model">
 <meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;01&#x2F;10&#x2F;python&#x2F;sklearn&#x2F;py-sklearn-7-save-model&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
-<meta property="og:description" content="我们训练好了一个 Model 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。 这次主要介绍两种保存Model的模块 pickle 与 joblib">
+<meta property="og:description" content="我们训练好了一个 Model 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。这次主要介绍两种保存Model的模块 pickle 与 joblib">
 <meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2019-10-20T04:30:35.010Z">
 <meta name="twitter:card" content="summary">
@@ -151,29 +151,22 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>我们训练好了一个 <code>Model</code> 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。<br />
-这次主要介绍两种保存Model的模块 <code>pickle</code> 与 <code>joblib</code></p>
+        <p>我们训练好了一个 <code>Model</code> 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。<br>这次主要介绍两种保存Model的模块 <code>pickle</code> 与 <code>joblib</code></p>
 <a id="more"></a>
-<h2 id="pickle-保存"><a class="markdownIt-Anchor" href="#pickle-保存"></a> pickle 保存</h2>
-<p>首先简单建立与训练一个 <code>SVC</code> Model</p>
+<h2 id="pickle-保存"><a href="#pickle-保存" class="headerlink" title="pickle 保存"></a>pickle 保存</h2><p>首先简单建立与训练一个 <code>SVC</code> Model</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> svm</span><br><span class="line"><span class="keyword">from</span> sklearn <span class="keyword">import</span> datasets</span><br><span class="line"></span><br><span class="line">clf = svm.SVC()</span><br><span class="line">iris = datasets.load_iris()</span><br><span class="line">X, y = iris.data, iris.target</span><br><span class="line">clf.fit(X,y)</span><br></pre></td></tr></table></figure>
 <pre><code>SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
-  decision_function_shape='ovr', degree=3, gamma='auto', kernel='rbf',
+  decision_function_shape=&#39;ovr&#39;, degree=3, gamma=&#39;auto&#39;, kernel=&#39;rbf&#39;,
   max_iter=-1, probability=False, random_state=None, shrinking=True,
   tol=0.001, verbose=False)
-</code></pre>
-<p>使用 <code>pickle</code> 来保存与读取训练好的 <code>Model</code></p>
+</code></pre><p>使用 <code>pickle</code> 来保存与读取训练好的 <code>Model</code></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> pickle <span class="comment">#pickle模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#保存Model(注:save文件夹要预先建立，否则会报错)</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'save/clf.pickle'</span>, <span class="string">'wb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    pickle.dump(clf, f)</span><br><span class="line"></span><br><span class="line"><span class="comment">#读取Model</span></span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'save/clf.pickle'</span>, <span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">    clf2 = pickle.load(f)</span><br><span class="line">    <span class="comment">#测试读取后的Model</span></span><br><span class="line">    print(clf2.predict(X[<span class="number">0</span>:<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># [0]</span></span><br></pre></td></tr></table></figure>
 <pre><code>[0]
-</code></pre>
-<h2 id="joblib-保存"><a class="markdownIt-Anchor" href="#joblib-保存"></a> joblib 保存</h2>
-<p><code>joblib</code> 是 sklearn的外部模块</p>
+</code></pre><h2 id="joblib-保存"><a href="#joblib-保存" class="headerlink" title="joblib 保存"></a>joblib 保存</h2><p><code>joblib</code> 是 sklearn的外部模块</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.externals <span class="keyword">import</span> joblib <span class="comment">#jbolib模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#保存Model(注:save文件夹要预先建立，否则会报错)</span></span><br><span class="line">joblib.dump(clf, <span class="string">'save/clf.pkl'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#读取Model</span></span><br><span class="line">clf3 = joblib.load(<span class="string">'save/clf.pkl'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#测试读取后的Model</span></span><br><span class="line">print(clf3.predict(X[<span class="number">0</span>:<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># [0]</span></span><br></pre></td></tr></table></figure>
 <pre><code>[0]
-</code></pre>
-<p><code>joblib</code> 在使用上比较容易，读取速度也相对<code>pickle</code>快</p>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+</code></pre><p><code>joblib</code> 在使用上比较容易，读取速度也相对<code>pickle</code>快</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="http://scikit-learn.org/" target="_blank" rel="noopener">scikit-learn.org</a></li>
 <li><a href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html" target="_blank" rel="noopener">scikit-learn docs</a></li>
 <li><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">scikit-learn morvanzhou</a></li>
@@ -221,7 +214,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#pickle-保存"><span class="toc-text"> pickle 保存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#joblib-保存"><span class="toc-text"> joblib 保存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#pickle-保存"><span class="toc-text">pickle 保存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#joblib-保存"><span class="toc-text">joblib 保存</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
