@@ -13,7 +13,7 @@
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.1.2.jpg">
-<meta property="og:updated_time" content="2020-09-06T04:08:58.062Z">
+<meta property="og:updated_time" content="2020-09-06T04:58:17.648Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
   
@@ -335,7 +335,33 @@ var _hmt = _hmt || [];
 </tbody>
 </table>
 </div>
-<h2 id="4-Spark-RDD-4"><a href="#4-Spark-RDD-4" class="headerlink" title="4. Spark RDD(4)"></a>4. Spark RDD(4)</h2><h2 id="5-Spark-大数据问题-7"><a href="#5-Spark-大数据问题-7" class="headerlink" title="5. Spark 大数据问题(7)"></a>5. Spark 大数据问题(7)</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="4-Spark-RDD-4"><a href="#4-Spark-RDD-4" class="headerlink" title="4. Spark RDD(4)"></a>4. Spark RDD(4)</h2><h3 id="4-1-RDD机制"><a href="#4-1-RDD机制" class="headerlink" title="4.1 RDD机制"></a>4.1 RDD机制</h3><ul>
+<li>分布式弹性数据集，简单的理解成一种数据结构，是spark框架上的通用货币</li>
+<li>所有算子都是基于rdd来执行的</li>
+<li>rdd执行过程中会形成dag图，然后形成lineage保证容错性等</li>
+<li>从物理的角度来看rdd存储的是block和node之间的映射</li>
+</ul>
+<h3 id="4-2-RDD的弹性表现在哪几点？"><a href="#4-2-RDD的弹性表现在哪几点？" class="headerlink" title="4.2 RDD的弹性表现在哪几点？"></a>4.2 RDD的弹性表现在哪几点？</h3><ul>
+<li>自动的进行内存和磁盘的存储切换；</li>
+<li>基于Lingage的高效容错；</li>
+<li>task如果失败会自动进行特定次数的重试；</li>
+<li>stage如果失败会自动进行特定次数的重试，而且只会计算失败的分片；</li>
+<li>checkpoint和persist，数据计算之后持久化缓存</li>
+<li>数据调度弹性，DAG TASK调度和资源无关</li>
+<li>数据分片的高度弹性，a.分片很多碎片可以合并成大的，b.par</li>
+</ul>
+<h3 id="4-3-RDD有哪些缺陷？"><a href="#4-3-RDD有哪些缺陷？" class="headerlink" title="4.3 RDD有哪些缺陷？"></a>4.3 RDD有哪些缺陷？</h3><ul>
+<li>不支持细粒度的写和更新操作（如网络爬虫）</li>
+<li>spark写数据是粗粒度的，所谓粗粒度，就是批量写入数据 （批量写）</li>
+<li>但是读数据是细粒度的也就是说可以一条条的读 （一条条读）</li>
+<li>不支持增量迭代计算，Flink支持</li>
+</ul>
+<h3 id="4-4-什么是RDD宽依赖和窄依赖？"><a href="#4-4-什么是RDD宽依赖和窄依赖？" class="headerlink" title="4.4 什么是RDD宽依赖和窄依赖？"></a>4.4 什么是RDD宽依赖和窄依赖？</h3><p>RDD和它依赖的parent RDD(s)的关系有两种不同的类型</p>
+<ul>
+<li>窄依赖：每一个parent RDD的Partition最多被子RDD的一个Partition使用 （一父一子）</li>
+<li>宽依赖：多个子RDD的Partition会依赖同一个parent RDD的Partition （一父多子）</li>
+</ul>
+<h2 id="5-Spark-大数据问题-7"><a href="#5-Spark-大数据问题-7" class="headerlink" title="5. Spark 大数据问题(7)"></a>5. Spark 大数据问题(7)</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://www.jianshu.com/p/7a8fca3838a4" target="_blank" rel="noopener">Spark知识点汇总</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/49169166" target="_blank" rel="noopener">Spark总结(一) 知乎</a></li>
 <li><a href="https://blog.csdn.net/sdujava2011/article/details/46825637" target="_blank" rel="noopener">Spark:Yarn-cluster和Yarn-client区别与联系</a></li>
@@ -383,7 +409,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Spark-基础-3"><span class="toc-text">1. Spark 基础 (3)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Spark运行细节-13"><span class="toc-text">2. Spark运行细节 (13)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-RDD-4"><span class="toc-text">3. RDD(4)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-spark工作机制"><span class="toc-text">2.1 spark工作机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Spark应用程序的执行过程"><span class="toc-text">2.2 Spark应用程序的执行过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-driver的功能是什么？"><span class="toc-text">2.3 driver的功能是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Spark中Worker工作是什么？"><span class="toc-text">2.4 Spark中Worker工作是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-task有几种类型？2种"><span class="toc-text">2.5 task有几种类型？2种</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Spark-与-Hadoop-比较-7"><span class="toc-text">3. Spark 与 Hadoop 比较(7)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-MR和Spark相同和区别"><span class="toc-text">3.1 MR和Spark相同和区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-mapreduce-编程模型"><span class="toc-text">3.2 mapreduce 编程模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-mr-spark-的-shuffle-差异"><span class="toc-text">3.3 mr/spark 的 shuffle 差异?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-MR-Spark-的-shuffle-过程"><span class="toc-text">3.4 MR/Spark 的 shuffle 过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-partition-和-block-的关联"><span class="toc-text">3.5 partition 和 block 的关联</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Spark-RDD-4"><span class="toc-text">4. Spark RDD(4)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Spark-大数据问题-7"><span class="toc-text">5. Spark 大数据问题(7)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Spark-基础-3"><span class="toc-text">1. Spark 基础 (3)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Spark运行细节-13"><span class="toc-text">2. Spark运行细节 (13)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-RDD-4"><span class="toc-text">3. RDD(4)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-spark工作机制"><span class="toc-text">2.1 spark工作机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-Spark应用程序的执行过程"><span class="toc-text">2.2 Spark应用程序的执行过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-driver的功能是什么？"><span class="toc-text">2.3 driver的功能是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-Spark中Worker工作是什么？"><span class="toc-text">2.4 Spark中Worker工作是什么？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-task有几种类型？2种"><span class="toc-text">2.5 task有几种类型？2种</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Spark-与-Hadoop-比较-7"><span class="toc-text">3. Spark 与 Hadoop 比较(7)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-MR和Spark相同和区别"><span class="toc-text">3.1 MR和Spark相同和区别</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-mapreduce-编程模型"><span class="toc-text">3.2 mapreduce 编程模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-mr-spark-的-shuffle-差异"><span class="toc-text">3.3 mr/spark 的 shuffle 差异?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-MR-Spark-的-shuffle-过程"><span class="toc-text">3.4 MR/Spark 的 shuffle 过程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-partition-和-block-的关联"><span class="toc-text">3.5 partition 和 block 的关联</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Spark-RDD-4"><span class="toc-text">4. Spark RDD(4)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-RDD机制"><span class="toc-text">4.1 RDD机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-RDD的弹性表现在哪几点？"><span class="toc-text">4.2 RDD的弹性表现在哪几点？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-RDD有哪些缺陷？"><span class="toc-text">4.3 RDD有哪些缺陷？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-什么是RDD宽依赖和窄依赖？"><span class="toc-text">4.4 什么是RDD宽依赖和窄依赖？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Spark-大数据问题-7"><span class="toc-text">5. Spark 大数据问题(7)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
