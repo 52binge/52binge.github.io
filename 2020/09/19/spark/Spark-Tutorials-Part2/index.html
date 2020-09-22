@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark Tutorials 2 - SparkContext、Stage、Executor、RDD - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark Tutorials 2 - SparkContext、Stage、Executor、RDD">
+<meta property="og:url" content="http://shopee.ai/2020/09/19/spark/Spark-Tutorials-Part2/index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:description">
+<meta property="og:image" content="http://shopee.ai/images/spark/Spark-Tutorial-02.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/apache-spark-SparkContext.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/apache-spark-functions-of-sparkcontext-in.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/apache-Spark-Stage-An-Introduction-to-Physical-Execution-plan.png">
+<meta property="og:image" content="http://shopee.ai/images/spark/data-flair/Submitting-a-Job-in-Spark.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/data-flair/Spark-Stages.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/data-flair/DAG-Scheduler.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/data-flair/Graph-of-Spark-Stages.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/data-flair/Apache-Spark-Executor-01.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/data-flair/heartbeat-receivers-heartbeat-message-handler.png">
+<meta property="og:image" content="http://shopee.ai/images/spark/data-flair/Apache-Spark-RDD-01.jpg">
+<meta property="og:image" content="http://shopee.ai/images/spark/data-flair/features-of-RDD-in-spark.jpg">
+<meta property="og:updated_time" content="2020-09-22T04:21:20.380Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark Tutorials 2 - SparkContext、Stage、Executor、RDD">
+<meta name="twitter:description">
+<meta name="twitter:image" content="http://shopee.ai/images/spark/Spark-Tutorial-02.jpg">
+  
+  
+    <link rel="icon" href="/css/images/favicon-Tiktok.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<!-- jiangting add start... @2020.08.30 -->
+<!-- <div id="menu" class="duration-main" style="background-color: #e7e7e7"> -->
+<!--   <p class="links-p" href="/">Blair</p> -->
+<!--   <address class="icons"> -->
+<!--     <a href="https://github.com/blair101" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--     <a href="https://cn.linkedin.com/pub/tianyu-dai/a8/818/44a" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--   </address> -->
+<!--   <div class="hr1"></div> -->
+<!--   <nav> -->
+<!--     <div> -->
+<!--     <a class="home" href="/">Home</a></div> -->
+<!--     <p class="links-p" href="/">Home</p> -->
+<!--     <nav class="tag-ath"> -->
+<!--       <a class="proj" href="/categories">Category</a> -->
+<!--       <a class="authors" href="/about">About</a> -->
+<!--     </nav> -->
+<!--   </nav> -->
+<!--   <div class="hr2"></div> -->
+<!--     <p class="links-p">Links</p> -->
+<!--       <address class="links"> -->
+<!--       <a class="proj" href="/article/Create-MyWorld">Projects</a> -->
+<!--       <a class="friend">Friends</a></address><div class="hr3"> -->
+<!--   </div> -->
+<!--   <p class="end"></p> -->
+<!--   <div id="menu-links" class="duration-main" style="top: -400px; background-color: #f5f5f5"> -->
+<!--     <address> -->
+<!--       <li><a target="_blank" href="http://lm7.xxxxxxxx.jp">Lm7</a></li> -->
+<!--       <li><a target="_blank" href="http://www.pixiv.net/member.php?id=4933015">Domik</a></li> -->
+<!--       <li><a target="_blank" href="http://hana-ui.moe">hana-ui</a></li> -->
+<!--       <li><a target="_blank" href="http://fil.dtysky.moe">F-I-L</a></li> -->
+<!--       <li><a target="_blank" href="http://paradise.dtysky.moe">Paradise</a></li> -->
+<!--       <li><a target="_blank" href="http://moe-notes.dtysky.moe">MoeNotes</a></li> -->
+<!--       <li><a target="_blank" href="http://kanata.dtysky.moe">Kanata</a></li> -->
+<!--       <li><a target="_blank" href="http://blog.nekohand.moe">Nekohand</a></li> -->
+<!--       <li><a target="_blank" href="http://www.jerryfu.net">JerryFu</a></li> -->
+<!--       <li><a target="_blank" href="http://kawabangga.com">南史</a></li> -->
+<!--       <li><a>Hide Links</a></li> -->
+<!--       <li><a></a></li> -->
+<!--     </address> -->
+<!--   </div> -->
+<!-- </div> -->
+<!-- jiangting add end !  @2020.08.30 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/leetcode">LC</a>
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/dw">DW</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/Spark-Tutorials-Part2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark Tutorials 2 - SparkContext、Stage、Executor、RDD
+      <small class=article-detail-date-index>&nbsp; 2020-09-19</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2020/09/19/spark/Spark-Tutorials-Part2/" class="article-date">
+  <time datetime="2020-09-19T08:07:21.000Z" itemprop="datePublished">2020-09-19</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://shopee.ai/2020/09/19/spark/Spark-Tutorials-Part2/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><img src="/images/spark/Spark-Tutorial-02.jpg" width="500" alt=""></p>
+<a id="more"></a>
+<h2 id="1-Spark-SparkContext"><a href="#1-Spark-SparkContext" class="headerlink" title="1. Spark - SparkContext"></a>1. Spark - SparkContext</h2><p><img src="/images/spark/apache-spark-SparkContext.jpg" width="600" alt=""></p>
+<p>SparkContext allows your Spark Application to access Spark Cluster with the help of Resource Manager. The resource manager can be one of these three- <strong>Spark Standalone,  YARN, Apache Mesos</strong>.</p>
+<p>The different contexts in which it can run are local, yarn-client, Mesos URL and Spark URL.</p>
+<h3 id="1-1-SparkContext-Functions"><a href="#1-1-SparkContext-Functions" class="headerlink" title="1.1 SparkContext Functions"></a>1.1 SparkContext Functions</h3><p><img src="/images/spark/apache-spark-functions-of-sparkcontext-in.jpg" width="800" alt="Functions of SparkContext"></p>
+<h3 id="1-2-SparkContext-Conclusion"><a href="#1-2-SparkContext-Conclusion" class="headerlink" title="1.2 SparkContext Conclusion"></a>1.2 SparkContext Conclusion</h3><p>Hence, SparkContext provides the various functions in Spark like get the current status of Spark Application, set the configuration, cancel a job, Cancel a stage and much more. It is an entry point to the Spark functionality. Thus, it acts a backbone.</p>
+<h2 id="2-Spark-Stage"><a href="#2-Spark-Stage" class="headerlink" title="2. Spark - Stage"></a>2. Spark - Stage</h2><p>Spark Stage- An Introduction to Physical Execution plan</p>
+<p><img src="/images/spark/apache-Spark-Stage-An-Introduction-to-Physical-Execution-plan.png" width="700" alt="It is basically a physical unit of the execution plan. "></p>
+<blockquote>
+<ol>
+<li><strong>ShuffleMapstage</strong> </li>
+<li><strong>ResultStage</strong></li>
+</ol>
+</blockquote>
+<h3 id="2-1-What-are-Stages-in-Spark"><a href="#2-1-What-are-Stages-in-Spark" class="headerlink" title="2.1 What are Stages in Spark?"></a>2.1 What are Stages in Spark?</h3><p><img src="/images/spark/data-flair/Submitting-a-Job-in-Spark.jpg" width="700" alt="one task per partition. In other words,  each job which gets divided into smaller sets of tasks is a stage."></p>
+<blockquote>
+<p>with the boundary of a stage in spark marked by shuffle dependencies.</p>
+<p>Ultimately,  submission of Spark stage triggers the execution of a series of dependent parent stages. Although, there is a first Job Id present at every stage that is the id of the job which submits stage in Spark.</p>
+</blockquote>
+<p><img src="/images/spark/data-flair/Spark-Stages.jpg" width="700" alt=""></p>
+<h3 id="2-2-ShuffleMapStage"><a href="#2-2-ShuffleMapStage" class="headerlink" title="2.2 ShuffleMapStage"></a>2.2 ShuffleMapStage</h3><ol>
+<li>ShuffleMapStage in Spark</li>
+<li>ResultStage in Spark</li>
+</ol>
+<p><img src="/images/spark/data-flair/DAG-Scheduler.jpg" width="700" alt=""></p>
+<h3 id="2-3-ResultStage"><a href="#2-3-ResultStage" class="headerlink" title="2.3 ResultStage"></a>2.3 ResultStage</h3><p>ResultStage implies as a final stage in a job that applies a function on one or many partitions of the target RDD in Spark. It also helps for computation of the result of an action.</p>
+<p><img src="/images/spark/data-flair/Graph-of-Spark-Stages.jpg" width="700" alt="running a function on a spark RDD Stage that executes a Spark action in a user program is a ResultStage."></p>
+<h2 id="3-Spark-Executor"><a href="#3-Spark-Executor" class="headerlink" title="3. Spark - Executor"></a>3. Spark - Executor</h2><p><code>Apache Spark Executor for Executing Spark Tasks</code></p>
+<p><img src="/images/spark/data-flair/Apache-Spark-Executor-01.jpg" width="750" alt=""></p>
+<h3 id="3-1-Spark-Executor"><a href="#3-1-Spark-Executor" class="headerlink" title="3.1 Spark Executor"></a>3.1 Spark Executor</h3><p><img src="/images/spark/data-flair/heartbeat-receivers-heartbeat-message-handler.png" width="700" alt=""></p>
+<p>Some conditions in which we create Executor in Spark is:</p>
+<ol>
+<li>When CoarseGrainedExecutorBackend receives RegisteredExecutor message. Only for Spark Standalone and YARN.</li>
+<li>When LocalEndpoint is created for local mode.</li>
+</ol>
+<p>n. 端点；[化]滴定终点</p>
+<h3 id="3-2-Creating-Executor-Instance"><a href="#3-2-Creating-Executor-Instance" class="headerlink" title="3.2 Creating Executor Instance"></a>3.2 Creating Executor Instance</h3><p>By using the following, we can create the Spark Executor:</p>
+<blockquote>
+<ol>
+<li>From Executor ID.</li>
+<li>By using SparkEnv we can access the local MetricsSystem as well as BlockManager. Moreover, we can also access the local serializer by it.</li>
+<li>From Executor’s hostname.</li>
+<li>To add to tasks’ classpath, a collection of user-defined JARs. By default, it is empty.</li>
+<li>By flag whether it runs in local or cluster mode (disabled by default, i.e. cluster is preferred)</li>
+</ol>
+</blockquote>
+<p>Moreover, when creation is successful, the one INFO messages pop up in the logs. That is:</p>
+<blockquote>
+<p>INFO Executor: Starting executor ID [executorId] on host [executorHostname]</p>
+</blockquote>
+<h3 id="3-3-Heartbeat-Sender-Thread"><a href="#3-3-Heartbeat-Sender-Thread" class="headerlink" title="3.3 Heartbeat Sender Thread"></a>3.3 Heartbeat Sender Thread</h3><blockquote>
+<p>Basically, with a single thread, heartbeater is a daemon ScheduledThreadPoolExecutor.<br>We call this thread pool a driver-heartbeater.</p>
+</blockquote>
+<h3 id="3-4-Launching-Task-Method"><a href="#3-4-Launching-Task-Method" class="headerlink" title="3.4 Launching Task Method"></a>3.4 Launching Task Method</h3><h3 id="3-5-executor-taskLaunch-worker"><a href="#3-5-executor-taskLaunch-worker" class="headerlink" title="3.5 executor.taskLaunch.worker"></a>3.5 executor.taskLaunch.worker</h3><p><strong>Thread Pool — ThreadPool Property</strong></p>
+<p><a href="https://data-flair.training/blogs/spark-executor/" target="_blank" rel="external">executor</a></p>
+<h3 id="3-6-Conclusion"><a href="#3-6-Conclusion" class="headerlink" title="3.6 Conclusion"></a>3.6 Conclusion</h3><p>we have also learned how Spark Executors are helpful for executing tasks. The major advantage we have learned is, we can have as many executors we want. Therefore, Executors helps to enhance the Spark performance of the system. </p>
+<h2 id="4-Spark-RDD"><a href="#4-Spark-RDD" class="headerlink" title="4. Spark - RDD"></a>4. Spark - RDD</h2><p>Spark RDD – Introduction, Features &amp; Operations of RDD</p>
+<h3 id="4-1-resilient-distributed-dataset"><a href="#4-1-resilient-distributed-dataset" class="headerlink" title="4.1 resilient distributed dataset"></a>4.1 <a href="https://data-flair.training/blogs/spark-rdd-tutorial/" target="_blank" rel="external">resilient distributed dataset</a></h3><blockquote>
+<ul>
+<li><strong>Resilient</strong>, i.e. fault-tolerant with the help of RDD lineage graph(DAG) and so able to recompute missing or damaged partitions due to node failures.</li>
+<li><strong>Distributed</strong>, since Data resides on multiple nodes.</li>
+<li><strong>Dataset</strong> represents records of the data you work with. The user can load the data set externally which can be either JSON file, CSV file, text file or database via JDBC with no specific data structure.</li>
+</ul>
+</blockquote>
+<p><img src="/images/spark/data-flair/Apache-Spark-RDD-01.jpg" width="700" alt=""></p>
+<h3 id="4-2-Why-need-RDD-in-Spark"><a href="#4-2-Why-need-RDD-in-Spark" class="headerlink" title="4.2 Why need RDD in Spark?"></a>4.2 Why need RDD in Spark?</h3><p>Apache Spark evaluates RDDs lazily. It is called when needed, which saves lots of time and improves efficiency. The first time they are used in an action so that it can pipeline the transformation. Also, the programmer can call a persist method to state which RDD they want to use in future operations.</p>
+<h3 id="4-3-Features-of-Spark-RDD"><a href="#4-3-Features-of-Spark-RDD" class="headerlink" title="4.3 Features of Spark RDD"></a>4.3 Features of Spark RDD</h3><p><img src="/images/spark/data-flair/features-of-RDD-in-spark.jpg" width="750" alt=""></p>
+<h2 id="5-Spark-RDD-Operations"><a href="#5-Spark-RDD-Operations" class="headerlink" title="5. Spark RDD Operations"></a>5. Spark RDD Operations</h2><ol>
+<li>Transformation</li>
+<li>Actions</li>
+</ol>
+<h3 id="5-1-Transformations"><a href="#5-1-Transformations" class="headerlink" title="5.1 Transformations"></a>5.1 Transformations</h3><p><strong>a. Narrow Transformations </strong></p>
+<p><strong>b. Wide Transformations</strong></p>
+<h3 id="5-2-Actions"><a href="#5-2-Actions" class="headerlink" title="5.2 Actions"></a>5.2 Actions</h3><h2 id="6-Limitation-of-Spark-RDD"><a href="#6-Limitation-of-Spark-RDD" class="headerlink" title="6. Limitation of Spark RDD"></a>6. Limitation of Spark RDD</h2><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://data-flair.training/blogs/" target="_blank" rel="external">data-flair.training/blogs</a></li>
+<li><a href="https://data-flair.training/blogs/spark-rdd-operations-transformations-actions/" target="_blank" rel="external">Spark RDD Operations-Transformation &amp; Action with Example</a></li>
+<li><a href="https://blog.csdn.net/u014204541/article/details/81130870" target="_blank" rel="external">Spark RDD常用算子学习笔记详解(python版)</a></li>
+<li><a href="https://blog.csdn.net/dwb1015/article/details/52200809" target="_blank" rel="external">Spark常用的Transformation算子的简单例子</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Spark-SparkContext"><span class="toc-text">1. Spark - SparkContext</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-SparkContext-Functions"><span class="toc-text">1.1 SparkContext Functions</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-SparkContext-Conclusion"><span class="toc-text">1.2 SparkContext Conclusion</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Spark-Stage"><span class="toc-text">2. Spark - Stage</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-What-are-Stages-in-Spark"><span class="toc-text">2.1 What are Stages in Spark?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-ShuffleMapStage"><span class="toc-text">2.2 ShuffleMapStage</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-ResultStage"><span class="toc-text">2.3 ResultStage</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Spark-Executor"><span class="toc-text">3. Spark - Executor</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Spark-Executor"><span class="toc-text">3.1 Spark Executor</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-Creating-Executor-Instance"><span class="toc-text">3.2 Creating Executor Instance</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-Heartbeat-Sender-Thread"><span class="toc-text">3.3 Heartbeat Sender Thread</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-Launching-Task-Method"><span class="toc-text">3.4 Launching Task Method</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-5-executor-taskLaunch-worker"><span class="toc-text">3.5 executor.taskLaunch.worker</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-6-Conclusion"><span class="toc-text">3.6 Conclusion</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Spark-RDD"><span class="toc-text">4. Spark - RDD</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-resilient-distributed-dataset"><span class="toc-text">4.1 resilient distributed dataset</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Why-need-RDD-in-Spark"><span class="toc-text">4.2 Why need RDD in Spark?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Features-of-Spark-RDD"><span class="toc-text">4.3 Features of Spark RDD</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Spark-RDD-Operations"><span class="toc-text">5. Spark RDD Operations</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-Transformations"><span class="toc-text">5.1 Transformations</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-Actions"><span class="toc-text">5.2 Actions</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Limitation-of-Spark-RDD"><span class="toc-text">6. Limitation of Spark RDD</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/spark/">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2020/09/19/spark/Spark-Tutorials-Part1/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Spark Tutorials 1 - Introduce、Ecosysm、Features、Shell Commands&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://shopee.ai/2020/09/19/spark/Spark-Tutorials-Part2/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
