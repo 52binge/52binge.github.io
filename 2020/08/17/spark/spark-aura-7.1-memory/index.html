@@ -3,19 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Spark 开发调优 4,5 - Auckland New Zealand</title>
+  <title>Spark Chap 7 内存模型和资源调优 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="keywords" content="spark">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Spark 开发调优 4,5">
-<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;08&#x2F;10&#x2F;spark&#x2F;spark-aura-6.3-dev-optimization-4-5&#x2F;index.html">
+<meta property="og:title" content="Spark Chap 7 内存模型和资源调优">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;08&#x2F;17&#x2F;spark&#x2F;spark-aura-7.1-memory&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-6.2-logo.png">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-6.3.1.png">
-<meta property="og:updated_time" content="2020-08-10T06:28:16.815Z">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-7.1-memory.png">
+<meta property="og:updated_time" content="2020-08-18T02:30:36.449Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-6.2-logo.png">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-7.1-memory.png">
   
   
     <link rel="icon" href="/css/images/favicon-Tiktok.ico">
@@ -71,7 +70,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-spark/spark-aura-6.3-dev-optimization-4-5" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-spark/spark-aura-7.1-memory" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -79,8 +78,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      Spark 开发调优 4,5
-      <small class=article-detail-date-index>&nbsp; 2020-08-10</small>
+      Spark Chap 7 内存模型和资源调优
+      <small class=article-detail-date-index>&nbsp; 2020-08-17</small>
     </h1>
   
 
@@ -90,8 +89,8 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2020/08/10/spark/spark-aura-6.3-dev-optimization-4-5/" class="article-date">
-  <time datetime="2020-08-10T02:07:21.000Z" itemprop="datePublished">2020-08-10</time>
+      <!--<a href="/2020/08/17/spark/spark-aura-7.1-memory/" class="article-date">
+  <time datetime="2020-08-17T15:07:21.000Z" itemprop="datePublished">2020-08-17</time>
 </a>-->
       <!-- 
   <div class="article-category">
@@ -102,93 +101,76 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2020/08/10/spark/spark-aura-6.3-dev-optimization-4-5/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2020/08/17/spark/spark-aura-7.1-memory/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <img src="/images/spark/spark-aura-6.2-logo.png" width="550" alt="" />
+        <img src="/images/spark/spark-aura-7.1-memory.png" width="500" alt="" />
 <a id="more"></a>
-<p>调优:</p>
+<p>各种全理论：</p>
+<p><strong>1) spark 的内存模型</strong></p>
+<blockquote>
+<ul>
+<li>
+<p>堆内内存 + 堆外内存</p>
+</li>
+<li>
+<p>执行内存 + 存储内存</p>
+</li>
+<li>
+<p>静态内存模型 + 统一内存模型</p>
+</li>
+<li>
+<p>动态占用机制</p>
+</li>
+</ul>
+</blockquote>
+<p><strong>2) 资源调优</strong></p>
+<blockquote>
+<ul>
+<li>
+<p>num-executors</p>
+</li>
+<li>
+<p>executor-memory</p>
+</li>
+<li>
+<p>total-executor-cores</p>
+</li>
+<li>
+<p>spark.shuffle.memoryFraction</p>
+</li>
+<li>
+<p>spark.storage.memoryFraction</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="概述"><a class="markdownIt-Anchor" href="#概述"></a> 概述</h2>
+<p>在执行 Spark 的应用程序时，Spark 集群会启动 Driver 和 Executor 两种 JVM 进程</p>
 <blockquote>
 <ol>
-<li><strong>开发调优</strong></li>
-<li><strong>资源调优</strong></li>
-<li><strong>数据倾斜</strong></li>
-<li><strong>shuffle</strong></li>
+<li>
+<p><strong><code>Driver</code></strong> 主控进程，负责创建 SparkContext，提交 Spark Job，并将作业转化为计算任务（Task），在各个 Executor 进程间协调任务的调度</p>
+</li>
+<li>
+<p><strong><code>Executor</code></strong> 负责在工作节点上执行具体的 计算 Task，并将结果返回给 Driver，同时为需要持久化的 RDD 提供存储功能[1]。</p>
+</li>
 </ol>
-<p>旧知识点: 数据倾斜, 开发调优的一部分</p>
-<p>新知识: spark的内存模型, spark的资源调优, spark的shuffle</p>
+<p>由于 Driver 的内存管理相对来说较为简单，本文主要对 Executor 的内存管理进行分析，下文中的 <code>Spark 内存均特指 Executor 的内存</code>。</p>
 </blockquote>
-<p>今天的内容:</p>
-<blockquote>
-<ol>
-<li>开发调优</li>
-<li>数据倾斜</li>
-</ol>
-</blockquote>
-<h1 id="开发调优-10点"><a class="markdownIt-Anchor" href="#开发调优-10点"></a> 开发调优 10点</h1>
-<h2 id="4-尽量避免使用-shuffle-类算子"><a class="markdownIt-Anchor" href="#4-尽量避免使用-shuffle-类算子"></a> 4. 尽量避免使用 Shuffle 类算子</h2>
-<p>shuffle 到底有什么坏处?</p>
-<p>分布式计算 决定了 一定会有 shuffle</p>
-<blockquote>
-<p><strong>join</strong>: mapjoin, reducejoin</p>
-</blockquote>
-<p><strong>shuffle 类算子:</strong></p>
-<ol>
-<li>reduceByKey</li>
-<li>groupBy</li>
-<li>sortBy</li>
-<li>distinct</li>
-</ol>
-<blockquote>
-<p>聚合类操作基本都有 shuffle. (union、join[按照hash分区, 分区数还成倍数, 就没shuffle])</p>
-</blockquote>
-<p>xxxByKey (groupBy + xxxx)</p>
-<p>rdd1.join(rdd2) (reducejoin)<br />
-// 如何避免 join 中的 shuffle</p>
-<p>mapjoin</p>
-<blockquote>
-<p>在 mapreduce 当中, 我们知道如何定义 mapreduce 的 join 实现程序<br />
-但是在 spark中 你知道如何实现么？</p>
-</blockquote>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line">job.addCacheFile() <span class="comment">// 通过底层的 DistributedCache 这个组件。 来给我们 () 中的文件进行全局分发</span></span><br><span class="line">                   <span class="comment">// 全局分发： 发送文件到所有的要执行的 mapTask 节点</span></span><br></pre></td></tr></table></figure>
-<p>spark 实现伪代码</p>
-<p>BroadCast</p>
-<p>rdd1.join(rdd2)<br />
-rdd1.foreachPartition(data =&gt; {</p>
-<pre><code>  val data2 = bc.value // 小表数据
-  val data1 = data     // 大小数据的一个 Partition
-  
-  data1.join(data2)  // 这个无shuffle, 因为这一句代码,这个操作是在每个阶段独立执行的.
-</code></pre>
-<p>})</p>
-<p>mapper  3分钟<br />
-shuffle 2分钟<br />
-reduce  2分钟</p>
-<h2 id="5-使用-map-side-预聚合combina的-shuffle-操作"><a class="markdownIt-Anchor" href="#5-使用-map-side-预聚合combina的-shuffle-操作"></a> 5. 使用 map-side 预聚合(combina)的 shuffle 操作</h2>
-<img src="/images/spark/spark-aura-6.3.1.png" width="850" alt="" />
-<p>shuffle 类算子有第3个缺点：</p>
-<p>数据倾斜</p>
-<p>wordcount： File  block1 block1 block2</p>
-<p>在使用 shuffle 操作的算子的时候， 如果右 map-side 预聚合操作的话<br />
-那么 shuffle 的代价还是会小很多</p>
-<p>附带的好效果： <strong>降低数据倾斜的程度</strong></p>
-<p><strong>(1) 没有 map-side 预聚合的算子：</strong></p>
-<p>groupByKey  有 shuffle, 没有聚合<br />
-coGroup val rdd: RDD[String, Iterable[Int], Iterable[String]]</p>
-<p><strong>(2) 有预聚合的 shuffle 算子：</strong></p>
-<p>执行流程上, 执行阶段<br />
-reduceByKey = groupByKey + reduce</p>
-<p>最终效率上：</p>
-<p>reduceByKey &gt; groupByKey + reduce</p>
-<p>reduceByKey, combineByKey, aggregateByKey</p>
+<h2 id="1-spark-的-shuffle-调优"><a class="markdownIt-Anchor" href="#1-spark-的-shuffle-调优"></a> 1. Spark 的 shuffle 调优</h2>
+<h2 id="4-mapreduce的shuffle复习"><a class="markdownIt-Anchor" href="#4-mapreduce的shuffle复习"></a> 4. mapreduce的shuffle复习</h2>
+<h2 id="5-资源调优-2"><a class="markdownIt-Anchor" href="#5-资源调优-2"></a> 5. 资源调优 2</h2>
+<h2 id="6-spark的静态内存模型和统一内存模型详解-资源调优"><a class="markdownIt-Anchor" href="#6-spark的静态内存模型和统一内存模型详解-资源调优"></a> 6. spark的静态内存模型和统一内存模型详解 + 资源调优</h2>
+<h2 id="7-spark的内存管理宏观概述"><a class="markdownIt-Anchor" href="#7-spark的内存管理宏观概述"></a> 7. spark的内存管理宏观概述</h2>
+<h2 id="8-spark开发调优和数据倾斜复习"><a class="markdownIt-Anchor" href="#8-spark开发调优和数据倾斜复习"></a> 8. spark开发调优和数据倾斜复习</h2>
 <h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <ul>
-<li><a href="https://tech.meituan.com/2016/04/29/spark-tuning-basic.html" target="_blank" rel="noopener">Spark性能优化指南——基础篇</a></li>
-<li><a href="https://tech.meituan.com/2016/05/12/spark-tuning-pro.html" target="_blank" rel="noopener">Spark性能优化指南——高级篇</a></li>
+<li><a href="https://blog.csdn.net/zhanaolu4821/article/details/102932209" target="_blank" rel="noopener">Spark学习之路 （十一）SparkCore的调优之Spark内存模型</a></li>
+<li><a href="https://study.163.com/course/courseLearn.htm?courseId=1208880821#/learn/video?lessonId=1278316678&amp;courseId=1208880821" target="_blank" rel="noopener">云课堂 SparkSQL 的数据源操作</a></li>
 <li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="noopener">大数据资料笔记整理</a></li>
 </ul>
 
@@ -234,7 +216,7 @@ reduceByKey = groupByKey + reduce</p>
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#开发调优-10点"><span class="toc-text"> 开发调优 10点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-尽量避免使用-shuffle-类算子"><span class="toc-text"> 4. 尽量避免使用 Shuffle 类算子</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-使用-map-side-预聚合combina的-shuffle-操作"><span class="toc-text"> 5. 使用 map-side 预聚合(combina)的 shuffle 操作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#概述"><span class="toc-text"> 概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-spark-的-shuffle-调优"><span class="toc-text"> 1. Spark 的 shuffle 调优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-mapreduce的shuffle复习"><span class="toc-text"> 4. mapreduce的shuffle复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-资源调优-2"><span class="toc-text"> 5. 资源调优 2</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-spark的静态内存模型和统一内存模型详解-资源调优"><span class="toc-text"> 6. spark的静态内存模型和统一内存模型详解 + 资源调优</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-spark的内存管理宏观概述"><span class="toc-text"> 7. spark的内存管理宏观概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-spark开发调优和数据倾斜复习"><span class="toc-text"> 8. spark开发调优和数据倾斜复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
       </div>
     
     
@@ -262,17 +244,17 @@ reduceByKey = groupByKey + reduce</p>
     
 <nav id="article-nav">
   
-    <a href="/2020/08/10/spark/spark-aura-6.4-dev-optimization-6-7/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2020/08/18/hadoop/hive-optimization-25-cases/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          Spark 开发调优 6,7
+          全宇宙最强的25条Hive性能调优实战
         
       </div>
     </a>
   
   
-    <a href="/2020/08/08/dataware/dw-sql-50-2/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Data Analysis - SQL 50 第2篇 Action&nbsp;<span>&gt;</span></div>
+    <a href="/2020/08/15/spark/spark-aura-9.1-SparkSql/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">SparkSql - 结构化数据处理 (上)&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -315,7 +297,7 @@ reduceByKey = groupByKey + reduce</p>
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2020/08/10/spark/spark-aura-6.3-dev-optimization-4-5/';
+  var disqus_url = 'http://iequa.com/2020/08/17/spark/spark-aura-7.1-memory/';
   
   (function(){
     var dsq = document.createElement('script');
