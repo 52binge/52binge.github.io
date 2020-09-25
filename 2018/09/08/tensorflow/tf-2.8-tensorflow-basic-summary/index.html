@@ -6,15 +6,15 @@
   <title>TensorFlow 基本用法总结 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="description" content="tensorflow 中文文档学习 tensorflow 的基本用法。">
+<meta name="keywords" content="tensorflow">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TensorFlow 基本用法总结">
-<meta property="og:url" content="http://shopee.ai/2018/09/08/tensorflow/tf-2.8-tensorflow-basic-summary/index.html">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;09&#x2F;08&#x2F;tensorflow&#x2F;tf-2.8-tensorflow-basic-summary&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:description" content="tensorflow 中文文档学习 tensorflow 的基本用法。">
-<meta property="og:updated_time" content="2020-07-15T00:27:51.053Z">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-07-03T03:32:44.977Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="TensorFlow 基本用法总结">
-<meta name="twitter:description" content="tensorflow 中文文档学习 tensorflow 的基本用法。">
   
   
     <link rel="icon" href="/css/images/favicon-Tiktok.ico">
@@ -86,7 +86,7 @@ var _hmt = _hmt || [];
 <header id="header">
   <div id="header-outer" class="outer">
     <div id="header-inner" class="inner">
-      <a id="main-nav-toggle" class="nav-icon" href="javascript:;"></a>
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
       <a id="logo" class="logo" href="/"></a>
       <nav id="main-nav">
         
@@ -105,7 +105,7 @@ var _hmt = _hmt || [];
       </nav>
       <nav id="sub-nav">
         <div id="search-form-wrap">
-          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://shopee.ai"></form>
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
         </div>
       </nav>
     </div>
@@ -144,7 +144,7 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://shopee.ai/2018/09/08/tensorflow/tf-2.8-tensorflow-basic-summary/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2018/09/08/tensorflow/tf-2.8-tensorflow-basic-summary/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
@@ -165,7 +165,7 @@ var _hmt = _hmt || [];
 <li>构造模型（设置求解目标函数） </li>
 <li>求解模型</li>
 </ol>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.准备数据：使用 NumPy 生成假数据(phony data), 总共 100 个点.</span></span><br><span class="line">x_data = np.float32(np.random.rand(<span class="number">2</span>, <span class="number">100</span>)) <span class="comment"># 随机输入</span></span><br><span class="line">y_data = np.dot([<span class="number">0.100</span>, <span class="number">0.200</span>], x_data) + <span class="number">0.300</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.构造一个线性模型</span></span><br><span class="line">b = tf.Variable(tf.zeros([<span class="number">1</span>]))</span><br><span class="line">W = tf.Variable(tf.random_uniform([<span class="number">1</span>, <span class="number">2</span>], <span class="number">-1.0</span>, <span class="number">1.0</span>))</span><br><span class="line">y = tf.matmul(W, x_data) + b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3.求解模型</span></span><br><span class="line"><span class="comment"># 设置损失函数：误差的均方差</span></span><br><span class="line">loss = tf.reduce_mean(tf.square(y - y_data))</span><br><span class="line"><span class="comment"># 选择梯度下降的方法</span></span><br><span class="line">optimizer = tf.train.GradientDescentOptimizer(<span class="number">0.5</span>)</span><br><span class="line"><span class="comment"># 迭代的目标：最小化损失函数</span></span><br><span class="line">train = optimizer.minimize(loss)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">############################################################</span></span><br><span class="line"><span class="comment"># 以下是用 tf 来解决上面的任务</span></span><br><span class="line"><span class="comment"># 1.初始化变量：tf 的必备步骤，主要声明了变量，就必须初始化才能用</span></span><br><span class="line">init = tf.global_variables_initializer()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置tensorflow对GPU的使用按需分配</span></span><br><span class="line">config  = tf.ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth = <span class="keyword">True</span></span><br><span class="line"><span class="comment"># 2.启动图 (graph)</span></span><br><span class="line">sess = tf.Session(config=config)</span><br><span class="line">sess.run(init)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3.迭代，反复执行上面的最小化损失函数这一操作（train op）,拟合平面</span></span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> xrange(<span class="number">0</span>, <span class="number">201</span>):</span><br><span class="line">    sess.run(train)</span><br><span class="line">    <span class="keyword">if</span> step % <span class="number">20</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">print</span> step, sess.run(W), sess.run(b)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 得到最佳拟合结果 W: [[0.100  0.200]], b: [0.300]</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1.准备数据：使用 NumPy 生成假数据(phony data), 总共 100 个点.</span></span><br><span class="line">x_data = np.float32(np.random.rand(<span class="number">2</span>, <span class="number">100</span>)) <span class="comment"># 随机输入</span></span><br><span class="line">y_data = np.dot([<span class="number">0.100</span>, <span class="number">0.200</span>], x_data) + <span class="number">0.300</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 2.构造一个线性模型</span></span><br><span class="line">b = tf.Variable(tf.zeros([<span class="number">1</span>]))</span><br><span class="line">W = tf.Variable(tf.random_uniform([<span class="number">1</span>, <span class="number">2</span>], <span class="number">-1.0</span>, <span class="number">1.0</span>))</span><br><span class="line">y = tf.matmul(W, x_data) + b</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3.求解模型</span></span><br><span class="line"><span class="comment"># 设置损失函数：误差的均方差</span></span><br><span class="line">loss = tf.reduce_mean(tf.square(y - y_data))</span><br><span class="line"><span class="comment"># 选择梯度下降的方法</span></span><br><span class="line">optimizer = tf.train.GradientDescentOptimizer(<span class="number">0.5</span>)</span><br><span class="line"><span class="comment"># 迭代的目标：最小化损失函数</span></span><br><span class="line">train = optimizer.minimize(loss)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">############################################################</span></span><br><span class="line"><span class="comment"># 以下是用 tf 来解决上面的任务</span></span><br><span class="line"><span class="comment"># 1.初始化变量：tf 的必备步骤，主要声明了变量，就必须初始化才能用</span></span><br><span class="line">init = tf.global_variables_initializer()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置tensorflow对GPU的使用按需分配</span></span><br><span class="line">config  = tf.ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth = <span class="literal">True</span></span><br><span class="line"><span class="comment"># 2.启动图 (graph)</span></span><br><span class="line">sess = tf.Session(config=config)</span><br><span class="line">sess.run(init)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3.迭代，反复执行上面的最小化损失函数这一操作（train op）,拟合平面</span></span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> xrange(<span class="number">0</span>, <span class="number">201</span>):</span><br><span class="line">    sess.run(train)</span><br><span class="line">    <span class="keyword">if</span> step % <span class="number">20</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="keyword">print</span> step, sess.run(W), sess.run(b)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 得到最佳拟合结果 W: [[0.100  0.200]], b: [0.300]</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">0 [[ 0.27467242  0.81889796]] [-0.13746099]</span><br><span class="line">20 [[ 0.1619305   0.39317462]] [ 0.18206716]</span><br><span class="line">40 [[ 0.11901411  0.25831661]] [ 0.2642329]</span><br><span class="line">60 [[ 0.10580806  0.21761954]] [ 0.28916073]</span><br><span class="line">80 [[ 0.10176832  0.20532639]] [ 0.29671678]</span><br><span class="line">100 [[ 0.10053726  0.20161074]] [ 0.29900584]</span><br><span class="line">120 [[ 0.100163    0.20048723]] [ 0.29969904]</span><br><span class="line">140 [[ 0.10004941  0.20014738]] [ 0.29990891]</span><br><span class="line">160 [[ 0.10001497  0.20004457]] [ 0.29997244]</span><br><span class="line">180 [[ 0.10000452  0.20001349]] [ 0.29999167]</span><br><span class="line">200 [[ 0.10000138  0.2000041 ]] [ 0.29999748]</span><br></pre></td></tr></table></figure>
 <h2 id="2-两个数求和"><a href="#2-两个数求和" class="headerlink" title="2. 两个数求和"></a>2. 两个数求和</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">input1 = tf.constant(<span class="number">2.0</span>)</span><br><span class="line">input2 = tf.constant(<span class="number">3.0</span>)</span><br><span class="line">input3 = tf.constant(<span class="number">5.0</span>)</span><br><span class="line"></span><br><span class="line">intermd = tf.add(input1, input2)</span><br><span class="line">mul = tf.multiply(input2, input3)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    result = sess.run([mul, intermd])  <span class="comment"># 一次执行多个op</span></span><br><span class="line">    print(result)</span><br><span class="line">    print(type(result))</span><br><span class="line">    print(type(result[<span class="number">0</span>]))</span><br></pre></td></tr></table></figure>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[15.0, 5.0]</span><br><span class="line">&lt;class &apos;list&apos;&gt;</span><br><span class="line">&lt;class &apos;numpy.float32&apos;&gt;</span><br></pre></td></tr></table></figure>
@@ -195,7 +195,7 @@ var _hmt = _hmt || [];
 <p><strong>🌰🌰1：feed</strong></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">input1 = tf.placeholder(tf.float32)</span><br><span class="line">input2 = tf.placeholder(tf.float32)</span><br><span class="line">output = tf.multiply(input1, input2)</span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    print(sess.run([output], feed_dict=&#123;input1:[<span class="number">7.0</span>], input2:[<span class="number">2.0</span>]&#125;))</span><br></pre></td></tr></table></figure>
 <p>output:</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[array([ 14.], dtype=<span class="built_in">float</span>32)]</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[array([ 14.], dtype=float32)]</span><br></pre></td></tr></table></figure>
 <p><strong>🌰🌰2： input1:[7.0], input2:[2.0]</strong></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    result = sess.run(output, feed_dict=&#123;input1:[<span class="number">7.0</span>], input2:[<span class="number">2.0</span>]&#125;)</span><br><span class="line">    print(type(result))</span><br><span class="line">    print(result)</span><br></pre></td></tr></table></figure>
 <p>output:</p>
@@ -209,8 +209,8 @@ var _hmt = _hmt || [];
 <p>output:</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[array([ 14.,   3.], dtype=float32)]</span><br><span class="line"></span><br><span class="line">[ 14.   3.]</span><br></pre></td></tr></table></figure>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
-<li><a href="https://www.tensorflow.org/" target="_blank" rel="external">tensorflow.org</a></li>
-<li><a href="https://blog.csdn.net/jerr__y/article/details/57084008" target="_blank" rel="external">TensorFlow入门（一）基本用法</a></li>
+<li><a href="https://www.tensorflow.org/" target="_blank" rel="noopener">tensorflow.org</a></li>
+<li><a href="https://blog.csdn.net/jerr__y/article/details/57084008" target="_blank" rel="noopener">TensorFlow入门（一）基本用法</a></li>
 </ul>
 
       
@@ -244,7 +244,7 @@ var _hmt = _hmt || [];
 </div>
 <div class="well">
   <!--
-  原创文章，转载请注明： 转载自<a href="http://52binge.github.io"> Blair Chan's Blog</a>，作者：
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
   <a href="/about">Blair Chan</a> <br>
   -->
   本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
@@ -272,7 +272,7 @@ var _hmt = _hmt || [];
         -->
         
   <div class="article-tag">
-    <a class="article-tag-link" href="/tags/tensorflow/">tensorflow</a>
+    <a class="article-tag-link" href="/tags/tensorflow/" rel="tag">tensorflow</a>
   </div>
 
 
@@ -313,7 +313,7 @@ var _hmt = _hmt || [];
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2020 Blair Chan&nbsp;
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos">blairos</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
     </div>
   </div>
 </footer>
@@ -336,7 +336,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://shopee.ai/2018/09/08/tensorflow/tf-2.8-tensorflow-basic-summary/';
+  var disqus_url = 'http://iequa.com/2018/09/08/tensorflow/tf-2.8-tensorflow-basic-summary/';
   
   (function(){
     var dsq = document.createElement('script');
