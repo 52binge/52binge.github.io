@@ -18,7 +18,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;data-flair&#x2F;Spark-In-Memory-Computing.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;data-flair&#x2F;Spark-Paired-RDD-01.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;data-flair&#x2F;Paired-RDD-01-1.jpg">
-<meta property="og:updated_time" content="2020-09-26T12:05:14.271Z">
+<meta property="og:updated_time" content="2020-09-28T10:27:41.606Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;data-flair&#x2F;Apache-Spark-RDD-01.jpg">
   
@@ -159,6 +159,12 @@ var _hmt = _hmt || [];
       
         <img src="/images/spark/data-flair/Apache-Spark-RDD-01.jpg" width="550" alt="" />
 <a id="more"></a>
+<ul>
+<li><a href="https://blog.csdn.net/huahuaxiaoshao/article/details/90744552" target="_blank" rel="noopener">very good Spark原理篇之RDD特征分析讲解</a></li>
+<li><a href="https://www.jianshu.com/p/fb8f3b34bc30" target="_blank" rel="noopener">spark 基础知识整理（一）</a></li>
+<li><a href="https://www.jianshu.com/p/7a8d5ee1bc44" target="_blank" rel="noopener">spark 基础知识整理（二）- RDD专题</a></li>
+<li><a href="https://blog.csdn.net/zhangzeyuan56/article/details/80935034" target="_blank" rel="noopener">Spark 分区(Partition)的认识、理解和应用</a></li>
+</ul>
 <h2 id="1-create-rdds"><a class="markdownIt-Anchor" href="#1-create-rdds"></a> 1. Create RDDs</h2>
 <img src="/images/spark/data-flair/ways-to-create-RDDs-in-spark-2.jpg" width="700" alt="" />
 <h2 id="2-rdd-persistence-and-caching"><a class="markdownIt-Anchor" href="#2-rdd-persistence-and-caching"></a> 2. RDD Persistence and Caching</h2>
@@ -248,6 +254,11 @@ var _hmt = _hmt || [];
 <td></td>
 </tr>
 <tr>
+<td>.</td>
+<td style="text-align:center">map / flatMap / mapPartitions</td>
+<td>…</td>
+</tr>
+<tr>
 <td>1.</td>
 <td style="text-align:center">groupByKey</td>
 <td>The groupbykey operation generally groups all the values with the same key. <br> rdd.groupByKey()</td>
@@ -265,21 +276,21 @@ var _hmt = _hmt || [];
 <tr>
 <td>4.</td>
 <td style="text-align:center">mapValues(func)</td>
-<td>Even without changing the key, mapValues operation applies a function to each value of a paired RDD of spark. <br><br> rdd.mapValues(x =&gt; x+1)</td>
+<td>Pass each value in the key-value pair RDD through a map function without changing the keys; this also retains the original RDD’s partitioning.</td>
 </tr>
 <tr>
 <td>5.</td>
 <td style="text-align:center">keys()</td>
-<td>Keys() operation generally returns a spark RDD of just the keys.</td>
+<td>Keys() Return an RDD with the keys of each tuple.</td>
 </tr>
 <tr>
 <td>6.</td>
 <td style="text-align:center">values()</td>
-<td>values() operation generally returns an RDD of just the values.</td>
+<td>Return an RDD with the values of each tuple.</td>
 </tr>
 <tr>
 <td>7.</td>
-<td style="text-align:center">sortByKey()</td>
+<td style="text-align:center"><strong><code>sortByKey</code></strong>(ascending=True, numPartitions=None, keyfunc=&lt;function RDD.<lambda>&gt;)</td>
 <td>Similarly, the sortByKey operation generally returns an RDD sorted by the key.</td>
 </tr>
 <tr>
@@ -294,7 +305,7 @@ var _hmt = _hmt || [];
 </tr>
 <tr>
 <td>9.</td>
-<td style="text-align:center">collectAsMap()**</td>
+<td style="text-align:center">collectAsMap()</td>
 <td>Here, collectAsMap() operation helps to collect the result as a map to provide easy lookup.</td>
 </tr>
 <tr>
@@ -304,9 +315,23 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
+<p><a href="http://spark.apache.org/docs/latest/api/python/pyspark.html?highlight=mapvalues" target="_blank" rel="noopener">PySpark 3.0.1 documentation »</a></p>
+<p><strong>(1). reduceByKey(fun) &amp; groupByKey</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">lines = sc.textFile(<span class="string">"/Users/blair/ghome/github/spark3.0/pyspark/spark-src/word_count.text"</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">lines.take(<span class="number">3</span>)</span><br><span class="line">words = lines.flatMap(<span class="keyword">lambda</span> x: x.split(<span class="string">' '</span>))</span><br><span class="line">print(words.take(<span class="number">5</span>))</span><br><span class="line"></span><br><span class="line">wco = words.map(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line">print(wco.take(<span class="number">5</span>))</span><br><span class="line"><span class="comment"># word_count = wco.reduceByKey(add)</span></span><br><span class="line"><span class="comment"># print("\nword_count:")</span></span><br><span class="line"><span class="comment"># print(word_count.take(5))</span></span><br><span class="line">print(<span class="string">"\ngroupByKey:"</span>)</span><br><span class="line">test = wco.groupByKey()</span><br><span class="line">print(test.take(<span class="number">2</span>))</span><br><span class="line"><span class="comment"># gp = test.map(lambda x: (x[0], [i for i in x[1]]))</span></span><br><span class="line"><span class="comment"># gp.take(2)</span></span><br></pre></td></tr></table></figure>
+<p><strong>(2). mapValues(fun)</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">rdd = sc.parallelize([(<span class="string">"a"</span>, <span class="number">1</span>), (<span class="string">"b"</span>, <span class="number">1</span>), (<span class="string">"a"</span>, <span class="number">1</span>)])</span><br><span class="line"></span><br><span class="line">sorted(rdd.groupByKey().mapValues(len).collect())</span><br><span class="line"><span class="comment"># [('a', 2), ('b', 1)]</span></span><br><span class="line">sorted(rdd.groupByKey().mapValues(list).collect())</span><br><span class="line"><span class="comment"># [('a', [1, 1]), ('b', [1])]</span></span><br></pre></td></tr></table></figure>
+<p><strong>(3). keys(), values()</strong></p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">m = sc.parallelize([(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>)]).keys()</span><br><span class="line">m.collect()</span><br><span class="line">[<span class="number">1</span>, <span class="number">3</span>]</span><br><span class="line"></span><br><span class="line">m = sc.parallelize([(<span class="number">1</span>, <span class="number">2</span>), (<span class="number">3</span>, <span class="number">4</span>)]).values()</span><br><span class="line">m.collect()</span><br><span class="line">[<span class="number">2</span>, <span class="number">4</span>]</span><br></pre></td></tr></table></figure>
+<p><strong>(4). sortBykey</strong></p>
+<ul>
+<li><a href="https://www.zhihu.com/question/33798481/answer/90849144" target="_blank" rel="noopener">spark combinebykey？</a></li>
+<li><a href="https://blog.csdn.net/mrlevo520/article/details/75579728" target="_blank" rel="noopener">pyspark中combineByKey的两种理解方法</a></li>
+</ul>
 <h2 id="5-rdd-limitations"><a class="markdownIt-Anchor" href="#5-rdd-limitations"></a> 5. RDD limitations</h2>
 <h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <ul>
+<li><a href="https://blog.csdn.net/huahuaxiaoshao/article/details/90744552" target="_blank" rel="noopener">Spark原理篇之RDD特征分析讲解</a></li>
+<li><a href="http://spark.apache.org/docs/latest/api/python/pyspark.html?highlight=mapvalues" target="_blank" rel="noopener">PySpark 3.0.1 documentation »</a></li>
 <li><a href="https://data-flair.training/blogs/" target="_blank" rel="noopener">data-flair.training/blogs</a></li>
 <li><a href="https://data-flair.training/blogs/spark-rdd-operations-transformations-actions/" target="_blank" rel="noopener">Spark RDD Operations-Transformation &amp; Action with Example</a></li>
 <li><a href="https://blog.csdn.net/u014204541/article/details/81130870" target="_blank" rel="noopener">Spark RDD常用算子学习笔记详解(python版)</a></li>
