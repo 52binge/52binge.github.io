@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark Intrduce 2 - RDD - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark Intrduce 2 - RDD">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;07&#x2F;07&#x2F;spark&#x2F;spark-review-2&#x2F;index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.0-rdd-logo.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.1.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.2.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.3.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.4.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.5.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.7.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.6.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-2.3.jpg">
+<meta property="og:updated_time" content="2020-09-29T02:42:31.259Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.0-rdd-logo.png">
+  
+  
+    <link rel="icon" href="/css/images/favicon-Tiktok.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<!-- jiangting add start... @2020.08.30 -->
+<!-- <div id="menu" class="duration-main" style="background-color: #e7e7e7"> -->
+<!--   <p class="links-p" href="/">Blair</p> -->
+<!--   <address class="icons"> -->
+<!--     <a href="https://github.com/blair101" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--     <a href="https://cn.linkedin.com/pub/tianyu-dai/a8/818/44a" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--   </address> -->
+<!--   <div class="hr1"></div> -->
+<!--   <nav> -->
+<!--     <div> -->
+<!--     <a class="home" href="/">Home</a></div> -->
+<!--     <p class="links-p" href="/">Home</p> -->
+<!--     <nav class="tag-ath"> -->
+<!--       <a class="proj" href="/categories">Category</a> -->
+<!--       <a class="authors" href="/about">About</a> -->
+<!--     </nav> -->
+<!--   </nav> -->
+<!--   <div class="hr2"></div> -->
+<!--     <p class="links-p">Links</p> -->
+<!--       <address class="links"> -->
+<!--       <a class="proj" href="/article/Create-MyWorld">Projects</a> -->
+<!--       <a class="friend">Friends</a></address><div class="hr3"> -->
+<!--   </div> -->
+<!--   <p class="end"></p> -->
+<!--   <div id="menu-links" class="duration-main" style="top: -400px; background-color: #f5f5f5"> -->
+<!--     <address> -->
+<!--       <li><a target="_blank" href="http://lm7.xxxxxxxx.jp">Lm7</a></li> -->
+<!--       <li><a target="_blank" href="http://www.pixiv.net/member.php?id=4933015">Domik</a></li> -->
+<!--       <li><a target="_blank" href="http://hana-ui.moe">hana-ui</a></li> -->
+<!--       <li><a target="_blank" href="http://fil.dtysky.moe">F-I-L</a></li> -->
+<!--       <li><a target="_blank" href="http://paradise.dtysky.moe">Paradise</a></li> -->
+<!--       <li><a target="_blank" href="http://moe-notes.dtysky.moe">MoeNotes</a></li> -->
+<!--       <li><a target="_blank" href="http://kanata.dtysky.moe">Kanata</a></li> -->
+<!--       <li><a target="_blank" href="http://blog.nekohand.moe">Nekohand</a></li> -->
+<!--       <li><a target="_blank" href="http://www.jerryfu.net">JerryFu</a></li> -->
+<!--       <li><a target="_blank" href="http://kawabangga.com">南史</a></li> -->
+<!--       <li><a>Hide Links</a></li> -->
+<!--       <li><a></a></li> -->
+<!--     </address> -->
+<!--   </div> -->
+<!-- </div> -->
+<!-- jiangting add end !  @2020.08.30 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/leetcode">LC</a>
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/dw">DW</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/spark-review-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark Intrduce 2 - RDD
+      <small class=article-detail-date-index>&nbsp; 2020-07-07</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2020/07/07/spark/spark-review-2/" class="article-date">
+  <time datetime="2020-07-07T12:07:21.000Z" itemprop="datePublished">2020-07-07</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2020/07/07/spark/spark-review-2/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <img src="/images/spark/spark-3.0-rdd-logo.png" width="550" alt="Spark RDD Feature" />
+<a id="more"></a>
+<h2 id="1-spark-是什么"><a class="markdownIt-Anchor" href="#1-spark-是什么"></a> 1. Spark 是什么?</h2>
+<img src="/images/spark/spark-3.1.png" width="900" alt="Spark" />
+<blockquote>
+<p>SQL, Oracle, Spark</p>
+<ol>
+<li>Oracle == 汽车</li>
+<li>hadoop == 飞机</li>
+<li>SQL == 驾照</li>
+<li>Spark 让SQL并行运行 == SQL加速器</li>
+</ol>
+<p>Spark 是计算引擎</p>
+</blockquote>
+<h2 id="2-spark-执行过程"><a class="markdownIt-Anchor" href="#2-spark-执行过程"></a> 2. Spark 执行过程</h2>
+<img src="/images/spark/spark-3.2.png" width="830" alt="Spark" />
+<blockquote>
+<p>HiveOnSpark vs SparkSQL</p>
+<ol>
+<li>Store</li>
+<li>MR</li>
+</ol>
+<p>HiveOnSpark, Hive SQL 可以用 Spark 执行引擎, 但是这样调优起来很麻烦</p>
+<p>SparkSQL 比 Hive on Spark 好一点.</p>
+</blockquote>
+<h2 id="3-spark-的起源"><a class="markdownIt-Anchor" href="#3-spark-的起源"></a> 3. Spark 的起源</h2>
+<img src="/images/spark/spark-3.3.png" width="900" alt="Spark" />
+<h2 id="4-spark-的架构图"><a class="markdownIt-Anchor" href="#4-spark-的架构图"></a> 4. Spark 的架构图</h2>
+<blockquote>
+<p>Spark 2.x python &amp; Java 性能 1:1</p>
+</blockquote>
+<img src="/images/spark/spark-3.4.png" width="700" alt="Spark" />
+<p>Spark DataFrame 与 pandas Dataframe 没关系，但是可以互相转换</p>
+<blockquote>
+<ol>
+<li>to_pandas</li>
+<li>to_spark</li>
+</ol>
+</blockquote>
+<ol>
+<li>DataSets : for Java</li>
+<li>Dataframe : for Python</li>
+<li>SQL : SQL</li>
+</ol>
+<p>条条大路通罗马</p>
+<blockquote>
+<p>Spark 适合大规模机器学习，不适合深度学习(tensorflow适合深度学习)，这样理解对么？</p>
+</blockquote>
+<h2 id="5-rdd-的五个特性"><a class="markdownIt-Anchor" href="#5-rdd-的五个特性"></a> 5. RDD 的五个特性</h2>
+<img src="/images/spark/spark-3.5.png" width="900" alt="Spark" />
+<h2 id="6-spark-api-如何使用"><a class="markdownIt-Anchor" href="#6-spark-api-如何使用"></a> 6. Spark Api 如何使用</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">1. PYSPARK_PYTHON</span><br><span class="line">2. JAVA_HOME</span><br><span class="line">3. SPARK_HOME</span><br><span class="line">4. PYLIB (os.environ[<span class="string">"PYLIB"</span>]=os.environ[<span class="string">"SPARK_HOME"</span>] + <span class="string">"/python/lib"</span>)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>PYLIB maybe not setting</p>
+<p>export PYSPARK_PYTHON=/Users/blair/.pyenv/versions/anaconda3/envs/spark/bin/python3<br />
+export PYSPARK_DRIVER_PYTHON=“jupyter”<br />
+export PYSPARK_DRIVER_PYTHON_OPTS=“notebook”</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">以下是 Mars 的设置 （我们直接用pyspark, 则不用直接这样显示在程序中指定）：</span><br><span class="line">os.environ[<span class="string">"PYSPARK_PYTHON"</span>]=<span class="string">"C:/Users/netease/Anaconda3/python.exe"</span></span><br><span class="line">os.environ[<span class="string">"JAVA_HOME"</span>]=<span class="string">"C:/Program Files/Java/jdk1.8.0_144"</span></span><br><span class="line">os.environ[<span class="string">"SPARK_HOME"</span>]=<span class="string">"c:/spark"</span></span><br><span class="line">os.environ[<span class="string">"PYLIB"</span>]=os.environ[<span class="string">"SPARK_HOME"</span>] + <span class="string">"/python/lib"</span></span><br><span class="line">sys.path.insert(<span class="number">0</span>,os.environ[<span class="string">"PYLIB"</span>] + <span class="string">"/py4j-0.10.7-src.zip"</span> )</span><br><span class="line">sys.path.insert(<span class="number">0</span>,os.environ[<span class="string">"PYLIB"</span>] + <span class="string">"/pyspark.zip"</span> )</span><br></pre></td></tr></table></figure>
+<h2 id="7-利用-pyspark-完成-wordcount"><a class="markdownIt-Anchor" href="#7-利用-pyspark-完成-wordcount"></a> 7. 利用 Pyspark 完成 WordCount</h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf , SparkContext</span><br><span class="line"></span><br><span class="line">print(sc.version)</span><br><span class="line"></span><br><span class="line">lines = sc.textFile(<span class="string">"/Users/blair/ghome/github/spark3.0/pyspark/spark-src/word_count.text"</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">lines.take(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">words= lines.flatMap(<span class="keyword">lambda</span> x : x.split(<span class="string">" "</span>))</span><br><span class="line">words.take(<span class="number">3</span>)</span><br><span class="line"></span><br><span class="line">wordCounts = words.countByValue()</span><br><span class="line"><span class="keyword">for</span> word,count <span class="keyword">in</span> wordCounts.items():</span><br><span class="line">    print(<span class="string">"&#123;&#125; : &#123;&#125;"</span>.format(word,count))</span><br></pre></td></tr></table></figure>
+<p>如果有3个节点, 则下列方法可以查看，数据分布在不同的 partition</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">indexedFunc</span><span class="params">(parindex,pariter)</span>:</span></span><br><span class="line">    <span class="keyword">return</span> [<span class="string">"partition : &#123;&#125; =&gt; &#123;&#125;"</span>.format(parindex,x) <span class="keyword">for</span> x <span class="keyword">in</span> pariter]</span><br><span class="line">    </span><br><span class="line">words.mapPartitionsWithIndex(indexedFunc).collect()</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>[‘partition : 0 =&gt; The’,<br />
+‘partition : 0 =&gt; history’,<br />
+‘partition : 0 =&gt; of’,<br />
+‘partition : 0 =&gt; New’,<br />
+‘partition : 0 =&gt; York’,<br />
+‘partition : 0 =&gt; begins’,<br />
+‘partition : 0 =&gt; around’,<br />
+‘partition : 0 =&gt; 10,000’,</p>
+</blockquote>
+<p>查看 spark 运行状态： <a href="http://localhost:8080/" target="_blank" rel="noopener">http://localhost:8080/</a></p>
+<img src="/images/spark/spark-3.7.png" width="900" alt="Spark" />
+<p>查看 spark Jobs 状态：<a href="http://localhost:4040/jobs/" target="_blank" rel="noopener">http://localhost:4040/jobs/</a></p>
+<img src="/images/spark/spark-3.6.png" width="900" alt="Spark" />
+<blockquote>
+<p><code>知识摘要</code>:</p>
+<ol>
+<li>
+<p>如果用 Hadoop Mapreduce 来完成, 则代码写起来麻烦并繁多.</p>
+</li>
+<li>
+<p>Spark 是 内存版的 Mapreduce, Mapreduce 可以说是所有分布式计算的鼻祖.</p>
+</li>
+<li>
+<p>Spark 需要做性能调优的时候，还得再看 Mapreduce 的知识来修复.</p>
+</li>
+</ol>
+</blockquote>
+<h2 id="8-spark-执行图"><a class="markdownIt-Anchor" href="#8-spark-执行图"></a> 8. Spark 执行图</h2>
+<img src="/images/spark/spark-2.3.jpg" width="600" alt="Spark Exec" />
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a href="https://www.jianshu.com/p/5a42fe0eed4d" target="_blank" rel="noopener">大数据入门与实战-PySpark的使用教程</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/27643991" target="_blank" rel="noopener">Python - lru_cache和singledispatch装饰器</a></li>
+<li><a href="https://study.163.com/course/courseMain.htm?courseId=1209979905" target="_blank" rel="noopener">大数据开发系列直播课 ③</a></li>
+<li><a href="https://www.jianshu.com/p/f79838ddb534" target="_blank" rel="noopener">PySpark-数据操作-DataFrame</a></li>
+</ul>
+<p><a href="https://www.youtube.com/watch?v=plLTqfBIlqg" target="_blank" rel="noopener">株式会社XG JAPAN 日本投资 | 过来人告诉你：日本创业移民的费用和坑</a></p>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-spark-是什么"><span class="toc-text"> 1. Spark 是什么?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-spark-执行过程"><span class="toc-text"> 2. Spark 执行过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-spark-的起源"><span class="toc-text"> 3. Spark 的起源</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-spark-的架构图"><span class="toc-text"> 4. Spark 的架构图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-rdd-的五个特性"><span class="toc-text"> 5. RDD 的五个特性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-spark-api-如何使用"><span class="toc-text"> 6. Spark Api 如何使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-利用-pyspark-完成-wordcount"><span class="toc-text"> 7. 利用 Pyspark 完成 WordCount</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-spark-执行图"><span class="toc-text"> 8. Spark 执行图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/spark/" rel="tag">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2020/07/15/hadoop/HDFS-Introduce/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Hadoop Tutorial 1 - HDFS
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/06/29/spark/spark-review-1-introduce/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Spark Introduce 1&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2020/07/07/spark/spark-review-2/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
