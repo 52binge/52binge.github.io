@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Chatbot Research 11 - Chatbot 的第二个版本 (新API实现) - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版. 本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：">
+<meta name="keywords" content="Chatbot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chatbot Research 11 - Chatbot 的第二个版本 (新API实现)">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;11&#x2F;29&#x2F;chatbot&#x2F;chatbot-research11&#x2F;index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:description" content="我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版. 本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-10-23T02:03:18.012Z">
+<meta name="twitter:card" content="summary">
+  
+  
+    <link rel="icon" href="/css/images/favicon-Tiktok.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<!-- jiangting add start... @2020.08.30 -->
+<!-- <div id="menu" class="duration-main" style="background-color: #e7e7e7"> -->
+<!--   <p class="links-p" href="/">Blair</p> -->
+<!--   <address class="icons"> -->
+<!--     <a href="https://github.com/blair101" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--     <a href="https://cn.linkedin.com/pub/tianyu-dai/a8/818/44a" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--   </address> -->
+<!--   <div class="hr1"></div> -->
+<!--   <nav> -->
+<!--     <div> -->
+<!--     <a class="home" href="/">Home</a></div> -->
+<!--     <p class="links-p" href="/">Home</p> -->
+<!--     <nav class="tag-ath"> -->
+<!--       <a class="proj" href="/categories">Category</a> -->
+<!--       <a class="authors" href="/about">About</a> -->
+<!--     </nav> -->
+<!--   </nav> -->
+<!--   <div class="hr2"></div> -->
+<!--     <p class="links-p">Links</p> -->
+<!--       <address class="links"> -->
+<!--       <a class="proj" href="/article/Create-MyWorld">Projects</a> -->
+<!--       <a class="friend">Friends</a></address><div class="hr3"> -->
+<!--   </div> -->
+<!--   <p class="end"></p> -->
+<!--   <div id="menu-links" class="duration-main" style="top: -400px; background-color: #f5f5f5"> -->
+<!--     <address> -->
+<!--       <li><a target="_blank" href="http://lm7.xxxxxxxx.jp">Lm7</a></li> -->
+<!--       <li><a target="_blank" href="http://www.pixiv.net/member.php?id=4933015">Domik</a></li> -->
+<!--       <li><a target="_blank" href="http://hana-ui.moe">hana-ui</a></li> -->
+<!--       <li><a target="_blank" href="http://fil.dtysky.moe">F-I-L</a></li> -->
+<!--       <li><a target="_blank" href="http://paradise.dtysky.moe">Paradise</a></li> -->
+<!--       <li><a target="_blank" href="http://moe-notes.dtysky.moe">MoeNotes</a></li> -->
+<!--       <li><a target="_blank" href="http://kanata.dtysky.moe">Kanata</a></li> -->
+<!--       <li><a target="_blank" href="http://blog.nekohand.moe">Nekohand</a></li> -->
+<!--       <li><a target="_blank" href="http://www.jerryfu.net">JerryFu</a></li> -->
+<!--       <li><a target="_blank" href="http://kawabangga.com">南史</a></li> -->
+<!--       <li><a>Hide Links</a></li> -->
+<!--       <li><a></a></li> -->
+<!--     </address> -->
+<!--   </div> -->
+<!-- </div> -->
+<!-- jiangting add end !  @2020.08.30 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/leetcode">LC</a>
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-chatbot/chatbot-research11" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Chatbot Research 11 - Chatbot 的第二个版本 (新API实现)
+      <small class=article-detail-date-index>&nbsp; 2018-11-29</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/11/29/chatbot/chatbot-research11/" class="article-date">
+  <time datetime="2018-11-29T14:00:21.000Z" itemprop="datePublished">2018-11-29</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/chatbot/">chatbot</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/11/29/chatbot/chatbot-research11/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <!-- 2018 -->
+<p>我们使用 tf.contrib.legacy_seq2seq 下的 API 构建了一个简单的 chatbot 对话系统. 代码是1.0之前旧版.</p>
+<p>本篇我们学习新版本灵活的的API，这里先来说一下二者的不同：</p>
+<a id="more"></a>
+<p><strong>新版本API：</strong></p>
+<blockquote>
+<ul>
+<li>
+<p>用 dynamic_rnn 来构造 RNN模型，这样就避免了数据长度不同所带来的困扰，不需要再使用 model_with_buckets 这种方法来构建模型，使得我们数据处理和模型代码都简洁很多。</p>
+</li>
+<li>
+<p>新版本将 Attention、 Decoder 等几个主要的功能都分别进行封装，直接调用相应的 Wapper函数 进行封装即可，更加灵活方便，而且只需要写几个简单的函数既可以自定义的各个模块以满足我们个性化的需求。</p>
+</li>
+<li>
+<p>实现了beam_search功能，可直接调用。</p>
+</li>
+</ul>
+</blockquote>
+<blockquote>
+<p><a href="https://www.zhihu.com/question/52200883" target="_blank" rel="noopener">tensor flow dynamic_rnn 与rnn有啥区别？</a></p>
+<p>dynamic_rnn 只在一个 batch 内部进行自动 padding， 不同 batch padding 长度可以不同</p>
+</blockquote>
+<h2 id="1-数据处理"><a class="markdownIt-Anchor" href="#1-数据处理"></a> 1. 数据处理</h2>
+<blockquote>
+<p>word2id is :  { ‘decorations’: 12002, ‘scraps’: 4599, …}</p>
+<p>id2word is :  { 0: ‘<pad>’, 1: ‘<go>’, 2: ‘<eos>’, 3: ‘<unknown>’, 4: ‘can’, 5: ‘we’, 6: ‘make’, … }</p>
+<p>trainingSamples is :<br />
+[<br />
+[ [793, 138, 65], [35, 209, 110, 9016, 208, 382, 35, 22] ],<br />
+[ [35, 209, 110, 9016, 208, 382, 35, 22], [26, 92, 1906, 47, 254, 65] ],<br />
+…<br />
+]</p>
+</blockquote>
+<h2 id="2-模型构建"><a class="markdownIt-Anchor" href="#2-模型构建"></a> 2. 模型构建</h2>
+<p>代码主要是从 tensorflow官网 给出的nmt例子的代码简化而来，实现了最基本的 <strong>attention</strong> 和 <strong>beam_search</strong> 等功能，同时有将nmt代码中繁杂的代码逻辑进行简化。这里参考nmt中所提到的构建<code>train</code>、<code>eval</code>、<code>inference</code> , 三个图进行模型构建，好处在于 <a href="https://github.com/tensorflow/nmt#building-training-eval-and-inference-graphs" target="_blank" rel="noopener">nmt官方文档 Building Training, Eval, and Inference Graphs </a></p>
+<blockquote>
+<ul>
+<li>inference图 往往与 train 和 eval结构 存在较大差异，所以往往需要单独进行构建<br />
+.   （没有decoder输入和目标，需要使用 greedy 或 beam_search 进行 decode，batch_size 也不同等等）</li>
+<li>eval图，不需要进行反向传播，只需要得到一个 <strong>loss</strong> 和 <strong>acc</strong>值</li>
+<li>数据进行 <code>feed</code>，简化数据操作</li>
+<li>变量重用变得简单，因为 train、eval 存在一些公用变量和代码块，就不需要我们重复定义</li>
+<li>只需要在 train 时不断保存模型参数，然后在 eval 和 infer 的时候 restore参数 即可</li>
+</ul>
+</blockquote>
+<p>以上，所以我们构建了 train、eval、infer 三个函数来实现上面的功能。在看代码之前我们先来简单说一下新版API几个主要的模块以及相互之间的调用关系。tf.contrib.seq2seq文件夹下面主要有下面6个文件，除了loss文件和之前的sequence_loss函数没有很大区别，这里不介绍之外，其他几个文件都会简单的说一下，这里主要介绍函数和类的功能，源码会放在下篇文章中介绍。</p>
+<blockquote>
+<ul>
+<li>decoder</li>
+<li>basic_decoder</li>
+<li>helper</li>
+<li>attention_wrapper</li>
+<li>beam_search_decoder</li>
+<li>loss</li>
+</ul>
+</blockquote>
+<h3 id="21-basicdecoder-类和-dynamic_decode"><a class="markdownIt-Anchor" href="#21-basicdecoder-类和-dynamic_decode"></a> 2.1 BasicDecoder 类和 dynamic_decode</h3>
+<p>decoder文件中定义了</p>
+<ul>
+<li>Decoder抽象类</li>
+<li>dynamic_decode函数</li>
+</ul>
+<blockquote>
+<p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程.</p>
+</blockquote>
+<h3 id="22-cell类型attention类型"><a class="markdownIt-Anchor" href="#22-cell类型attention类型"></a> 2.2 cell类型（Attention类型）</h3>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 分为3步，</span></span><br><span class="line"><span class="comment">#.  1. 定义attention机制</span></span><br><span class="line"><span class="comment">#.  2. 定义要是用的基础的RNNCell</span></span><br><span class="line"><span class="comment">#.  3. 使用AttentionWrapper进行封装</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 定义要使用的attention机制。</span></span><br><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=self.rnn_size, memory=encoder_outputs, memory_sequence_length=encoder_inputs_length)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 定义decoder阶段要是用的LSTMCell，然后为其封装attention wrapper</span></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 使用AttentionWrapper进行封装</span></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper(cell=decoder_cell, attention_mechanism=attention_mechanism, attention_layer_size=self.rnn_size, name=<span class="string">'Attention_Wrapper'</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="23-helper类型"><a class="markdownIt-Anchor" href="#23-helper类型"></a> 2.3 helper类型</h3>
+<p>helper其实就是decode阶段如何根据预测结果得到下一时刻的输入，比如train训练过程中应该直接使用上一时刻的真实值作为下一时刻输入，预测过程中可以使用贪婪的方法选择概率最大的那个值作为下一时刻等等。</p>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a href="https://blog.csdn.net/thriving_fcl/article/details/74165062" target="_blank" rel="noopener">Tensorflow新版Seq2Seq接口使用</a></li>
+<li><a href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq" target="_blank" rel="noopener">tensorflow官网API指导</a></li>
+<li><a href="https://github.com/Conchylicultor/DeepQA#chatbot" target="_blank" rel="noopener">DeepQA</a></li>
+<li><a href="https://github.com/pbhatia243/Neural_Conversation_Models" target="_blank" rel="noopener">Neural_Conversation_Models</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-数据处理"><span class="toc-text"> 1. 数据处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-模型构建"><span class="toc-text"> 2. 模型构建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-basicdecoder-类和-dynamic_decode"><span class="toc-text"> 2.1 BasicDecoder 类和 dynamic_decode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-cell类型attention类型"><span class="toc-text"> 2.2 cell类型（Attention类型）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-helper类型"><span class="toc-text"> 2.3 helper类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/chatbot/">chatbot</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/Chatbot/" rel="tag">Chatbot</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/12/01/tensorflow/sequence_loss/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Tensorflow Sequence_loss
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/11/26/tools/body-health/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">工程师应该如何注意身体健康？&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/11/29/chatbot/chatbot-research11/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
