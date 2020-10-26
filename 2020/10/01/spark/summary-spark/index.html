@@ -14,7 +14,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.1.2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-basic-run-app.png">
-<meta property="og:updated_time" content="2020-10-25T10:40:24.085Z">
+<meta property="og:updated_time" content="2020-10-26T00:24:27.221Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
   
@@ -297,6 +297,10 @@ var _hmt = _hmt || [];
 <p>Lineage</p>
 </blockquote>
 <p><strong>2. Spark性能优化指南—高级篇(8) （☆☆☆☆☆）</strong></p>
+<p>Data Skew 发生的原理</p>
+<blockquote>
+<p>Data Skew 的原理很简单：在进行shuffle的时候，必须将各个节点上相同的<strong>key</strong>拉取到某个节点上的一个task来进行处理，比如<strong>按照key进行聚合或join等操作</strong>。此时如果某个<strong>key</strong>对应的数据量特别大的话，就会发生 Data Skew。</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -323,8 +327,8 @@ var _hmt = _hmt || [];
 </tr>
 <tr>
 <td style="text-align:center">4.</td>
-<td>两阶段聚合（局部聚合+全局聚合）</td>
-<td style="text-align:center">（随机前缀）仅仅适用于聚合类的shuffle操作，适用范围相对较窄</td>
+<td><br> 两阶段聚合（局部聚合+全局聚合）</td>
+<td style="text-align:center">随机前缀=&gt;原1个Task的数据，现分多Task, 后去掉前缀, 在全局聚合 <br><br>  仅仅适用于聚合类的shuffle操作，适用范围相对较窄</td>
 </tr>
 <tr>
 <td style="text-align:center">5.</td>
@@ -358,7 +362,7 @@ var _hmt = _hmt || [];
 <tbody>
 <tr>
 <td style="text-align:center">1.</td>
-<td style="text-align:center">大多数Spark作业的性能主要就是消耗在了shuffle环节，因为该环节包含了大量的磁盘IO、序列化、网络数据传输等操作。因此，如果要让作业的性能更上一层楼，就有必要对shuffle过程进行调优。但是也必须提醒大家的是，影响一个Spark作业性能的因素，主要还是代码开发、资源参数以及数据倾斜，shuffle调优只能在整个Spark的性能调优中占到一小部分而已。因此大家务必把握住调优的基本原则，千万不要舍本逐末。下面我们就给大家详细讲解shuffle的原理，以及相关参数的说明，同时给出各个参数的调优建议。</td>
+<td style="text-align:center">大多数Spark作业的性能主要就是消耗在了shuffle环节，因为该环节包含了大量的磁盘IO、序列化、网络数据传输等操作。因此，如果要让作业的性能更上一层楼，就有必要对shuffle过程进行调优。但是也必须提醒大家的是，影响一个Spark作业性能的因素，主要还是<code>代码开发、资源参数以及数据倾斜</code>，shuffle调优只能在整个Spark的性能调优中占到一小部分而已。因此大家务必把握住调优的基本原则，千万不要舍本逐末。下面我们就给大家详细讲解shuffle的原理，以及相关参数的说明，同时给出各个参数的调优建议。</td>
 </tr>
 <tr>
 <td style="text-align:center">2.</td>
@@ -376,6 +380,84 @@ var _hmt = _hmt || [];
 5）checkpoint和persist，数据计算之后持久化缓存；<br />
 6）数据调度弹性，DAG TASK调度和资源无关；<br />
 7）数据分片的高度弹性。</p>
+<p><strong>4. Spark 开发调优 （☆☆☆☆☆）</strong></p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>Spark性能优化指南—基础篇(8)</th>
+<th style="text-align:center">优缺点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"> </td>
+<td><strong>1 ~ 3:</strong> 重复利用一个RDD</td>
+<td style="text-align:center">重复利用一个RDD</td>
+</tr>
+<tr>
+<td style="text-align:center">(1).</td>
+<td>避免创建重复 RDD</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">(2).</td>
+<td>尽可能复用同一个 RDD</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">(3).</td>
+<td>对多次使用的 RDD 进行持久化</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center"> </td>
+<td><strong>4 ~ 6:</strong> 提高任务处理的性能</td>
+<td style="text-align:center"><strong>提高任务处理的性能</strong></td>
+</tr>
+<tr>
+<td style="text-align:center">(4).</td>
+<td>尽量避免使用 shuffle 类算子</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">(5).</td>
+<td>使用 map-side 预聚合的 shuffle 操作</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">(6).</td>
+<td>使用高性能算子</td>
+<td style="text-align:center">reduceByKey/aggregateByKey替代groupByKey <br> 使用mapPartitions替代普通map</td>
+</tr>
+<tr>
+<td style="text-align:center"> </td>
+<td></td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">(7).</td>
+<td>广播大变量  (减轻网络负担)</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">(8).</td>
+<td>使用 Kryo 优化序列化性能</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">(9).</td>
+<td>优化数据结构</td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>总结： 如果说有某一个 RDD 会在一个程序中被多次使用，那么就应该不要重复创建，要多次使用这一个RDD (不可变的)，既然要重复利用一个RDD，就应该把这个 RDD 进行持久化. （最好在内存中）</p>
+<p>cache persist 持久化数据到磁盘或内存 unpersist<br />
+如何把持久化到磁盘或内存中的数据给删除掉呢？</p>
+<p>rdd.</p>
+</blockquote>
 <h2 id="1-spark-基础-2"><a class="markdownIt-Anchor" href="#1-spark-基础-2"></a> 1. Spark 基础 (2)</h2>
 <p>1）. spark的有几种部署模式，每种模式特点？</p>
 <blockquote>
