@@ -14,7 +14,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.1.2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-basic-run-app.png">
-<meta property="og:updated_time" content="2020-11-02T10:13:43.297Z">
+<meta property="og:updated_time" content="2020-11-03T07:51:30.574Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
   
@@ -309,7 +309,7 @@ var _hmt = _hmt || [];
 <tr>
 <td style="text-align:center">1</td>
 <td>Platform</td>
-<td>防止不必要的jar包分发，提高数据的本地性，选择高效的存储格式如<strong>parquet</strong></td>
+<td>提高数据的本地性，选择高效的存储格式如<strong>parquet</strong></td>
 </tr>
 <tr>
 <td style="text-align:center">2</td>
@@ -339,6 +339,7 @@ var _hmt = _hmt || [];
 <th style="text-align:center">No.</th>
 <th>Spark性能优化指南—高级篇(8)</th>
 <th style="text-align:center">优缺点</th>
+<th style="text-align:center">Flag</th>
 </tr>
 </thead>
 <tbody>
@@ -346,41 +347,43 @@ var _hmt = _hmt || [];
 <td style="text-align:center">1.</td>
 <td>Hive ETL预处理数据</td>
 <td style="text-align:center">治标不治本，Hive ETL中还是会发生数据倾斜</td>
+<td style="text-align:center">❎</td>
 </tr>
 <tr>
 <td style="text-align:center">2.</td>
 <td>过滤少数导致倾斜的key</td>
 <td style="text-align:center">适用场景不多，大多情况:导致倾斜的key还是多的，并不是少数</td>
+<td style="text-align:center">❎</td>
 </tr>
 <tr>
 <td style="text-align:center"><br>3.</td>
 <td><br>提高shuffle操作的并行度</td>
 <td style="text-align:center">reduceByKey(1000) <br>spark.sql.shuffle.partitions，shuffle task的并行度，默认200 <br><br> 总结：实现起来简单，可以缓解和减轻 Data Skew 的影响</td>
+<td style="text-align:center">❎</td>
 </tr>
 <tr>
 <td style="text-align:center">4.</td>
 <td><br> 两阶段聚合（局部聚合+全局聚合）</td>
 <td style="text-align:center">随机前缀=&gt;原1个Task的数据，现分多Task, 后去掉前缀, 在全局聚合 <br><br>  仅仅适用于聚合类的shuffle操作，适用范围相对较窄</td>
+<td style="text-align:center">good</td>
 </tr>
 <tr>
 <td style="text-align:center">5.</td>
-<td>将reduce join转为map join</td>
+<td><strong>将reduce join转为map join</strong></td>
 <td style="text-align:center">这个方案只适用1个大表和1个小表情况。需将小表进行广播</td>
+<td style="text-align:center">good</td>
 </tr>
 <tr>
 <td style="text-align:center">6.</td>
 <td>采样倾斜key并分拆join操作</td>
 <td style="text-align:center">如果导致倾斜的key特别多的话，，那么这种方式也不适合</td>
+<td style="text-align:center">✔️</td>
 </tr>
 <tr>
 <td style="text-align:center">7.</td>
 <td>使用随机前缀和扩容RDD进行join</td>
 <td style="text-align:center">该方案更多的是缓解数据倾斜，而不是彻底避免数据倾斜。<br> 而且需要对整个RDD进行扩容，对内存资源要求很高</td>
-</tr>
-<tr>
-<td style="text-align:center">8.</td>
-<td>多种方案组合使用</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">✔️</td>
 </tr>
 </tbody>
 </table>
