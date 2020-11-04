@@ -14,7 +14,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.1.2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-basic-run-app.png">
-<meta property="og:updated_time" content="2020-11-03T07:51:30.574Z">
+<meta property="og:updated_time" content="2020-11-04T02:47:08.947Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
   
@@ -309,12 +309,12 @@ var _hmt = _hmt || [];
 <tr>
 <td style="text-align:center">2</td>
 <td>Application</td>
-<td>过滤操作符的优化降低过多小任务，降低单条记录的资源开销，处理数据倾斜，复用RDD进行缓存，作业并行化执行等等</td>
+<td>处理 Data Skew，复用RDD进行缓存，作业并行化执行等等</td>
 </tr>
 <tr>
 <td style="text-align:center">3</td>
 <td>JVM 层面</td>
-<td>设置合适的资源量，设置合理的JVM，启用高效的序列化方法如kyro，增大off head内存等等</td>
+<td>启用高效的序列化方法如kyro，增大off head内存等等</td>
 </tr>
 </tbody>
 </table>
@@ -401,6 +401,7 @@ var _hmt = _hmt || [];
 <p>将reduce join转为map join:</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 首先将数据量比较小的RDD的数据，collect到Driver中来。</span></span><br><span class="line">List&lt;Tuple2&lt;Long, Row&gt;&gt; rdd1Data = rdd1.collect()</span><br><span class="line"><span class="comment">// 然后使用Spark的广播功能，将小RDD的数据转换成广播变量，这样每个Executor就只有一份RDD的数据。</span></span><br><span class="line"><span class="comment">// 可以尽可能节省内存空间，并且减少网络传输性能开销。</span></span><br><span class="line"><span class="keyword">final</span> Broadcast&lt;List&lt;Tuple2&lt;Long, Row&gt;&gt;&gt; rdd1DataBroadcast = sc.broadcast(rdd1Data);</span><br></pre></td></tr></table></figure>
 <p><strong>3. RDD的弹性表现在哪几点？（☆☆☆☆☆）</strong></p>
+<blockquote>
 <p>1）自动的进行内存和磁盘的存储切换；<br />
 2）基于Lineage的高效容错；<br />
 3）task如果失败会自动进行特定次数的重试；<br />
@@ -408,75 +409,76 @@ var _hmt = _hmt || [];
 5）checkpoint和persist，数据计算之后持久化缓存；<br />
 6）数据调度弹性，DAG TASK调度和资源无关；<br />
 7）数据分片的高度弹性。</p>
+</blockquote>
 <p><strong>4. Spark 开发调优 （☆☆☆☆☆）</strong></p>
 <table>
 <thead>
 <tr>
 <th style="text-align:center">No.</th>
-<th>Spark性能优化指南—基础篇(8)</th>
-<th style="text-align:center">优缺点</th>
+<th style="text-align:center">Spark性能优化指南基础篇(8)</th>
+<th>优缺点</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:center"> </td>
-<td><strong>1 ~ 3:</strong> 重复利用一个RDD</td>
-<td style="text-align:center">重复利用一个RDD</td>
+<td style="text-align:center"><strong>1 ~ 3:</strong> 重复利用一个RDD</td>
+<td>重复利用一个RDD</td>
 </tr>
 <tr>
 <td style="text-align:center">(1).</td>
-<td>避免创建重复 RDD</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">避免创建重复 RDD</td>
+<td></td>
 </tr>
 <tr>
 <td style="text-align:center">(2).</td>
-<td>尽可能复用同一个 RDD</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">尽可能复用同一个 RDD</td>
+<td></td>
 </tr>
 <tr>
 <td style="text-align:center">(3).</td>
-<td>对多次使用的 RDD 进行持久化</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">对多次使用的 RDD 进行持久化</td>
+<td></td>
 </tr>
 <tr>
 <td style="text-align:center"> </td>
-<td><strong>4 ~ 6:</strong> 提高任务处理的性能</td>
-<td style="text-align:center"><strong>提高任务处理的性能</strong></td>
+<td style="text-align:center"><strong>4 ~ 6:</strong> 提高任务处理的性能</td>
+<td><strong>提高任务处理的性能</strong></td>
 </tr>
 <tr>
-<td style="text-align:center">(4).</td>
-<td>尽量避免使用 shuffle 类算子</td>
-<td style="text-align:center"></td>
+<td style="text-align:center"><br><br> (4).</td>
+<td style="text-align:center"><br><br> 尽量避免使用 shuffle 类算子</td>
+<td>Spark作业运行过程中，最消耗性能的地方就是shuffle过程 <br><br> shuffle过程中，各个节点上的相同key都会先写入本地磁盘文件中，然后其他节点需要通过网络传输拉取各个节点上的磁盘文件中的相同key</td>
 </tr>
 <tr>
 <td style="text-align:center">(5).</td>
-<td>使用 map-side 预聚合的 shuffle 操作</td>
-<td style="text-align:center"></td>
+<td style="text-align:center"><br> 使用 map-side 预聚合的 shuffle 操作  <br><br> 是在每个节点本地对相同的key进行一次聚合操作，类似于MapReduce中的本地combiner;</td>
+<td><br> map-side预聚合之后，每个节点本地就只会有一条相同的key，因为多条相同的key都被聚合起来了 <br> 减少了磁盘IO以及网络传输开销</td>
 </tr>
 <tr>
 <td style="text-align:center">(6).</td>
-<td>使用高性能算子</td>
-<td style="text-align:center">reduceByKey/aggregateByKey替代groupByKey <br> 使用mapPartitions替代普通map</td>
+<td style="text-align:center">使用高性能算子</td>
+<td>reduceByKey/aggregateByKey替代groupByKey <br> 使用mapPartitions替代普通map</td>
 </tr>
 <tr>
 <td style="text-align:center"> </td>
-<td></td>
 <td style="text-align:center"></td>
+<td></td>
 </tr>
 <tr>
 <td style="text-align:center">(7).</td>
-<td>广播大变量  (减轻网络负担)</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">广播大变量  (减轻网络负担)</td>
+<td></td>
 </tr>
 <tr>
-<td style="text-align:center">(8).</td>
-<td>使用 Kryo 优化序列化性能</td>
-<td style="text-align:center"></td>
+<td style="text-align:center"><br><br>(8).</td>
+<td style="text-align:center"><br><br>使用 Kryo 优化序列化性能</td>
+<td>1. 在算子函数中用到外部变量，该变量会序列化后网络传输 <br> 2. RDD泛型类型时，所有自定义类型对象，都会进行序列化 <br> 3. 使用可序列化的持久化策略时 <br><br> Kryo要求最好要注册所有需要进行序列化的自定义类型</td>
 </tr>
 <tr>
 <td style="text-align:center">(9).</td>
-<td>优化数据结构</td>
-<td style="text-align:center"></td>
+<td style="text-align:center">优化数据结构</td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -484,7 +486,6 @@ var _hmt = _hmt || [];
 <p>总结： 如果说有某一个 RDD 会在一个程序中被多次使用，那么就应该不要重复创建，要多次使用这一个RDD (不可变的)，既然要重复利用一个RDD，就应该把这个 RDD 进行持久化. （最好在内存中）</p>
 <p>cache persist 持久化数据到磁盘或内存 unpersist<br />
 如何把持久化到磁盘或内存中的数据给删除掉呢？</p>
-<p>rdd.</p>
 </blockquote>
 <h2 id="1-spark-基础-2"><a class="markdownIt-Anchor" href="#1-spark-基础-2"></a> 1. Spark 基础 (2)</h2>
 <p>1）. spark的有几种部署模式，每种模式特点？</p>
