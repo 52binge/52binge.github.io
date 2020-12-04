@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark Task-Commit 流程解析 4.2 - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark Task-Commit 流程解析 4.2">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2018&#x2F;07&#x2F;29&#x2F;spark&#x2F;spark-aura-4.2-task-commit&#x2F;index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.1.2.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.2.7.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.4.2.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.4.1.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.4.3.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.4.5.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.2.1.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.2.2.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.2.4.jpg">
+<meta property="og:updated_time" content="2020-12-04T01:06:01.069Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.1.2.jpg">
+  
+  
+    <link rel="icon" href="/css/images/favicon-Tiktok.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<!-- jiangting add start... @2020.08.30 -->
+<!-- <div id="menu" class="duration-main" style="background-color: #e7e7e7"> -->
+<!--   <p class="links-p" href="/">Blair</p> -->
+<!--   <address class="icons"> -->
+<!--     <a href="https://github.com/blair101" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--     <a href="https://cn.linkedin.com/pub/tianyu-dai/a8/818/44a" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--   </address> -->
+<!--   <div class="hr1"></div> -->
+<!--   <nav> -->
+<!--     <div> -->
+<!--     <a class="home" href="/">Home</a></div> -->
+<!--     <p class="links-p" href="/">Home</p> -->
+<!--     <nav class="tag-ath"> -->
+<!--       <a class="proj" href="/categories">Category</a> -->
+<!--       <a class="authors" href="/about">About</a> -->
+<!--     </nav> -->
+<!--   </nav> -->
+<!--   <div class="hr2"></div> -->
+<!--     <p class="links-p">Links</p> -->
+<!--       <address class="links"> -->
+<!--       <a class="proj" href="/article/Create-MyWorld">Projects</a> -->
+<!--       <a class="friend">Friends</a></address><div class="hr3"> -->
+<!--   </div> -->
+<!--   <p class="end"></p> -->
+<!--   <div id="menu-links" class="duration-main" style="top: -400px; background-color: #f5f5f5"> -->
+<!--     <address> -->
+<!--       <li><a target="_blank" href="http://lm7.xxxxxxxx.jp">Lm7</a></li> -->
+<!--       <li><a target="_blank" href="http://www.pixiv.net/member.php?id=4933015">Domik</a></li> -->
+<!--       <li><a target="_blank" href="http://hana-ui.moe">hana-ui</a></li> -->
+<!--       <li><a target="_blank" href="http://fil.dtysky.moe">F-I-L</a></li> -->
+<!--       <li><a target="_blank" href="http://paradise.dtysky.moe">Paradise</a></li> -->
+<!--       <li><a target="_blank" href="http://moe-notes.dtysky.moe">MoeNotes</a></li> -->
+<!--       <li><a target="_blank" href="http://kanata.dtysky.moe">Kanata</a></li> -->
+<!--       <li><a target="_blank" href="http://blog.nekohand.moe">Nekohand</a></li> -->
+<!--       <li><a target="_blank" href="http://www.jerryfu.net">JerryFu</a></li> -->
+<!--       <li><a target="_blank" href="http://kawabangga.com">南史</a></li> -->
+<!--       <li><a>Hide Links</a></li> -->
+<!--       <li><a></a></li> -->
+<!--     </address> -->
+<!--   </div> -->
+<!-- </div> -->
+<!-- jiangting add end !  @2020.08.30 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/ai1">AI</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/spark-aura-4.2-task-commit" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark Task-Commit 流程解析 4.2
+      <small class=article-detail-date-index>&nbsp; 2018-07-29</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2018/07/29/spark/spark-aura-4.2-task-commit/" class="article-date">
+  <time datetime="2018-07-29T00:07:21.000Z" itemprop="datePublished">2018-07-29</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2018/07/29/spark/spark-aura-4.2-task-commit/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <img src="/images/spark/spark-aura-4.1.2.jpg" width="750" />
+<a id="more"></a>
+<p><strong>sparkcore 的任务执行流程分析：</strong></p>
+<blockquote>
+<ul>
+<li>构建DAG</li>
+<li>DAGScheduler —&gt; DAG —&gt; TaskSet (Task set)</li>
+</ul>
+<p>补充:</p>
+<ol>
+<li>executor  ExecutorBacked     actor</li>
+<li>driver    SchedulerBackend   actor</li>
+</ol>
+</blockquote>
+<img src="/images/spark/spark-aura-4.2.7.jpg" width="850" />
+<h2 id="spark-核心概念复习"><a class="markdownIt-Anchor" href="#spark-核心概念复习"></a> Spark 核心概念复习</h2>
+<p>2个重要的知识:</p>
+<ol>
+<li>new SparkContext (sparkConf)</li>
+<li>collect().  action算子的提交任务机制，出发任务执行核心</li>
+</ol>
+<blockquote>
+<p>HDFS - File - block - mapreduce line<br />
+HDFS - RDD - partition -</p>
+</blockquote>
+<img src="/images/spark/spark-aura-4.4.2.jpg" width="850" />
+<img src="/images/spark/spark-aura-4.4.1.jpg" width="850" />
+<img src="/images/spark/spark-aura-4.4.3.jpg" width="850" />
+<img src="/images/spark/spark-aura-4.4.5.jpg" width="850" />
+<p><strong>Spark:</strong></p>
+<blockquote>
+<ol>
+<li>Application</li>
+<li>Driver Program</li>
+<li>ClusterManager</li>
+<li>SparkContext 整个应用上下文</li>
+<li>RDD</li>
+<li>DAGScheduler</li>
+<li>TaskScheduler</li>
+<li>Worker</li>
+<li>Executor</li>
+<li>Stage</li>
+<li>Job</li>
+<li>Task</li>
+<li>SparkEnv : 线程级别上下文, 存储运行时重要组件的引用</li>
+</ol>
+</blockquote>
+<p>SparkEnv:</p>
+<blockquote>
+<p>MapOutPutTracker<br />
+…<br />
+SparkConf</p>
+</blockquote>
+<p>课程结束:</p>
+<ol>
+<li>大数据存储</li>
+<li>大数据计算</li>
+<li>大数据实时增删改查</li>
+</ol>
+<p><strong>MapReduce</strong> 分布式计算的鼻祖 模型 解决大数据集计算的通用思想</p>
+<blockquote>
+<ol>
+<li>分而治之: 1个Application —&gt; 多个task</li>
+<li>临时结果汇总: 多个Task的数据进行最终的汇总处理</li>
+</ol>
+</blockquote>
+<p><strong>zookeeper</strong></p>
+<blockquote>
+<p>议会制 , 投票 , 少数服从多数</p>
+<p>艺术来源于生活</p>
+<p>kylin, spark, flink ----&gt; mapreduce</p>
+</blockquote>
+<hr />
+<hr />
+<h2 id="spark-任务执行流程详解"><a class="markdownIt-Anchor" href="#spark-任务执行流程详解"></a> Spark 任务执行流程详解</h2>
+<p>现在开始介绍SparkContext，SparkContext的初始化步骤如下：</p>
+<p><strong>最重要的三个属性</strong>:</p>
+<blockquote>
+<ol>
+<li>_dagScheduler     <code>----&gt;</code>  a</li>
+<li>_taskScheduler    <code>----&gt;</code>  TaskSchedulerImpl</li>
+<li>_schedulerBackend <code>----&gt;</code>  StandaloneSchedulerBackend</li>
+</ol>
+</blockquote>
+<img src="/images/spark/spark-aura-4.2.1.jpg" width="850" />
+<p>Spark 任务提交流程：</p>
+<img src="/images/spark/spark-aura-4.2.2.jpg" width="700" alt="Spark 任务提交流程" />
+<p>图2：</p>
+<img src="/images/spark/spark-aura-4.2.4.jpg" width="700" />
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a href="https://gist.github.com/hustcat/55883ea87bdeb9a8f402f758178ab17e" target="_blank" rel="noopener">hustcat/spark_internal.md</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1329359" target="_blank" rel="noopener">Spark内核分析之SparkContext初始化源码分析</a></li>
+<li><a href="https://study.163.com/course/courseLearn.htm?courseId=1208880821#/learn/video?lessonId=1278314609&amp;courseId=1208880821" target="_blank" rel="noopener">spark核心概念</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#spark-核心概念复习"><span class="toc-text"> Spark 核心概念复习</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#spark-任务执行流程详解"><span class="toc-text"> Spark 任务执行流程详解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/spark/" rel="tag">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2018/07/31/spark/spark-aura-5.1-sparkCore/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          SparkCore 中的工作原理 - 任务执行流程 5.1
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2018/07/27/spark/spark-aura-3.2-spark-basic-summary/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">spark 基础概念复习 3.2&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2020 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2018/07/29/spark/spark-aura-4.2-task-commit/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
