@@ -5,13 +5,13 @@
   
   <title>Hive 中 udf、udaf 和 udtf 的使用 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库. Hive 是一个很开放的系统，很多内容都支持用户定制. 如 : 文件格式、MR脚本、自定义函数、自定义聚合函数 等.">
+  <meta name="description" content="Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库.  Hive 是一个很开放的系统，很多内容都支持用户定制. 如 : 文件格式、MR脚本、自定义函数、自定义聚合函数 等.">
 <meta name="keywords" content="hive">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Hive 中 udf、udaf 和 udtf 的使用">
 <meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2015&#x2F;02&#x2F;01&#x2F;hadoop&#x2F;hadoop-hive-udf-udaf&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
-<meta property="og:description" content="Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库. Hive 是一个很开放的系统，很多内容都支持用户定制. 如 : 文件格式、MR脚本、自定义函数、自定义聚合函数 等.">
+<meta property="og:description" content="Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库.  Hive 是一个很开放的系统，很多内容都支持用户定制. 如 : 文件格式、MR脚本、自定义函数、自定义聚合函数 等.">
 <meta property="og:locale" content="en">
 <meta property="og:updated_time" content="2020-12-06T06:30:31.101Z">
 <meta name="twitter:card" content="summary">
@@ -149,19 +149,17 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库.</p>
+        <p>Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库. </p>
 <p>Hive 是一个很开放的系统，很多内容都支持用户定制. 如 : 文件格式、MR脚本、自定义函数、自定义聚合函数 等.</p>
 <a id="more"></a>
-<h2 id="udf"><a class="markdownIt-Anchor" href="#udf"></a> UDF</h2>
-<p>编写 UDF函数 的时候需要注意一下几点：</p>
+<h2 id="UDF"><a href="#UDF" class="headerlink" title="UDF"></a>UDF</h2><p>编写 UDF函数 的时候需要注意一下几点：</p>
 <ol>
 <li>自定义 UDF 需要继承 org.apache.hadoop.hive.ql.UDF</li>
 <li>需要实现 <code>evaluate</code> 函数</li>
 </ol>
 <p>以下是两个数求和函数的UDF。evaluate函数代表两个整型数据相加</p>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> hive.connect;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hive.ql.exec.UDF;  </span><br><span class="line">  </span><br><span class="line"><span class="keyword">public</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">Add</span> <span class="keyword">extends</span> <span class="title">UDF</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Integer <span class="title">evaluate</span><span class="params">(Integer a, Integer b)</span> </span>&#123;  </span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">null</span> == a || <span class="keyword">null</span> == b) &#123;  </span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;  </span><br><span class="line">        &#125; </span><br><span class="line">        <span class="keyword">return</span> a + b;  </span><br><span class="line">    &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="udaf"><a class="markdownIt-Anchor" href="#udaf"></a> UDAF</h2>
-<p>函数类需要继承 <strong>UDAF</strong> 类，内部类 <strong>Evaluator</strong> 需要实现 <strong>UDAFEvaluator</strong> 接口.</p>
+<h2 id="UDAF"><a href="#UDAF" class="headerlink" title="UDAF"></a>UDAF</h2><p>函数类需要继承 <strong>UDAF</strong> 类，内部类 <strong>Evaluator</strong> 需要实现 <strong>UDAFEvaluator</strong> 接口.</p>
 <p>Evaluator 需要实现 init、iterate、terminatePartial、merge、terminate 这几个函数.</p>
 <ol>
 <li><code>init</code>函数实现接口 UDAFEvaluator 的 init 函数.</li>
@@ -174,8 +172,7 @@ var _hmt = _hmt || [];
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> com.x.user_bhv;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.google.common.collect.Maps;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hive.ql.exec.UDAF;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hive.ql.exec.UDAFEvaluator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.HashMap;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UDAFMergeIntToIntMap</span> <span class="keyword">extends</span> <span class="title">UDAF</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">PartialResult</span> </span>&#123;</span><br><span class="line">        Map&lt;Integer, Integer&gt; attributes;</span><br><span class="line"></span><br><span class="line">        PartialResult() &#123;</span><br><span class="line">            attributes = Maps.newHashMap();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="class"><span class="keyword">class</span> <span class="title">UnitIdUDAFEvaluator</span> <span class="keyword">implements</span> <span class="title">UDAFEvaluator</span> </span>&#123;</span><br><span class="line">        <span class="keyword">private</span> PartialResult partialResult;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">UnitIdUDAFEvaluator</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">super</span>();</span><br><span class="line">            init();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">init</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            System.out.println(<span class="string">"map init"</span>);</span><br><span class="line">            partialResult = <span class="keyword">new</span> PartialResult();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">iterate</span><span class="params">(Map&lt;Integer, Integer&gt; attributes_args)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (attributes_args == <span class="keyword">null</span> || attributes_args.isEmpty()) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (Map.Entry&lt;Integer, Integer&gt; entry : attributes_args.entrySet()) &#123;</span><br><span class="line">                <span class="keyword">this</span>.partialResult.attributes.put(entry.getKey(), entry.getValue());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> PartialResult <span class="title">terminatePartial</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">this</span>.partialResult;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">merge</span><span class="params">(PartialResult other)</span> </span>&#123; <span class="comment">// 参数不可能为 null</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> (Map.Entry&lt;Integer, Integer&gt; entry : other.attributes.entrySet()) &#123;</span><br><span class="line">                <span class="keyword">this</span>.partialResult.attributes.put(entry.getKey(), entry.getValue());</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">public</span> Map&lt;Integer, Integer&gt; <span class="title">terminate</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (partialResult == <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HashMap&lt;Integer, Integer&gt;();</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">this</span>.partialResult.attributes;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>在 Hive 脚本中的使用示例 :</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">hql=<span class="string">"ADD jar <span class="variable">$&#123;jar_dir&#125;</span>/user_bhv_for_hive.jar;</span></span><br><span class="line"><span class="string">    CREATE TEMPORARY FUNCTION merge_int_to_int_map AS 'com.x.user_bhv.UDAFMergeIntToIntMap';</span></span><br><span class="line"><span class="string">    INSERT OVERWRITE TABLE <span class="variable">$&#123;table_user_buy_category&#125;</span></span></span><br><span class="line"><span class="string">    SELECT</span></span><br><span class="line"><span class="string">        mobile_number,</span></span><br><span class="line"><span class="string">        merge_int_to_int_map (level1_id_count_map)</span></span><br><span class="line"><span class="string">    FROM </span></span><br><span class="line"><span class="string">        ods_dm_e_coupon</span></span><br><span class="line"><span class="string">    GROUP BY mobile_number</span></span><br></pre></td></tr></table></figure>
-<h2 id="summary"><a class="markdownIt-Anchor" href="#summary"></a> Summary</h2>
-<ol>
+<h2 id="Summary"><a href="#Summary" class="headerlink" title="Summary"></a>Summary</h2><ol>
 <li>重载 evaluate 函数.</li>
 <li>UDF 函数中参数类型可以为Writable，也可为java中的基本数据对象.</li>
 <li>UDF 支持变长的参数.</li>
@@ -188,8 +185,7 @@ var _hmt = _hmt || [];
 <blockquote>
 <p>UDAF: User Defined Aggregation Function</p>
 </blockquote>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="http://blog.csdn.net/liuj2511981/article/details/8523084" target="_blank" rel="noopener">Hive 中 UDF、UDAF 和 UDTF 使用</a></li>
 <li><a href="https://github.com/blair101/bigdata/tree/master/hadoop/hive_udf_udaf" target="_blank" rel="noopener">bliar’s github hive udaf demo</a></li>
 </ul>
@@ -236,7 +232,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#udf"><span class="toc-text"> UDF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#udaf"><span class="toc-text"> UDAF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#summary"><span class="toc-text"> Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#UDF"><span class="toc-text">UDF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#UDAF"><span class="toc-text">UDAF</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Summary"><span class="toc-text">Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
       </div>
     
     
