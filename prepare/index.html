@@ -5,14 +5,14 @@
   
   <title>Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="0. Glassdoor    No. Question Flag     1. hashmap questions  哈希冲突解决方法 : 关键字值不同的元素可能会映象到哈希表的同一地址上就会发生哈希冲突 大厂面试必问！HashMap 怎样解决hash冲突？  为什么 Map 桶中超过 8 个才转为红黑树？  HashMap指南  HashMap面试     shop大数据面试     No.">
+  <meta name="description" content="Hadoop, HDFS, MR, Yarn Job七、介绍一下HDFS读写流程  HDFS block数据块大小为128MB, 默认情况下每个block有三个副本, NameNode主节点， DataNode 从节点. HDFS client上传数据到HDFS时，首先，在本地缓存数据，当数据达到一个block大小时。请求NameNode分配一个block。 NameNode会把block所在的D">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Auckland New Zealand">
 <meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;prepare&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
-<meta property="og:description" content="0. Glassdoor    No. Question Flag     1. hashmap questions  哈希冲突解决方法 : 关键字值不同的元素可能会映象到哈希表的同一地址上就会发生哈希冲突 大厂面试必问！HashMap 怎样解决hash冲突？  为什么 Map 桶中超过 8 个才转为红黑树？  HashMap指南  HashMap面试     shop大数据面试     No.">
+<meta property="og:description" content="Hadoop, HDFS, MR, Yarn Job七、介绍一下HDFS读写流程  HDFS block数据块大小为128MB, 默认情况下每个block有三个副本, NameNode主节点， DataNode 从节点. HDFS client上传数据到HDFS时，首先，在本地缓存数据，当数据达到一个block大小时。请求NameNode分配一个block。 NameNode会把block所在的D">
 <meta property="og:locale" content="en">
-<meta property="og:updated_time" content="2020-12-20T13:29:48.738Z">
+<meta property="og:updated_time" content="2020-12-21T02:15:35.427Z">
 <meta name="twitter:card" content="summary">
   
   
@@ -116,7 +116,7 @@ var _hmt = _hmt || [];
     
     <div class="article-meta">
       <!--<a href="/prepare/index.html" class="article-date">
-  <time datetime="2020-12-20T13:29:48.747Z" itemprop="datePublished">2020-12-20</time>
+  <time datetime="2020-12-21T02:15:35.443Z" itemprop="datePublished">2020-12-21</time>
 </a>-->
       <!-- 
 --><!-- by blair 160724 -->
@@ -130,7 +130,165 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <h2 id="0-Glassdoor"><a href="#0-Glassdoor" class="headerlink" title="0. Glassdoor"></a>0. Glassdoor</h2><div class="table-container">
+        <h2 id="Hadoop-HDFS-MR-Yarn-Job"><a href="#Hadoop-HDFS-MR-Yarn-Job" class="headerlink" title="Hadoop, HDFS, MR, Yarn Job"></a>Hadoop, HDFS, MR, Yarn Job</h2><p><a href="https://mp.weixin.qq.com/s?__biz=Mzg3NjIyNjQwMg==&amp;mid=2247493886&amp;idx=1&amp;sn=2cee4ece5c7cc87895d9e1a1b2fb440f&amp;chksm=cf37daf3f84053e51cd0323f1ec9114ca0ec159a9451dd53a4afde5a7c6f1cf48f12d7999ef0&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">七、介绍一下HDFS读写流程</a></p>
+<blockquote>
+<p>HDFS block数据块大小为128MB, 默认情况下每个block有三个副本, NameNode主节点， DataNode 从节点.</p>
+<p>HDFS client上传数据到HDFS时，首先，在本地缓存数据，当数据达到一个block大小时。请求NameNode分配一个block。 NameNode会把block所在的DataNode的地址告诉HDFS client。 HDFS client会直接和DataNode通信，把数据写到DataNode节点一个block文件里</p>
+</blockquote>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>Read HDFS (download) - FSDataInputStream() 4步</th>
+<th style="text-align:center">Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1.</td>
+<td>FileSystem对象的open == DistributedFileSystem()</td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td>get block locations from NameNode （rpc）</td>
+</tr>
+<tr>
+<td style="text-align:center">3.</td>
+<td>Client 与 DataNode 通信, FSDataInputStream对象，该对象会被封装DFSInputStream对象</td>
+</tr>
+<tr>
+<td style="text-align:center">4.</td>
+<td>假设第一块的数据读完了，就会关闭指向第一块的datanode连接。接着读取下一块.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>Writing HDFS (upload) - FSDataOutputStream() 6不步 ACK queue</th>
+<th style="text-align:center">Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1.</td>
+<td>client通过调用DistributedFileSystem的create方法创建新文件</td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td>DFileSystem通过RPC调用namenode去创建一个没有blocks关联的新文件, 创建前， namenode做校验.</td>
+</tr>
+<tr>
+<td style="text-align:center">3.</td>
+<td>前两步结束后。会返回FSDataOutputStream的对象，与读文件的时候类似， FSDataOutputStream被封装成DFSOutputStream。DFSOutputStream能够协调namenode和datanode。client開始写数据到DFSOutputStream，DFSOutputStream会把数据切成一个个小的packet。然后排成队列data quene</td>
+</tr>
+<tr>
+<td style="text-align:center">4.</td>
+<td>DataStreamer会去处理接受data quene，它先询问namenode这个新的block最适合存储的在哪</td>
+</tr>
+<tr>
+<td style="text-align:center">5.</td>
+<td>DFSOutputStream另一个对列叫ack quene。也是由packet组成，等待datanode的收到响应，当pipeline中的全部datanode都表示已经收到的时候，这时akc quene才会把相应的packet包移除掉。</td>
+</tr>
+<tr>
+<td style="text-align:center">6.</td>
+<td>client完毕写数据后调用close方法关闭写入流 </td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><a href="https://juejin.cn/post/6844903607498702856" target="_blank" rel="noopener">MapReduce过程详解</a></p>
+<p><strong>1. Map端整个流程分为4步</strong></p>
+<ol>
+<li>来源于HDFS的Block </li>
+<li>在经过Mapper运行后，输出是Key/Value - 默认对Key进行哈希运算后，再以ReduceTask数量取模</li>
+<li>内存缓冲区的大小是有限的，默认是100MB, Spill，中文译为溢写</li>
+<li>每次溢写都在磁盘上生成一溢写文件，如Map结果很大，就有多次溢写发生，磁盘上就会有多个溢写文件, 后merge</li>
+</ol>
+<p><strong>2. Reduce端整个流程分为3步</strong></p>
+<ol>
+<li>Copy过程. 即简单地拉取数据</li>
+<li>Merge阶段: 复制过来 数据会先放到内存缓冲区中，当达到一定阈值时，就会启动内存到磁盘的Merge.</li>
+<li>Reducer输出文件。不断Merge后，最后生成一个“最终文件”. 当Reducer输入文件已定，整个Shuffle过程才结束.</li>
+</ol>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>MapReduce的Shuffle过程</th>
+<th style="text-align:center">Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1.</td>
+<td>Map方法之后Reduce方法之前这段处理过程叫「Shuffle」</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td>Map方法之后，数据首先进入到分区方法，把数据标记好分区，然后把数据发送到环形缓冲区； 环形缓冲区达到80%时，进行溢写； 排序的手段「快排」；溢写产生大量溢写文件，需要对溢写文件进行「归并排序」；对溢写的文件也可以进行Combiner操作，前提是汇总操作，求平均值不行。最后将文件按照分区存储到磁盘，等待Reduce端拉取。</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">3.</td>
+<td>每个Reduce拉取Map端对应分区的数据。拉取数据后先存储到内存中，内存不够了，再存储到磁盘。拉取完所有数据后，采用归并排序将内存和磁盘中的数据都进行排序。在进入Reduce方法前，可以对数据进行分组操作。</td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>Yarn 的 Job 提交流程 8 步， Client-&gt;RM-&gt;C-&gt;AM—rm—&gt;C nums-&gt;NM-&gt;C-&gt;注销AM+C</th>
+<th style="text-align:center">Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1.</td>
+<td>client向RM提交应用程序</td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td>ResourceManager启动一个Container用于运行ApplicationMaster</td>
+</tr>
+<tr>
+<td style="text-align:center">3.</td>
+<td>启动中的ApplicationMaster向ResourceManager注册自己，启动成功后与RM保持心跳</td>
+</tr>
+<tr>
+<td style="text-align:center">4.</td>
+<td>AM 向 RM 发送请求,申请相应数目的 Container</td>
+</tr>
+<tr>
+<td style="text-align:center">5.</td>
+<td>申请成功的Container，由AM进行初始化。Container的启动信息初始化后，AM与对应的NodeManager通信，要求NM启动Container</td>
+</tr>
+<tr>
+<td style="text-align:center">6.</td>
+<td>NM启动container</td>
+</tr>
+<tr>
+<td style="text-align:center">7.</td>
+<td>container运行期间，AM 对 Container进行监控。Container通过RPC协议向对应的AM汇报自己的进度和状态等信息</td>
+</tr>
+<tr>
+<td style="text-align:center">8.</td>
+<td>应用运行结束后，AM 向 RM 注销自己，并允许属于它的 Container被收回</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 id="0-Glassdoor"><a href="#0-Glassdoor" class="headerlink" title="0. Glassdoor"></a>0. Glassdoor</h2><div class="table-container">
 <table>
 <thead>
 <tr>
@@ -142,7 +300,7 @@ var _hmt = _hmt || [];
 <tbody>
 <tr>
 <td style="text-align:center">1.</td>
-<td>hashmap questions <br> <a href="https://blog.csdn.net/weixin_44560940/article/details/95762569" target="_blank" rel="noopener">哈希冲突解决方法</a> : 关键字值不同的元素可能会映象到哈希表的同一地址上就会发生哈希冲突<br> <a href="https://blog.csdn.net/bjmsb/article/details/107919872" target="_blank" rel="noopener">大厂面试必问！HashMap 怎样解决hash冲突？</a> <br> <a href="https://www.jianshu.com/p/fdf3d24fe3e8" target="_blank" rel="noopener">为什么 Map 桶中超过 8 个才转为红黑树？</a></td>
+<td>hashmap questions <br> <a href="https://blog.csdn.net/weixin_44560940/article/details/95762569" target="_blank" rel="noopener">哈希冲突解决方法</a> : 关键字值不同的元素可能会映象到哈希表的同一地址上就会发生哈希冲突<br>1. 开放定址法 2. 再哈希法 3. 链地址法 4. 建立公共溢出区<br> <a href="https://blog.csdn.net/bjmsb/article/details/107919872" target="_blank" rel="noopener">大厂面试必问！HashMap 怎样解决hash冲突？</a> <br> <a href="https://www.jianshu.com/p/fdf3d24fe3e8" target="_blank" rel="noopener">为什么 Map 桶中超过 8 个才转为红黑树？</a></td>
 <td style="text-align:center"><br> <a href="https://zhuanlan.zhihu.com/p/76735726" target="_blank" rel="noopener">HashMap指南</a> <br> <a href="https://www.cnblogs.com/zengcongcong/p/11295349.html" target="_blank" rel="noopener">HashMap面试</a></td>
 </tr>
 </tbody>
@@ -527,10 +685,12 @@ var _hmt = _hmt || [];
 <p>一个文件有key值从1到10000的数据，我们用两个分区，将1到5000的key发送到partition1，然后由reduce1处理，5001到10000的key发动到partition2然后由reduce2处理，reduce1的key是按照1到5000的升序排序，reduce2的key是按照5001到10000的升序排序，这就保证了整个MapReduce程序的全局排序。</p>
 <p>Hadoop 中的类 TotalOrderPartitioner</p>
 </blockquote>
-<h2 id="5-网络-TCP"><a href="#5-网络-TCP" class="headerlink" title="5. 网络 TCP"></a>5. 网络 TCP</h2><h3 id="5-1-三次握手"><a href="#5-1-三次握手" class="headerlink" title="5.1 三次握手"></a>5.1 三次握手</h3><p>TCP 的三次握手, 四次挥手:  TCP 协议是如何建立和释放连接的？</p>
+<h2 id="5-网络-TCP"><a href="#5-网络-TCP" class="headerlink" title="5. 网络 TCP"></a>5. 网络 TCP</h2><p><strong>5.1 三次握手</strong></p>
+<p>TCP 的三次握手, 四次挥手:  TCP 协议是如何建立和释放连接的？</p>
 <p>三次握手建立连接:</p>
 <p>第一次握手：A给B打电话说，你可以听到我说话吗？（seq=x）<br>第二次握手：B收到了A的信息，然后对A说：我可以听得到你说话啊，你能听得到我说话吗？（ACK=x+1，seq=y）<br>第三次握手：A收到了B的信息，然后说可以的，我要给你发信息啦！（ack=y+1）</p>
-<h3 id="5-2-四次挥手"><a href="#5-2-四次挥手" class="headerlink" title="5.2 四次挥手"></a>5.2 四次挥手</h3><p>四次挥手释放连接:</p>
+<p><strong>5.2 四次挥手</strong></p>
+<p>四次挥手释放连接:</p>
 <p>A:喂，我不说了。(FIN)<br>B:我知道了。等下，上一句还没说完。Balabala…..（ACK）<br>B:好了，说完了，我也不说了。（FIN）<br>A:我知道了。(ACK)<br>A等待 2MSL,保证B收到了消息,否则重说一次我知道了。</p>
 <p>TCP四次挥手中的TIME_WAIT状态</p>
 <h2 id="6-Spark"><a href="#6-Spark" class="headerlink" title="6. Spark"></a>6. Spark</h2><ol>
@@ -567,6 +727,67 @@ var _hmt = _hmt || [];
 <p>在我们的开发过程中，能避免则尽可能避免使用reduceByKey、join、distinct、repartition等会进行shuffle的算子，尽量使用map类的非shuffle算子。这样的话，没有shuffle操作或者仅有较少shuffle操作的Spark作业，可以大大减少性能开销。</p>
 </blockquote>
 <p><a href="https://cloud.tencent.com/developer/article/1061680" target="_blank" rel="noopener">大数据工程师（开发）面试题(附答案)</a></p>
+<h2 id="7-Hive-优化"><a href="#7-Hive-优化" class="headerlink" title="7. Hive 优化"></a>7. Hive 优化</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>Hive 优化</th>
+<th style="text-align:center">Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1.</td>
+<td>join 优化, order &amp; customer - 先过滤在Join</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td>union优化： （union 去掉重复的记录）而是使用 union all 然后在用group by 去重</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">3.</td>
+<td>count distinct优化, 使用子查询</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">4.</td>
+<td>用in 来代替join</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">5.</td>
+<td>消灭子查询内的 group by 、 COUNT(DISTINCT)，MAX，MIN。可以减少job的数量</td>
+</tr>
+<tr>
+<td style="text-align:center">6.</td>
+<td>join 优化 - set hive.auto.convert.join=true; 小表自动判断，在内存  <br> &nbsp;&nbsp;Sort -Merge -Bucket Join  对大表连接大表的优化</td>
+</tr>
+<tr>
+<td style="text-align:center">7.</td>
+<td>数据倾斜 - SQL 导致 <br> 1. group by维度变得更细 2. 值为空的情况单独处理 3. 不同数据类型关联产生数据倾斜（int,string） <br><br> group by维度不能变得更细的时候,就可以在原分组key上添加随机数后分组聚合一次, 然后对结果去掉随机数后再分组聚合,在join时，有大量为null的join key，则可以将null转成随机值，避免聚集</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">8.</td>
+<td>数据倾斜 - 业务数据本身导致 - 热点值和非热点值分别进行处理</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">9.</td>
+<td>数据倾斜 - key本身不均 - 可以在key上加随机数，或者增加reduceTask数量</td>
+<td style="text-align:center"></td>
+</tr>
+<tr>
+<td style="text-align:center">10.</td>
+<td>合并小文件 - 小文件的产生有三个地方，map输入，map输出，reduce输出</td>
+<td style="text-align:center"></td>
+</tr>
+</tbody>
+</table>
+</div>
 <h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a href="https://www.shuzhiduo.com/A/6pdDQVbKzw/" target="_blank" rel="noopener">Shopee大数据</a></li>
 <li><a href="https://blog.csdn.net/gendlee1991/article/details/105759780" target="_blank" rel="noopener">0086 shopee面试题汇总</a></li>
@@ -584,8 +805,7 @@ var _hmt = _hmt || [];
 <li><a href="http://www.mianshigee.com/company/Shopee" target="_blank" rel="noopener">面圈网</a></li>
 <li><a href="https://blog.csdn.net/gendlee1991/article/details/105759780" target="_blank" rel="noopener">shop大数据面试</a></li>
 </ul>
-<p>没看的:</p>
-<p><a href="https://github.com/Tscharrl/Shopee-Interview-Backend" target="_blank" rel="noopener">Shopee-Interview-Backend</a><br><a href="http://www.mianshigee.com/article/47506wik" target="_blank" rel="noopener">Shopee社招Java岗面试经历</a><br><a href="https://blog.csdn.net/xintu1314/article/details/108375623?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-3&amp;spm=1001.2101.3001.4242" target="_blank" rel="noopener">【牛客网面经整理】7.20shopee一面面经，加入我自己整理的相关拓展问题（redis））</a></p>
+<h2 id="没看的"><a href="#没看的" class="headerlink" title="没看的:"></a>没看的:</h2><p><a href="https://github.com/Tscharrl/Shopee-Interview-Backend" target="_blank" rel="noopener">Shopee-Interview-Backend</a><br><a href="http://www.mianshigee.com/article/47506wik" target="_blank" rel="noopener">Shopee社招Java岗面试经历</a><br><a href="https://blog.csdn.net/xintu1314/article/details/108375623?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-3&amp;spm=1001.2101.3001.4242" target="_blank" rel="noopener">【牛客网面经整理】7.20shopee一面面经，加入我自己整理的相关拓展问题（redis））</a></p>
 
       
     
@@ -593,7 +813,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0-Glassdoor"><span class="toc-text">0. Glassdoor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Operating-System"><span class="toc-text">1. Operating System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Database"><span class="toc-text">2. Database</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Leetcode"><span class="toc-text">3. Leetcode</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-0-LRU"><span class="toc-text">3.0 LRU</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-quickSort"><span class="toc-text">3.1 quickSort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-mergeSort"><span class="toc-text">3.2 mergeSort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-isValidBST"><span class="toc-text">3.3 isValidBST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-isHappy"><span class="toc-text">3.4 isHappy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#93-复原IP地址"><span class="toc-text">93. 复原IP地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#46-全排列"><span class="toc-text">46. 全排列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1262-可被三整除的最大和"><span class="toc-text">1262. 可被三整除的最大和</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-寻找两个正序数组的中位数"><span class="toc-text">4. 寻找两个正序数组的中位数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-hadoop-hive-spark"><span class="toc-text">4. hadoop, hive, spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-网络-TCP"><span class="toc-text">5. 网络 TCP</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-三次握手"><span class="toc-text">5.1 三次握手</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-四次挥手"><span class="toc-text">5.2 四次挥手</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Spark"><span class="toc-text">6. Spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Hadoop-HDFS-MR-Yarn-Job"><span class="toc-text">Hadoop, HDFS, MR, Yarn Job</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0-Glassdoor"><span class="toc-text">0. Glassdoor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Operating-System"><span class="toc-text">1. Operating System</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Database"><span class="toc-text">2. Database</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Leetcode"><span class="toc-text">3. Leetcode</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-0-LRU"><span class="toc-text">3.0 LRU</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-quickSort"><span class="toc-text">3.1 quickSort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-mergeSort"><span class="toc-text">3.2 mergeSort</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-isValidBST"><span class="toc-text">3.3 isValidBST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-isHappy"><span class="toc-text">3.4 isHappy</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#93-复原IP地址"><span class="toc-text">93. 复原IP地址</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#46-全排列"><span class="toc-text">46. 全排列</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1262-可被三整除的最大和"><span class="toc-text">1262. 可被三整除的最大和</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-寻找两个正序数组的中位数"><span class="toc-text">4. 寻找两个正序数组的中位数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-hadoop-hive-spark"><span class="toc-text">4. hadoop, hive, spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-网络-TCP"><span class="toc-text">5. 网络 TCP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Spark"><span class="toc-text">6. Spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-Hive-优化"><span class="toc-text">7. Hive 优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#没看的"><span class="toc-text">没看的:</span></a></li></ol>
       </div>
     
     
