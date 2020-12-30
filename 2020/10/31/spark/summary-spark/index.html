@@ -14,7 +14,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.1.2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-basic-run-app.png">
-<meta property="og:updated_time" content="2020-12-29T15:14:22.881Z">
+<meta property="og:updated_time" content="2020-12-30T01:55:50.330Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo.jpg">
   
@@ -154,16 +154,6 @@ var _hmt = _hmt || [];
         <img src="/images/spark/spark-summary-logo.jpg" width="500" alt="" />
 <a id="more"></a>
 <p><a href="https://www.jianshu.com/p/b70fe63a77a8" target="_blank" rel="noopener">good - Spark会把数据都载入到内存么？</a></p>
-<blockquote>
-<p>spark的执行模型的方式，它的特点无非就是多个任务之间数据通信不需要借助硬盘而是通过内存，大大提高了程序的执行效率。而hadoop由于本身的模型特点，多个任务之间数据通信是必须借助硬盘落地的。那么spark的特点就是数据交互不会走硬盘。只能说多个任务的数据交互不走硬盘，但是spark的shuffle过程和hadoop一样仍然必须走硬盘的。</p>
-<p>所谓Shuffle不过是把处理流程切分，给切分的上一段(我们称为Stage M)加个存储到磁盘的Action动作，把切分的下一段(Stage M+1)数据源变成Stage M存储的磁盘文件。每个Stage都可以走我上面的描述，让每条数据都可以被N个嵌套的函数处理，最后通过用户指定的动作进行存储。</p>
-<p><strong>我们做Cache/Persist意味着什么？</strong></p>
-<p>其实就是给某个Stage加上了一个saveAsMemoryBlockFile的动作，然后下次再要数据的时候，就不用算了。这些存在内存的数据就表示了某个RDD处理后的结果。这个才是说为啥Spark是内存计算引擎的地方。在MR里，你是要放到HDFS里的，但Spark允许你把中间结果放内存里。</p>
-<p>所以结论是：Spark并不是基于内存的技术！它其实是一种可以有效地使用内存LRU策略的技术</p>
-<p>Spark只有在shuffle的时候才会将数据放在磁盘，而MR却不是</p>
-</blockquote>
-<p>1). <a href="https://blog.csdn.net/weixin_41804049/article/details/80373741?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.control" target="_blank" rel="noopener">reduceByKey(func, numPartitions=None)</a>, Spark可以在每个分区移动数据之前将待输出数据与一个共用的key结合</p>
-<p>2). groupByKey(numPartitions=None), 不能自定义函数，我们需要先用groupByKey生成RDD，然后才能对此RDD通过map进行自定义函数操作</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./bin/spark-submit \</span><br><span class="line">  --master yarn</span><br><span class="line">  --deploy-mode cluster</span><br><span class="line">  --num-executors 100 \ <span class="comment"># 总共申请的executor数目，普通任务十几个或者几十个足够了</span></span><br><span class="line">  --executor-memory 6G \</span><br><span class="line">  --executor-cores 4 \ <span class="comment"># 每个executor内的核数，即每个executor中的任务task数目，此处设置为2</span></span><br><span class="line">  --driver-memory 1G \ <span class="comment"># driver内存大小，一般没有广播变量(broadcast)时，设置1~4g足够</span></span><br><span class="line">  --conf spark.default.parallelism=1000 \    <span class="comment"># Task总数</span></span><br><span class="line"> <span class="comment"># Spark作业的默认为500~1000个比较合适,如果不设置，spark会根据底层HDFS的block数量设置task的数量，这样会导致并行度偏少，资源利用不充分。该参数设为num-executors * executor-cores的2~3倍比较合适</span></span><br><span class="line">  --conf spark.storage.memoryFraction=0.5 \  存储内存</span><br><span class="line">  --conf spark.shuffle.memoryFraction=0.3 \  执行内存 <span class="comment"># shuffle过程中一个task拉取到上个stage的task的输出后，进行聚合操作时能够使用的Executor内存的比例，默认是0.2，如果shuffle聚合时使用的内存超出了这个20%的限制，多余数据会被溢写到磁盘文件中去，降低shuffle性能</span></span><br><span class="line"> <span class="comment">#</span></span><br><span class="line"> <span class="comment"># —-spark.yarn.executor.memoryOverhead 1G ： executor执行的时候，用的内存可能会超过executor-memory，</span></span><br><span class="line"> <span class="comment"># 所以会为executor额外预留一部分内存，spark.yarn.executor.memoryOverhead即代表这部分内存</span></span><br></pre></td></tr></table></figure>
 <p>尽量保证每轮Stage里每个task处理的数据量&gt;128M</p>
 <blockquote>
@@ -341,6 +331,19 @@ MapReduce数据读取并写入HDFS流程实际上是有10步</p>
 </tr>
 </tbody>
 </table>
+<p><a href="https://blog.csdn.net/dkl12/article/details/81663018" target="_blank" rel="noopener">Spark 创建RDD、DataFrame各种情况的默认分区数</a></p>
+<blockquote>
+<p>1). <a href="https://blog.csdn.net/weixin_41804049/article/details/80373741?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.control" target="_blank" rel="noopener">reduceByKey(func, numPartitions=None)</a>, Spark可以在每个分区移动数据之前将待输出数据与一个共用的key结合</p>
+<p>2). groupByKey(numPartitions=None), 不能自定义函数，我们需要先用groupByKey生成RDD，然后才能对此RDD通过map进行自定义函数操作</p>
+</blockquote>
+<blockquote>
+<p>spark的执行模型的方式，它的特点无非就是多个任务之间数据通信不需要借助硬盘而是通过内存，大大提高了程序的执行效率。而hadoop由于本身的模型特点，多个任务之间数据通信是必须借助硬盘落地的。那么spark的特点就是数据交互不会走硬盘。只能说多个任务的数据交互不走硬盘，但是spark的shuffle过程和hadoop一样仍然必须走硬盘的。</p>
+<p>所谓Shuffle不过是把处理流程切分，给切分的上一段(我们称为Stage M)加个存储到磁盘的Action动作，把切分的下一段(Stage M+1)数据源变成Stage M存储的磁盘文件。每个Stage都可以走我上面的描述，让每条数据都可以被N个嵌套的函数处理，最后通过用户指定的动作进行存储。</p>
+<p><strong>我们做Cache/Persist意味着什么？</strong></p>
+<p>其实就是给某个Stage加上了一个saveAsMemoryBlockFile的动作，然后下次再要数据的时候，就不用算了。这些存在内存的数据就表示了某个RDD处理后的结果。这个才是说为啥Spark是内存计算引擎的地方。在MR里，你是要放到HDFS里的，但Spark允许你把中间结果放内存里。</p>
+<p>所以结论是：Spark并不是基于内存的技术！它其实是一种可以有效地使用内存LRU策略的技术</p>
+<p>Spark只有在shuffle的时候才会将数据放在磁盘，而MR却不是</p>
+</blockquote>
 <h2 id="0-top-questions"><a class="markdownIt-Anchor" href="#0-top-questions"></a> 0. Top Questions</h2>
 <p><strong>1. spark的优化怎么做？ （☆☆☆☆☆）</strong></p>
 <p>spark调优比较复杂，但是大体可以分为三个方面来进行</p>
