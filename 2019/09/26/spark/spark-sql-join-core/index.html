@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark SQL几种Join实现 - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark SQL几种Join实现">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2019&#x2F;09&#x2F;26&#x2F;spark&#x2F;spark-sql-join-core&#x2F;index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.0-rdd-logo.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-catalyst.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-sql-join-ness.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-sort-merge-join.jpeg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-full-outer-join.png">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-left-semi-join.png">
+<meta property="og:updated_time" content="2021-01-03T02:20:56.789Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-3.0-rdd-logo.png">
+  
+  
+    <link rel="icon" href="/css/images/favicon-Tiktok.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<!-- jiangting add start... @2020.08.30 -->
+<!-- <div id="menu" class="duration-main" style="background-color: #e7e7e7"> -->
+<!--   <p class="links-p" href="/">Blair</p> -->
+<!--   <address class="icons"> -->
+<!--     <a href="https://github.com/blair101" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--     <a href="https://cn.linkedin.com/pub/tianyu-dai/a8/818/44a" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--   </address> -->
+<!--   <div class="hr1"></div> -->
+<!--   <nav> -->
+<!--     <div> -->
+<!--     <a class="home" href="/">Home</a></div> -->
+<!--     <p class="links-p" href="/">Home</p> -->
+<!--     <nav class="tag-ath"> -->
+<!--       <a class="proj" href="/categories">Category</a> -->
+<!--       <a class="authors" href="/about">About</a> -->
+<!--     </nav> -->
+<!--   </nav> -->
+<!--   <div class="hr2"></div> -->
+<!--     <p class="links-p">Links</p> -->
+<!--       <address class="links"> -->
+<!--       <a class="proj" href="/article/Create-MyWorld">Projects</a> -->
+<!--       <a class="friend">Friends</a></address><div class="hr3"> -->
+<!--   </div> -->
+<!--   <p class="end"></p> -->
+<!--   <div id="menu-links" class="duration-main" style="top: -400px; background-color: #f5f5f5"> -->
+<!--     <address> -->
+<!--       <li><a target="_blank" href="http://lm7.xxxxxxxx.jp">Lm7</a></li> -->
+<!--       <li><a target="_blank" href="http://www.pixiv.net/member.php?id=4933015">Domik</a></li> -->
+<!--       <li><a target="_blank" href="http://hana-ui.moe">hana-ui</a></li> -->
+<!--       <li><a target="_blank" href="http://fil.dtysky.moe">F-I-L</a></li> -->
+<!--       <li><a target="_blank" href="http://paradise.dtysky.moe">Paradise</a></li> -->
+<!--       <li><a target="_blank" href="http://moe-notes.dtysky.moe">MoeNotes</a></li> -->
+<!--       <li><a target="_blank" href="http://kanata.dtysky.moe">Kanata</a></li> -->
+<!--       <li><a target="_blank" href="http://blog.nekohand.moe">Nekohand</a></li> -->
+<!--       <li><a target="_blank" href="http://www.jerryfu.net">JerryFu</a></li> -->
+<!--       <li><a target="_blank" href="http://kawabangga.com">南史</a></li> -->
+<!--       <li><a>Hide Links</a></li> -->
+<!--       <li><a></a></li> -->
+<!--     </address> -->
+<!--   </div> -->
+<!-- </div> -->
+<!-- jiangting add end !  @2020.08.30 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/ai">AI</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/spark-sql-join-core" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark SQL几种Join实现
+      <small class=article-detail-date-index>&nbsp; 2019-09-26</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2019/09/26/spark/spark-sql-join-core/" class="article-date">
+  <time datetime="2019-09-26T12:07:21.000Z" itemprop="datePublished">2019-09-26</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2019/09/26/spark/spark-sql-join-core/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <img src="/images/spark/spark-3.0-rdd-logo.png" width="550" alt="Spark RDD Feature" />
+<a id="more"></a>
+<p>有两种方式使用SparkSQL</p>
+<ol>
+<li>是直接写sql语句，这个需要有元数据库支持，例如Hive等</li>
+<li>通过Dataset/DataFrame编写Spark应用程序。</li>
+</ol>
+<h2 id="1-sparksql总体流程"><a class="markdownIt-Anchor" href="#1-sparksql总体流程"></a> 1. SparkSQL总体流程</h2>
+<img src="/images/spark/spark-catalyst.jpg" width="550" alt="Spark" />
+<h2 id="2-join基本要素"><a class="markdownIt-Anchor" href="#2-join基本要素"></a> 2. Join基本要素</h2>
+<img src="/images/spark/spark-sql-join-ness.png" width="650" alt="Spark" />
+<p><strong>Join基本实现流程</strong></p>
+<p>Spark将参与Join的两张表抽象为流式遍历表(streamIter)和查找表(buildIter)，通常streamIter为大表，buildIter为小表，我们不用担心哪个表为streamIter，哪个表为buildIter，这个spark会根据join语句自动帮我们完成.</p>
+<h3 id="21-sort-merge-join实现"><a class="markdownIt-Anchor" href="#21-sort-merge-join实现"></a> 2.1 sort merge join实现</h3>
+<blockquote>
+<p>要让两条记录能join到一起，首先需要将具有相同key的记录在同一个分区，所以通常来说，需要做一次shuffle，map阶段根据join条件确定每条记录的key，基于该key做shuffle write，将可能join到一起的记录分到同一个分区中，这样在shuffle read阶段就可以将两个表中具有相同key的记录拉到同一个分区处理.</p>
+</blockquote>
+<img src="/images/spark/spark-sort-merge-join.jpeg" width="650" alt="Spark" />
+<h3 id="22-broadcast-join实现"><a class="markdownIt-Anchor" href="#22-broadcast-join实现"></a> 2.2 broadcast join实现</h3>
+<p>当buildIter的估计大小不超过参数<code>spark.sql.autoBroadcastJoinThreshold</code>设定的值(默认10M)，那么就会自动采用broadcast join，否则采用sort merge join.</p>
+<h3 id="23-hash-join实现"><a class="markdownIt-Anchor" href="#23-hash-join实现"></a> 2.3 hash join实现</h3>
+<h3 id="24-inner-join"><a class="markdownIt-Anchor" href="#24-inner-join"></a> 2.4 inner join</h3>
+<h3 id="25-left-outer-join"><a class="markdownIt-Anchor" href="#25-left-outer-join"></a> 2.5 left outer join</h3>
+<h3 id="26-right-outer-join"><a class="markdownIt-Anchor" href="#26-right-outer-join"></a> 2.6 right outer join</h3>
+<h3 id="27-full-outer-join"><a class="markdownIt-Anchor" href="#27-full-outer-join"></a> 2.7 full outer join</h3>
+<p>full outer join仅采用sort merge join实现，左边和右表既要作为streamIter，又要作为buildIter，其基本实现流程如下图所示:</p>
+<img src="/images/spark/spark-full-outer-join.png" width="650" alt="Spark" />
+<h3 id="28-left-semi-join"><a class="markdownIt-Anchor" href="#28-left-semi-join"></a> 2.8 left semi join</h3>
+<img src="/images/spark/spark-left-semi-join.png" width="650" alt="Spark" />
+<h3 id="29-left-anti-join"><a class="markdownIt-Anchor" href="#29-left-anti-join"></a> 2.9 left anti join</h3>
+<h2 id="3-spark-执行图"><a class="markdownIt-Anchor" href="#3-spark-执行图"></a> 3. Spark 执行图</h2>
+<p>Join是数据库查询中一个非常重要的语法特性，在数据库领域可以说是“得join者得天下”，SparkSQL作为一种分布式数据仓库系统，给我们提供了全面的join支持，并在内部实现上无声无息地做了很多优化，了解join的实现将有助于我们更深刻的了解我们的应用程序的运行轨迹.</p>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a href="https://zhuanlan.zhihu.com/p/129083349" target="_blank" rel="noopener">Spark shuffle内存管理与调优</a></li>
+<li><a href="https://www.iteblog.com/archives/9870.html" target="_blank" rel="noopener">每个 Spark 工程师都应该知道的五种 Join 策略</a></li>
+<li><a href="https://database.51cto.com/art/202009/626552.htm" target="_blank" rel="noopener">面试必知的Spark SQL几种Join实现</a></li>
+<li><a href="https://www.iteblog.com/archives/2086.html" target="_blank" rel="noopener">Spark SQL中Join常用的几种实现</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-sparksql总体流程"><span class="toc-text"> 1. SparkSQL总体流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-join基本要素"><span class="toc-text"> 2. Join基本要素</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-sort-merge-join实现"><span class="toc-text"> 2.1 sort merge join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-broadcast-join实现"><span class="toc-text"> 2.2 broadcast join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-hash-join实现"><span class="toc-text"> 2.3 hash join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-inner-join"><span class="toc-text"> 2.4 inner join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-left-outer-join"><span class="toc-text"> 2.5 left outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#26-right-outer-join"><span class="toc-text"> 2.6 right outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#27-full-outer-join"><span class="toc-text"> 2.7 full outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#28-left-semi-join"><span class="toc-text"> 2.8 left semi join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#29-left-anti-join"><span class="toc-text"> 2.9 left anti join</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-spark-执行图"><span class="toc-text"> 3. Spark 执行图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/spark/" rel="tag">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2019/10/06/python/README/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Python WSGI 协议详解
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2019/09/25/spark/Spark-Tutorials-Part3/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Spark Tutorials 3 - RDD&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2019/09/26/spark/spark-sql-join-core/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
