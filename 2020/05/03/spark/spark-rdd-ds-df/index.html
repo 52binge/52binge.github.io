@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Hive Optimize 25 Items - Auckland New Zealand</title>
+  <title>RDD、DataFrame和DataSet的区别 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="keywords" content="spark">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hive Optimize 25 Items">
-<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;04&#x2F;18&#x2F;hadoop&#x2F;hive-optimization-25-cases&#x2F;index.html">
+<meta property="og:title" content="RDD、DataFrame和DataSet的区别">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2020&#x2F;05&#x2F;03&#x2F;spark&#x2F;spark-rdd-ds-df&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;hadoop&#x2F;Hive-Data-Model-Optimization.jpg">
-<meta property="og:updated_time" content="2020-12-06T10:53:28.176Z">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-9.3.1.png">
+<meta property="og:updated_time" content="2021-01-03T15:18:08.910Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;hadoop&#x2F;Hive-Data-Model-Optimization.jpg">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-9.3.1.png">
   
   
     <link rel="icon" href="/css/images/favicon-Tiktok.ico">
@@ -111,7 +111,7 @@ var _hmt = _hmt || [];
 </header>
 
     <br>
-    <section id="main" class="outer"><article id="post-hadoop/hive-optimization-25-cases" class="article article-type-post" itemscope itemprop="blogPost">
+    <section id="main" class="outer"><article id="post-spark/spark-rdd-ds-df" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-inner">
     
     
@@ -119,8 +119,8 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      Hive Optimize 25 Items
-      <small class=article-detail-date-index>&nbsp; 2020-04-18</small>
+      RDD、DataFrame和DataSet的区别
+      <small class=article-detail-date-index>&nbsp; 2020-05-03</small>
     </h1>
   
 
@@ -130,8 +130,8 @@ var _hmt = _hmt || [];
       </header>
     
     <div class="article-meta">
-      <!--<a href="/2020/04/18/hadoop/hive-optimization-25-cases/" class="article-date">
-  <time datetime="2020-04-18T00:07:21.000Z" itemprop="datePublished">2020-04-18</time>
+      <!--<a href="/2020/05/03/spark/spark-rdd-ds-df/" class="article-date">
+  <time datetime="2020-05-03T07:28:21.000Z" itemprop="datePublished">2020-05-03</time>
 </a>-->
       <!-- 
   <div class="article-category">
@@ -142,78 +142,63 @@ var _hmt = _hmt || [];
       <!-- by blair
       
         <div class="article-comment-link-wrap">
-          <a href="http://iequa.com/2020/04/18/hadoop/hive-optimization-25-cases/#disqus_thread" class="article-comment-link">Comments</a>
+          <a href="http://iequa.com/2020/05/03/spark/spark-rdd-ds-df/#disqus_thread" class="article-comment-link">Comments</a>
         </div>
       
       -->
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <img src="/images/hadoop/Hive-Data-Model-Optimization.jpg" width="550" alt="" />
+        <img src="/images/spark/spark-aura-9.3.1.png" width="600" alt="Spark SQL，可对不同格式的数据执行ETL操作（如JSON，Parquet，数据库）然后完成特定的查询操作." />
 <a id="more"></a>
-<p>调优:</p>
+<h2 id="1-rdd和dataframe"><a class="markdownIt-Anchor" href="#1-rdd和dataframe"></a> 1. RDD和DataFrame</h2>
+<p>左侧的RDD[Person]虽然以Person为类型参数，Spark框架本身不了解Person类的内部结构。而右侧的DataFrame却提供了详细的结构信息. 使得Spark SQL可以清楚地知道该数据集中包含哪些列，每列的名称和类型各是什么。DataFrame多了数据的结构信息，即schema。</p>
+<blockquote>
+<ul>
+<li>RDD是分布式的Java对象的集合。</li>
+<li>DataFrame是分布式的Row对象的集合。</li>
+</ul>
+</blockquote>
+<p>DataFrame除了提供了比RDD更丰富的算子以外，更重要的特点是提升执行效率、减少数据读取以及执行计划的优化，比如filter下推、裁剪等。</p>
+<h2 id="2-df-提升执行效率"><a class="markdownIt-Anchor" href="#2-df-提升执行效率"></a> 2. DF 提升执行效率</h2>
+<p>RDD API是函数式的，强调不变性，在大部分场景下倾向于<code>创建新对象而不是修改老对象</code>。</p>
+<p>Spark SQL在框架内部已经在各种可能的情况下 <strong><code>尽量重用对象</code></strong>，这样做虽然在内部会打破了不变性，但在将数据返回给用户时，还会重新转为不可变数据。</p>
+<blockquote>
+<p>利用 DataFrame API进行开发，可以免费地享受到这些优化效果。</p>
+</blockquote>
+<h2 id="3-df-减少数据读取"><a class="markdownIt-Anchor" href="#3-df-减少数据读取"></a> 3. DF 减少数据读取</h2>
+<p>分析大数据，最快的方法就是 ——忽略它。这里的“忽略”并不是熟视无睹，而是根据查询条件进行恰当的剪枝</p>
+<p>上文讨论分区表时提到的 分区剪枝 便是其中一种 -&gt; 当查询的过滤条件中涉及到分区列时，我们可以根据查询条件剪掉肯定不包含目标数据的分区目录，从而减少IO</p>
+<blockquote>
+<p>Spark SQL也可以充分利用RCFile、ORC、Parquet等列式存储格式的优势，仅扫描查询真正涉及的列，忽略其余列的数据。</p>
+</blockquote>
+<h2 id="4-rdd和dataset"><a class="markdownIt-Anchor" href="#4-rdd和dataset"></a> 4. RDD和DataSet</h2>
+<blockquote>
+<ul>
+<li>
+<p>DataSet以Catalyst逻辑执行计划表示，并且数据以编码的二进制形式被存储，不需要反序列化就可以执行sorting、shuffle等操作。</p>
+</li>
+<li>
+<p>DataSet创立需要一个显式的Encoder，把对象序列化为二进制，可以把对象的scheme映射为Spark SQl类型，然而RDD依赖于运行时反射机制。</p>
+</li>
+</ul>
+</blockquote>
+<h2 id="5-dataframe和dataset"><a class="markdownIt-Anchor" href="#5-dataframe和dataset"></a> 5. DataFrame和DataSet</h2>
+<blockquote>
+<p>Dataset可以认为是DataFrame的特例，区别是Dataset每一个record存储的是一个强类型值而不是一个Row</p>
 <ol>
-<li>Hive底层执行引擎深度剖析</li>
-<li>25条Hive性能调优实战</li>
+<li>DataSet可以在编译时检查类型</li>
+<li>是面向对象的编程接口</li>
+<li>DataFrame会继承DataSet，DataFrame是面向Spark SQL的接口</li>
 </ol>
-<center><embed src="/images/hadoop/奈学大数据公开课-Hive调优-正课文档.pdf" width="930" height="600"></center>
-<h1 id="深度剖析hive架构设计与工作原理"><a class="markdownIt-Anchor" href="#深度剖析hive架构设计与工作原理"></a> 深度剖析Hive架构设计与工作原理</h1>
-<h2 id="41-hive-的概念"><a class="markdownIt-Anchor" href="#41-hive-的概念"></a> 4.1 Hive 的概念</h2>
-<blockquote>
-<p>Hive依赖HDFS数据，Hive将HQL转成MapReduce执行，所以说Hive是基于Hadoop的一个数据仓库工具</p>
-<p>实质就是一款基于HDFS的MapReduce计算框架，对存储在HDFS中的数据进行分析和管理。</p>
 </blockquote>
-<h2 id="42-hive-的工作机制"><a class="markdownIt-Anchor" href="#42-hive-的工作机制"></a> 4.2 Hive 的工作机制</h2>
-<p>简单总结:</p>
-<blockquote>
-<p>1、Hive的内置四大组件(Driver, Compiler, Optimizer, Executor)完成HQL到MapReduce的转换</p>
-<p>2、在Hive执行HQL编译过程中，会从元数据库获取表结构和数据存储目录等相关信息</p>
-<p>3、Hive只是完成对存储在HDFS上的结构化数据的管理，并提供一种类SQL的操作方式来进行海量数据运行， 底层支持多种分布式计算引擎。</p>
-</blockquote>
-<h1 id="最全25条选性能调优全详解"><a class="markdownIt-Anchor" href="#最全25条选性能调优全详解"></a> 最全25条选性能调优全详解</h1>
-<h2 id="51-调优概述"><a class="markdownIt-Anchor" href="#51-调优概述"></a> 5.1 调优概述</h2>
-<p>Hive 作为大数据领域常用的数据仓库组件，在平时设计和查询时要特别注意效率。<br />
-影响 Hive 效率的几乎从不是数据量过大，而是数据倾斜、冗余、Job或I/O过多、MapReduce 分配不合理等。</p>
-<blockquote>
-<p>对 Hive 的调优既包含 Hive 的建表设计方面，对HiveHQL 语句本身的优化，也包含 Hive 配置参数和底层引擎 MapReduce方面的调整。</p>
-</blockquote>
-<p>所以此次调优主要分为以下四个方面展开:</p>
-<blockquote>
-<p>1、Hive的建表设计层面</p>
-<p>2、HQL语法和运行参数层面</p>
-<p>3、Hive架构层面</p>
-<p>4、Hive数据倾斜</p>
-</blockquote>
-<p><strong>总之，Hive调优的作用： 在保证业务结果不变的前提下，降低资源的使用量，减少任务的执行时间。</strong></p>
-<h2 id="52-调优须知"><a class="markdownIt-Anchor" href="#52-调优须知"></a> 5.2 调优须知</h2>
-<h2 id="53-hive建表设计层面"><a class="markdownIt-Anchor" href="#53-hive建表设计层面"></a> 5.3 Hive建表设计层面</h2>
-<h3 id="531-利用分区表优化"><a class="markdownIt-Anchor" href="#531-利用分区表优化"></a> 5.3.1 利用分区表优化</h3>
-<h3 id="532-利用分桶表优化"><a class="markdownIt-Anchor" href="#532-利用分桶表优化"></a> 5.3.2 利用分桶表优化</h3>
-<p>跟分区的概念很相似, 都是把数据分成多个不同类别, 区别就是规则不一样 !</p>
-<blockquote>
-<p>1、分区： 按照字段值来进行: 一个分区, 就只是包含这个这一个值的所有记录</p>
-</blockquote>
-<p>Hive Bucket, 分桶, 是指将数据以指定列的值为key进行hash, hash 到指定数据的桶中.</p>
-<h3 id="533-合适的文件存储格式"><a class="markdownIt-Anchor" href="#533-合适的文件存储格式"></a> 5.3.3 合适的文件存储格式</h3>
-<p>data warehouse</p>
-<ol>
-<li>ods: TextFile</li>
-<li>dw: ORC or ParquetFile</li>
-</ol>
-<h3 id="534-合适的压缩格式"><a class="markdownIt-Anchor" href="#534-合适的压缩格式"></a> 5.3.4 合适的压缩格式</h3>
-<h2 id="54-hql-语法和运行参数层面"><a class="markdownIt-Anchor" href="#54-hql-语法和运行参数层面"></a> 5.4 HQL 语法和运行参数层面</h2>
-<h3 id="541-查看hive执行计划"><a class="markdownIt-Anchor" href="#541-查看hive执行计划"></a> 5.4.1 查看Hive执行计划</h3>
-<h3 id="542-列裁剪"><a class="markdownIt-Anchor" href="#542-列裁剪"></a> 5.4.2 列裁剪</h3>
-<h3 id="543-谓词下推"><a class="markdownIt-Anchor" href="#543-谓词下推"></a> 5.4.3 谓词下推</h3>
-<h3 id="544-分区裁剪"><a class="markdownIt-Anchor" href="#544-分区裁剪"></a> 5.4.4 分区裁剪</h3>
-<h3 id="545-合并小文件"><a class="markdownIt-Anchor" href="#545-合并小文件"></a> 5.4.5 合并小文件</h3>
-<h3 id="546-合理设置maptask并行度"><a class="markdownIt-Anchor" href="#546-合理设置maptask并行度"></a> 5.4.6 合理设置MapTask并行度</h3>
-<h3 id="547-合理设置reducetask并行度"><a class="markdownIt-Anchor" href="#547-合理设置reducetask并行度"></a> 5.4.7 合理设置ReduceTask并行度</h3>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">//DataSet,完全使用scala编程，不要切换到DataFrame</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> wordCount = </span><br><span class="line">  ds.flatMap(_.split(<span class="string">" "</span>))</span><br><span class="line">    .filter(_ != <span class="string">""</span>)</span><br><span class="line">    .groupBy(_.toLowerCase()) <span class="comment">// Instead of grouping on a column expression (i.e. $"value") we pass a lambda function</span></span><br><span class="line">    .count()</span><br></pre></td></tr></table></figure>
+<p>DataFrame</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Load a text file and interpret each line as a java.lang.String</span></span><br><span class="line"><span class="keyword">val</span> ds = sqlContext.read.text(<span class="string">"/home/spark/1.6/lines"</span>).as[<span class="type">String</span>]</span><br><span class="line"><span class="keyword">val</span> result = ds</span><br><span class="line">  .flatMap(_.split(<span class="string">" "</span>))               <span class="comment">// Split on whitespace</span></span><br><span class="line">  .filter(_ != <span class="string">""</span>)                     <span class="comment">// Filter empty words</span></span><br><span class="line">  .toDF()                              <span class="comment">// Convert to DataFrame to perform aggregation / sorting</span></span><br><span class="line">  .groupBy($<span class="string">"value"</span>)                   <span class="comment">// Count number of occurences of each word</span></span><br><span class="line">  .agg(count(<span class="string">"*"</span>) as <span class="string">"numOccurances"</span>)</span><br><span class="line">  .orderBy($<span class="string">"numOccurances"</span> desc)      <span class="comment">// Show most common words first</span></span><br></pre></td></tr></table></figure>
 <h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <ul>
-<li><a href="https://tech.meituan.com/2016/04/29/spark-tuning-basic.html" target="_blank" rel="noopener">Spark性能优化指南——基础篇</a></li>
-<li><a href="https://tech.meituan.com/2016/05/12/spark-tuning-pro.html" target="_blank" rel="noopener">Spark性能优化指南——高级篇</a></li>
-<li><a href="https://blog.csdn.net/huang66666666/category_9399107.html" target="_blank" rel="noopener">大数据资料笔记整理</a></li>
+<li><a href="http://www.infoq.com/cn/articles/apache-spark-sql" target="_blank" rel="noopener">用Apache Spark进行大数据处理——第二部分：Spark SQL</a></li>
+<li><a href="https://www.jianshu.com/p/c0181667daa0" target="_blank" rel="noopener">RDD、DataFrame和DataSet的区别</a></li>
 </ul>
 
       
@@ -258,7 +243,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#深度剖析hive架构设计与工作原理"><span class="toc-text"> 深度剖析Hive架构设计与工作原理</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-hive-的概念"><span class="toc-text"> 4.1 Hive 的概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-hive-的工作机制"><span class="toc-text"> 4.2 Hive 的工作机制</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#最全25条选性能调优全详解"><span class="toc-text"> 最全25条选性能调优全详解</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#51-调优概述"><span class="toc-text"> 5.1 调优概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#52-调优须知"><span class="toc-text"> 5.2 调优须知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#53-hive建表设计层面"><span class="toc-text"> 5.3 Hive建表设计层面</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#531-利用分区表优化"><span class="toc-text"> 5.3.1 利用分区表优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#532-利用分桶表优化"><span class="toc-text"> 5.3.2 利用分桶表优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#533-合适的文件存储格式"><span class="toc-text"> 5.3.3 合适的文件存储格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#534-合适的压缩格式"><span class="toc-text"> 5.3.4 合适的压缩格式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#54-hql-语法和运行参数层面"><span class="toc-text"> 5.4 HQL 语法和运行参数层面</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#541-查看hive执行计划"><span class="toc-text"> 5.4.1 查看Hive执行计划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#542-列裁剪"><span class="toc-text"> 5.4.2 列裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#543-谓词下推"><span class="toc-text"> 5.4.3 谓词下推</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#544-分区裁剪"><span class="toc-text"> 5.4.4 分区裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#545-合并小文件"><span class="toc-text"> 5.4.5 合并小文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#546-合理设置maptask并行度"><span class="toc-text"> 5.4.6 合理设置MapTask并行度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#547-合理设置reducetask并行度"><span class="toc-text"> 5.4.7 合理设置ReduceTask并行度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-rdd和dataframe"><span class="toc-text"> 1. RDD和DataFrame</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-df-提升执行效率"><span class="toc-text"> 2. DF 提升执行效率</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-df-减少数据读取"><span class="toc-text"> 3. DF 减少数据读取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-rdd和dataset"><span class="toc-text"> 4. RDD和DataSet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-dataframe和dataset"><span class="toc-text"> 5. DataFrame和DataSet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
       </div>
     
     
@@ -286,17 +271,17 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2020/05/03/spark/spark-rdd-ds-df/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2020/05/30/java/java-jvm-p1/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          RDD、DataFrame和DataSet的区别
+          JVM 运行时
         
       </div>
     </a>
   
   
-    <a href="/2020/04/05/nlp/BERT_tutorial_5_Summary/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">从 Transformer 到 BERT模型 (by 葛翰骋 Amazon)&nbsp;<span>&gt;</span></div>
+    <a href="/2020/04/18/hadoop/hive-optimization-25-cases/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hive Optimize 25 Items&nbsp;<span>&gt;</span></div>
     </a>
   
 </nav>
@@ -339,7 +324,7 @@ var _hmt = _hmt || [];
 <script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
   var disqus_shortname = 'blairos-sn';
   
-  var disqus_url = 'http://iequa.com/2020/04/18/hadoop/hive-optimization-25-cases/';
+  var disqus_url = 'http://iequa.com/2020/05/03/spark/spark-rdd-ds-df/';
   
   (function(){
     var dsq = document.createElement('script');
