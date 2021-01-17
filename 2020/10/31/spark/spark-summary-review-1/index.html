@@ -14,7 +14,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo-1.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-4.1.2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-basic-run-app.png">
-<meta property="og:updated_time" content="2021-01-12T06:38:20.160Z">
+<meta property="og:updated_time" content="2021-01-17T10:50:15.072Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo-1.jpg">
   
@@ -877,10 +877,45 @@ var _hmt = _hmt || [];
 <p>可以接其他算子，但是接了算子之后，起不到缓存应有的效果，因为会重新触发cache<br />
 cache不是action操作</p>
 <h3 id="53-什么场景下要进行persist操作"><a class="markdownIt-Anchor" href="#53-什么场景下要进行persist操作"></a> 5.3 什么场景下要进行persist操作？</h3>
-<p>以下场景会使用persist</p>
-<p>某个步骤计算非常耗时或计算链条非常长，需要进行persist持久化<br />
-<code>shuffle之后为什么要persist，shuffle要进性网络传输</code>，风险很大，数据丢失重来，恢复代价很大<br />
-shuffle之前进行persist，框架默认将数据持久化到磁盘，这个是框架自动做的。</p>
+<blockquote>
+<p>spark所有复杂一点的算法都会有persist身影,spark默认数据放在内存，spark很多内容都是放在内存的，非常适合高速迭代，1000个步骤 只有第一个输入数据，中间不产生临时数据，但分布式系统风险很高，所以容易出错，就要容错，rdd出错或者分片可以根据血统算出来，如果没有对父rdd进行persist 或cache的化，就要重头做。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>以下场景会使用persist</th>
+<th>Article</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1）</td>
+<td>某个步骤计算非常耗时，需要进行persist持久化 ；</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">2）</td>
+<td>计算链条非常长，重新恢复要算很多步骤，很好使，persist ；</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">3）</td>
+<td>checkpoint所在的rdd要持久化persist， lazy级别，框架发现有checnkpoint，checkpoint时单独触发一个job，需要重算一遍，<strong>checkpoint前 要持久化，写个rdd.cache或者rdd.persist，将结果保存起来，再写checkpoint操作</strong>，这样执行起来会非常快，不需要重新计算rdd链条了。checkpoint之前一定会进行persist；<br><br><strong>sc.setCheckpointDir(“hdfs://lijie:9000/checkpoint0727”)</strong> <br> rdd.cache() <br> rdd.checkpoint()</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">4）</td>
+<td>shuffle之后为什么要persist，shuffle要进性网络传输，风险很大，数据丢失重来，恢复代价很大 ；</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">5）</td>
+<td>shuffle之前进行persist，框架默认将数据持久化到磁盘，这个是框架自动做的。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <h3 id="54-rdd有几种操作类型三种"><a class="markdownIt-Anchor" href="#54-rdd有几种操作类型三种"></a> 5.4 rdd有几种操作类型？三种！</h3>
 <ul>
 <li>transformation，rdd由一种转为另一种rdd</li>
