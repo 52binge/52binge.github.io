@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Spark - 性能调优 &amp; troubleshooting - Auckland New Zealand</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="keywords" content="spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark - 性能调优 &amp; troubleshooting">
+<meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2021&#x2F;01&#x2F;21&#x2F;spark&#x2F;spark-summary-3-trouble-shooting&#x2F;index.html">
+<meta property="og:site_name" content="Auckland New Zealand">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo-1.jpg">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-rdd-split-task-partition.png">
+<meta property="og:updated_time" content="2021-01-21T01:27:33.800Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo-1.jpg">
+  
+  
+    <link rel="icon" href="/css/images/favicon-Tiktok.ico">
+  
+  <link href="/webfonts/ptserif/main.css" rel='stylesheet' type='text/css'>
+  <link href="/webfonts/source-code-pro/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css">
+  
+
+</head>
+
+<body>
+  <div id="container">
+    <!-- blair add baidu tongji start... @2017.10.03 -->
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?8864dc75a81a27b7e44c00138af95d66";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
+<!-- blair add baidu tongji end ! @2017.10.03 -->
+
+<!-- jiangting add start... @2020.08.30 -->
+<!-- <div id="menu" class="duration-main" style="background-color: #e7e7e7"> -->
+<!--   <p class="links-p" href="/">Blair</p> -->
+<!--   <address class="icons"> -->
+<!--     <a href="https://github.com/blair101" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--     <a href="https://cn.linkedin.com/pub/tianyu-dai/a8/818/44a" class="icon-font icon linkedin" target="_blank"></a> -->
+<!--   </address> -->
+<!--   <div class="hr1"></div> -->
+<!--   <nav> -->
+<!--     <div> -->
+<!--     <a class="home" href="/">Home</a></div> -->
+<!--     <p class="links-p" href="/">Home</p> -->
+<!--     <nav class="tag-ath"> -->
+<!--       <a class="proj" href="/categories">Category</a> -->
+<!--       <a class="authors" href="/about">About</a> -->
+<!--     </nav> -->
+<!--   </nav> -->
+<!--   <div class="hr2"></div> -->
+<!--     <p class="links-p">Links</p> -->
+<!--       <address class="links"> -->
+<!--       <a class="proj" href="/article/Create-MyWorld">Projects</a> -->
+<!--       <a class="friend">Friends</a></address><div class="hr3"> -->
+<!--   </div> -->
+<!--   <p class="end"></p> -->
+<!--   <div id="menu-links" class="duration-main" style="top: -400px; background-color: #f5f5f5"> -->
+<!--     <address> -->
+<!--       <li><a target="_blank" href="http://lm7.xxxxxxxx.jp">Lm7</a></li> -->
+<!--       <li><a target="_blank" href="http://www.pixiv.net/member.php?id=4933015">Domik</a></li> -->
+<!--       <li><a target="_blank" href="http://hana-ui.moe">hana-ui</a></li> -->
+<!--       <li><a target="_blank" href="http://fil.dtysky.moe">F-I-L</a></li> -->
+<!--       <li><a target="_blank" href="http://paradise.dtysky.moe">Paradise</a></li> -->
+<!--       <li><a target="_blank" href="http://moe-notes.dtysky.moe">MoeNotes</a></li> -->
+<!--       <li><a target="_blank" href="http://kanata.dtysky.moe">Kanata</a></li> -->
+<!--       <li><a target="_blank" href="http://blog.nekohand.moe">Nekohand</a></li> -->
+<!--       <li><a target="_blank" href="http://www.jerryfu.net">JerryFu</a></li> -->
+<!--       <li><a target="_blank" href="http://kawabangga.com">南史</a></li> -->
+<!--       <li><a>Hide Links</a></li> -->
+<!--       <li><a></a></li> -->
+<!--     </address> -->
+<!--   </div> -->
+<!-- </div> -->
+<!-- jiangting add end !  @2020.08.30 -->
+
+<header id="header">
+  <div id="header-outer" class="outer">
+    <div id="header-inner" class="inner">
+      <a id="main-nav-toggle" class="nav-icon" href="javascript:;" target="_blank" rel="noopener"></a>
+      <a id="logo" class="logo" href="/"></a>
+      <nav id="main-nav">
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
+          <a class="main-nav-link" href="/tweet">Tweet</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        <div id="search-form-wrap">
+          <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://iequa.com"></form>
+        </div>
+      </nav>
+    </div>
+  </div>
+</header>
+
+    <br>
+    <section id="main" class="outer"><article id="post-spark/spark-summary-3-trouble-shooting" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark - 性能调优 &amp; troubleshooting
+      <small class=article-detail-date-index>&nbsp; 2021-01-21</small>
+    </h1>
+  
+
+
+        <div class=page-title></div>
+        <br>
+      </header>
+    
+    <div class="article-meta">
+      <!--<a href="/2021/01/21/spark/spark-summary-3-trouble-shooting/" class="article-date">
+  <time datetime="2021-01-20T23:07:21.000Z" itemprop="datePublished">2021-01-21</time>
+</a>-->
+      <!-- 
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+--><!-- by blair 160724 -->
+      <!-- by blair
+      
+        <div class="article-comment-link-wrap">
+          <a href="http://iequa.com/2021/01/21/spark/spark-summary-3-trouble-shooting/#disqus_thread" class="article-comment-link">Comments</a>
+        </div>
+      
+      -->
+    </div>
+    <div class="article-entry" itemprop="articleBody">
+      
+        <img src="/images/spark/spark-summary-logo-1.jpg" width="500" alt="" />
+<a id="more"></a>
+<h2 id="spark"><a class="markdownIt-Anchor" href="#spark"></a> Spark</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>Title</th>
+<th>Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">0.</td>
+<td>kaike - sparkSQL底层实现原理<br><a href="https://blog.csdn.net/abc33880238/article/details/102100570" target="_blank" rel="noopener">spark.sql.shuffle.partitions和 spark.default.parallelism 的区别</a><br><a href="https://blog.csdn.net/xiaoduan_/article/details/79809262" target="_blank" rel="noopener">SparkSQL并行度参数设置方法</a></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">1.</td>
+<td><a href="https://www.bilibili.com/video/BV1fE411E7Ak?p=23" target="_blank" rel="noopener">B站 我爱喝假酒 - 性能调优</a></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td><a href="https://www.cnblogs.com/jxhd1/p/6702218.html" target="_blank" rel="noopener">Spark性能调优之合理设置并行度 (稍有误)</a>， <a href="https://www.cnblogs.com/stillcoolme/p/10576563.html" target="_blank" rel="noopener">Spark实践 – 性能优化基础</a></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">3.</td>
+<td>spark.defalut.parallelism 默认是没有值的，如设置值为10，是在<code>shuffle/窄依赖</code> 的过程才会起作用（val rdd2 = rdd1.reduceByKey(_+_) //rdd2的分区数就是10，rdd1的分区数不受这个参数的影响）</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">4.</td>
+<td>如果读取的数据在HDFS上，增加block数，默认情况下split与block是一对一的，而split又与RDD中的partition对应，所以增加了block数，也就提高了并行度</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">5.</td>
+<td>reduceByKey的算子指定partition的数量 <br> val rdd2 = rdd1.reduceByKey(_+_,10)  val rdd3 = rdd2.map.filter.reduceByKey(_+_)</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">6.</td>
+<td>val rdd3 = rdd1.join（rdd2）  rdd3里面partiiton的数量是由父RDD中最多的partition数量来决定，因此使用join算子的时候，增加父RDD中partition的数量</td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">7.</td>
+<td>由于Spark SQL所在stage的 <strong>并行度无法手动设置</strong><br><br>如果数据量较大，并且此stage中后续的transformation操作有着复杂的业务逻辑，而Spark SQL自动设置的task数量很少，这就意味着每个task要处理为数不少的数据量，然后还要执行非常复杂的处理逻辑，这就可能表现为第一个有Spark SQL的stage速度很慢，而后续的没有Spark SQL的stage运行速度非常快。</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="rdd-属性"><a class="markdownIt-Anchor" href="#rdd-属性"></a> RDD 属性</h2>
+<blockquote>
+<ul>
+<li>A list of partitions</li>
+<li>A function for computing each split</li>
+<li>A list of dependencies on other RDDs</li>
+<li>Optionally, a Partitioner for key-value RDDs (e.g. to say that the RDD is hash-partitioned)</li>
+<li>Optionally, a list of preferred locations to compute each split on (block locations for an HDFS file)</li>
+</ul>
+</blockquote>
+<ul>
+<li><a href="https://blog.csdn.net/qq_22473611/article/details/107822168" target="_blank" rel="noopener">very good Spark分区 partition 详解</a></li>
+</ul>
+<img src="/images/spark/spark-rdd-split-task-partition.png" width="800" alt="申请的计算节点（Executor）数目和每个计算节点核数，决定了你同一时刻可以并行执行的task" />
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>Title</th>
+<th>Flag</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1.</td>
+<td><strong>一组分片（Partition）</strong>，即数据集的基本组成单位。对于RDD来说，每个分片都会被一个计算任务处理，并决定并行计算的粒度。用户可以在创建RDD时指定RDD的分片个数，如果没有指定，那么就会采用默认值。默认值就是程序所分配到的CPU Core的数目。</td>
+<td>❎</td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td>一个计算每个分区的函数。Spark中RDD的计算是以分片为单位的，每个RDD都会实现compute函数以达到这个目的。compute函数会对迭代器进行复合，不需要保存每次计算的结果。</td>
+<td>❎</td>
+</tr>
+<tr>
+<td style="text-align:center">3.</td>
+<td>RDD之间的依赖关系。RDD的每次转换都会生成一个新的RDD，所以RDD之间就会形成类似于流水线一样的前后依赖关系。在部分分区数据丢失时，Spark可以通过这个依赖关系重新计算丢失的分区数据，而不是对RDD的所有分区进行重新计算。</td>
+<td>❎</td>
+</tr>
+<tr>
+<td style="text-align:center">4.</td>
+<td>一个Partitioner，即RDD的分片函数。当前Spark中实现了两种类型的分片函数，一个是基于哈希的HashPartitioner，另外一个是基于范围的RangePartitioner。只有对于于key-value的RDD，才会有Partitioner，非key-value的RDD的Parititioner的值是None。Partitioner函数不但决定了RDD本身的分片数量，也决定了parent RDD Shuffle输出时的分片数量。</td>
+<td>❎</td>
+</tr>
+<tr>
+<td style="text-align:center">5.</td>
+<td>一个列表，存储存取每个Partition的优先位置（preferred location）。对于一个HDFS文件来说，这个列表保存的就是每个Partition所在的块的位置。按照“移动数据不如移动计算”的理念，Spark在进行任务调度的时候，会尽可能地将计算任务分配到其所要处理数据块的存储位置</td>
+<td>❎</td>
+</tr>
+</tbody>
+</table>
+<p>尽量保证每轮Stage里每个task处理的数据量&gt;128M</p>
+<h2 id="1-最优资源配置"><a class="markdownIt-Anchor" href="#1-最优资源配置"></a> 1. 最优资源配置</h2>
+<h2 id="2-rdd优化"><a class="markdownIt-Anchor" href="#2-rdd优化"></a> 2. RDD优化</h2>
+<h2 id="3-并行度调节"><a class="markdownIt-Anchor" href="#3-并行度调节"></a> 3. 并行度调节</h2>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a href="https://www.cnblogs.com/stillcoolme/p/10576563.html" target="_blank" rel="noopener">Spark实践 – 性能优化基础</a></li>
+<li><a href="https://blog.csdn.net/Anbang713/article/details/82844499" target="_blank" rel="noopener">Spark项目实战-troubleshooting之控制shuffle reduce端缓冲大小以避免OOM</a></li>
+<li><a href="https://developer.aliyun.com/article/766699" target="_blank" rel="noopener">结合源码谈谈 - 通过spark.default.parallelism谈Spark并行度</a></li>
+<li><a href="https://blog.csdn.net/weixin_43179522/article/details/107942679" target="_blank" rel="noopener">谈谈spark.sql.shuffle.partitions和 spark.default.parallelism 的区别及spark并行度的理解</a></li>
+</ul>
+
+      
+     <!-- by blair add this if sentence at 20160725 -->
+      <br>
+      
+<div id="bottom-donation-section">
+<span style="font-size: 1.0em; padding:0em 1em 0.5em 1em; margin: 0 auto;">
+  <strong style="vertical-align: top;">分享到:</strong>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_facebook_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.facebook.com/sharer/sharer.php?u=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_twitter_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://twitter.com/intent/tweet?url=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_line_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://www.addtoany.com/add_to/line?linkurl=" target="_blank">
+    </div>
+    <div class="j_handlclick"  style="background: url(/images/logos/share_wechat_icon.jpg);background-size: contain;display: inline-block; width:50px; height:50px" href="https://api.addthis.com/oexchange/0.8/forward/wechat/offer?url=" target="_blank">
+    </div>
+  <br>  
+  <br>  
+  &nbsp;&nbsp;如果您觉得这篇文章对您的学习很有帮助, 请您也分享它, 让它能再次帮助到更多的需要学习的人.
+您的<a href="/support/"><strong>支持</strong></a>将鼓励我继续创作 !
+  <br>  
+
+</span>
+<!--
+<h3 id="bottom-donation-title">支持 让文章变得更优质</h3>
+<div>
+<a id="bottom-donation-button" href="/support">点我 赞助 作者</a>
+</div>
+-->
+</div>
+<div class="well">
+  <!--
+  原创文章，转载请注明： 转载自<a href="http://52binge.github.io" target="_blank" rel="noopener"> Blair Chan's Blog</a>，作者：
+  <a href="/about">Blair Chan</a> <br>
+  -->
+  本文基于<a target="_blank" title="Creative Commons Attribution 4.0 international License" href="https://creativecommons.org/licenses/by-nc/4.0/">署名4.0国际许可协议</a>发布，转载请保留本文署名和文章链接。 如您有任何授权方面的协商，请邮件联系我。
+</div>
+ <!-- by blair add 160724-->
+    
+    </div>
+    
+      <div class="article-toc">
+        <h3>Contents</h3>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#spark"><span class="toc-text"> Spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#rdd-属性"><span class="toc-text"> RDD 属性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-最优资源配置"><span class="toc-text"> 1. 最优资源配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-rdd优化"><span class="toc-text"> 2. RDD优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-并行度调节"><span class="toc-text"> 3. 并行度调节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+      </div>
+    
+    
+      <footer class="article-footer">
+        <!-- <div class="well" style="width:100px; height:30px;"></div>  by blair-->
+        
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/spark/">spark</a>
+  </div>
+
+ <!-- by blair add 160724-->
+        <!--
+        <div style="width:100px; height:30px;"></div> by blair add 160724
+        -->
+        
+  <div class="article-tag">
+    <a class="article-tag-link" href="/tags/spark/" rel="tag">spark</a>
+  </div>
+
+
+      </footer>
+    
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2021/07/07/spark/spark-review-functions/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Spark Functions
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2021/01/20/python/language/py_getattr/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">python 的 decorator &amp; getattr() 函数&nbsp;<span>&gt;</span></div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+<section id="comments">
+  <div id="disqus_thread">
+    <noscript>Please enable JavaScript to view the <a href="//disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  </div>
+</section>
+
+</section>
+    <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2021 Blair Chan&nbsp;
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>, theme by <a href="http://github.com/52binge/hexo-theme-blairos" target="_blank" rel="noopener">blairos</a>
+    </div>
+  </div>
+</footer>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    extensions: ["tex2jax.js"],
+    jax: ["input/TeX"],
+    tex2jax: {
+      inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+      displayMath: [ ['$$','$$']],
+      processEscapes: true
+    }
+  });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML,http://myserver.com/MathJax/config/local/local.js">
+</script>
+
+    
+<script type="text/javascript"> <!-- add by blair 0724 type=text/javascript -->
+  var disqus_shortname = 'blairos-sn';
+  
+  var disqus_url = 'http://iequa.com/2021/01/21/spark/spark-summary-3-trouble-shooting/';
+  
+  (function(){
+    var dsq = document.createElement('script');
+    dsq.type = 'text/javascript';
+    dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+
+
+<script src="/js/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div>
+</body>
+</html>
