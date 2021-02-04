@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>SparkSQL 底层实现原理 - Auckland New Zealand</title>
+  <title>SparkSQL 从入门到调优 - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="keywords" content="sparkSQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="SparkSQL 底层实现原理">
+<meta property="og:title" content="SparkSQL 从入门到调优">
 <meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2021&#x2F;02&#x2F;03&#x2F;spark&#x2F;sparkSQL-optimization&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;SparkSql-logo-2.png">
-<meta property="og:updated_time" content="2021-02-03T09:48:18.877Z">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-sql-core-structure.jpeg">
+<meta property="og:updated_time" content="2021-02-04T00:54:34.936Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;SparkSql-logo-2.png">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-sql-core-structure.jpeg">
   
   
     <link rel="icon" href="/css/images/favicon-Tiktok.ico">
@@ -117,7 +117,7 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      SparkSQL 底层实现原理
+      SparkSQL 从入门到调优
       <small class=article-detail-date-index>&nbsp; 2021-02-03</small>
     </h1>
   
@@ -147,13 +147,39 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <img src="/images/spark/SparkSql-logo-2.png" width="500" alt="" />
+        <img src="/images/spark/spark-sql-core-structure.jpeg" width="650" alt="" />
 <a id="more"></a>
-<h1 id="1sparksql概述"><a class="markdownIt-Anchor" href="#1sparksql概述"></a> 1.sparksql概述</h1>
+<h2 id="sparksql"><a class="markdownIt-Anchor" href="#sparksql"></a> sparksql</h2>
+<table>
+<thead>
+<tr>
+<th>No.</th>
+<th>Author</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.</td>
+<td>Spark学习技巧</td>
+<td><a href="https://cloud.tencent.com/developer/article/1423334?from=article.detail.1033005" target="_blank" rel="noopener">Spark SQL从入门到精通</a> <br><br> Data Source： json, parquet, jdbc, orc, libsvm, csv, text, Hive 表</td>
+</tr>
+<tr>
+<td>2.</td>
+<td>Spark学习技巧</td>
+<td><a href="https://cloud.tencent.com/developer/article/1033005" target="_blank" rel="noopener">sparksql调优之第一弹</a><br><br> 1. JVM(略) 2. 内存调优 spark.catalog.cacheTable(“tableName”)  <br>3. 广播 broadcastTimeout/autoBroadcastJoinThreshold  <br> 4. 分区设置 spark.sql.shuffle.partitions，默认是200</td>
+</tr>
+</tbody>
+</table>
+<h3 id="11-基本操作"><a class="markdownIt-Anchor" href="#11-基本操作"></a> 1.1 基本操作</h3>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line">val df = spark.read.json(“file:///opt/meitu/bigdata/src/main/data/people.json”)</span><br><span class="line">df.show()</span><br><span class="line"><span class="keyword">import</span> spark.implicits._</span><br><span class="line">df.printSchema()</span><br><span class="line">df.select(<span class="string">"name"</span>).show()</span><br><span class="line">df.select($<span class="string">"name"</span>, $<span class="string">"age"</span> + <span class="number">1</span>).show()</span><br><span class="line">df.filter($<span class="string">"age"</span> &gt; <span class="number">21</span>).show()</span><br><span class="line">df.groupBy(<span class="string">"age"</span>).count().show()</span><br><span class="line">spark.stop()</span><br></pre></td></tr></table></figure>
+<p>编码</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// spark2+, SparkSession</span></span><br><span class="line"><span class="keyword">val</span> spark = <span class="type">SparkSession</span>.builder()</span><br><span class="line">  .config(sparkConf) .getOrCreate()</span><br><span class="line"><span class="comment">//使用hive元数据</span></span><br><span class="line"><span class="keyword">val</span> spark = <span class="type">SparkSession</span>.builder()</span><br><span class="line">  .config(sparkConf) .enableHiveSupport().getOrCreate()</span><br><span class="line">spark.sql(<span class="string">"select count(*) from student"</span>).show()</span><br></pre></td></tr></table></figure>
+<p>使用 createOrReplaceTempView</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> df =spark.read.json(<span class="string">"examples/src/main/resources/people.json"</span>) </span><br><span class="line">df.createOrReplaceTempView(<span class="string">"people"</span>) </span><br><span class="line">spark.sql(<span class="string">"SELECT * FROM people"</span>).show()</span><br></pre></td></tr></table></figure>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <ul>
-<li><a href="https://www.w3cschool.cn/spark/5ruxnozt.html" target="_blank" rel="noopener">Spark SQL性能调优</a></li>
-<li><a href="https://my.oschina.net/u/4331678/blog/3629180" target="_blank" rel="noopener">一些常用的Spark SQL调优技巧</a></li>
-<li><a href="https://cloud.tencent.com/developer/article/1033005" target="_blank" rel="noopener">sparksql调优之第一弹</a></li>
+<li><a href="https://www.w3cschool.cn/spark/5ruxnozt.html" target="_blank" rel="noopener">W3C School - Spark SQL性能调优</a></li>
 <li><a href="https://zhuanlan.zhihu.com/p/336693158" target="_blank" rel="noopener">弱鸡了吧？背各种SparkSQL调优参数？这个东西才是SparkSQL必须要懂的</a></li>
 <li><a href="https://blog.csdn.net/YQlakers/article/details/68925328?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-2.baidujs" target="_blank" rel="noopener">SparkSQL性能调优</a></li>
 <li><a href="https://www.cnblogs.com/lestatzhang/p/10611322.html" target="_blank" rel="noopener">一些常用的Spark SQL调优技巧</a></li>
@@ -161,6 +187,7 @@ var _hmt = _hmt || [];
 <li><a href="https://zhuanlan.zhihu.com/p/148758337" target="_blank" rel="noopener">Spark基础：Spark SQL调优</a></li>
 <li><a href="https://blog.csdn.net/abc33880238/article/details/102100573?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs" target="_blank" rel="noopener">一些常用的Spark SQL调优技巧</a></li>
 <li><a href="https://blog.csdn.net/weixin_40035337/article/details/108018058?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-0&amp;spm=1001.2101.3001.4242" target="_blank" rel="noopener">spark-sql调优技巧</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1150767?from=article.detail.1423334" target="_blank" rel="noopener">聊聊spark-submit的几个有用选项</a></li>
 </ul>
 
       
@@ -205,7 +232,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1sparksql概述"><span class="toc-text"> 1.sparksql概述</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#sparksql"><span class="toc-text"> sparksql</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-基本操作"><span class="toc-text"> 1.1 基本操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
       </div>
     
     
