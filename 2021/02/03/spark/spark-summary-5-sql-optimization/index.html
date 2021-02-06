@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-sql-core-structure.jpeg">
-<meta property="og:updated_time" content="2021-02-05T00:14:20.109Z">
+<meta property="og:updated_time" content="2021-02-06T06:37:44.325Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-sql-core-structure.jpeg">
   
@@ -149,7 +149,9 @@ var _hmt = _hmt || [];
       
         <img src="/images/spark/spark-sql-core-structure.jpeg" width="650" alt="" />
 <a id="more"></a>
-<h2 id="sparksql"><a class="markdownIt-Anchor" href="#sparksql"></a> sparksql</h2>
+<h2 id="1-sparksql-发展"><a class="markdownIt-Anchor" href="#1-sparksql-发展"></a> 1. SparkSQL 发展</h2>
+<h2 id="2-sparksql-使用"><a class="markdownIt-Anchor" href="#2-sparksql-使用"></a> 2. SparkSQL 使用</h2>
+<h2 id="3-sparksql-调优"><a class="markdownIt-Anchor" href="#3-sparksql-调优"></a> 3. SparkSQL 调优</h2>
 <table>
 <thead>
 <tr>
@@ -160,14 +162,14 @@ var _hmt = _hmt || [];
 </thead>
 <tbody>
 <tr>
+<td>0.</td>
+<td>华为开发者<br>SparkCore<br><br>知乎大数据<br>SparkSQL</td>
+<td><a href="https://support-it.huawei.com/docs/zh-cn/fusioninsight-all/developer_guide/zh-cn_topic_0171822910.html" target="_blank" rel="noopener">开发者指南 &gt; 组件成功案例 &gt; Spark &gt; 案例10：Spark Core调优 &gt; 经验总结</a> <br><br><a href="https://zhuanlan.zhihu.com/p/148758337" target="_blank" rel="noopener">Spark基础：Spark SQL调优</a> <br><br> <strong>1. Cache 缓存</strong> <br>  1.1 spark.catalog.cacheTable(“t”) 或 df.cache() <br>             Spark SQL会把需要的列压缩后缓存，避免使用和GC的压力<br>  1.2 spark.sql.inMemoryColumnarStorage.compressed 默认true <br>   1.3 spark.sql.inMemoryColumnarStorage.batchSize 默认10000 <br>             控制列缓存时的数量，避免OOM风险。<br> 引申要点： 行式存储 &amp; 列式存储 优缺点 <br> <strong>2. 其他配置</strong> <br>  2.1 spark.sql.autoBroadcastJoinThreshold <br>  2.2 spark.sql.shuffle.partitions 默认200，配置join和agg的时候的分区数 <br>  2.3 spark.sql.broadcastTimeout 默认300秒，广播join时广播等待的时间 <br>  2.4 spark.sql.files.maxPartitionBytes 默认128MB，单个分区读取的最大文件大小<br>  2.5 spark.sql.files.openCostInBytes <br><strong>3. 广播 hash join - BHJ</strong> <br>   3.1 当系统 spark.sql.autoBroadcastJoinThreshold 判断满足条件，会自动使用BHJ <br><br><a href="https://support-it.huawei.com/docs/zh-cn/fusioninsight-all/developer_guide/zh-cn_topic_0171822912.html" target="_blank" rel="noopener">华为云Stack全景图 &gt; 开发者指南 &gt; SQL和DataFrame调优 &gt; Spark SQL join优化</a> <br><br> <details><summary>spark不会</summary> 注意spark不会确保每次选择广播表都是正确的，因为有的场景比如 full outer join 是不支持BHJ的。手动指定广播: broadcast(spark.table(“src”)).join(spark.table(“records”), “key”).show() </details></td>
+</tr>
+<tr>
 <td>1.</td>
 <td>Spark学习技巧</td>
 <td><a href="https://cloud.tencent.com/developer/article/1423334?from=article.detail.1033005" target="_blank" rel="noopener">Spark SQL从入门到精通</a> <br><br> Data Source： json, parquet, jdbc, orc, libsvm, csv, text, Hive 表</td>
-</tr>
-<tr>
-<td>2.</td>
-<td>Spark学习技巧</td>
-<td><a href="https://cloud.tencent.com/developer/article/1033005" target="_blank" rel="noopener">sparksql调优之第一弹</a><br><br> 1. JVM(略) 2. 内存调优 spark.catalog.cacheTable(“tableName”)  <br>3. 广播 broadcastTimeout=300 / autoBroadcastJoinThreshold  <br> 4. 分区设置 spark.sql.shuffle.partitions，默认是200</td>
 </tr>
 <tr>
 <td><br><br>3.</td>
@@ -182,7 +184,7 @@ var _hmt = _hmt || [];
 <tr>
 <td>5.</td>
 <td><a href="http://marsishandsome.github.io/SparkSQL-Internal/03-performance-turning/" target="_blank" rel="noopener">SparkSQL调优</a></td>
-<td><a href="http://marsishandsome.github.io/SparkSQL-Internal/03-performance-turning/" target="_blank" rel="noopener">http://marsishandsome.github.io/SparkSQL-Internal/03-performance-turning/</a></td>
+<td><a href="http://marsishandsome.github.io/SparkSQL-Internal/03-performance-turning/" target="_blank" rel="noopener">http://marsishandsome.github.io/SparkSQL-Internal/03-performance-turning/</a> <br> 1. 对于数据倾斜，采用加入部分中间步骤，如聚合后cache，具体情况具体分析；<br>2. 适当的使用序化方案以及压缩方案； <br>3. 善于解决重点矛盾，多观察Stage中的Task，查看最耗时的Task，查找原因并改善； <br>4. 对于join操作，优先缓存较小的表；<br>5. 要多注意Stage的监控，多思考如何才能更多的Task使用PROCESS_LOCAL； <br> 6. 要多注意Storage的监控，多思考如何才能Fraction cached的比例更多</td>
 </tr>
 </tbody>
 </table>
@@ -192,6 +194,38 @@ var _hmt = _hmt || [];
 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// spark2+, SparkSession</span></span><br><span class="line"><span class="keyword">val</span> spark = <span class="type">SparkSession</span>.builder()</span><br><span class="line">  .config(sparkConf).getOrCreate()</span><br><span class="line"><span class="comment">//使用hive元数据</span></span><br><span class="line"><span class="keyword">val</span> spark = <span class="type">SparkSession</span>.builder()</span><br><span class="line">  .config(sparkConf).enableHiveSupport().getOrCreate()</span><br><span class="line">spark.sql(<span class="string">"select count(*) from student"</span>).show()</span><br></pre></td></tr></table></figure>
 <p>使用 createOrReplaceTempView</p>
 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> df =spark.read.json(<span class="string">"examples/src/main/resources/people.json"</span>) </span><br><span class="line">df.createOrReplaceTempView(<span class="string">"people"</span>) </span><br><span class="line">spark.sql(<span class="string">"SELECT * FROM people"</span>).show()</span><br></pre></td></tr></table></figure>
+<h2 id="4-sparksql-运行过程"><a class="markdownIt-Anchor" href="#4-sparksql-运行过程"></a> 4. SparkSQL 运行过程</h2>
+<h2 id="5-catalyst"><a class="markdownIt-Anchor" href="#5-catalyst"></a> 5. Catalyst</h2>
+<table>
+<thead>
+<tr>
+<th>No.</th>
+<th>Link</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.</td>
+<td><a href="https://juejin.cn/post/6844903849405186055" target="_blank" rel="noopener">【大数据】SparkSql连接查询中的谓词下推处理(一)</a></td>
+</tr>
+<tr>
+<td>0.</td>
+<td><a href="https://www.jianshu.com/p/5ff225a70510" target="_blank" rel="noopener">使用explain分析Spark SQL中的谓词下推，列裁剪，映射下推</a></td>
+</tr>
+<tr>
+<td>1.</td>
+<td><a href="https://www.cnblogs.com/shishanyuan/p/8456250.html" target="_blank" rel="noopener">SparkSQL – 从0到1认识Catalyst（转载）</a> <br> <a href="https://www.cnblogs.com/shishanyuan/p/8455786.html" target="_blank" rel="noopener">深入研究Spark SQL的Catalyst优化器（原创翻译）</a></td>
+</tr>
+<tr>
+<td>2.</td>
+<td><a href="https://www.jianshu.com/p/410c23efb565" target="_blank" rel="noopener">Spark SQL Catalyst优化器</a></td>
+</tr>
+<tr>
+<td>3.</td>
+<td><a href="https://blog.csdn.net/Night_ZW/article/details/108338826" target="_blank" rel="noopener">【数据库内核】基于规则优化之谓词下推</a></td>
+</tr>
+</tbody>
+</table>
 <h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <table>
 <thead>
@@ -270,7 +304,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#sparksql"><span class="toc-text"> sparksql</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-基本操作"><span class="toc-text"> 1.1 基本操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-sparksql-发展"><span class="toc-text"> 1. SparkSQL 发展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-sparksql-使用"><span class="toc-text"> 2. SparkSQL 使用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-sparksql-调优"><span class="toc-text"> 3. SparkSQL 调优</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-基本操作"><span class="toc-text"> 1.1 基本操作</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-sparksql-运行过程"><span class="toc-text"> 4. SparkSQL 运行过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-catalyst"><span class="toc-text"> 5. Catalyst</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
       </div>
     
     
@@ -297,6 +331,14 @@ var _hmt = _hmt || [];
   
     
 <nav id="article-nav">
+  
+    <a href="/2021/02/06/spark/spark-monitor/" id="article-nav-newer" class="article-nav-link-wrap">
+      <div class="article-nav-title"><span>&lt;</span>&nbsp;
+        
+          Spark 任务监控
+        
+      </div>
+    </a>
   
   
     <a href="/2021/01/27/spark/spark-summary-4-data-skew/" id="article-nav-older" class="article-nav-link-wrap">
