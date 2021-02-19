@@ -21,7 +21,7 @@
 <meta property="og:image" content="https:&#x2F;&#x2F;developer.ibm.com&#x2F;developer&#x2F;articles&#x2F;ba-cn-apache-spark-memory-management&#x2F;nl&#x2F;zh&#x2F;images&#x2F;image003.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;developer.ibm.com&#x2F;developer&#x2F;articles&#x2F;ba-cn-apache-spark-memory-management&#x2F;nl&#x2F;zh&#x2F;images&#x2F;image004.png">
 <meta property="og:image" content="https:&#x2F;&#x2F;developer.ibm.com&#x2F;developer&#x2F;articles&#x2F;ba-cn-apache-spark-memory-management&#x2F;nl&#x2F;zh&#x2F;images&#x2F;image005.png">
-<meta property="og:updated_time" content="2021-01-03T10:38:31.737Z">
+<meta property="og:updated_time" content="2021-02-19T00:36:42.314Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-aura-7.1-memory.png">
   
@@ -333,49 +333,6 @@ bypass机制</p>
 </tr>
 </tbody>
 </table>
-<p><strong>DataSkew Solution：</strong></p>
-<table>
-<thead>
-<tr>
-<th style="text-align:center">No.</th>
-<th style="text-align:left">DataSkew Solution</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:center">方案1</td>
-<td style="text-align:left">使用 Hive ETL 预处理数据</td>
-</tr>
-<tr>
-<td style="text-align:center">方案2</td>
-<td style="text-align:left">调整shuffle操作的并行度</td>
-</tr>
-<tr>
-<td style="text-align:center">方案3</td>
-<td style="text-align:left">将reduce join转为map join</td>
-</tr>
-<tr>
-<td style="text-align:center">方案4</td>
-<td style="text-align:left">过滤少数导致倾斜的key <br><br>   &gt; 导致那些倾斜的 key 没有用，过滤掉</td>
-</tr>
-<tr>
-<td style="text-align:center">方案5</td>
-<td style="text-align:left">采样倾斜 key 并分拆 join 操作 <br><br> &gt; 导致那些倾斜的 key 有用, 并且不多 <br>    select … <br>    union <br>    select …</td>
-</tr>
-<tr>
-<td style="text-align:center"><br> 方案6</td>
-<td style="text-align:left"><strong>两阶段聚合(局部聚合+全局聚合)</strong> <br> <br>sum count max min distinct avg <br> 注意与 map-side 预聚合 区分 ，两种方式 殊途同归</td>
-</tr>
-<tr>
-<td style="text-align:center">方案7</td>
-<td style="text-align:left"><strong>使用随机前缀和扩容 RDD 进行 join</strong>  <br><br> 不能使用 mapjoin 但是使用 reducejoin 又出现了数据倾斜的解决方案 <br> 笛卡尔积的方案</td>
-</tr>
-<tr>
-<td style="text-align:center">方案8</td>
-<td style="text-align:left">任务横切，一分为二，单独处理</td>
-</tr>
-</tbody>
-</table>
 <h2 id="3-spark-的内存管理宏观概述"><a class="markdownIt-Anchor" href="#3-spark-的内存管理宏观概述"></a> 3. spark 的内存管理宏观概述</h2>
 <p>spark 作为基于内存的分布式计算引擎, 其内存管理模块在整个系统中非常重要.</p>
 <p>理解 spark 内存管理的基本原理，有助于更好的开发 spark 应用程序 和 进行性能调优.</p>
@@ -464,7 +421,7 @@ bypass机制</p>
 <tr>
 <td style="text-align:center">7.</td>
 <td style="text-align:center">存储内存</td>
-<td style="text-align:left">广播出来的大变量 sc,broadcase(list) list 会存储在所有 executor 内存中</td>
+<td style="text-align:left">广播出来的大变量 sc,broadcast(list) list 会存储在所有 executor 内存中</td>
 </tr>
 <tr>
 <td style="text-align:center"></td>
