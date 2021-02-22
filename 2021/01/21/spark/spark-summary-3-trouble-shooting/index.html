@@ -13,7 +13,7 @@
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo-1.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-rdd-split-task-partition.png">
-<meta property="og:updated_time" content="2021-01-21T01:27:33.800Z">
+<meta property="og:updated_time" content="2021-02-22T04:03:06.199Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;spark&#x2F;spark-summary-logo-1.jpg">
   
@@ -151,6 +151,47 @@ var _hmt = _hmt || [];
         <img src="/images/spark/spark-summary-logo-1.jpg" width="500" alt="" />
 <a id="more"></a>
 <h2 id="spark"><a class="markdownIt-Anchor" href="#spark"></a> Spark</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">No.</th>
+<th>Title</th>
+<th>Desc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">1.</td>
+<td>coalesce</td>
+<td>无论是在RDD中还是DataSet，默认情况下coalesce不会产生shuffle，此时通过coalesce创建的RDD分区数小于等于父RDD的分区数。</td>
+</tr>
+<tr>
+<td style="text-align:center">2.</td>
+<td>repartition</td>
+<td><strong>1）增加分区数</strong> <br>- repartition触发shuffle，shuffle的情况下可以增加分区数.<br>- coalesce默认不触发shuffle，即调用该算子增加分区数，实际情况是分区数仍是当前的分区数.</td>
+</tr>
+<tr>
+<td style="text-align:center"></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:center">3.</td>
+<td>union</td>
+<td>val rdd4 = rdd1.union(rdd3) - res: Array[Int] = Array(1,2,3,4,5,6,7,8,9,12,14,16,18) <br> 多数情况: 通过union生成的RDD的分区数为父RDD的分区数之和</td>
+</tr>
+<tr>
+<td style="text-align:center">4.</td>
+<td>Join</td>
+<td>join(otherDataset, [numTasks])是连接操作，将输入数据集(K,V)和另外一个数据集(K,W)进行Join， 得到(K, (V,W))；该操作是对于相同K的V和W集合进行笛卡尔积 操作，也即V和W的所有组合 <br><br>val rdd5 = rdd0.join(rdd0)<br> res3: Array[(Char,(Int, Int))] = Array((d,(9,8)), (c,(6,6)), (c,(6,7))) <br><br>rdd 算子： leftOuterJoin, fullOuterJoin, … <br><a href="https://blog.csdn.net/zhousishuo/article/details/73292428" target="_blank" rel="noopener">spark sql 之join等函数用法</a></td>
+</tr>
+<tr>
+<td style="text-align:center">5.</td>
+<td>cogroup</td>
+<td>cogroup(otherDataset, [numTasks])是将输入数据集(K, V)和另外一个数据集(K, W)进行cogroup，得到一个格式为(K, Seq[V], Seq[W])的数据集<br><br> val rdd6 = rdd0.cogroup(rdd0)<br>res: Array[(Int, (Iterable[Int], Iterable[Int]))] = Array((1,(ArrayBuffer(1, 2, 3),ArrayBuffer(1, 2, 3))), (2,(ArrayBuffer(1, 2, 3),ArrayBuffer(1, 2, 3))))<br><br> <a href="https://blog.csdn.net/baolibin528/article/details/50319545?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control&amp;dist_request_id=0edc445c-b5ab-4005-b8cb-dafcf3725516&amp;depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.control" target="_blank" rel="noopener">spark的union和join操作演示</a></td>
+</tr>
+</tbody>
+</table>
 <table>
 <thead>
 <tr>
