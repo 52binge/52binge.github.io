@@ -154,14 +154,14 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <p><img src="/images/sql/sql-window-fun-4.png" width="580" alt="（Window Function）是 SQL2003 标准中定义的一项新特性，并在 SQL2011、SQL2016 中完善" /></p>
+        <img src="/images/sql/sql-window-fun-4.png" width="580" alt="（Window Function）是 SQL2003 标准中定义的一项新特性，并在 SQL2011、SQL2016 中完善" />
 <a id="more"></a>
-<p><code>Window Function</code> 不同于 普通函数和聚合函数，它为每行数据进行一次计算：<strong>输入多行(一个窗口), 返回一个值</strong>. </p>
-<h2 id="1-Window-Function-SQL"><a href="#1-Window-Function-SQL" class="headerlink" title="1. Window Function, SQL"></a>1. Window Function, SQL</h2><p>特点就是 OVER 关键字:</p>
+<p><code>Window Function</code> 不同于 普通函数和聚合函数，它为每行数据进行一次计算：<strong>输入多行(一个窗口), 返回一个值</strong>.</p>
+<h2 id="1-window-function-sql"><a class="markdownIt-Anchor" href="#1-window-function-sql"></a> 1. Window Function, SQL</h2>
+<p>特点就是 OVER 关键字:</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">window_function (expression) OVER (</span><br><span class="line">   [ PARTITION BY part_list ]</span><br><span class="line">   [ ORDER BY order_list ]</span><br><span class="line">   [ &#123; ROWS | RANGE &#125; BETWEEN frame_start AND frame_end ] )</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. PARTITION BY 表示将数据先按 part_list 进行分区</span></span><br><span class="line"><span class="comment"># 2. ORDER BY 表示将各个分区内的数据按 order_list 进行排序</span></span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/sql-window-fun-5.jpg" width="780" alt="" /></p>
+<img src="/images/sql/sql-window-fun-5.jpg" width="780" alt="" />
 <p>最后一项表示 Frame 的定义，即：当前窗口包含哪些数据？</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -179,12 +179,11 @@ var _hmt = _hmt || [];
 <tr>
 <td style="text-align:center"><strong>RANGE</strong></td>
 <td>RANGE BETWEEN 3 PRECEDING AND 3 FOLLOWING</td>
-<td style="text-align:center">表示所有值在 $[c-3,c+3]$ 这个范围内的行，$c$ 为当前行的值</td>
+<td style="text-align:center">表示所有值在 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mo stretchy="false">[</mo><mi>c</mi><mo>−</mo><mn>3</mn><mo separator="true">,</mo><mi>c</mi><mo>+</mo><mn>3</mn><mo stretchy="false">]</mo></mrow><annotation encoding="application/x-tex">[c-3,c+3]</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">[</span><span class="mord mathdefault">c</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.8388800000000001em;vertical-align:-0.19444em;"></span><span class="mord">3</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.16666666666666666em;"></span><span class="mord mathdefault">c</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">3</span><span class="mclose">]</span></span></span></span> 这个范围内的行，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>c</mi></mrow><annotation encoding="application/x-tex">c</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">c</span></span></span></span> 为当前行的值</td>
 </tr>
 </tbody>
 </table>
-</div>
-<p><img src="/images/sql/sql-window-fun-6.png" width="780" alt="" /></p>
+<img src="/images/sql/sql-window-fun-6.png" width="780" alt="" />
 <p>逻辑语义上说，一个窗口函数的计算“过程”如下：</p>
 <blockquote>
 <ol>
@@ -195,16 +194,18 @@ var _hmt = _hmt || [];
 </blockquote>
 <p>举个例子：</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> dealer_id, emp_name, sales,</span><br><span class="line">       ROW_NUMBER() <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> dealer_id <span class="keyword">ORDER</span> <span class="keyword">BY</span> sales) <span class="keyword">AS</span> <span class="keyword">rank</span>,</span><br><span class="line">       <span class="keyword">AVG</span>(sales) <span class="keyword">OVER</span> (<span class="keyword">PARTITION</span> <span class="keyword">BY</span> dealer_id) <span class="keyword">AS</span> avgsales </span><br><span class="line"><span class="keyword">FROM</span> sales</span><br><span class="line"></span><br><span class="line"><span class="comment"># 上述查询中，rank 列表示在当前经销商下，该雇员的销售排名；</span></span><br><span class="line"><span class="comment"># avgsales 表示当前经销商下所有雇员的平均销售额。查询结果如下</span></span><br><span class="line">+<span class="comment">------------+-----------------+--------+------+---------------+</span></span><br><span class="line">| dealer_id  | emp_name        | sales  | <span class="keyword">rank</span> | avgsales      |</span><br><span class="line">+<span class="comment">------------+-----------------+--------+------+---------------+</span></span><br><span class="line">| <span class="number">1</span>          | Raphael Hull    | <span class="number">8227</span>   | <span class="number">1</span>    | <span class="number">14356</span>         |</span><br><span class="line">| <span class="number">1</span>          | Jack Salazar    | <span class="number">9710</span>   | <span class="number">2</span>    | <span class="number">14356</span>         |</span><br><span class="line">| <span class="number">1</span>          | Ferris Brown    | <span class="number">19745</span>  | <span class="number">3</span>    | <span class="number">14356</span>         |</span><br><span class="line">| <span class="number">1</span>          | Noel Meyer      | <span class="number">19745</span>  | <span class="number">4</span>    | <span class="number">14356</span>         |</span><br><span class="line">| <span class="number">2</span>          | Haviva Montoya  | <span class="number">9308</span>   | <span class="number">1</span>    | <span class="number">13924</span>         |</span><br><span class="line">| <span class="number">2</span>          | Beverly Lang    | <span class="number">16233</span>  | <span class="number">2</span>    | <span class="number">13924</span>         |</span><br><span class="line">| <span class="number">2</span>          | Kameko French   | <span class="number">16233</span>  | <span class="number">3</span>    | <span class="number">13924</span>         |</span><br><span class="line">| <span class="number">3</span>          | May Stout       | <span class="number">9308</span>   | <span class="number">1</span>    | <span class="number">12368</span>         |</span><br><span class="line">| <span class="number">3</span>          | Abel Kim        | <span class="number">12369</span>  | <span class="number">2</span>    | <span class="number">12368</span>         |</span><br><span class="line">| <span class="number">3</span>          | Ursa George     | <span class="number">15427</span>  | <span class="number">3</span>    | <span class="number">12368</span>         |</span><br><span class="line">+<span class="comment">------------+-----------------+--------+------+---------------+</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 注：Frame 定义并非所有窗口函数都适用，比如 ROW_NUMBER()、RANK()、LEAD() 等。这些函数总是应用于整个分区，而非当前 Frame</span></span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/sql-window-fun-7.png" width="780" alt="SQL 各部分的逻辑执行顺序" /></p>
-<h2 id="2-Window-Function-Hive-Spark"><a href="#2-Window-Function-Hive-Spark" class="headerlink" title="2. Window Function, Hive/Spark"></a>2. Window Function, Hive/Spark</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> window_test_table (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span>,    <span class="comment">--用户id</span></span><br><span class="line">    sq <span class="keyword">string</span>,  <span class="comment">--可以标识每个商品</span></span><br><span class="line">    cell_type <span class="built_in">int</span>, <span class="comment">--标识每个商品的类型，比如广告，非广告</span></span><br><span class="line">    <span class="keyword">rank</span> <span class="built_in">int</span>  <span class="comment">--这次搜索下商品的位置，比如第一个广告商品就是1，后面的依次2，3，4...</span></span><br><span class="line">)<span class="keyword">ROW</span> <span class="keyword">FORMAT</span> <span class="keyword">DELIMITED</span> <span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span>;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/sql-window-fun-1.jpg" width="580" alt="" /></p>
-<p><img src="/images/sql/sql-window-fun-2.jpg" width="580" alt="" /></p>
+<img src="/images/sql/sql-window-fun-7.png" width="780" alt="SQL 各部分的逻辑执行顺序" />
+<h2 id="2-window-function-hivespark"><a class="markdownIt-Anchor" href="#2-window-function-hivespark"></a> 2. Window Function, Hive/Spark</h2>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> window_test_table (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">int</span>,    <span class="comment">--用户id</span></span><br><span class="line">    sq <span class="keyword">string</span>,  <span class="comment">--可以标识每个商品</span></span><br><span class="line">    cell_type <span class="built_in">int</span>, <span class="comment">--标识每个商品的类型，比如广告，非广告</span></span><br><span class="line">    <span class="keyword">rank</span> <span class="built_in">int</span>  <span class="comment">--这次搜索下商品的位置，比如第一个广告商品就是1，后面的依次2，3，4...</span></span><br><span class="line">)<span class="keyword">ROW</span> <span class="keyword">FORMAT</span> <span class="keyword">DELIMITED</span> <span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">','</span>;</span><br></pre></td></tr></table></figure>
+<img src="/images/sql/sql-window-fun-1.jpg" width="580" alt="" />
+<img src="/images/sql/sql-window-fun-2.jpg" width="580" alt="" />
 <p>业务方的实现方法：</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--业务方的写法</span></span><br><span class="line"><span class="keyword">select</span> </span><br><span class="line">    <span class="keyword">id</span>,</span><br><span class="line">    sq,</span><br><span class="line">    cell_type,</span><br><span class="line">    <span class="keyword">rank</span>,</span><br><span class="line">    <span class="keyword">if</span>(cell_type!=<span class="number">26</span>,row_number() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> <span class="keyword">id</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">rank</span>),<span class="literal">null</span>) naturl_rank  </span><br><span class="line"><span class="keyword">from</span> window_test_table <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">rank</span>;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/sql-window-fun-3.jpg" width="580" alt="" /></p>
-<h2 id="2-Window-Function-Principle"><a href="#2-Window-Function-Principle" class="headerlink" title="2. Window Function Principle"></a>2. Window Function Principle</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span></span><br><span class="line">    row_number() <span class="keyword">over</span>( <span class="keyword">partition</span> <span class="keyword">by</span> col1 <span class="keyword">order</span> <span class="keyword">by</span> col2 ) </span><br><span class="line"><span class="keyword">from</span> <span class="keyword">table</span></span><br></pre></td></tr></table></figure>
-<h3 id="2-1-window-function-part"><a href="#2-1-window-function-part" class="headerlink" title="2.1 window function part"></a>2.1 window function part</h3><p>windows函数部分就是所要在窗口上执行的函数，spark支持三中类型的窗口函数：</p>
-<div class="table-container">
+<img src="/images/sql/sql-window-fun-3.jpg" width="580" alt="" />
+<h2 id="2-window-function-principle"><a class="markdownIt-Anchor" href="#2-window-function-principle"></a> 2. Window Function Principle</h2>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span></span><br><span class="line">    row_number() <span class="keyword">over</span>( <span class="keyword">partition</span> <span class="keyword">by</span> col1 <span class="keyword">order</span> <span class="keyword">by</span> col2 ) </span><br><span class="line"><span class="keyword">from</span> <span class="keyword">table</span></span><br></pre></td></tr></table></figure>
+<h3 id="21-window-function-part"><a class="markdownIt-Anchor" href="#21-window-function-part"></a> 2.1 window function part</h3>
+<p>windows函数部分就是所要在窗口上执行的函数，spark支持三中类型的窗口函数：</p>
 <table>
 <thead>
 <tr>
@@ -231,19 +232,20 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
-</div>
-<h3 id="2-2-window-Function-实现原理"><a href="#2-2-window-Function-实现原理" class="headerlink" title="2.2 window Function 实现原理"></a>2.2 window Function 实现原理</h3><p>窗口函数的实现，主要借助 Partitioned Table Function （即PTF）；</p>
+<h3 id="22-window-function-实现原理"><a class="markdownIt-Anchor" href="#22-window-function-实现原理"></a> 2.2 window Function 实现原理</h3>
+<p>窗口函数的实现，主要借助 Partitioned Table Function （即PTF）；</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">   <span class="keyword">id</span>,</span><br><span class="line">   sq,</span><br><span class="line">   cell_type,</span><br><span class="line">   <span class="keyword">rank</span>,</span><br><span class="line">   row_number() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> <span class="keyword">id</span>  <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">rank</span> ) naturl_rank,</span><br><span class="line">   <span class="keyword">rank</span>() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> <span class="keyword">id</span> <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">rank</span>) <span class="keyword">as</span> r,</span><br><span class="line">   <span class="keyword">dense_rank</span>() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span>  cell_type <span class="keyword">order</span> <span class="keyword">by</span> <span class="keyword">id</span>) <span class="keyword">as</span> dr  </span><br><span class="line"><span class="keyword">from</span> window_test_table </span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> <span class="keyword">id</span>,sq,cell_type,<span class="keyword">rank</span>;</span><br></pre></td></tr></table></figure>
 <p>数据流转如下图：</p>
-<p><img src="/images/sql/sql-window-fun-8.jpg" width="880" alt="" /></p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<img src="/images/sql/sql-window-fun-8.jpg" width="880" alt="" />
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a href="https://zhuanlan.zhihu.com/p/80051518" target="_blank" rel="noopener">SQL 窗口函数的优化和执行</a></li>
-<li><a href="https://blog.csdn.net/weixin_43619485/article/details/107164729" target="_blank" rel="noopener">【社招】快手<em>数据仓库</em>面试题整理</a></li>
+<li><a href="https://blog.csdn.net/weixin_43619485/article/details/107164729" target="_blank" rel="noopener">【社招】快手_数据仓库_面试题整理</a></li>
 <li><a href="https://my.oschina.net/u/4631230/blog/4688808" target="_blank" rel="noopener">2020年大厂面试题-数据仓库篇</a></li>
 <li><a href="http://bigdatastudy.net/show.aspx?id=450&amp;cid=9" target="_blank" rel="noopener">『 Spark 』14. 一次 Spark SQL 性能提升10倍的经历</a></li>
 <li><a href="http://bigdatastudy.net/show.aspx?id=544&amp;cid=9" target="_blank" rel="noopener">Spark教程-Spark 性能优化——和 shuffle 搏斗</a></li>
 <li><a href="http://bigdatastudy.net/show.aspx?id=531&amp;cid=9" target="_blank" rel="noopener">spark中的spark Shuffle详解1</a></li>
-<li><a href="https://blog.csdn.net/S_Running_snail/article/details/89282009" target="_blank" rel="noopener">Spark-SQL性能优化</a> </li>
+<li><a href="https://blog.csdn.net/S_Running_snail/article/details/89282009" target="_blank" rel="noopener">Spark-SQL性能优化</a></li>
 </ul>
 
       
@@ -288,7 +290,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Window-Function-SQL"><span class="toc-text">1. Window Function, SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Window-Function-Hive-Spark"><span class="toc-text">2. Window Function, Hive/Spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Window-Function-Principle"><span class="toc-text">2. Window Function Principle</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-window-function-part"><span class="toc-text">2.1 window function part</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-window-Function-实现原理"><span class="toc-text">2.2 window Function 实现原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-window-function-sql"><span class="toc-text"> 1. Window Function, SQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-window-function-hivespark"><span class="toc-text"> 2. Window Function, Hive/Spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-window-function-principle"><span class="toc-text"> 2. Window Function Principle</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-window-function-part"><span class="toc-text"> 2.1 window function part</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-window-function-实现原理"><span class="toc-text"> 2.2 window Function 实现原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
       </div>
     
     
@@ -316,10 +318,10 @@ var _hmt = _hmt || [];
     
 <nav id="article-nav">
   
-    <a href="/2021/03/03/dataware/SQL-Monkey/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="/2021/03/09/dataware/dwh-summary-4-project/" id="article-nav-newer" class="article-nav-link-wrap">
       <div class="article-nav-title"><span>&lt;</span>&nbsp;
         
-          猴子的图解SQL 学习笔记
+          DataWare Review Summary 4 - data modling
         
       </div>
     </a>
