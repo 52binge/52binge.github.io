@@ -14,7 +14,7 @@
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;sm-data-warehouse-logo-1.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;dataware-modeling-step-2.jpg">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;dataware-modeling-step-1.png">
-<meta property="og:updated_time" content="2021-03-27T09:45:23.571Z">
+<meta property="og:updated_time" content="2021-03-27T12:45:22.933Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;sm-data-warehouse-logo-1.jpg">
   
@@ -650,6 +650,9 @@ var _hmt = _hmt || [];
 </table>
 </details>
 <h2 id="4-主题模型"><a class="markdownIt-Anchor" href="#4-主题模型"></a> 4. 主题模型</h2>
+<blockquote>
+<p>主题（Subject）是在较高层次上将企业信息系统中的数据进行综合、归类和分析利用的一个抽象概念，每一个主题基本对应一个宏观的分析领域。</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -706,9 +709,11 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>在逻辑意义上，它是对应企业中某一宏观分析领域所涉及的分析对象。例如“销售分析”就是一个分析领域，因此这个数据仓库应用的主题就是“销售分析”。</p>
+</blockquote>
 <h3 id="数据分层"><a class="markdownIt-Anchor" href="#数据分层"></a> 数据分层</h3>
-<p>数据来源: ODS<br />
-建设方式L</p>
+<p>数据来源: ODS, 多数全量</p>
 <h2 id="5-建模流程"><a class="markdownIt-Anchor" href="#5-建模流程"></a> 5. 建模流程</h2>
 <table>
 <thead>
@@ -831,7 +836,7 @@ var _hmt = _hmt || [];
 </tr>
 <tr>
 <td>.</td>
-<td>1. 最低借款金额, 最高借款金额, 申请次数</td>
+<td>1. 借款金额, 申请次数</td>
 <td></td>
 </tr>
 <tr>
@@ -856,6 +861,9 @@ var _hmt = _hmt || [];
 </tr>
 </tbody>
 </table>
+<blockquote>
+<p>low and high 借款金额</p>
+</blockquote>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">---dwd 明细层</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> dw.dw_fact_loan_apply_dtl (</span><br><span class="line">    data_date <span class="keyword">string</span>,</span><br><span class="line">    idty_type <span class="keyword">string</span>, <span class="comment">-- 证件类型</span></span><br><span class="line">    channel_id <span class="built_in">bigint</span>,</span><br><span class="line">    user_type <span class="keyword">string</span>,</span><br><span class="line">    manager_id <span class="built_in">bigint</span>,</span><br><span class="line">    sex <span class="keyword">string</span>,</span><br><span class="line">    user_id <span class="built_in">bigint</span>,</span><br><span class="line">    apply_id <span class="built_in">bigint</span>,</span><br><span class="line">    apply_time <span class="keyword">string</span>,</span><br><span class="line">    short_loan_term <span class="built_in">bigint</span>,</span><br><span class="line">    long_loan_term <span class="built_in">bigint</span>,</span><br><span class="line">    id_current <span class="keyword">string</span>, <span class="comment">-- 是否是当前申请，不是一个维度, 是一个标识, 2元退化</span></span><br><span class="line">    salary_cnt <span class="built_in">int</span>,</span><br><span class="line">    first_salary_time,</span><br><span class="line">    last_salary_time,</span><br><span class="line">    cereport_cnt <span class="built_in">int</span>,</span><br><span class="line">    last_cereport_time,</span><br><span class="line">    loan_app_cnt <span class="built_in">int</span>,</span><br><span class="line">    etl_time <span class="keyword">string</span>,</span><br></pre></td></tr></table></figure>
 <details>
 <summary>dw.dw_fact_loan_apply_dtl</summary>
@@ -981,7 +989,7 @@ var _hmt = _hmt || [];
 </tbody>
 </table>
 </details>
-<h4 id="1-dw_fact_credit_dtl"><a class="markdownIt-Anchor" href="#1-dw_fact_credit_dtl"></a> 1. dw_fact_credit_dtl</h4>
+<h4 id="1-dwd_fact_credit_dtl"><a class="markdownIt-Anchor" href="#1-dwd_fact_credit_dtl"></a> 1. dwd_fact_credit_dtl</h4>
 <table>
 <thead>
 <tr>
@@ -1014,9 +1022,9 @@ var _hmt = _hmt || [];
 </tbody>
 </table>
 <details>
-<summary>dw.dw_fact_credit_dtl</summary>
+<summary>dw.dwd_fact_credit_dtl</summary>
 <p></p>
-<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> overwrite <span class="keyword">table</span> dw.dw_fact_credit_dtl <span class="keyword">partition</span>(partition_date)</span><br><span class="line"><span class="keyword">select</span></span><br><span class="line">    from_unixtime(a.audit_date, <span class="string">'yyyy-MM-dd'</span>) <span class="keyword">as</span> data_date,</span><br><span class="line">    u.idty_type,</span><br><span class="line">    u.channel_id,</span><br><span class="line">    u.user_type,</span><br><span class="line">    u.manager_id,</span><br><span class="line">    u.sex,</span><br><span class="line">    a.id <span class="keyword">as</span> credit_id,</span><br><span class="line">    a.apply_id,</span><br><span class="line">    a.user_id,</span><br><span class="line">    a.audit_status,</span><br><span class="line">    a.audit_result,</span><br><span class="line">    a.passwd_products,</span><br><span class="line">    a.product_terms,</span><br><span class="line">    a.credit_type,</span><br><span class="line">    a.credit_user_id,</span><br><span class="line">    a.score,</span><br><span class="line">    a.amount,</span><br><span class="line">    (<span class="keyword">case</span> <span class="keyword">when</span> <span class="keyword">upper</span>(audit_status) = <span class="string">'PASS'</span> <span class="keyword">then</span> <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span> <span class="keyword">end</span>) <span class="keyword">as</span> pass_cnt,</span><br><span class="line">    (<span class="keyword">case</span> <span class="keyword">when</span> <span class="keyword">upper</span>(audit_status) = <span class="string">'DENY'</span> <span class="keyword">then</span> <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span> <span class="keyword">end</span>) <span class="keyword">as</span> deny_cnt,</span><br><span class="line">    from_unixtime(<span class="keyword">unix_timestamp</span>(), <span class="string">'yyyy-MM-dd JH:mm:ss'</span>) <span class="keyword">as</span> etl_time,</span><br><span class="line">    from_unixtime(a.created_time, <span class="string">'yyyy-MM-dd'</span>) <span class="keyword">as</span> partition_date,</span><br><span class="line"><span class="keyword">from</span> ods.loan_credit a <span class="keyword">left</span> <span class="keyword">join</span> ods.users u <span class="keyword">on</span> a.user_id=u.id</span><br></pre></td></tr></table></figure>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">insert</span> overwrite <span class="keyword">table</span> dw.dw_fact_credit_dtl <span class="keyword">partition</span>(partition_date)</span><br><span class="line"><span class="keyword">select</span></span><br><span class="line">    from_unixtime(a.audit_date, <span class="string">'yyyy-MM-dd'</span>) <span class="keyword">as</span> data_date,</span><br><span class="line">    u.idty_type,</span><br><span class="line">    u.channel_id,</span><br><span class="line">    u.user_type,</span><br><span class="line">    u.manager_id,</span><br><span class="line">    u.sex,</span><br><span class="line">    a.id <span class="keyword">as</span> credit_id,</span><br><span class="line">    a.apply_id,</span><br><span class="line">    a.user_id,</span><br><span class="line">    a.audit_status,</span><br><span class="line">    a.audit_result,</span><br><span class="line">    a.passwd_products,</span><br><span class="line">    a.product_terms,</span><br><span class="line">    a.credit_type,</span><br><span class="line">    a.credit_user_id,</span><br><span class="line">    a.score,</span><br><span class="line">    a.amount,</span><br><span class="line">    (<span class="keyword">case</span> <span class="keyword">when</span> <span class="keyword">upper</span>(audit_status) = <span class="string">'PASS'</span> <span class="keyword">then</span> <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span> <span class="keyword">end</span>) <span class="keyword">as</span> pass_cnt,</span><br><span class="line">    (<span class="keyword">case</span> <span class="keyword">when</span> <span class="keyword">upper</span>(audit_status) = <span class="string">'DENY'</span> <span class="keyword">then</span> <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span> <span class="keyword">end</span>) <span class="keyword">as</span> deny_cnt,</span><br><span class="line">    from_unixtime(<span class="keyword">unix_timestamp</span>(), <span class="string">'yyyy-MM-dd JH:mm:ss'</span>) <span class="keyword">as</span> etl_time,</span><br><span class="line">    from_unixtime(a.created_time, <span class="string">'yyyy-MM-dd'</span>) <span class="keyword">as</span> partition_date,</span><br><span class="line"><span class="keyword">from</span> ods.loan_credit a <span class="keyword">left</span> <span class="keyword">join</span> (dim).users u <span class="keyword">on</span> a.user_id=u.id</span><br></pre></td></tr></table></figure>
 </details>
 <h4 id="2-dm_fact_loan_credit_sum"><a class="markdownIt-Anchor" href="#2-dm_fact_loan_credit_sum"></a> 2. dm_fact_loan_credit_sum</h4>
 <table>
@@ -1098,7 +1106,8 @@ var _hmt = _hmt || [];
 <p><a href="https://tech.youzan.com/youzan-metadata/" target="_blank" rel="noopener">有赞数据仓库元数据系统实践</a><br />
 <a href="https://zhuanlan.zhihu.com/p/27395332" target="_blank" rel="noopener">知乎：大数据环境下该如何优雅地设计数据分层</a><br />
 <a href="https://www.cnblogs.com/jiangbei/p/8483591.html" target="_blank" rel="noopener">【数据仓库】——数据仓库概念</a><br />
-<a href="https://monkeyip.github.io/2019/04/25/Hive%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E4%BC%98%E5%8C%96%E6%80%BB%E7%BB%93/" target="_blank" rel="noopener">Hive数据倾斜优化总结</a></p>
+<a href="https://monkeyip.github.io/2019/04/25/Hive%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E4%BC%98%E5%8C%96%E6%80%BB%E7%BB%93/" target="_blank" rel="noopener">Hive数据倾斜优化总结</a><br />
+<a href="https://www.codenong.com/cs107025192/" target="_blank" rel="noopener">数据仓库–数据分层（ETL、ODS、DW、APP、DIM）</a></p>
 
       
      <!-- by blair add this if sentence at 20160725 -->
@@ -1142,7 +1151,7 @@ var _hmt = _hmt || [];
     
       <div class="article-toc">
         <h3>Contents</h3>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-dw-技术选型"><span class="toc-text"> 1. DW 技术选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-项目背景"><span class="toc-text"> 2. 项目背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-数据调研"><span class="toc-text"> 3. 数据调研</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#35-loan_apply"><span class="toc-text"> 3.5 loan_apply</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#36-loan_apply_salary"><span class="toc-text"> 3.6 loan_apply_salary</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#37-loan_apply_credit_report"><span class="toc-text"> 3.7 loan_apply_credit_report</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#38-drawal_apply"><span class="toc-text"> 3.8 drawal_apply</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#39-drawal_companys"><span class="toc-text"> 3.9 drawal_companys</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-主题模型"><span class="toc-text"> 4. 主题模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据分层"><span class="toc-text"> 数据分层</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-建模流程"><span class="toc-text"> 5. 建模流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#51-ocr-认证"><span class="toc-text"> 5.1 OCR 认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#52-md5-认证"><span class="toc-text"> 5.2 MD5 认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#53-信贷申请"><span class="toc-text"> 5.3 信贷申请</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#54-信贷审核"><span class="toc-text"> 5.4 信贷审核</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-dw_fact_credit_dtl"><span class="toc-text"> 1. dw_fact_credit_dtl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-dm_fact_loan_credit_sum"><span class="toc-text"> 2. dm_fact_loan_credit_sum</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#55-支用还款"><span class="toc-text"> 5.5 支用/还款</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-dw-技术选型"><span class="toc-text"> 1. DW 技术选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-项目背景"><span class="toc-text"> 2. 项目背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-数据调研"><span class="toc-text"> 3. 数据调研</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#35-loan_apply"><span class="toc-text"> 3.5 loan_apply</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#36-loan_apply_salary"><span class="toc-text"> 3.6 loan_apply_salary</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#37-loan_apply_credit_report"><span class="toc-text"> 3.7 loan_apply_credit_report</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#38-drawal_apply"><span class="toc-text"> 3.8 drawal_apply</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#39-drawal_companys"><span class="toc-text"> 3.9 drawal_companys</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-主题模型"><span class="toc-text"> 4. 主题模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#数据分层"><span class="toc-text"> 数据分层</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-建模流程"><span class="toc-text"> 5. 建模流程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#51-ocr-认证"><span class="toc-text"> 5.1 OCR 认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#52-md5-认证"><span class="toc-text"> 5.2 MD5 认证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#53-信贷申请"><span class="toc-text"> 5.3 信贷申请</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#54-信贷审核"><span class="toc-text"> 5.4 信贷审核</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-dwd_fact_credit_dtl"><span class="toc-text"> 1. dwd_fact_credit_dtl</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-dm_fact_loan_credit_sum"><span class="toc-text"> 2. dm_fact_loan_credit_sum</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#55-支用还款"><span class="toc-text"> 5.5 支用/还款</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
       </div>
     
     
