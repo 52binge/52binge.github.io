@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   
-  <title>DataWare Review Summary 5 - Hive 的常见优化 - Auckland New Zealand</title>
+  <title>Hive Optimization Solution Notes - Auckland New Zealand</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <meta name="keywords" content="SQL">
 <meta property="og:type" content="article">
-<meta property="og:title" content="DataWare Review Summary 5 - Hive 的常见优化">
+<meta property="og:title" content="Hive Optimization Solution Notes">
 <meta property="og:url" content="http:&#x2F;&#x2F;iequa.com&#x2F;2021&#x2F;03&#x2F;12&#x2F;dataware&#x2F;dwh-summary-5-knowleage&#x2F;index.html">
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
-<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;sm-data-warehouse-logo-1.jpg">
-<meta property="og:updated_time" content="2021-04-07T03:42:37.716Z">
+<meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;hadoop&#x2F;hadoop-hive-logo-1.png">
+<meta property="og:updated_time" content="2021-04-07T07:52:55.391Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;dataware&#x2F;sm-data-warehouse-logo-1.jpg">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;hadoop&#x2F;hadoop-hive-logo-1.png">
   
   
     <link rel="icon" href="/css/images/favicon-Tiktok.ico">
@@ -117,7 +117,7 @@ var _hmt = _hmt || [];
         
   
     <h1 class="article-title" itemprop="name">
-      DataWare Review Summary 5 - Hive 的常见优化
+      Hive Optimization Solution Notes
       <small class=article-detail-date-index>&nbsp; 2021-03-12</small>
     </h1>
   
@@ -147,7 +147,7 @@ var _hmt = _hmt || [];
     </div>
     <div class="article-entry" itemprop="articleBody">
       
-        <img src="/images/dataware/sm-data-warehouse-logo-1.jpg" width="580" alt="" />
+        <img src="/images/hadoop/hadoop-hive-logo-1.png" width="450" alt="Hadoop MapReduce" />
 <a id="more"></a>
 <h2 id="hive-优化"><a class="markdownIt-Anchor" href="#hive-优化"></a> Hive 优化</h2>
 <table>
@@ -166,22 +166,22 @@ var _hmt = _hmt || [];
 </tr>
 <tr>
 <td style="text-align:center">2.</td>
-<td>列裁剪</td>
+<td>Column cropping<br><br>列裁剪</td>
 <td style="text-align:left">set hive.optimize.cp = true; # 列裁剪，取数只取查询中需要用的列，默认true</td>
 </tr>
 <tr>
 <td style="text-align:center">3.</td>
-<td><br>谓词下推</td>
+<td>谓词下推<br><br>Predicate pushdown</td>
 <td style="text-align:left">set hive.optimize.ppd=true; # 默认是true<br><br><code>select a.*, b.* from a join b on a.id = b.id where b.age &gt; 20;</code></td>
 </tr>
 <tr>
 <td style="text-align:center">4.</td>
-<td>分区裁剪</td>
+<td>Partition crop <br> 分区裁剪</td>
 <td style="text-align:left">set hive.optimize.pruner=true; # 默认是true</td>
 </tr>
 <tr>
 <td style="text-align:center">5.</td>
-<td>合并小文件 <br><br><br><br> Map 输入合并</td>
+<td>Merge small files<br>合并小文件<br><br><br> Map input merge</td>
 <td style="text-align:left">如果一个mapreduce job碰到一对小文件作为输入，一个小文件启动一个Task<br><br><strong>Map 输入合并:</strong><br><br># Map端输入、合并文件之后按照block的大小分割（默认）set <br> hive.input.format=org.apache.hadoop.hive.ql.io.CombineHiveInputFormat;<br><br># Map端输入，不合并<br>set hive.input.format=org.apache.hadoop.hive.ql.io.HiveInputFormat;<br><br></td>
 </tr>
 <tr>
@@ -202,30 +202,32 @@ var _hmt = _hmt || [];
 <tr>
 <td style="text-align:center">8.</td>
 <td>Join优化</td>
-<td style="text-align:left">1. 优先过滤后再进行Join操作，最大限度的减少参与join的数据量<br>2. 小表join大表，最好启动mapjoin，hive自动启用mapjoin, 小表不能超过25M，可以更改<br>3. Join on的条件相同的话，最好放入同一个job，并且join表的排列顺序从小到大<br>4. 如果多张表做join, 如果多个链接条件都相同，会转换成一个Job</td>
+<td style="text-align:left">1. 优先过滤后再进行Join操作，最大限度的减少参与join的数据量<br>2. 小表join大表，最好启动mapjoin，hive自动启用mapjoin, 小表不能超过25M，可以更改<br>3. Join on的条件相同的话，最好放入同一个job，并且join表的排列顺序从小到大<br>4. 如果多张表做join, 如果多个链接条件都相同，会转换成一个Job<br><br><strong>大表Join大表</strong> <br> 1. 空key过滤 <br>2. 空key转换</td>
 </tr>
 <tr>
 <td style="text-align:center">9.</td>
 <td>启用 MapJoin</td>
-<td style="text-align:left"></td>
+<td style="text-align:left">是否根据输入小表的大小，自动将reduce端的common join 转化为map join，将小表刷入内存中 <br> 对应逻辑优化器是MapJoinProcessor <br><br> <code>set hive.auto.convert.join = true;</code><br><br># 刷入内存表的大小(字节)<br>set hive.mapjoin.smalltable.filesize = 25000000;<br><br> # hive会基于表的size自动的将普通join转换成mapjoin <br> set hive.auto.convert.join.noconditionaltask=true;<br><br> # 多大的表可以自动触发放到内层LocalTask中，默认大小10M<br>set hive.auto.convert.join.noconditionaltask.size=10000000; <br><br> <strong>也可以手动开启mapjoin</strong>：</td>
 </tr>
 <tr>
 <td style="text-align:center">10.</td>
-<td><br><br>Join数据倾斜优化</td>
-<td style="text-align:left"># join的key对应的记录条数超过这个值则会进行分拆，值根据具体数据量设置<br>set hive.skewjoin.key=100000;<br><br># 如果是join过程出现倾斜应该设置为true<br>set hive.optimize.skewjoin=false;<br><br>通过 hive.skewjoin.mapjoin.map.tasks 参数还可以控制第二个 job 的 mapper 数量，默认10000<br>set hive.skewjoin.mapjoin.map.tasks=10000;</td>
+<td><br><br><code>Join数据倾斜优化</code></td>
+<td style="text-align:left"># join的key对应的记录条数超过这个值则会进行分拆，值根据具体数据量设置<br>set <code>hive.skewjoin.key</code>=100000;<br><br># 如果是join过程出现倾斜应该设置为true<br>set <code>hive.optimize.skewjoin</code>=false;<br><br>通过 hive.skewjoin.mapjoin.map.tasks 参数还可以控制第二个 job 的 mapper 数量，默认10000<br>set hive.skewjoin.mapjoin.map.tasks=10000;</td>
 </tr>
 <tr>
 <td style="text-align:center">13.</td>
 <td>Group By优化</td>
-<td style="text-align:left"></td>
+<td style="text-align:left"><strong>1. Map端部分聚合</strong> <br><br> # 开启Map端聚合参数设置 set hive.map.aggr=true;<br># 设置map端预聚合的行数阈值，超过该值就会分拆job，默认值100000<br>set hive.groupby.mapaggr.checkinterval=100000 <br><br> <strong>2. 有数据倾斜时进行负载均衡</strong><br><br>当 HQL 语句使用 group by 时数据出现倾斜时，如果该变量设置为 true，那么 Hive 会自动进行负载均衡。<br>策略就是把 MapReduce 任务拆分成两个： 第1个先做预汇总，第2个再做最终汇总. <br><br> # 自动优化，有数据倾斜的时候进行负载均衡（默认是false） <br> set hive.groupby.skewindata=false;</td>
 </tr>
 <tr>
 <td style="text-align:center">15.</td>
 <td>Count Distinct优化</td>
-<td style="text-align:left"></td>
+<td style="text-align:left">优化后（启动2个job，1个job负责子查询(可有多个reduce)，另1个job负责count(1)): <br> <code>select count(1) from (select id from tablename group by id) tmp;</code></td>
 </tr>
 </tbody>
 </table>
+<p><strong>手动开启mapjoin：</strong></p>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">--SQL方式，在SQL语句中添加MapJoin标记（mapjoin hint）</span></span><br><span class="line"><span class="comment">--将小表放到内存中，省去shffle操作</span></span><br><span class="line">// 在没有开启mapjoin的情况下，执行的是reduceJoin</span><br><span class="line"><span class="keyword">SELECT</span> <span class="comment">/*+ MAPJOIN(smallTable) */</span> smallTable.key, bigTable.value <span class="keyword">FROM</span></span><br><span class="line">smallTable <span class="keyword">JOIN</span> bigTable <span class="keyword">ON</span> smallTable.key = bigTable.key;</span><br><span class="line"><span class="comment">/*+mapjoin(smalltable)*/</span></span><br></pre></td></tr></table></figure>
 <table>
 <thead>
 <tr>
