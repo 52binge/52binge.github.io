@@ -12,7 +12,7 @@
 <meta property="og:site_name" content="Auckland New Zealand">
 <meta property="og:locale" content="en">
 <meta property="og:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;hadoop&#x2F;hadoop-hive-logo-1.png">
-<meta property="og:updated_time" content="2021-04-09T00:57:15.289Z">
+<meta property="og:updated_time" content="2021-04-09T01:18:24.570Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http:&#x2F;&#x2F;iequa.com&#x2F;images&#x2F;hadoop&#x2F;hadoop-hive-logo-1.png">
   
@@ -150,10 +150,13 @@ var _hmt = _hmt || [];
         <img src="/images/hadoop/hadoop-hive-logo-1.png" width="450" alt="Hadoop MapReduce" />
 <a id="more"></a>
 <h2 id="1-hive-优化"><a class="markdownIt-Anchor" href="#1-hive-优化"></a> 1. Hive 优化</h2>
+<blockquote>
 <p><a href="https://mp.weixin.qq.com/s?__biz=Mzg3NjIyNjQwMg==&amp;mid=2247493676&amp;idx=1&amp;sn=1658835f7c595cce105022e70640e020&amp;chksm=cf37da21f8405337445ce6d8edbe4640b1a6dbd7903dfd6ac7cd2edbd83394a372bd2e3b9997&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">再次分享！Hive调优，数据工程师成神之路</a><br />
-<a href="https://mp.weixin.qq.com/s/pwyus1xfX7QAz5MtecveZw" target="_blank" rel="noopener">2020 大数据/数仓/数开 Questions</a></p>
+<a href="https://mp.weixin.qq.com/s/pwyus1xfX7QAz5MtecveZw" target="_blank" rel="noopener">2020 大数据/数仓/数开 Questions</a><br />
+<a href="https://mp.weixin.qq.com/s?__biz=MzI2MDQzOTk3MQ==&amp;mid=2247484702&amp;idx=1&amp;sn=a916d003851335e48b90be23c4519eb0&amp;chksm=ea68efd2dd1f66c4baee87b27f9ae70cf6bde4bd35d5f9c0af66285d795724f8d7345d27a074&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">Hive内部表外部表区别及各自使用场景</a></p>
+</blockquote>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">// 让可以不走mapreduce任务的，就不走mapreduce任务</span><br><span class="line">hive&gt; set hive.fetch.task.conversion=more;</span><br><span class="line"> </span><br><span class="line">// 开启任务并行执行</span><br><span class="line"> <span class="keyword">set</span> hive.exec.parallel=<span class="literal">true</span>;</span><br><span class="line">// 解释：当一个sql中有多个job时候，且这多个job之间没有依赖，则可以让顺序执行变为并行执行（一般为用到union all的时候）</span><br><span class="line"> </span><br><span class="line"> // 同一个sql允许并行任务的最大线程数 </span><br><span class="line"><span class="keyword">set</span> hive.exec.parallel.thread.number=<span class="number">8</span>;</span><br><span class="line"> </span><br><span class="line">// 设置jvm重用</span><br><span class="line">// JVM重用对hive的性能具有非常大的 影响，特别是对于很难避免小文件的场景或者task特别多的场景，这类场景大多数执行时间都很短。jvm的启动过程可能会造成相当大的开销，尤其是执行的job包含有成千上万个task任务的情况。</span><br><span class="line"><span class="keyword">set</span> mapred.job.reuse.jvm.num.tasks=<span class="number">10</span>; </span><br><span class="line"> </span><br><span class="line">// 合理设置reduce的数目</span><br><span class="line">// 方法1：调整每个reduce所接受的数据量大小</span><br><span class="line"><span class="keyword">set</span> hive.exec.reducers.bytes.per.reducer=<span class="number">500000000</span>; （500M）</span><br><span class="line">// 方法2：直接设置reduce数量</span><br><span class="line"><span class="keyword">set</span> mapred.reduce.tasks = <span class="number">20</span></span><br><span class="line"></span><br><span class="line">// <span class="keyword">map</span>端聚合，降低传给reduce的数据量</span><br><span class="line"><span class="keyword">set</span> hive.map.aggr=<span class="literal">true</span>  </span><br><span class="line"></span><br><span class="line">// 开启hive内置的数倾优化机制</span><br><span class="line"><span class="keyword">set</span> hive.groupby.skewindata=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
-<p><a href="https://mp.weixin.qq.com/s?__biz=Mzg3NjIyNjQwMg==&amp;mid=2247493886&amp;idx=1&amp;sn=2cee4ece5c7cc87895d9e1a1b2fb440f&amp;chksm=cf37daf3f84053e51cd0323f1ec9114ca0ec159a9451dd53a4afde5a7c6f1cf48f12d7999ef0&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">Hadoop高频考点，正在刷新你的认知！</a></p>
+<p><a href="https://mp.weixin.qq.com/s?__biz=Mzg3NjIyNjQwMg==&amp;mid=2247493886&amp;idx=1&amp;sn=2cee4ece5c7cc87895d9e1a1b2fb440f&amp;chksm=cf37daf3f84053e51cd0323f1ec9114ca0ec159a9451dd53a4afde5a7c6f1cf48f12d7999ef0&amp;scene=21#wechat_redirect" target="_blank" rel="noopener">Hadoop高频考点！</a></p>
 <table>
 <thead>
 <tr>
