@@ -32,7 +32,8 @@
   
 
   
-    <meta name="description" content="Spark.apache.orgJava Chen Spark">
+    <meta name="description" content="Spark.apache.org
+Java Chen Spark">
   
 
   <!-- feed -->
@@ -2628,8 +2629,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <div class='cover-body'>
   <div class='top'>
     
-      <img no-lazy class='logo' src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/Logo-Cover@3x.png'/>
-    
     
       <p class="title">Volantis</p>
     
@@ -2639,13 +2638,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='menu navigation'>
       <div class='list-h'>
         
-          
-            <a href="/archives/"
-              
-              
-              id="archives">
-              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
-            </a>
           
             <a href="/v4/getting-started/"
               
@@ -2673,6 +2665,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
               
               id="contributors">
               <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f389.svg'><p>社区</p>
+            </a>
+          
+            <a href="/archives/"
+              
+              
+              id="archives">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
             </a>
           
             <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
@@ -2718,7 +2717,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <div class='new-meta-item author'>
   <a class='author' href="/" rel="nofollow">
     <img no-lazy src="">
-    <p>BlairChan</p>
+    <p>请设置文章作者</p>
   </a>
 </div>
 
@@ -2770,12 +2769,16 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <p><a target="_blank" rel="noopener" href="http://spark.apache.org/examples.html">Spark.apache.org</a><br><a target="_blank" rel="noopener" href="http://blog.javachen.com/2015/06/07/spark-configuration.html">Java Chen Spark</a></p>
+  <p><a target="_blank" rel="noopener" href="http://spark.apache.org/examples.html">Spark.apache.org</a><br />
+<a target="_blank" rel="noopener" href="http://blog.javachen.com/2015/06/07/spark-configuration.html">Java Chen Spark</a></p>
 <span id="more"></span>
 <p>以下为手动计算流程 :</p>
-<h3 id="4-2-启动-spark-shell"><a href="#4-2-启动-spark-shell" class="headerlink" title="4.2 启动 spark-shell"></a>4.2 启动 spark-shell</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
-<h3 id="4-3-输入输出-相关变量"><a href="#4-3-输入输出-相关变量" class="headerlink" title="4.3 输入输出:相关变量"></a>4.3 输入输出:相关变量</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">val inputTable = <span class="string">&quot;mds_user_coupon_bhv&quot;</span></span><br><span class="line">val inputUrl = <span class="string">&quot;jdbc:mysql://192.168.xxx.xx:3306/com_profile?user=your_name&amp;password=your_password&quot;</span></span><br><span class="line">val outputTable = <span class="string">&quot;mds_rs_shop_coupon_tmp&quot;</span></span><br></pre></td></tr></table></figure>
-<h3 id="4-4-核心程序代码"><a href="#4-4-核心程序代码" class="headerlink" title="4.4 核心程序代码"></a>4.4 核心程序代码</h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">package com.x.rs.service</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat</span><br><span class="line">import java.util.Date</span><br><span class="line">import java.util.Properties</span><br><span class="line"></span><br><span class="line">import org.apache.spark.sql.Row</span><br><span class="line">import org.apache.spark.sql.types._</span><br><span class="line"></span><br><span class="line">import org.apache.spark.&#123;SparkConf, SparkContext&#125;</span><br><span class="line"></span><br><span class="line">import org.apache.spark.mllib.recommendation.&#123;ALS, Rating&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Date : 2017-04-20</span></span><br><span class="line"><span class="comment">  * Author : Blair Chan</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">object RsCouponCalc &#123;</span><br><span class="line">  def main(args: <span class="keyword">Array</span>[String]) &#123;</span><br><span class="line"></span><br><span class="line">    println(&quot;start...&quot;)</span><br><span class="line"></span><br><span class="line">    if (args.length <span class="operator">&lt;</span> <span class="number">3</span>) &#123;</span><br><span class="line">      System.err.println(&quot;Usage: &lt;file&gt;&quot;)</span><br><span class="line">      System.exit(<span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    val inputTable <span class="operator">=</span> args(<span class="number">0</span>) <span class="operator">/</span><span class="operator">/</span> Should be <span class="keyword">some</span> file <span class="keyword">on</span> your <span class="keyword">system</span> <span class="operator">/</span><span class="operator">/</span> conf <span class="operator">=</span> <span class="keyword">new</span> SparkConf().setAppName(appName).setMaster(&quot;local&quot;);</span><br><span class="line">    val inputUrl <span class="operator">=</span> args(<span class="number">1</span>)</span><br><span class="line">    val outputTable <span class="operator">=</span> args(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    val conf <span class="operator">=</span> <span class="keyword">new</span> SparkConf().setAppName(&quot;SparkRsOne&quot;);</span><br><span class="line">    val sc <span class="operator">=</span> <span class="keyword">new</span> SparkContext(conf)</span><br><span class="line">    val sqlContext <span class="operator">=</span> <span class="keyword">new</span> org.apache.spark.sql.SQLContext(sc)</span><br><span class="line"></span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span>    val rawData <span class="operator">=</span> sc.textFile(inputFile)</span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span>    val rawRatings <span class="operator">=</span> rawData.map(_.split(&quot;\t&quot;).take(<span class="number">3</span>))</span><br><span class="line"></span><br><span class="line">    val url <span class="operator">=</span> inputUrl</span><br><span class="line">    val prop <span class="operator">=</span> <span class="keyword">new</span> Properties()</span><br><span class="line"></span><br><span class="line">    val dfForRawData <span class="operator">=</span> sqlContext.read.jdbc(url, inputTable, prop)</span><br><span class="line"></span><br><span class="line">    val ratings_tmp <span class="operator">=</span> dfForRawData.map &#123; <span class="type">row</span> <span class="operator">=</span><span class="operator">&gt;</span> (<span class="type">row</span>(<span class="number">1</span>).toString().toInt, <span class="type">row</span>(<span class="number">4</span>).toString().toInt, <span class="type">row</span>(<span class="number">6</span>).toString().toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val ratings <span class="operator">=</span> ratings_tmp.map &#123; <span class="keyword">case</span> (uid, couponId, rating) <span class="operator">=</span><span class="operator">&gt;</span> Rating(uid.toInt, couponId.toInt, rating.toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val model <span class="operator">=</span> ALS.train(ratings, <span class="number">50</span>, <span class="number">10</span>, <span class="number">0.01</span>)</span><br><span class="line"></span><br><span class="line">    model.userFeatures.count</span><br><span class="line"></span><br><span class="line">    val K <span class="operator">=</span> <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val originResultRdd1 <span class="operator">=</span> model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val curDate <span class="operator">=</span> <span class="keyword">new</span> <span class="type">Date</span>()</span><br><span class="line">    val createDateString <span class="operator">=</span> <span class="keyword">new</span> SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(curDate)</span><br><span class="line"></span><br><span class="line">    val originResultRdd2 <span class="operator">=</span> originResultRdd1.map(tuple <span class="operator">=</span><span class="operator">&gt;</span> &#123;</span><br><span class="line">      val uid <span class="operator">=</span> tuple._1</span><br><span class="line">      val product <span class="operator">=</span> tuple._2.map &#123; <span class="keyword">case</span> Rating(<span class="keyword">user</span>, product, score) <span class="operator">=</span><span class="operator">&gt;</span> (product.toString, score.toString) &#125;</span><br><span class="line">      (uid, product)</span><br><span class="line">    &#125;).flatMap &#123;</span><br><span class="line">      <span class="keyword">case</span> (uid, product) <span class="operator">=</span><span class="operator">&gt;</span> &#123;</span><br><span class="line">        product.map &#123; <span class="keyword">case</span> (itemId, score) <span class="operator">=</span><span class="operator">&gt;</span> Row.apply(uid.toLong, itemId.toString, score.toDouble, createDateString.toString) &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span> println(originResultRdd2.first())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val schema <span class="operator">=</span> StructType(</span><br><span class="line">      StructField(&quot;uid&quot;, LongType) ::</span><br><span class="line">        StructField(&quot;coupon_id&quot;, LongType) ::</span><br><span class="line">        StructField(&quot;score&quot;, DoubleType) ::</span><br><span class="line">        StructField(&quot;calc_date&quot;, StringType) :: Nil)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val df <span class="operator">=</span> sqlContext.createDataFrame(originResultRdd2, schema)</span><br><span class="line"></span><br><span class="line">    df.insertIntoJDBC(url, outputTable, <span class="literal">false</span>)</span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span> 设置为 <span class="literal">true</span>，则为 删除表，然后自动创建，再插入</span><br><span class="line"></span><br><span class="line">    println(&quot;end !&quot;)</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="42-启动-spark-shell"><a class="markdownIt-Anchor" href="#42-启动-spark-shell"></a> 4.2 启动 spark-shell</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h3 id="43-输入输出相关变量"><a class="markdownIt-Anchor" href="#43-输入输出相关变量"></a> 4.3 输入输出:相关变量</h3>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">val inputTable = <span class="string">&quot;mds_user_coupon_bhv&quot;</span></span><br><span class="line">val inputUrl = <span class="string">&quot;jdbc:mysql://192.168.xxx.xx:3306/com_profile?user=your_name&amp;password=your_password&quot;</span></span><br><span class="line">val outputTable = <span class="string">&quot;mds_rs_shop_coupon_tmp&quot;</span></span><br></pre></td></tr></table></figure>
+<h3 id="44-核心程序代码"><a class="markdownIt-Anchor" href="#44-核心程序代码"></a> 4.4 核心程序代码</h3>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line">package com.x.rs.service</span><br><span class="line"></span><br><span class="line">import java.text.SimpleDateFormat</span><br><span class="line">import java.util.Date</span><br><span class="line">import java.util.Properties</span><br><span class="line"></span><br><span class="line">import org.apache.spark.sql.Row</span><br><span class="line">import org.apache.spark.sql.types._</span><br><span class="line"></span><br><span class="line">import org.apache.spark.&#123;SparkConf, SparkContext&#125;</span><br><span class="line"></span><br><span class="line">import org.apache.spark.mllib.recommendation.&#123;ALS, Rating&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">  * Date : 2017-04-20</span></span><br><span class="line"><span class="comment">  * Author : Blair Chan</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">object RsCouponCalc &#123;</span><br><span class="line">  def main(args: <span class="keyword">Array</span>[String]) &#123;</span><br><span class="line"></span><br><span class="line">    println(&quot;start...&quot;)</span><br><span class="line"></span><br><span class="line">    if (args.length <span class="operator">&lt;</span> <span class="number">3</span>) &#123;</span><br><span class="line">      System.err.println(&quot;Usage: &lt;file&gt;&quot;)</span><br><span class="line">      System.exit(<span class="number">1</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    val inputTable <span class="operator">=</span> args(<span class="number">0</span>) <span class="operator">/</span><span class="operator">/</span> Should be <span class="keyword">some</span> file <span class="keyword">on</span> your <span class="keyword">system</span> <span class="operator">/</span><span class="operator">/</span> conf <span class="operator">=</span> <span class="keyword">new</span> SparkConf().setAppName(appName).setMaster(&quot;local&quot;);</span><br><span class="line">    val inputUrl <span class="operator">=</span> args(<span class="number">1</span>)</span><br><span class="line">    val outputTable <span class="operator">=</span> args(<span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">    val conf <span class="operator">=</span> <span class="keyword">new</span> SparkConf().setAppName(&quot;SparkRsOne&quot;);</span><br><span class="line">    val sc <span class="operator">=</span> <span class="keyword">new</span> SparkContext(conf)</span><br><span class="line">    val sqlContext <span class="operator">=</span> <span class="keyword">new</span> org.apache.spark.sql.SQLContext(sc)</span><br><span class="line"></span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span>    val rawData <span class="operator">=</span> sc.textFile(inputFile)</span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span>    val rawRatings <span class="operator">=</span> rawData.map(_.split(&quot;\t&quot;).take(<span class="number">3</span>))</span><br><span class="line"></span><br><span class="line">    val url <span class="operator">=</span> inputUrl</span><br><span class="line">    val prop <span class="operator">=</span> <span class="keyword">new</span> Properties()</span><br><span class="line"></span><br><span class="line">    val dfForRawData <span class="operator">=</span> sqlContext.read.jdbc(url, inputTable, prop)</span><br><span class="line"></span><br><span class="line">    val ratings_tmp <span class="operator">=</span> dfForRawData.map &#123; <span class="type">row</span> <span class="operator">=</span><span class="operator">&gt;</span> (<span class="type">row</span>(<span class="number">1</span>).toString().toInt, <span class="type">row</span>(<span class="number">4</span>).toString().toInt, <span class="type">row</span>(<span class="number">6</span>).toString().toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val ratings <span class="operator">=</span> ratings_tmp.map &#123; <span class="keyword">case</span> (uid, couponId, rating) <span class="operator">=</span><span class="operator">&gt;</span> Rating(uid.toInt, couponId.toInt, rating.toDouble) &#125;</span><br><span class="line"></span><br><span class="line">    val model <span class="operator">=</span> ALS.train(ratings, <span class="number">50</span>, <span class="number">10</span>, <span class="number">0.01</span>)</span><br><span class="line"></span><br><span class="line">    model.userFeatures.count</span><br><span class="line"></span><br><span class="line">    val K <span class="operator">=</span> <span class="number">10</span></span><br><span class="line"></span><br><span class="line">    model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val originResultRdd1 <span class="operator">=</span> model.recommendProductsForUsers(K)</span><br><span class="line"></span><br><span class="line">    val curDate <span class="operator">=</span> <span class="keyword">new</span> <span class="type">Date</span>()</span><br><span class="line">    val createDateString <span class="operator">=</span> <span class="keyword">new</span> SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(curDate)</span><br><span class="line"></span><br><span class="line">    val originResultRdd2 <span class="operator">=</span> originResultRdd1.map(tuple <span class="operator">=</span><span class="operator">&gt;</span> &#123;</span><br><span class="line">      val uid <span class="operator">=</span> tuple._1</span><br><span class="line">      val product <span class="operator">=</span> tuple._2.map &#123; <span class="keyword">case</span> Rating(<span class="keyword">user</span>, product, score) <span class="operator">=</span><span class="operator">&gt;</span> (product.toString, score.toString) &#125;</span><br><span class="line">      (uid, product)</span><br><span class="line">    &#125;).flatMap &#123;</span><br><span class="line">      <span class="keyword">case</span> (uid, product) <span class="operator">=</span><span class="operator">&gt;</span> &#123;</span><br><span class="line">        product.map &#123; <span class="keyword">case</span> (itemId, score) <span class="operator">=</span><span class="operator">&gt;</span> Row.apply(uid.toLong, itemId.toString, score.toDouble, createDateString.toString) &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span> println(originResultRdd2.first())</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val schema <span class="operator">=</span> StructType(</span><br><span class="line">      StructField(&quot;uid&quot;, LongType) ::</span><br><span class="line">        StructField(&quot;coupon_id&quot;, LongType) ::</span><br><span class="line">        StructField(&quot;score&quot;, DoubleType) ::</span><br><span class="line">        StructField(&quot;calc_date&quot;, StringType) :: Nil)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    val df <span class="operator">=</span> sqlContext.createDataFrame(originResultRdd2, schema)</span><br><span class="line"></span><br><span class="line">    df.insertIntoJDBC(url, outputTable, <span class="literal">false</span>)</span><br><span class="line">    <span class="operator">/</span><span class="operator">/</span> 设置为 <span class="literal">true</span>，则为 删除表，然后自动创建，再插入</span><br><span class="line"></span><br><span class="line">    println(&quot;end !&quot;)</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>DF 通过插入 RMDB.  schema 可以通过反射来使得程序扩展性提高。</p>
 </blockquote>
@@ -2839,11 +2842,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://iequa.com/2017/05/07/spark/spark-ALS/&title=Spark ALS - Auckland New Zealand&summary=Spark.apache.orgJava Chen Spark"
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://iequa.com/2017/05/07/spark/spark-ALS/&title=Spark ALS - Auckland New Zealand&summary=Spark.apache.org
+Java Chen Spark"
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -2851,11 +2855,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://iequa.com/2017/05/07/spark/spark-ALS/&title=Spark ALS - Auckland New Zealand&summary=Spark.apache.orgJava Chen Spark"
+          target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://iequa.com/2017/05/07/spark/spark-ALS/&title=Spark ALS - Auckland New Zealand&summary=Spark.apache.org
+Java Chen Spark"
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -2863,11 +2868,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://service.weibo.com/share/share.php?url=http://iequa.com/2017/05/07/spark/spark-ALS/&title=Spark ALS - Auckland New Zealand&summary=Spark.apache.orgJava Chen Spark"
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://iequa.com/2017/05/07/spark/spark-ALS/&title=Spark ALS - Auckland New Zealand&summary=Spark.apache.org
+Java Chen Spark"
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -2951,7 +2957,7 @@ JDBC Server
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%90%AF%E5%8A%A8-spark-shell"><span class="toc-text">4.2 启动 spark-shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA-%E7%9B%B8%E5%85%B3%E5%8F%98%E9%87%8F"><span class="toc-text">4.3 输入输出:相关变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-4-%E6%A0%B8%E5%BF%83%E7%A8%8B%E5%BA%8F%E4%BB%A3%E7%A0%81"><span class="toc-text">4.4 核心程序代码</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#42-%E5%90%AF%E5%8A%A8-spark-shell"><span class="toc-text"> 4.2 启动 spark-shell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#43-%E8%BE%93%E5%85%A5%E8%BE%93%E5%87%BA%E7%9B%B8%E5%85%B3%E5%8F%98%E9%87%8F"><span class="toc-text"> 4.3 输入输出:相关变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#44-%E6%A0%B8%E5%BF%83%E7%A8%8B%E5%BA%8F%E4%BB%A3%E7%A0%81"><span class="toc-text"> 4.4 核心程序代码</span></a></li></ol>
     </div>
   </section>
 
@@ -3040,7 +3046,7 @@ JDBC Server
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
@@ -3671,6 +3677,33 @@ volantis.pjax.push(bindToggleButton);
 
 
 
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
 
 
   
@@ -3689,84 +3722,6 @@ volantis.pjax.push(bindToggleButton);
 
 
 
-  <script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  function pjax_CopyCode() {
-    if (!(document.querySelector(".highlight .code pre") || document.querySelector(".article pre code")))
-      return;
-    if (typeof clipboard == "undefined") {
-      var clipboard = new ClipboardJS(".btn-copy", {
-        target: function (trigger) {
-          return trigger.nextElementSibling;
-        },
-      });
-    }
-    var copyHtml = "";
-    copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-    copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
-    copyHtml += "</button>";
-    document.querySelectorAll(".highlight .code pre").forEach(e => {
-      e.insertAdjacentHTML("beforebegin", copyHtml)
-    });
-    document.querySelectorAll(".article pre code").forEach(e => {
-      e.insertAdjacentHTML("beforebegin", copyHtml)
-    });
-    clipboard.off("success").on("success", function (e) {
-      let $btn = volantis.dom.$(e.trigger);
-      $btn.addClass("copied");
-      let $icon = volantis.dom.$($btn.find("i"));
-      $icon.removeClass("fa-copy").addClass("fa-check-circle");
-      let $span = volantis.dom.$($btn.find("span"));
-      $span.innerText = "COPIED";
-      wait(function () {
-        $icon.removeClass("fa-check-circle").addClass("fa-copy");
-        $span.innerText = "COPY";
-      }, 2000);
-    });
-    clipboard.off("error").on("error", function (e) {
-      e.clearSelection();
-      let $btn = volantis.dom.$(e.trigger);
-      $btn.addClass("copy-failed");
-      let $icon = volantis.dom.$($btn.find("i"));
-      $icon.removeClass("fa-copy").addClass("fa-times-circle");
-      let $span = volantis.dom.$($btn.find("span"));
-      $span.innerText = "COPY FAILED";
-      wait(function () {
-        $icon.removeClass("fa-times-circle").addClass("fa-copy");
-        $span.innerText = "COPY";
-      }, 2000);
-    });
-  }
-  volantis.js("https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js").then(pjax_CopyCode)
-  volantis.pjax.push(pjax_CopyCode);
-</script>
-
-
-
-
-   <script type="text/javascript">
-  function pjax_scrollrebeal() {
-    ScrollReveal().reveal("#l_main .reveal", {
-      distance: "32px",
-      duration: "800",
-      interval: "20",
-      scale: "1",
-      easing: "ease-out",
-    });
-  }
-  volantis.js("https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js")
-  document.addEventListener("DOMContentLoaded", ()=>{
-    var checkScrollReveal = setInterval(function () {
-      if (typeof ScrollReveal == "undefined") return;
-      clearInterval(checkScrollReveal);
-      pjax_scrollrebeal();
-    }, 100);
-  })
-  volantis.pjax.push(pjax_scrollrebeal);
-</script>
 
 
 

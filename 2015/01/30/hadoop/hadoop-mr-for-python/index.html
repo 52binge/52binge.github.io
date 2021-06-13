@@ -2628,8 +2628,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <div class='cover-body'>
   <div class='top'>
     
-      <img no-lazy class='logo' src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/Logo-Cover@3x.png'/>
-    
     
       <p class="title">Volantis</p>
     
@@ -2639,13 +2637,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='menu navigation'>
       <div class='list-h'>
         
-          
-            <a href="/archives/"
-              
-              
-              id="archives">
-              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
-            </a>
           
             <a href="/v4/getting-started/"
               
@@ -2673,6 +2664,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
               
               id="contributors">
               <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f389.svg'><p>社区</p>
+            </a>
+          
+            <a href="/archives/"
+              
+              
+              id="archives">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
             </a>
           
             <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
@@ -2718,7 +2716,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <div class='new-meta-item author'>
   <a class='author' href="/" rel="nofollow">
     <img no-lazy src="">
-    <p>BlairChan</p>
+    <p>请设置文章作者</p>
   </a>
 </div>
 
@@ -2772,19 +2770,24 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>我们可以用 hadoop-streaming 的方式，通过 python 等其他语言来编写 MR 程序.</p>
 <span id="more"></span>
-<h2 id="Map阶段：mapper-py"><a href="#Map阶段：mapper-py" class="headerlink" title="Map阶段：mapper.py"></a>Map阶段：mapper.py</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> sys.stdin:</span><br><span class="line">    line = line.strip()</span><br><span class="line">    words = line.split()</span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> words:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;%s&quot;</span> % word)</span><br><span class="line">        </span><br><span class="line"><span class="comment"># 这里仅仅是一个例子，只输出了第一列</span></span><br></pre></td></tr></table></figure>
+<h2 id="map阶段mapperpy"><a class="markdownIt-Anchor" href="#map阶段mapperpy"></a> Map阶段：<a target="_blank" rel="noopener" href="http://mapper.py">mapper.py</a></h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">for</span> line <span class="keyword">in</span> sys.stdin:</span><br><span class="line">    line = line.strip()</span><br><span class="line">    words = line.split()</span><br><span class="line">    <span class="keyword">for</span> word <span class="keyword">in</span> words:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;%s&quot;</span> % word)</span><br><span class="line">        </span><br><span class="line"><span class="comment"># 这里仅仅是一个例子，只输出了第一列</span></span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>为了是脚本可执行，增加mapper.py的可执行权限</p>
 </blockquote>
 <p>当然，<code>Map</code>阶段， 你也可以不作处理原样输出: 只写一个 <code>cat</code></p>
-<h2 id="Reduce阶段：reducer-py"><a href="#Reduce阶段：reducer-py" class="headerlink" title="Reduce阶段：reducer.py"></a>Reduce阶段：reducer.py</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># Copyright 2013 x Inc. All Rights Reserved</span></span><br><span class="line"></span><br><span class="line">__author__ = <span class="string">&#x27;Blair Chan&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> constant</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> EsHelper <span class="keyword">import</span> EsHelper</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">insert_user_basic_consume_info</span>(<span class="params">items,  esHelper</span>):</span></span><br><span class="line"></span><br><span class="line">    basic_consume_info_doc = get_user_basic_consume_info_doc(items)</span><br><span class="line">    <span class="keyword">if</span> basic_consume_info_doc <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">        </span><br><span class="line">    _<span class="built_in">id</span> = basic_consume_info_doc[<span class="string">&#x27;mobile_number&#x27;</span>]</span><br><span class="line">    basic_consume_info_index = <span class="string">&quot;basic_consume_info_index&quot;</span></span><br><span class="line"></span><br><span class="line">    esHelper.index(index=basic_consume_info_index, doc_type=basic_consume_info_index, <span class="built_in">id</span>=_<span class="built_in">id</span>, data=basic_consume_info_doc)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_user_basic_consume_info_doc</span>(<span class="params">items</span>):</span></span><br><span class="line">    doc = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        doc = &#123;</span><br><span class="line">            <span class="string">&quot;mobile_number&quot;</span>: items[<span class="number">0</span>],</span><br><span class="line">            <span class="string">&quot;first_consume_time&quot;</span>: items[<span class="number">1</span>]</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">except</span> BaseException <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Exist Exception : %s About get_user_basic_consume_info_doc, mobile_number: %s&quot;</span> % (<span class="built_in">str</span>(e), mobile_number))</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> doc</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line"></span><br><span class="line">    esHelper = EsHelper(constant.ES_URL)</span><br><span class="line">    success_sum = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> sys.stdin:</span><br><span class="line"></span><br><span class="line">        line = line.strip()</span><br><span class="line">        items = line.split(<span class="string">&#x27;\001&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(items) &lt; <span class="number">2</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        insert_user_basic_consume_info(items, esHelper)</span><br><span class="line">        success_sum = success_sum + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Success:%d&quot;</span> % success_sum)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
-<h2 id="本地测试"><a href="#本地测试" class="headerlink" title="本地测试"></a>本地测试</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cat data.txt | python mapper.py | sort | reducer.py</span><br></pre></td></tr></table></figure>
-<h2 id="提交Hadoop"><a href="#提交Hadoop" class="headerlink" title="提交Hadoop"></a>提交Hadoop</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"></span><br><span class="line">input_file=<span class="string">&quot;<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;mds_hive_dir&#125;</span>/<span class="variable">$&#123;table_user_basic_consume_info&#125;</span>/*&quot;</span></span><br><span class="line">output_file=<span class="string">&quot;<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;tmp_hive_dir&#125;</span>/<span class="variable">$&#123;table_user_basic_consume_info&#125;</span>/dt=<span class="variable">$&#123;d1&#125;</span>&quot;</span></span><br><span class="line">reducer=<span class="string">&quot;reducer.py&quot;</span></span><br><span class="line">reducer_depend1=<span class="string">&quot;constant.py&quot;</span></span><br><span class="line">reducer_depend2=<span class="string">&quot;EsHelper.py&quot;</span></span><br><span class="line">archive=<span class="string">&quot;<span class="variable">$&#123;OSS_URL&#125;</span>/share/packages/elasticsearch-5.0.0.tar.gz#elasticsearch-5.0.0&quot;</span> </span><br><span class="line"><span class="comment">## archive 表示的依赖包需要上传到 hdfs 上，#后面表示的是解压后的目录名</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;HADOOP&#125;</span> fs -rmr <span class="variable">$&#123;output_file&#125;</span></span><br><span class="line"></span><br><span class="line">cmd=<span class="string">&quot;<span class="variable">$&#123;HADOOP&#125;</span> jar <span class="variable">$&#123;hadoop_streaming_jar&#125;</span></span></span><br><span class="line"><span class="string">     -D mapred.map.tasks=100</span></span><br><span class="line"><span class="string">     -D mapred.reduce.tasks=100</span></span><br><span class="line"><span class="string">     -D stream.map.input.ignoreKey=true</span></span><br><span class="line"><span class="string">     -input <span class="variable">$&#123;input_file&#125;</span></span></span><br><span class="line"><span class="string">     -output <span class="variable">$&#123;output_file&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer_depend1&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer_depend2&#125;</span></span></span><br><span class="line"><span class="string">     -mapper cat</span></span><br><span class="line"><span class="string">     -reducer <span class="variable">$&#123;reducer&#125;</span></span></span><br><span class="line"><span class="string">     -cacheArchive <span class="variable">$&#123;archive&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">echo_ex <span class="string">&quot;<span class="variable">$cmd</span>&quot;</span></span><br><span class="line"><span class="variable">$cmd</span></span><br><span class="line">check_success</span><br></pre></td></tr></table></figure>
+<h2 id="reduce阶段reducerpy"><a class="markdownIt-Anchor" href="#reduce阶段reducerpy"></a> Reduce阶段：<a target="_blank" rel="noopener" href="http://reducer.py">reducer.py</a></h2>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/env python</span></span><br><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="comment"># Copyright 2013 x Inc. All Rights Reserved</span></span><br><span class="line"></span><br><span class="line">__author__ = <span class="string">&#x27;Blair Chan&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> constant</span><br><span class="line"></span><br><span class="line"><span class="keyword">from</span> datetime <span class="keyword">import</span> datetime</span><br><span class="line"><span class="keyword">from</span> EsHelper <span class="keyword">import</span> EsHelper</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">insert_user_basic_consume_info</span>(<span class="params">items,  esHelper</span>):</span></span><br><span class="line"></span><br><span class="line">    basic_consume_info_doc = get_user_basic_consume_info_doc(items)</span><br><span class="line">    <span class="keyword">if</span> basic_consume_info_doc <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">        </span><br><span class="line">    _<span class="built_in">id</span> = basic_consume_info_doc[<span class="string">&#x27;mobile_number&#x27;</span>]</span><br><span class="line">    basic_consume_info_index = <span class="string">&quot;basic_consume_info_index&quot;</span></span><br><span class="line"></span><br><span class="line">    esHelper.index(index=basic_consume_info_index, doc_type=basic_consume_info_index, <span class="built_in">id</span>=_<span class="built_in">id</span>, data=basic_consume_info_doc)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_user_basic_consume_info_doc</span>(<span class="params">items</span>):</span></span><br><span class="line">    doc = <span class="literal">None</span></span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        doc = &#123;</span><br><span class="line">            <span class="string">&quot;mobile_number&quot;</span>: items[<span class="number">0</span>],</span><br><span class="line">            <span class="string">&quot;first_consume_time&quot;</span>: items[<span class="number">1</span>]</span><br><span class="line">        &#125;</span><br><span class="line">    <span class="keyword">except</span> BaseException <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;Exist Exception : %s About get_user_basic_consume_info_doc, mobile_number: %s&quot;</span> % (<span class="built_in">str</span>(e), mobile_number))</span><br><span class="line">    <span class="keyword">finally</span>:</span><br><span class="line">        <span class="keyword">pass</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> doc</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span>():</span></span><br><span class="line"></span><br><span class="line">    esHelper = EsHelper(constant.ES_URL)</span><br><span class="line">    success_sum = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> sys.stdin:</span><br><span class="line"></span><br><span class="line">        line = line.strip()</span><br><span class="line">        items = line.split(<span class="string">&#x27;\001&#x27;</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> <span class="built_in">len</span>(items) &lt; <span class="number">2</span>:</span><br><span class="line">            <span class="keyword">continue</span></span><br><span class="line"></span><br><span class="line">        insert_user_basic_consume_info(items, esHelper)</span><br><span class="line">        success_sum = success_sum + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Success:%d&quot;</span> % success_sum)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+<h2 id="本地测试"><a class="markdownIt-Anchor" href="#本地测试"></a> 本地测试</h2>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cat data.txt | python mapper.py | sort | reducer.py</span><br></pre></td></tr></table></figure>
+<h2 id="提交hadoop"><a class="markdownIt-Anchor" href="#提交hadoop"></a> 提交Hadoop</h2>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="built_in">cd</span> `dirname <span class="variable">$0</span>`/.. &amp;&amp; wk_dir=`<span class="built_in">pwd</span>` &amp;&amp; <span class="built_in">cd</span> -</span><br><span class="line"><span class="built_in">source</span> <span class="variable">$&#123;wk_dir&#125;</span>/util/env</span><br><span class="line"></span><br><span class="line">input_file=<span class="string">&quot;<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;mds_hive_dir&#125;</span>/<span class="variable">$&#123;table_user_basic_consume_info&#125;</span>/*&quot;</span></span><br><span class="line">output_file=<span class="string">&quot;<span class="variable">$&#123;OSS_URL&#125;</span>/<span class="variable">$&#123;tmp_hive_dir&#125;</span>/<span class="variable">$&#123;table_user_basic_consume_info&#125;</span>/dt=<span class="variable">$&#123;d1&#125;</span>&quot;</span></span><br><span class="line">reducer=<span class="string">&quot;reducer.py&quot;</span></span><br><span class="line">reducer_depend1=<span class="string">&quot;constant.py&quot;</span></span><br><span class="line">reducer_depend2=<span class="string">&quot;EsHelper.py&quot;</span></span><br><span class="line">archive=<span class="string">&quot;<span class="variable">$&#123;OSS_URL&#125;</span>/share/packages/elasticsearch-5.0.0.tar.gz#elasticsearch-5.0.0&quot;</span> </span><br><span class="line"><span class="comment">## archive 表示的依赖包需要上传到 hdfs 上，#后面表示的是解压后的目录名</span></span><br><span class="line"></span><br><span class="line"><span class="variable">$&#123;HADOOP&#125;</span> fs -rmr <span class="variable">$&#123;output_file&#125;</span></span><br><span class="line"></span><br><span class="line">cmd=<span class="string">&quot;<span class="variable">$&#123;HADOOP&#125;</span> jar <span class="variable">$&#123;hadoop_streaming_jar&#125;</span></span></span><br><span class="line"><span class="string">     -D mapred.map.tasks=100</span></span><br><span class="line"><span class="string">     -D mapred.reduce.tasks=100</span></span><br><span class="line"><span class="string">     -D stream.map.input.ignoreKey=true</span></span><br><span class="line"><span class="string">     -input <span class="variable">$&#123;input_file&#125;</span></span></span><br><span class="line"><span class="string">     -output <span class="variable">$&#123;output_file&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer_depend1&#125;</span></span></span><br><span class="line"><span class="string">     -file <span class="variable">$&#123;reducer_depend2&#125;</span></span></span><br><span class="line"><span class="string">     -mapper cat</span></span><br><span class="line"><span class="string">     -reducer <span class="variable">$&#123;reducer&#125;</span></span></span><br><span class="line"><span class="string">     -cacheArchive <span class="variable">$&#123;archive&#125;</span>&quot;</span></span><br><span class="line"></span><br><span class="line">echo_ex <span class="string">&quot;<span class="variable">$cmd</span>&quot;</span></span><br><span class="line"><span class="variable">$cmd</span></span><br><span class="line">check_success</span><br></pre></td></tr></table></figure>
 <blockquote>
-<p>hadoop_streaming_jar=”/home/data_mining/share/packages/hadoop2/hadoop-streaming-2.7.2.jar”</p>
+<p>hadoop_streaming_jar=&quot;/home/data_mining/share/packages/hadoop2/hadoop-streaming-2.7.2.jar&quot;</p>
 <p>以上仅仅是一个例子，虽然插入 ES 出现异常，但本篇仅仅说明如何用 python 写 mapreduce 程序</p>
 </blockquote>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="http://www.cnblogs.com/kaituorensheng/p/3826114.html">用python写MapReduce函数——以WordCount为例</a></li>
 </ul>
 
@@ -2850,7 +2853,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -2862,7 +2865,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -2874,7 +2877,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -2902,15 +2905,14 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class='prev' href='/2015/02/01/hadoop/hadoop-hive-udf-udaf/'>
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Hive 中 udf、udaf 和 udtf 的使用</p>
-          <p class='content'>Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库. 
-Hive 是一个很开放的系统，很多内容都支持用户定制. 如 : 文件格式、MR脚本、自定义函数、自定义...</p>
+          <p class='content'>Hive 是基于 Hadoop 中的 MapReduce，提供 HQL 查询的数据仓库.
+Hive 是一个很开放的系统，很多内容都支持用户定制. 如 : 文件格式、MR脚本、自定义函数、自定义聚...</p>
         </a>
       
       
         <a class='next' href='/2014/05/18/devops/linux-bashrc-profile/'>
           <p class='title'>Linux, profile / bashrc Brief Introduce<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-          <p class='content'>/etc/profile、/etc/bashrc、~/.bash_profile、~/.bashrc 
-
+          <p class='content'>/etc/profile、/etc/bashrc、/.bash_profile、/.bashrc
 
 
 
@@ -2921,7 +2923,7 @@ desc
 
 
 
-/etc/profile，/etc/b...</p>
+/etc/profile，/etc/bashr...</p>
         </a>
       
     </div>
@@ -3017,7 +3019,7 @@ desc
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Map%E9%98%B6%E6%AE%B5%EF%BC%9Amapper-py"><span class="toc-text">Map阶段：mapper.py</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reduce%E9%98%B6%E6%AE%B5%EF%BC%9Areducer-py"><span class="toc-text">Reduce阶段：reducer.py</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%B5%8B%E8%AF%95"><span class="toc-text">本地测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E4%BA%A4Hadoop"><span class="toc-text">提交Hadoop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#map%E9%98%B6%E6%AE%B5mapperpy"><span class="toc-text"> Map阶段：mapper.py</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reduce%E9%98%B6%E6%AE%B5reducerpy"><span class="toc-text"> Reduce阶段：reducer.py</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%B5%8B%E8%AF%95"><span class="toc-text"> 本地测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%90%E4%BA%A4hadoop"><span class="toc-text"> 提交Hadoop</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3106,7 +3108,7 @@ desc
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
@@ -3737,6 +3739,33 @@ volantis.pjax.push(bindToggleButton);
 
 
 
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
 
 
   
@@ -3755,84 +3784,6 @@ volantis.pjax.push(bindToggleButton);
 
 
 
-  <script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  function pjax_CopyCode() {
-    if (!(document.querySelector(".highlight .code pre") || document.querySelector(".article pre code")))
-      return;
-    if (typeof clipboard == "undefined") {
-      var clipboard = new ClipboardJS(".btn-copy", {
-        target: function (trigger) {
-          return trigger.nextElementSibling;
-        },
-      });
-    }
-    var copyHtml = "";
-    copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-    copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
-    copyHtml += "</button>";
-    document.querySelectorAll(".highlight .code pre").forEach(e => {
-      e.insertAdjacentHTML("beforebegin", copyHtml)
-    });
-    document.querySelectorAll(".article pre code").forEach(e => {
-      e.insertAdjacentHTML("beforebegin", copyHtml)
-    });
-    clipboard.off("success").on("success", function (e) {
-      let $btn = volantis.dom.$(e.trigger);
-      $btn.addClass("copied");
-      let $icon = volantis.dom.$($btn.find("i"));
-      $icon.removeClass("fa-copy").addClass("fa-check-circle");
-      let $span = volantis.dom.$($btn.find("span"));
-      $span.innerText = "COPIED";
-      wait(function () {
-        $icon.removeClass("fa-check-circle").addClass("fa-copy");
-        $span.innerText = "COPY";
-      }, 2000);
-    });
-    clipboard.off("error").on("error", function (e) {
-      e.clearSelection();
-      let $btn = volantis.dom.$(e.trigger);
-      $btn.addClass("copy-failed");
-      let $icon = volantis.dom.$($btn.find("i"));
-      $icon.removeClass("fa-copy").addClass("fa-times-circle");
-      let $span = volantis.dom.$($btn.find("span"));
-      $span.innerText = "COPY FAILED";
-      wait(function () {
-        $icon.removeClass("fa-times-circle").addClass("fa-copy");
-        $span.innerText = "COPY";
-      }, 2000);
-    });
-  }
-  volantis.js("https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js").then(pjax_CopyCode)
-  volantis.pjax.push(pjax_CopyCode);
-</script>
-
-
-
-
-   <script type="text/javascript">
-  function pjax_scrollrebeal() {
-    ScrollReveal().reveal("#l_main .reveal", {
-      distance: "32px",
-      duration: "800",
-      interval: "20",
-      scale: "1",
-      easing: "ease-out",
-    });
-  }
-  volantis.js("https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js")
-  document.addEventListener("DOMContentLoaded", ()=>{
-    var checkScrollReveal = setInterval(function () {
-      if (typeof ScrollReveal == "undefined") return;
-      clearInterval(checkScrollReveal);
-      pjax_scrollrebeal();
-    }, 100);
-  })
-  volantis.pjax.push(pjax_scrollrebeal);
-</script>
 
 
 

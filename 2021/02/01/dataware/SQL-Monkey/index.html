@@ -2626,8 +2626,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <div class='cover-body'>
   <div class='top'>
     
-      <img no-lazy class='logo' src='https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/blog/Logo-Cover@3x.png'/>
-    
     
       <p class="title">Volantis</p>
     
@@ -2637,13 +2635,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='menu navigation'>
       <div class='list-h'>
         
-          
-            <a href="/archives/"
-              
-              
-              id="archives">
-              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
-            </a>
           
             <a href="/v4/getting-started/"
               
@@ -2671,6 +2662,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
               
               id="contributors">
               <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f389.svg'><p>社区</p>
+            </a>
+          
+            <a href="/archives/"
+              
+              
+              id="archives">
+              <img src='https://cdn.jsdelivr.net/gh/twitter/twemoji@13.0/assets/svg/1f4f0.svg'><p>博客</p>
             </a>
           
             <a target="_blank" rel="noopener" href="https://github.com/volantis-x/hexo-theme-volantis/"
@@ -2716,7 +2714,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <div class='new-meta-item author'>
   <a class='author' href="/" rel="nofollow">
     <img no-lazy src="">
-    <p>BlairChan</p>
+    <p>请设置文章作者</p>
   </a>
 </div>
 
@@ -2768,7 +2766,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <p><img src="/images/sql/sql-50-logo.jpg" width="550" alt="" /></p>
+  <img src="/images/sql/sql-50-logo.jpg" class="lazyload" data-srcset="/images/sql/sql-50-logo.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="" />
 <span id="more"></span>
 <ol>
 <li>SQL 的书写规则是什么？</li>
@@ -2780,48 +2778,64 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>成绩表：score(学号,课程号,成绩)</p>
 <p>课程表：course(课程号,课程名称,教师号)</p>
 <p>教师表：teacher(教师号,教师姓名)</p>
+</blockquote>
+<blockquote>
 <p>RAND() Function 0 &lt;= ret &lt; 1</p>
 <p>1~100 -&gt; SELECT FLOOR(1 + (RAND() * 100)) LIMIT 10;</p>
 <p>IF(expr1,expr2,expr3)</p>
-<p>SELECT CustomerName, CONCAT(“H1”, “ H2 “, RAND()),<br>CONCAT(Address, “ “, PostalCode, “ “, City) AS Address FROM Customers;</p>
+<p>SELECT CustomerName, CONCAT(“H1”, &quot; H2 &quot;, RAND()),<br />
+CONCAT(Address, &quot; &quot;, PostalCode, &quot; &quot;, City) AS Address FROM Customers;</p>
 </blockquote>
 <details>
 <summary>#SQL 如何查询关于【连续几天】的问题</summary>
 <p></p>
-
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	id,</span><br><span class="line">	created_at,</span><br><span class="line">	CURDATE( ), <span class="comment">-- 2021-03-18</span></span><br><span class="line">	<span class="type">DATE</span>(created_at), <span class="comment">-- 2019-11-21</span></span><br><span class="line">	<span class="type">DATE</span>(created_at) <span class="operator">-</span> <span class="number">1</span>  <span class="comment">-- 20191120</span></span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">	users </span><br><span class="line">	LIMIT <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    user_id,</span><br><span class="line">    <span class="built_in">MAX</span>( count_date_on ) </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    (</span><br><span class="line">        (</span><br><span class="line">        <span class="keyword">SELECT</span></span><br><span class="line">            user_id,</span><br><span class="line">            <span class="built_in">count</span>( date_on ) count_date_on </span><br><span class="line">        <span class="keyword">FROM</span></span><br><span class="line">            (</span><br><span class="line">            <span class="keyword">SELECT</span></span><br><span class="line">                user_id,</span><br><span class="line">                <span class="type">date</span>,</span><br><span class="line">                <span class="built_in">row_number</span> ( ) <span class="keyword">over</span> ( <span class="keyword">PARTITION</span> <span class="keyword">BY</span> <span class="keyword">USER</span> <span class="keyword">ORDER</span> <span class="keyword">BY</span> <span class="type">date</span> <span class="keyword">DESC</span> ) rnk,</span><br><span class="line">                <span class="type">date</span> <span class="operator">-</span> ( <span class="built_in">MAX</span>( <span class="type">date</span> ) <span class="operator">-</span> rnk ) date_on </span><br><span class="line">            <span class="keyword">FROM</span></span><br><span class="line">                TB </span><br><span class="line">            <span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">                user_id </span><br><span class="line">            ) A </span><br><span class="line">        <span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">            user_id,</span><br><span class="line">            date_on </span><br><span class="line">        ) </span><br><span class="line">    ) B </span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">    user_id</span><br></pre></td></tr></table></figure>
 </details>
-
-<h3 id="1-SQL：查找重复数据？"><a href="#1-SQL：查找重复数据？" class="headerlink" title="1. SQL：查找重复数据？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/353564155">1. SQL：查找重复数据？</a></h3><p>知识: <strong><code>group by 列名 having count(列名) &gt; n</code></strong></p>
-<p><img src="/images/sql/monkey-sql-having-count.png" width="590" alt="select 列名 from table group by 列名 having count(列名) > n;" /></p>
+<h3 id="1-sql查找重复数据"><a class="markdownIt-Anchor" href="#1-sql查找重复数据"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/353564155">1. SQL：查找重复数据？</a></h3>
+<p>知识: <strong><code>group by 列名 having count(列名) &gt; n</code></strong></p>
+<img src="/images/sql/monkey-sql-having-count.png" class="lazyload" data-srcset="/images/sql/monkey-sql-having-count.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="select 列名 from table group by 列名 having count(列名) > n;" />
 <p>举一反三: 查询平均成绩大于60分的学生的学号和平均成绩</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> 学号 ,<span class="built_in">avg</span>(成绩) <span class="keyword">from</span> score </span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> 学号  </span><br><span class="line"><span class="keyword">having</span> <span class="built_in">avg</span>(成绩 ) <span class="operator">&gt;</span><span class="number">60</span></span><br></pre></td></tr></table></figure>
 <p>查询各学生的年龄（精确到月份）</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">【知识点】时间格式转化 timestampdiff</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">select</span> 学号 ,timestampdiff(<span class="keyword">month</span> ,出生日期 ,now())<span class="operator">/</span><span class="number">12</span> </span><br><span class="line"><span class="keyword">from</span> student ;</span><br></pre></td></tr></table></figure>
-<h3 id="2-SQL：如何查找第N高的数据？"><a href="#2-SQL：如何查找第N高的数据？" class="headerlink" title="2. SQL：如何查找第N高的数据？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101716138">2. SQL：如何查找第N高的数据？</a></h3><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">    ifNull(</span><br><span class="line">        (<span class="keyword">select</span> <span class="keyword">distinct</span> salary <span class="keyword">from</span> Employee <span class="keyword">order</span> <span class="keyword">by</span> Salary <span class="keyword">Desc</span> limit <span class="number">1</span>,<span class="number">1</span>),</span><br><span class="line">        <span class="keyword">null</span></span><br><span class="line">    ) <span class="keyword">as</span> SecondHighestSalary;</span><br></pre></td></tr></table></figure>
+<h3 id="2-sql如何查找第n高的数据"><a class="markdownIt-Anchor" href="#2-sql如何查找第n高的数据"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/101716138">2. SQL：如何查找第N高的数据？</a></h3>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">    ifNull(</span><br><span class="line">        (<span class="keyword">select</span> <span class="keyword">distinct</span> salary <span class="keyword">from</span> Employee <span class="keyword">order</span> <span class="keyword">by</span> Salary <span class="keyword">Desc</span> limit <span class="number">1</span>,<span class="number">1</span>),</span><br><span class="line">        <span class="keyword">null</span></span><br><span class="line">    ) <span class="keyword">as</span> SecondHighestSalary;</span><br></pre></td></tr></table></figure>
 <p>知识: <code>limit 1,n</code></p>
-<h3 id="3-SQL：查找不在表里的数据"><a href="#3-SQL：查找不在表里的数据" class="headerlink" title="3. SQL：查找不在表里的数据"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/88351106">3. SQL：查找不在表里的数据</a></h3><p><img src="/images/sql/monkey-sql-join-1.jpg" width="590" alt="left join, inner join" /></p>
-<p><img src="/images/sql/monkey-sql-join-2.jpg" width="590" alt="" /></p>
+<h3 id="3-sql查找不在表里的数据"><a class="markdownIt-Anchor" href="#3-sql查找不在表里的数据"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/88351106">3. SQL：查找不在表里的数据</a></h3>
+<img src="/images/sql/monkey-sql-join-1.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-join-1.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="left join, inner join" />
+<img src="/images/sql/monkey-sql-join-2.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-join-2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">    a.Name <span class="keyword">as</span> Customers</span><br><span class="line"><span class="keyword">from</span> </span><br><span class="line">    Customers <span class="keyword">as</span> a <span class="keyword">left</span> <span class="keyword">join</span> Orders <span class="keyword">as</span> b</span><br><span class="line"><span class="keyword">on</span> a.Id<span class="operator">=</span>b.CustomerId</span><br><span class="line"><span class="keyword">where</span> b.CustomerId <span class="keyword">is</span> <span class="keyword">null</span>;</span><br></pre></td></tr></table></figure>
-<h3 id="4-SQL：你有多久没涨过工资了？"><a href="#4-SQL：你有多久没涨过工资了？" class="headerlink" title="4. SQL：你有多久没涨过工资了？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/142872080">4. SQL：你有多久没涨过工资了？</a></h3><p><img src="/images/sql/monkey-sql-salary.jpg" width="590" alt="left join, inner join" /></p>
-<h3 id="5-SQL：如何比较日期数据？"><a href="#5-SQL：如何比较日期数据？" class="headerlink" title="5. SQL：如何比较日期数据？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/95768329">5. SQL：如何比较日期数据？</a></h3><p><img src="/images/sql/monkey-sql-date-compare-1.jpg" width="590" alt="" /></p>
-<p><img src="/images/sql/monkey-sql-date-compare-2.jpg" width="590" alt="" /></p>
+<h3 id="4-sql你有多久没涨过工资了"><a class="markdownIt-Anchor" href="#4-sql你有多久没涨过工资了"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/142872080">4. SQL：你有多久没涨过工资了？</a></h3>
+<img src="/images/sql/monkey-sql-salary.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-salary.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="left join, inner join" />
+<h3 id="5-sql如何比较日期数据"><a class="markdownIt-Anchor" href="#5-sql如何比较日期数据"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/95768329">5. SQL：如何比较日期数据？</a></h3>
+<img src="/images/sql/monkey-sql-date-compare-1.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-date-compare-1.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
+<img src="/images/sql/monkey-sql-date-compare-2.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-date-compare-2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
 <p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/rising-temperature/solution/shang-sheng-de-wen-du-by-leetcode/">举一反三： Weather</a></p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> a.ID, a.date</span><br><span class="line"><span class="keyword">from</span> weather <span class="keyword">as</span> a <span class="keyword">cross</span> <span class="keyword">join</span> weather <span class="keyword">as</span> b </span><br><span class="line">     <span class="keyword">on</span> timestampdiff(<span class="keyword">day</span>, a.date, b.date) <span class="operator">=</span> <span class="number">-1</span></span><br><span class="line"><span class="keyword">where</span> a.temp <span class="operator">&gt;</span> b.temp;</span><br></pre></td></tr></table></figure>
-<h3 id="6-DiDi-如何找出最小的N个数？"><a href="#6-DiDi-如何找出最小的N个数？" class="headerlink" title="6. DiDi: 如何找出最小的N个数？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/338648536">6. DiDi: 如何找出最小的N个数？</a></h3><p>1.筛选出2017年入学的“计算机”专业年龄最小的3位同学名单（姓名、年龄）<br>2.统计每个班同学各科成绩平均分大于80分的人数和人数占比</p>
-<p><img src="/images/sql/monkey-sql-min_N_nums-1.png" width="590" alt="" /></p>
-<p><img src="/images/sql/monkey-sql-min_N_nums-2.jpg" width="590" alt="" /></p>
-<p><img src="/images/sql/monkey-sql-min_N_nums-4.jpg" width="590" alt="" /></p>
-<p><img src="/images/sql/monkey-sql-min_N_nums-5.jpg" width="590" alt="" /></p>
-<p><img src="/images/sql/monkey-sql-min_N_nums-6.png" width="590" alt="" /></p>
-<p><img src="/images/sql/monkey-sql-min_N_nums-7.jpg" width="590" alt="" /></p>
+<h3 id="6-didi-如何找出最小的n个数"><a class="markdownIt-Anchor" href="#6-didi-如何找出最小的n个数"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/338648536">6. DiDi: 如何找出最小的N个数？</a></h3>
+<p>1.筛选出2017年入学的“计算机”专业年龄最小的3位同学名单（姓名、年龄）<br />
+2.统计每个班同学各科成绩平均分大于80分的人数和人数占比</p>
+<img src="/images/sql/monkey-sql-min_N_nums-1.png" class="lazyload" data-srcset="/images/sql/monkey-sql-min_N_nums-1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
+<img src="/images/sql/monkey-sql-min_N_nums-2.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-min_N_nums-2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
+<img src="/images/sql/monkey-sql-min_N_nums-4.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-min_N_nums-4.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
+<img src="/images/sql/monkey-sql-min_N_nums-5.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-min_N_nums-5.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
+<img src="/images/sql/monkey-sql-min_N_nums-6.png" class="lazyload" data-srcset="/images/sql/monkey-sql-min_N_nums-6.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
+<img src="/images/sql/monkey-sql-min_N_nums-7.jpg" class="lazyload" data-srcset="/images/sql/monkey-sql-min_N_nums-7.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="590" alt="" />
 <p>考点:</p>
-<p>1.使用逻辑树分析方法将复杂问题变成简单问题的能力<br>2.当遇到“每个”问题的时候，要想到用分组汇总<br>3.查询最小n个数据的问题：先排序（order by），然后使用limit取出前n行数据<br>4.遇到有筛选条件的统计数量问题时，使用case表达式筛选出符合条件的行为1，否则为0。然后用汇总函数（sum）对case表达式输出列求和。</p>
-<h2 id="7-拼夕夕：连续出现N次的内容？"><a href="#7-拼夕夕：连续出现N次的内容？" class="headerlink" title="7. 拼夕夕：连续出现N次的内容？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/348022888">7. 拼夕夕：连续出现N次的内容？</a></h2><h4 id="方法1：-自连接"><a href="#方法1：-自连接" class="headerlink" title="方法1： 自连接"></a>方法1： 自连接</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    Score <span class="keyword">AS</span> a,</span><br><span class="line">    Score <span class="keyword">AS</span> b,</span><br><span class="line">    Score <span class="keyword">AS</span> c</span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    a.s_id <span class="operator">=</span> b.s_id <span class="operator">-</span> <span class="number">1</span> </span><br><span class="line">    <span class="keyword">AND</span> b.s_id <span class="operator">=</span> c.s_id <span class="operator">-</span> <span class="number">1</span> </span><br><span class="line">    <span class="keyword">AND</span> a.s_score <span class="operator">=</span> b.s_score </span><br><span class="line">    <span class="keyword">AND</span> b.s_score <span class="operator">=</span> c.s_score; </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    <span class="keyword">DISTINCT</span> a.s_score <span class="keyword">as</span> 最终答案</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    Score <span class="keyword">AS</span> a,</span><br><span class="line">    Score <span class="keyword">AS</span> b,</span><br><span class="line">    Score <span class="keyword">AS</span> c</span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    a.s_id <span class="operator">=</span> b.s_id <span class="operator">-</span> <span class="number">1</span> </span><br><span class="line">    <span class="keyword">AND</span> b.s_id <span class="operator">=</span> c.s_id <span class="operator">-</span> <span class="number">1</span> </span><br><span class="line">    <span class="keyword">AND</span> a.s_score <span class="operator">=</span> b.s_score </span><br><span class="line">    <span class="keyword">AND</span> b.s_score <span class="operator">=</span> c.s_score; </span><br></pre></td></tr></table></figure>
-<h4 id="方法2：-window-function"><a href="#方法2：-window-function" class="headerlink" title="方法2： window function"></a>方法2： window function</h4><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span></span><br><span class="line">    球员姓名 </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    (</span><br><span class="line">    <span class="keyword">SELECT</span></span><br><span class="line">        球员姓名,</span><br><span class="line">        <span class="built_in">lead</span> ( 球员姓名, <span class="number">1</span> ) <span class="keyword">over</span> ( <span class="keyword">PARTITION</span> <span class="keyword">BY</span> 球队 <span class="keyword">ORDER</span> <span class="keyword">BY</span> 得分时间 ) <span class="keyword">AS</span> 姓名<span class="number">1</span>,</span><br><span class="line">        <span class="built_in">lead</span> ( 球员姓名, <span class="number">2</span> ) <span class="keyword">over</span> ( <span class="keyword">PARTITION</span> <span class="keyword">BY</span> 球队 <span class="keyword">ORDER</span> <span class="keyword">BY</span> 得分时间 ) <span class="keyword">AS</span> 姓名<span class="number">2</span> </span><br><span class="line">    <span class="keyword">FROM</span></span><br><span class="line">        分数表 </span><br><span class="line">    ) <span class="keyword">AS</span> a </span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    (</span><br><span class="line">        a.球员姓名 <span class="operator">=</span> a.姓名<span class="number">1</span></span><br><span class="line">    <span class="keyword">AND</span> a.球员姓名 <span class="operator">=</span> a.姓名<span class="number">2</span></span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
-<h2 id="10-SQL：经典topN问题"><a href="#10-SQL：经典topN问题" class="headerlink" title="10. SQL：经典topN问题"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/93346220">10. SQL：经典topN问题</a></h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">from</span> (</span><br><span class="line">   <span class="keyword">select</span> <span class="operator">*</span>, </span><br><span class="line">          <span class="built_in">row_number</span>() <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> 姓名</span><br><span class="line">                       <span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> ranking</span><br><span class="line">   <span class="keyword">from</span> 成绩表) <span class="keyword">as</span> a</span><br><span class="line"><span class="keyword">where</span> ranking <span class="operator">&lt;=</span><span class="number">2</span></span><br></pre></td></tr></table></figure>
-<h2 id="11-链家：如何分析留存率？"><a href="#11-链家：如何分析留存率？" class="headerlink" title="11. 链家：如何分析留存率？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/151357806">11. 链家：如何分析留存率？</a></h2><p>input:</p>
-<p><img src="/images/sql/monkey-sql-lianjia-1-user-retention.png" width="740" alt="如何分析留存率" /></p>
+<p>1.使用逻辑树分析方法将复杂问题变成简单问题的能力<br />
+2.当遇到“每个”问题的时候，要想到用分组汇总<br />
+3.查询最小n个数据的问题：先排序（order by），然后使用limit取出前n行数据<br />
+4.遇到有筛选条件的统计数量问题时，使用case表达式筛选出符合条件的行为1，否则为0。然后用汇总函数（sum）对case表达式输出列求和。</p>
+<h2 id="7-拼夕夕连续出现n次的内容"><a class="markdownIt-Anchor" href="#7-拼夕夕连续出现n次的内容"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/348022888">7. 拼夕夕：连续出现N次的内容？</a></h2>
+<h4 id="方法1-自连接"><a class="markdownIt-Anchor" href="#方法1-自连接"></a> 方法1： 自连接</h4>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    <span class="operator">*</span></span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    Score <span class="keyword">AS</span> a,</span><br><span class="line">    Score <span class="keyword">AS</span> b,</span><br><span class="line">    Score <span class="keyword">AS</span> c</span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    a.s_id <span class="operator">=</span> b.s_id <span class="operator">-</span> <span class="number">1</span> </span><br><span class="line">    <span class="keyword">AND</span> b.s_id <span class="operator">=</span> c.s_id <span class="operator">-</span> <span class="number">1</span> </span><br><span class="line">    <span class="keyword">AND</span> a.s_score <span class="operator">=</span> b.s_score </span><br><span class="line">    <span class="keyword">AND</span> b.s_score <span class="operator">=</span> c.s_score; </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    <span class="keyword">DISTINCT</span> a.s_score <span class="keyword">as</span> 最终答案</span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    Score <span class="keyword">AS</span> a,</span><br><span class="line">    Score <span class="keyword">AS</span> b,</span><br><span class="line">    Score <span class="keyword">AS</span> c</span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    a.s_id <span class="operator">=</span> b.s_id <span class="operator">-</span> <span class="number">1</span> </span><br><span class="line">    <span class="keyword">AND</span> b.s_id <span class="operator">=</span> c.s_id <span class="operator">-</span> <span class="number">1</span> </span><br><span class="line">    <span class="keyword">AND</span> a.s_score <span class="operator">=</span> b.s_score </span><br><span class="line">    <span class="keyword">AND</span> b.s_score <span class="operator">=</span> c.s_score; </span><br></pre></td></tr></table></figure>
+<h4 id="方法2-window-function"><a class="markdownIt-Anchor" href="#方法2-window-function"></a> 方法2： window function</h4>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">DISTINCT</span></span><br><span class="line">    球员姓名 </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    (</span><br><span class="line">    <span class="keyword">SELECT</span></span><br><span class="line">        球员姓名,</span><br><span class="line">        <span class="built_in">lead</span> ( 球员姓名, <span class="number">1</span> ) <span class="keyword">over</span> ( <span class="keyword">PARTITION</span> <span class="keyword">BY</span> 球队 <span class="keyword">ORDER</span> <span class="keyword">BY</span> 得分时间 ) <span class="keyword">AS</span> 姓名<span class="number">1</span>,</span><br><span class="line">        <span class="built_in">lead</span> ( 球员姓名, <span class="number">2</span> ) <span class="keyword">over</span> ( <span class="keyword">PARTITION</span> <span class="keyword">BY</span> 球队 <span class="keyword">ORDER</span> <span class="keyword">BY</span> 得分时间 ) <span class="keyword">AS</span> 姓名<span class="number">2</span> </span><br><span class="line">    <span class="keyword">FROM</span></span><br><span class="line">        分数表 </span><br><span class="line">    ) <span class="keyword">AS</span> a </span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    (</span><br><span class="line">        a.球员姓名 <span class="operator">=</span> a.姓名<span class="number">1</span></span><br><span class="line">    <span class="keyword">AND</span> a.球员姓名 <span class="operator">=</span> a.姓名<span class="number">2</span></span><br><span class="line">    );</span><br></pre></td></tr></table></figure>
+<h2 id="10-sql经典topn问题"><a class="markdownIt-Anchor" href="#10-sql经典topn问题"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/93346220">10. SQL：经典topN问题</a></h2>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span></span><br><span class="line"><span class="keyword">from</span> (</span><br><span class="line">   <span class="keyword">select</span> <span class="operator">*</span>, </span><br><span class="line">          <span class="built_in">row_number</span>() <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> 姓名</span><br><span class="line">                       <span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> ranking</span><br><span class="line">   <span class="keyword">from</span> 成绩表) <span class="keyword">as</span> a</span><br><span class="line"><span class="keyword">where</span> ranking <span class="operator">&lt;=</span><span class="number">2</span></span><br></pre></td></tr></table></figure>
+<h2 id="11-链家如何分析留存率"><a class="markdownIt-Anchor" href="#11-链家如何分析留存率"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/151357806">11. 链家：如何分析留存率？</a></h2>
+<p>input:</p>
+<img src="/images/sql/monkey-sql-lianjia-1-user-retention.png" class="lazyload" data-srcset="/images/sql/monkey-sql-lianjia-1-user-retention.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="740" alt="如何分析留存率" />
 <p><strong>指标定义：</strong></p>
 <ol>
 <li>某日活跃用户数，某日活跃的去重用户数。</li>
@@ -2831,38 +2845,42 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>例：登陆时间（20180501日）去重用户数10000，这批用户在20180503日仍有7000人活跃，则3日活跃留存率为7000/10000=70%</p>
 </blockquote>
-<p><img src="/images/sql/monkey-sql-lianjia-2.png" width="740" alt="output" /></p>
+<img src="/images/sql/monkey-sql-lianjia-2.png" class="lazyload" data-srcset="/images/sql/monkey-sql-lianjia-2.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="740" alt="output" />
 <p><strong>11.1 活跃用户数对应的日期</strong></p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    登陆时间,</span><br><span class="line">    <span class="built_in">count</span>( <span class="keyword">DISTINCT</span> 用户id ) <span class="keyword">AS</span> 活跃用户数 </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    用户行为信息表 </span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    应用名称 <span class="operator">=</span> <span class="string">&#x27;相机&#x27;</span> </span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">    登陆时间;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/monkey-sql-lianjia-5-active-users.png" width="640" alt="" /></p>
-<p><strong>11.2 次日留存用户数</strong> </p>
+<img src="/images/sql/monkey-sql-lianjia-5-active-users.png" class="lazyload" data-srcset="/images/sql/monkey-sql-lianjia-5-active-users.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="640" alt="" />
+<p><strong>11.2 次日留存用户数</strong></p>
 <p>次日留存用户数：在今日登录，明天也有登录的用户数。也就是时间间隔=1</p>
 <p>一个表如果涉及到时间间隔，就需要用到自联结，也就是将两个相同的表进行联结</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    <span class="operator">*</span>,</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">DISTINCT</span> <span class="keyword">CASE</span> <span class="keyword">WHEN</span> 时间间隔 <span class="operator">=</span> <span class="number">1</span> <span class="keyword">THEN</span> 用户id <span class="keyword">ELSE</span> <span class="keyword">NULL</span> <span class="keyword">END</span>) <span class="keyword">AS</span> 次日留存数 </span><br><span class="line">    <span class="keyword">FROM</span></span><br><span class="line">        (<span class="keyword">SELECT</span> <span class="operator">*</span>, timestampdiff(<span class="keyword">DAY</span>, a_t, b_t ) <span class="keyword">AS</span> 时间间隔 <span class="keyword">FROM</span> c) </span><br><span class="line"><span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">    a_t;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/monkey-sql-lianjia-6-active-users.jpeg" width="740" alt="次日留存用户数" /></p>
+<img src="/images/sql/monkey-sql-lianjia-6-active-users.jpeg" class="lazyload" data-srcset="/images/sql/monkey-sql-lianjia-6-active-users.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="740" alt="次日留存用户数" />
 <!--
-<img src="/images/sql/monkey-sql-lianjia-3.jpeg" width="740" alt="" />
+<img src="/images/sql/monkey-sql-lianjia-3.jpeg" class="lazyload" data-srcset="/images/sql/monkey-sql-lianjia-3.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="740" alt="" />
 -->
 <p><strong>11.3 三日的留存数/留存率</strong></p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">    a_t,</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> 用户id) <span class="keyword">as</span> 活跃用户数,</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> <span class="keyword">case</span> <span class="keyword">when</span> 时间间隔<span class="operator">=</span><span class="number">1</span> <span class="keyword">then</span> 用户id <span class="keyword">else</span> <span class="keyword">null</span> <span class="keyword">end</span>) <span class="keyword">as</span>  次日留存数,</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> <span class="keyword">case</span> <span class="keyword">when</span> 时间间隔<span class="operator">=</span><span class="number">1</span> <span class="keyword">then</span> 用户id <span class="keyword">else</span> <span class="keyword">null</span> <span class="keyword">end</span>)<span class="operator">/</span> <span class="built_in">count</span>(<span class="keyword">distinct</span> 用户id) <span class="keyword">as</span> 次日留存率,</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> <span class="keyword">case</span> <span class="keyword">when</span> 时间间隔<span class="operator">=</span><span class="number">3</span> <span class="keyword">then</span> 用户id <span class="keyword">else</span> <span class="keyword">null</span> <span class="keyword">end</span>) <span class="keyword">as</span>  三日留存数,</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> <span class="keyword">case</span> <span class="keyword">when</span> 时间间隔<span class="operator">=</span><span class="number">3</span> <span class="keyword">then</span> 用户id <span class="keyword">else</span> <span class="keyword">null</span> <span class="keyword">end</span>)<span class="operator">/</span> <span class="built_in">count</span>(<span class="keyword">distinct</span> 用户id) <span class="keyword">as</span> 三日留存率,</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> <span class="keyword">case</span> <span class="keyword">when</span> 时间间隔<span class="operator">=</span><span class="number">7</span> <span class="keyword">then</span> 用户id <span class="keyword">else</span> <span class="keyword">null</span> <span class="keyword">end</span>) <span class="keyword">as</span>  七日留存数,</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> <span class="keyword">case</span> <span class="keyword">when</span> 时间间隔<span class="operator">=</span><span class="number">7</span> <span class="keyword">then</span> 用户id <span class="keyword">else</span> <span class="keyword">null</span> <span class="keyword">end</span>)<span class="operator">/</span> <span class="built_in">count</span>(<span class="keyword">distinct</span> 用户id) <span class="keyword">as</span> 七日留存率</span><br><span class="line"><span class="keyword">from</span></span><br><span class="line">    (</span><br><span class="line">     <span class="keyword">SELECT</span></span><br><span class="line">         c.用户id,</span><br><span class="line">         timestampdiff(<span class="keyword">day</span>, c.a_t, c.b_t) <span class="keyword">as</span> 时间间隔</span><br><span class="line">    <span class="keyword">FROM</span> </span><br><span class="line">        (</span><br><span class="line">        <span class="keyword">SELECT</span> </span><br><span class="line">            a.用户id, </span><br><span class="line">            a.登陆时间 <span class="keyword">as</span> a_t,</span><br><span class="line">            b.登陆时间 <span class="keyword">as</span> b_t </span><br><span class="line">        <span class="keyword">FROM</span> 用户行为信息表 <span class="keyword">as</span> a <span class="keyword">left</span> <span class="keyword">join</span> 用户行为信息表 <span class="keyword">as</span> b <span class="keyword">on</span> a.用户id <span class="operator">=</span> b.用户id <span class="keyword">where</span> a.应用名称<span class="operator">=</span> <span class="string">&#x27;相机&#x27;</span></span><br><span class="line">        ) <span class="keyword">as</span> c</span><br><span class="line">    ) <span class="keyword">as</span> d</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> a_t;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/monkey-sql-lianjia-4.jpeg" width="840" alt="" /></p>
+<img src="/images/sql/monkey-sql-lianjia-4.jpeg" class="lazyload" data-srcset="/images/sql/monkey-sql-lianjia-4.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="840" alt="" />
 <p><strong>11.4 本题考点</strong></p>
 <ol>
 <li>常用指标的理解，例如留存用户数、留存率。</li>
 <li>灵活使用case来统计when 函数与group by 进行自定义列联表统计。</li>
 <li>遇到只有一个表，但是需要计数时间间隔的问题，就要想到用自联结来求时间间隔，类似的有找出连续出现N次的内容、滴滴2020求职真题。</li>
 </ol>
-<h2 id="12-如何分析用户满意度？"><a href="#12-如何分析用户满意度？" class="headerlink" title="12. 如何分析用户满意度？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/107150787">12. 如何分析用户满意度？</a></h2><p>“满意度表”记录了教师和学生对课程的满意程度。“是否满意”列里是老师和学生对课程的评价，其中“是”表示教师和学生都满意。</p>
-<p><img src="/images/sql/monkey-user-satisfaction-1.jpeg" width="700" alt="" /></p>
+<h2 id="12-如何分析用户满意度"><a class="markdownIt-Anchor" href="#12-如何分析用户满意度"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/107150787">12. 如何分析用户满意度？</a></h2>
+<p>“满意度表”记录了教师和学生对课程的满意程度。“是否满意”列里是老师和学生对课程的评价，其中“是”表示教师和学生都满意。</p>
+<img src="/images/sql/monkey-user-satisfaction-1.jpeg" class="lazyload" data-srcset="/images/sql/monkey-user-satisfaction-1.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" alt="" />
 <p>“ 用户表”记录了学校教师和学生的信息。每个用户有唯一键 “编号”，“是否在系统”表示这个用户是否还在这所学校里，“角色”表示这个人是学生还是教师。</p>
 <p>两个表的关系：满意度表的“学生编号” 、 “教师编号” 和用户表的 “编号” 联结。</p>
-<p><img src="/images/sql/monkey-user-satisfaction-2.jpeg" width="700" alt="" /></p>
+<img src="/images/sql/monkey-user-satisfaction-2.jpeg" class="lazyload" data-srcset="/images/sql/monkey-user-satisfaction-2.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" alt="" />
 <p>现在需要分析出学校里人员对课程的满意度。满意度的计算方式如下：</p>
 <p>(教师和学生对课程都满意且已存在当前教务系统中的用户) / (在学校里的人数)</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">    <span class="built_in">sum</span>(<span class="keyword">case</span> <span class="keyword">when</span> 满意度表.是否满意<span class="operator">=</span><span class="string">&#x27;是&#x27;</span> <span class="keyword">then</span> <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span> <span class="keyword">end</span>)<span class="operator">/</span><span class="built_in">count</span>(满意度表.是否满意) <span class="keyword">as</span> 满意度</span><br><span class="line"><span class="keyword">from</span> 满意度表 </span><br><span class="line"><span class="keyword">left</span> <span class="keyword">join</span> </span><br><span class="line">    (<span class="keyword">select</span> 编号 <span class="keyword">from</span> 用户表 <span class="keyword">where</span> 是否在系统<span class="operator">=</span><span class="string">&#x27;是&#x27;</span>) <span class="keyword">as</span> 学生</span><br><span class="line"><span class="keyword">on</span> (满意度表.学生编号 <span class="operator">=</span> 学生.编号)</span><br><span class="line"><span class="keyword">left</span> <span class="keyword">join</span></span><br><span class="line">    (<span class="keyword">select</span> 编号 <span class="keyword">from</span> 用户表 <span class="keyword">where</span> 是否在系统<span class="operator">=</span><span class="string">&#x27;是&#x27;</span>) <span class="keyword">as</span> 教师</span><br><span class="line"><span class="keyword">on</span> (满意度表.教师编号 <span class="operator">=</span> 教师.编号);</span><br></pre></td></tr></table></figure>
-<h2 id="14-拼多多：如何查找前20-的数据？"><a href="#14-拼多多：如何查找前20-的数据？" class="headerlink" title="14. 拼多多：如何查找前20%的数据？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/138128536">14. 拼多多：如何查找前20%的数据？</a></h2><p><img src="/images/sql/monkey-sql-pdd-20-percent-2.jpeg" width="700" alt="" /></p>
+<h2 id="14-拼多多如何查找前20的数据"><a class="markdownIt-Anchor" href="#14-拼多多如何查找前20的数据"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/138128536">14. 拼多多：如何查找前20%的数据？</a></h2>
+<img src="/images/sql/monkey-sql-pdd-20-percent-2.jpeg" class="lazyload" data-srcset="/images/sql/monkey-sql-pdd-20-percent-2.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" alt="" />
 <p>把这个复杂的问题拆解为3个子问题：</p>
-<p>1）找出访问次数前20%的用户<br>2）剔除访问次数前20%的用户<br>3）每类用户的平均访问次数</p>
+<p>1）找出访问次数前20%的用户<br />
+2）剔除访问次数前20%的用户<br />
+3）每类用户的平均访问次数</p>
 <p><strong>1.访问次数前20%的用户</strong></p>
 <p>排名：</p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span>,</span><br><span class="line">      <span class="built_in">row_number</span>() <span class="keyword">over</span>(<span class="keyword">order</span> <span class="keyword">by</span> 访问量 <span class="keyword">desc</span>) <span class="keyword">as</span> 排名</span><br><span class="line"><span class="keyword">from</span> 用户访问次数表;</span><br></pre></td></tr></table></figure>
@@ -2870,22 +2888,28 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">    <span class="operator">*</span> </span><br><span class="line"><span class="keyword">from</span> </span><br><span class="line">    (<span class="keyword">select</span> </span><br><span class="line">       <span class="operator">*</span>,</span><br><span class="line">       <span class="built_in">row_number</span>() <span class="keyword">over</span>(<span class="keyword">order</span> <span class="keyword">by</span> 访问量 <span class="keyword">desc</span>) <span class="keyword">as</span> 排名</span><br><span class="line">    <span class="keyword">from</span> 用户访问次数表) <span class="keyword">as</span> a</span><br><span class="line"><span class="keyword">where</span> 排名 <span class="operator">&lt;=</span> (<span class="keyword">select</span> <span class="built_in">max</span>(排名) <span class="keyword">from</span> a) <span class="operator">*</span> <span class="number">0.2</span>;</span><br></pre></td></tr></table></figure>
 <p><strong>3. 每类用户的平均访问次数</strong></p>
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> 用户类型,<span class="built_in">avg</span>(访问量)</span><br><span class="line"><span class="keyword">from</span> b</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> 用户类型;</span><br></pre></td></tr></table></figure>
-<h2 id="15-SQL：如何查找工资前三高的员工"><a href="#15-SQL：如何查找工资前三高的员工" class="headerlink" title="15. SQL：如何查找工资前三高的员工"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/103158936">15. SQL：如何查找工资前三高的员工</a></h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span>,</span><br><span class="line">   <span class="built_in">rank</span>() <span class="keyword">over</span> (<span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> ranking,</span><br><span class="line">   <span class="built_in">dense_rank</span>() <span class="keyword">over</span> (<span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> dese_rank,</span><br><span class="line">   <span class="built_in">row_number</span>() <span class="keyword">over</span> (<span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> row_num</span><br><span class="line"><span class="keyword">from</span> 班级;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/monkey-sql-salary-top3-1.png" width="640" alt="" /></p>
+<h2 id="15-sql如何查找工资前三高的员工"><a class="markdownIt-Anchor" href="#15-sql如何查找工资前三高的员工"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/103158936">15. SQL：如何查找工资前三高的员工</a></h2>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> <span class="operator">*</span>,</span><br><span class="line">   <span class="built_in">rank</span>() <span class="keyword">over</span> (<span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> ranking,</span><br><span class="line">   <span class="built_in">dense_rank</span>() <span class="keyword">over</span> (<span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> dese_rank,</span><br><span class="line">   <span class="built_in">row_number</span>() <span class="keyword">over</span> (<span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> row_num</span><br><span class="line"><span class="keyword">from</span> 班级;</span><br></pre></td></tr></table></figure>
+<img src="/images/sql/monkey-sql-salary-top3-1.png" class="lazyload" data-srcset="/images/sql/monkey-sql-salary-top3-1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="640" alt="" />
 <figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> 课程号,学号,成绩,排名 <span class="keyword">from</span></span><br><span class="line">(<span class="keyword">select</span> <span class="operator">*</span>,</span><br><span class="line">     <span class="built_in">dense_rank</span>() <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> 课程号</span><br><span class="line">                  <span class="keyword">order</span> <span class="keyword">by</span> 成绩 <span class="keyword">desc</span>) <span class="keyword">as</span> 排名</span><br><span class="line"><span class="keyword">from</span> 成绩表) <span class="keyword">as</span> aa</span><br><span class="line"><span class="keyword">where</span> 排名 <span class="operator">&lt;=</span><span class="number">3</span>;</span><br></pre></td></tr></table></figure>
-<h2 id="17-SQL：如何分组比较？"><a href="#17-SQL：如何分组比较？" class="headerlink" title="17. SQL：如何分组比较？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/98526392">17. SQL：如何分组比较？</a></h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">    <span class="operator">*</span></span><br><span class="line"><span class="keyword">from</span> </span><br><span class="line">    (<span class="keyword">select</span> <span class="operator">*</span>, <span class="built_in">avg</span>(成绩) <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> 科目) <span class="keyword">as</span> avg_score <span class="keyword">from</span> 成绩表) <span class="keyword">as</span> b</span><br><span class="line"><span class="keyword">where</span> 成绩 <span class="operator">&gt;</span> avg_score;</span><br></pre></td></tr></table></figure>
-<p><img src="/images/sql/monkey-sql-group-by-avg-1.jpeg" width="640" alt="" /></p>
-<h2 id="18-SQL：如何分析游戏？"><a href="#18-SQL：如何分析游戏？" class="headerlink" title="18. SQL：如何分析游戏？"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/129326204">18. SQL：如何分析游戏？</a></h2><h2 id="37-字节：你的平均薪水是多少"><a href="#37-字节：你的平均薪水是多少" class="headerlink" title="37. 字节：你的平均薪水是多少"></a><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/342793272">37. 字节：你的平均薪水是多少</a></h2><p>查询出每个部门除去最高、最低薪水后的平均薪水，并保留整数</p>
-<p><img src="/images/sql/monkey-sql-byte-avg-salary-1.jpeg" width="700" alt="" /></p>
+<h2 id="17-sql如何分组比较"><a class="markdownIt-Anchor" href="#17-sql如何分组比较"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/98526392">17. SQL：如何分组比较？</a></h2>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">select</span> </span><br><span class="line">    <span class="operator">*</span></span><br><span class="line"><span class="keyword">from</span> </span><br><span class="line">    (<span class="keyword">select</span> <span class="operator">*</span>, <span class="built_in">avg</span>(成绩) <span class="keyword">over</span> (<span class="keyword">partition</span> <span class="keyword">by</span> 科目) <span class="keyword">as</span> avg_score <span class="keyword">from</span> 成绩表) <span class="keyword">as</span> b</span><br><span class="line"><span class="keyword">where</span> 成绩 <span class="operator">&gt;</span> avg_score;</span><br></pre></td></tr></table></figure>
+<img src="/images/sql/monkey-sql-group-by-avg-1.jpeg" class="lazyload" data-srcset="/images/sql/monkey-sql-group-by-avg-1.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="640" alt="" />
+<h2 id="18-sql如何分析游戏"><a class="markdownIt-Anchor" href="#18-sql如何分析游戏"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/129326204">18. SQL：如何分析游戏？</a></h2>
+<h2 id="37-字节你的平均薪水是多少"><a class="markdownIt-Anchor" href="#37-字节你的平均薪水是多少"></a> <a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/342793272">37. 字节：你的平均薪水是多少</a></h2>
+<p>查询出每个部门除去最高、最低薪水后的平均薪水，并保留整数</p>
+<img src="/images/sql/monkey-sql-byte-avg-salary-1.jpeg" class="lazyload" data-srcset="/images/sql/monkey-sql-byte-avg-salary-1.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" alt="" />
 <blockquote>
 <p>sql的运行顺序，会<code>先运行from和where子句，最后才运行select子句</code>。</p>
 </blockquote>
-<p><img src="/images/sql/monkey-sql-byte-avg-salary-2.png" width="700" alt="" /></p>
+<img src="/images/sql/monkey-sql-byte-avg-salary-2.png" class="lazyload" data-srcset="/images/sql/monkey-sql-byte-avg-salary-2.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" alt="" />
 <blockquote>
 <p>format(N, D) ,  N 是要格式化的数字， D 是要舍入的小数位数</p>
 </blockquote>
-<h2 id="GB-SQL-Task"><a href="#GB-SQL-Task" class="headerlink" title="GB SQL Task"></a>GB SQL Task</h2><figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">（<span class="number">2</span>）<span class="keyword">SQL</span> Task</span><br><span class="line"></span><br><span class="line"><span class="comment">-- write your code in PostgreSQL 9.4</span></span><br><span class="line"><span class="keyword">SELECT</span> (</span><br><span class="line">		<span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>)</span><br><span class="line">		<span class="keyword">FROM</span> (</span><br><span class="line">			<span class="keyword">SELECT</span> t2.<span class="operator">*</span></span><br><span class="line">			<span class="keyword">FROM</span> (</span><br><span class="line">				<span class="keyword">SELECT</span> t.<span class="operator">*</span>, <span class="built_in">SUM</span>(salary) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> j_sum_salary</span><br><span class="line">				<span class="keyword">FROM</span> candidates t</span><br><span class="line">				<span class="keyword">WHERE</span> position <span class="operator">=</span> <span class="string">&#x27;junior&#x27;</span></span><br><span class="line">			) t2</span><br><span class="line">				<span class="keyword">CROSS</span> <span class="keyword">JOIN</span> (</span><br><span class="line">					<span class="keyword">SELECT</span> <span class="built_in">coalesce</span>(<span class="built_in">SUM</span>(salary), <span class="number">0</span>) <span class="keyword">AS</span> total_salary</span><br><span class="line">					<span class="keyword">FROM</span> (</span><br><span class="line">						<span class="keyword">SELECT</span> t1.<span class="operator">*</span></span><br><span class="line">						<span class="keyword">FROM</span> (</span><br><span class="line">							<span class="keyword">SELECT</span> t.<span class="operator">*</span>, <span class="built_in">SUM</span>(salary) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> s_sum_salary</span><br><span class="line">							<span class="keyword">FROM</span> candidates t</span><br><span class="line">							<span class="keyword">WHERE</span> position <span class="operator">=</span> <span class="string">&#x27;senior&#x27;</span></span><br><span class="line">						) t1</span><br><span class="line">						<span class="keyword">WHERE</span> s_sum_salary <span class="operator">&lt;=</span> <span class="number">50000</span></span><br><span class="line">					) seniors_table</span><br><span class="line">				) s</span><br><span class="line">			<span class="keyword">WHERE</span> j_sum_salary <span class="operator">&lt;=</span> <span class="number">50000</span> <span class="operator">-</span> s.total_salary</span><br><span class="line">		) junior_table</span><br><span class="line">	) <span class="keyword">AS</span> juniors</span><br><span class="line">	, (</span><br><span class="line">		<span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>)</span><br><span class="line">		<span class="keyword">FROM</span> (</span><br><span class="line">			<span class="keyword">SELECT</span> t1.<span class="operator">*</span></span><br><span class="line">			<span class="keyword">FROM</span> (</span><br><span class="line">				<span class="keyword">SELECT</span> t.<span class="operator">*</span>, <span class="built_in">SUM</span>(salary) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> s_sum_salary</span><br><span class="line">				<span class="keyword">FROM</span> candidates t</span><br><span class="line">				<span class="keyword">WHERE</span> position <span class="operator">=</span> <span class="string">&#x27;senior&#x27;</span></span><br><span class="line">			) t1</span><br><span class="line">			<span class="keyword">WHERE</span> s_sum_salary <span class="operator">&lt;=</span> <span class="number">50000</span></span><br><span class="line">		) seniors_table</span><br><span class="line">	) <span class="keyword">AS</span> seniors</span><br></pre></td></tr></table></figure>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="gb-sql-task"><a class="markdownIt-Anchor" href="#gb-sql-task"></a> GB SQL Task</h2>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line">（<span class="number">2</span>）<span class="keyword">SQL</span> Task</span><br><span class="line"></span><br><span class="line"><span class="comment">-- write your code in PostgreSQL 9.4</span></span><br><span class="line"><span class="keyword">SELECT</span> (</span><br><span class="line">		<span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>)</span><br><span class="line">		<span class="keyword">FROM</span> (</span><br><span class="line">			<span class="keyword">SELECT</span> t2.<span class="operator">*</span></span><br><span class="line">			<span class="keyword">FROM</span> (</span><br><span class="line">				<span class="keyword">SELECT</span> t.<span class="operator">*</span>, <span class="built_in">SUM</span>(salary) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> j_sum_salary</span><br><span class="line">				<span class="keyword">FROM</span> candidates t</span><br><span class="line">				<span class="keyword">WHERE</span> position <span class="operator">=</span> <span class="string">&#x27;junior&#x27;</span></span><br><span class="line">			) t2</span><br><span class="line">				<span class="keyword">CROSS</span> <span class="keyword">JOIN</span> (</span><br><span class="line">					<span class="keyword">SELECT</span> <span class="built_in">coalesce</span>(<span class="built_in">SUM</span>(salary), <span class="number">0</span>) <span class="keyword">AS</span> total_salary</span><br><span class="line">					<span class="keyword">FROM</span> (</span><br><span class="line">						<span class="keyword">SELECT</span> t1.<span class="operator">*</span></span><br><span class="line">						<span class="keyword">FROM</span> (</span><br><span class="line">							<span class="keyword">SELECT</span> t.<span class="operator">*</span>, <span class="built_in">SUM</span>(salary) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> s_sum_salary</span><br><span class="line">							<span class="keyword">FROM</span> candidates t</span><br><span class="line">							<span class="keyword">WHERE</span> position <span class="operator">=</span> <span class="string">&#x27;senior&#x27;</span></span><br><span class="line">						) t1</span><br><span class="line">						<span class="keyword">WHERE</span> s_sum_salary <span class="operator">&lt;=</span> <span class="number">50000</span></span><br><span class="line">					) seniors_table</span><br><span class="line">				) s</span><br><span class="line">			<span class="keyword">WHERE</span> j_sum_salary <span class="operator">&lt;=</span> <span class="number">50000</span> <span class="operator">-</span> s.total_salary</span><br><span class="line">		) junior_table</span><br><span class="line">	) <span class="keyword">AS</span> juniors</span><br><span class="line">	, (</span><br><span class="line">		<span class="keyword">SELECT</span> <span class="built_in">COUNT</span>(<span class="operator">*</span>)</span><br><span class="line">		<span class="keyword">FROM</span> (</span><br><span class="line">			<span class="keyword">SELECT</span> t1.<span class="operator">*</span></span><br><span class="line">			<span class="keyword">FROM</span> (</span><br><span class="line">				<span class="keyword">SELECT</span> t.<span class="operator">*</span>, <span class="built_in">SUM</span>(salary) <span class="keyword">OVER</span> (<span class="keyword">ORDER</span> <span class="keyword">BY</span> salary) <span class="keyword">AS</span> s_sum_salary</span><br><span class="line">				<span class="keyword">FROM</span> candidates t</span><br><span class="line">				<span class="keyword">WHERE</span> position <span class="operator">=</span> <span class="string">&#x27;senior&#x27;</span></span><br><span class="line">			) t1</span><br><span class="line">			<span class="keyword">WHERE</span> s_sum_salary <span class="operator">&lt;=</span> <span class="number">50000</span></span><br><span class="line">		) seniors_table</span><br><span class="line">	) <span class="keyword">AS</span> seniors</span><br></pre></td></tr></table></figure>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012036736/article/details/84978689">hive大小表join优化性能</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/92658629">分析最近七天内连续三天活跃用户数</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/49285570">#SQL 如何查询关于【连续几天】的问题</a></li>
@@ -2957,7 +2981,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -2969,7 +2993,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qzone.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -2981,7 +3005,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           
           >
           
-            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png">
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
           
         </a>
       
@@ -3011,12 +3035,23 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>SparkSQL 从入门到调优</p>
           <p class='content'>
 
-1. SparkSQL 发展SparkSQL 发展史
+ 1. SparkSQL 发展
+SparkSQL 发展史
 
-Version | Title Description
-:---: | :---
-1.0以前 | Shark
-Spark-1.1 | ...</p>
+
+
+Version
+Title Description
+
+
+
+
+1.0以前
+Shark
+
+
+Spark-1.1
+SparkSQL(...</p>
         </a>
       
       
@@ -3024,7 +3059,8 @@ Spark-1.1 | ...</p>
           <p class='title'>Spark - Data Skew Advanced<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>
 
-1. Spark Data SkewFor example, there are a total of 1,000 tasks, 997 tasks are executed within ...</p>
+ 1. Spark Data Skew
+For example, there are a total of 1,000 tasks, 997 tasks are executed withi...</p>
         </a>
       
     </div>
@@ -3067,7 +3103,7 @@ Spark-1.1 | ...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-SQL%EF%BC%9A%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="toc-text">1. SQL：查找重复数据？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-SQL%EF%BC%9A%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E7%AC%ACN%E9%AB%98%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="toc-text">2. SQL：如何查找第N高的数据？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-SQL%EF%BC%9A%E6%9F%A5%E6%89%BE%E4%B8%8D%E5%9C%A8%E8%A1%A8%E9%87%8C%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-text">3. SQL：查找不在表里的数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-SQL%EF%BC%9A%E4%BD%A0%E6%9C%89%E5%A4%9A%E4%B9%85%E6%B2%A1%E6%B6%A8%E8%BF%87%E5%B7%A5%E8%B5%84%E4%BA%86%EF%BC%9F"><span class="toc-text">4. SQL：你有多久没涨过工资了？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-SQL%EF%BC%9A%E5%A6%82%E4%BD%95%E6%AF%94%E8%BE%83%E6%97%A5%E6%9C%9F%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="toc-text">5. SQL：如何比较日期数据？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-DiDi-%E5%A6%82%E4%BD%95%E6%89%BE%E5%87%BA%E6%9C%80%E5%B0%8F%E7%9A%84N%E4%B8%AA%E6%95%B0%EF%BC%9F"><span class="toc-text">6. DiDi: 如何找出最小的N个数？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%8B%BC%E5%A4%95%E5%A4%95%EF%BC%9A%E8%BF%9E%E7%BB%AD%E5%87%BA%E7%8E%B0N%E6%AC%A1%E7%9A%84%E5%86%85%E5%AE%B9%EF%BC%9F"><span class="toc-text">7. 拼夕夕：连续出现N次的内容？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%951%EF%BC%9A-%E8%87%AA%E8%BF%9E%E6%8E%A5"><span class="toc-text">方法1： 自连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%952%EF%BC%9A-window-function"><span class="toc-text">方法2： window function</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-SQL%EF%BC%9A%E7%BB%8F%E5%85%B8topN%E9%97%AE%E9%A2%98"><span class="toc-text">10. SQL：经典topN问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E9%93%BE%E5%AE%B6%EF%BC%9A%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E7%95%99%E5%AD%98%E7%8E%87%EF%BC%9F"><span class="toc-text">11. 链家：如何分析留存率？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E7%94%A8%E6%88%B7%E6%BB%A1%E6%84%8F%E5%BA%A6%EF%BC%9F"><span class="toc-text">12. 如何分析用户满意度？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E6%8B%BC%E5%A4%9A%E5%A4%9A%EF%BC%9A%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%89%8D20-%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%9F"><span class="toc-text">14. 拼多多：如何查找前20%的数据？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-SQL%EF%BC%9A%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%B7%A5%E8%B5%84%E5%89%8D%E4%B8%89%E9%AB%98%E7%9A%84%E5%91%98%E5%B7%A5"><span class="toc-text">15. SQL：如何查找工资前三高的员工</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-SQL%EF%BC%9A%E5%A6%82%E4%BD%95%E5%88%86%E7%BB%84%E6%AF%94%E8%BE%83%EF%BC%9F"><span class="toc-text">17. SQL：如何分组比较？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-SQL%EF%BC%9A%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E6%B8%B8%E6%88%8F%EF%BC%9F"><span class="toc-text">18. SQL：如何分析游戏？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#37-%E5%AD%97%E8%8A%82%EF%BC%9A%E4%BD%A0%E7%9A%84%E5%B9%B3%E5%9D%87%E8%96%AA%E6%B0%B4%E6%98%AF%E5%A4%9A%E5%B0%91"><span class="toc-text">37. 字节：你的平均薪水是多少</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#GB-SQL-Task"><span class="toc-text">GB SQL Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-sql%E6%9F%A5%E6%89%BE%E9%87%8D%E5%A4%8D%E6%95%B0%E6%8D%AE"><span class="toc-text"> 1. SQL：查找重复数据？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-sql%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E7%AC%ACn%E9%AB%98%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-text"> 2. SQL：如何查找第N高的数据？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-sql%E6%9F%A5%E6%89%BE%E4%B8%8D%E5%9C%A8%E8%A1%A8%E9%87%8C%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-text"> 3. SQL：查找不在表里的数据</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-sql%E4%BD%A0%E6%9C%89%E5%A4%9A%E4%B9%85%E6%B2%A1%E6%B6%A8%E8%BF%87%E5%B7%A5%E8%B5%84%E4%BA%86"><span class="toc-text"> 4. SQL：你有多久没涨过工资了？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-sql%E5%A6%82%E4%BD%95%E6%AF%94%E8%BE%83%E6%97%A5%E6%9C%9F%E6%95%B0%E6%8D%AE"><span class="toc-text"> 5. SQL：如何比较日期数据？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-didi-%E5%A6%82%E4%BD%95%E6%89%BE%E5%87%BA%E6%9C%80%E5%B0%8F%E7%9A%84n%E4%B8%AA%E6%95%B0"><span class="toc-text"> 6. DiDi: 如何找出最小的N个数？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E6%8B%BC%E5%A4%95%E5%A4%95%E8%BF%9E%E7%BB%AD%E5%87%BA%E7%8E%B0n%E6%AC%A1%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-text"> 7. 拼夕夕：连续出现N次的内容？</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%951-%E8%87%AA%E8%BF%9E%E6%8E%A5"><span class="toc-text"> 方法1： 自连接</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%952-window-function"><span class="toc-text"> 方法2： window function</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#10-sql%E7%BB%8F%E5%85%B8topn%E9%97%AE%E9%A2%98"><span class="toc-text"> 10. SQL：经典topN问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E9%93%BE%E5%AE%B6%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E7%95%99%E5%AD%98%E7%8E%87"><span class="toc-text"> 11. 链家：如何分析留存率？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#12-%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E7%94%A8%E6%88%B7%E6%BB%A1%E6%84%8F%E5%BA%A6"><span class="toc-text"> 12. 如何分析用户满意度？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#14-%E6%8B%BC%E5%A4%9A%E5%A4%9A%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%89%8D20%E7%9A%84%E6%95%B0%E6%8D%AE"><span class="toc-text"> 14. 拼多多：如何查找前20%的数据？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#15-sql%E5%A6%82%E4%BD%95%E6%9F%A5%E6%89%BE%E5%B7%A5%E8%B5%84%E5%89%8D%E4%B8%89%E9%AB%98%E7%9A%84%E5%91%98%E5%B7%A5"><span class="toc-text"> 15. SQL：如何查找工资前三高的员工</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#17-sql%E5%A6%82%E4%BD%95%E5%88%86%E7%BB%84%E6%AF%94%E8%BE%83"><span class="toc-text"> 17. SQL：如何分组比较？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#18-sql%E5%A6%82%E4%BD%95%E5%88%86%E6%9E%90%E6%B8%B8%E6%88%8F"><span class="toc-text"> 18. SQL：如何分析游戏？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#37-%E5%AD%97%E8%8A%82%E4%BD%A0%E7%9A%84%E5%B9%B3%E5%9D%87%E8%96%AA%E6%B0%B4%E6%98%AF%E5%A4%9A%E5%B0%91"><span class="toc-text"> 37. 字节：你的平均薪水是多少</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#gb-sql-task"><span class="toc-text"> GB SQL Task</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a>
     </div>
   </section>
 
@@ -3156,7 +3192,7 @@ Spark-1.1 | ...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
@@ -3787,6 +3823,33 @@ volantis.pjax.push(bindToggleButton);
 
 
 
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
 
 
   
@@ -3805,84 +3868,6 @@ volantis.pjax.push(bindToggleButton);
 
 
 
-  <script>
-  function wait(callback, seconds) {
-    var timelag = null;
-    timelag = window.setTimeout(callback, seconds);
-  }
-  function pjax_CopyCode() {
-    if (!(document.querySelector(".highlight .code pre") || document.querySelector(".article pre code")))
-      return;
-    if (typeof clipboard == "undefined") {
-      var clipboard = new ClipboardJS(".btn-copy", {
-        target: function (trigger) {
-          return trigger.nextElementSibling;
-        },
-      });
-    }
-    var copyHtml = "";
-    copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
-    copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
-    copyHtml += "</button>";
-    document.querySelectorAll(".highlight .code pre").forEach(e => {
-      e.insertAdjacentHTML("beforebegin", copyHtml)
-    });
-    document.querySelectorAll(".article pre code").forEach(e => {
-      e.insertAdjacentHTML("beforebegin", copyHtml)
-    });
-    clipboard.off("success").on("success", function (e) {
-      let $btn = volantis.dom.$(e.trigger);
-      $btn.addClass("copied");
-      let $icon = volantis.dom.$($btn.find("i"));
-      $icon.removeClass("fa-copy").addClass("fa-check-circle");
-      let $span = volantis.dom.$($btn.find("span"));
-      $span.innerText = "COPIED";
-      wait(function () {
-        $icon.removeClass("fa-check-circle").addClass("fa-copy");
-        $span.innerText = "COPY";
-      }, 2000);
-    });
-    clipboard.off("error").on("error", function (e) {
-      e.clearSelection();
-      let $btn = volantis.dom.$(e.trigger);
-      $btn.addClass("copy-failed");
-      let $icon = volantis.dom.$($btn.find("i"));
-      $icon.removeClass("fa-copy").addClass("fa-times-circle");
-      let $span = volantis.dom.$($btn.find("span"));
-      $span.innerText = "COPY FAILED";
-      wait(function () {
-        $icon.removeClass("fa-times-circle").addClass("fa-copy");
-        $span.innerText = "COPY";
-      }, 2000);
-    });
-  }
-  volantis.js("https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js").then(pjax_CopyCode)
-  volantis.pjax.push(pjax_CopyCode);
-</script>
-
-
-
-
-   <script type="text/javascript">
-  function pjax_scrollrebeal() {
-    ScrollReveal().reveal("#l_main .reveal", {
-      distance: "32px",
-      duration: "800",
-      interval: "20",
-      scale: "1",
-      easing: "ease-out",
-    });
-  }
-  volantis.js("https://cdn.jsdelivr.net/npm/scrollreveal@4.0.6/dist/scrollreveal.min.js")
-  document.addEventListener("DOMContentLoaded", ()=>{
-    var checkScrollReveal = setInterval(function () {
-      if (typeof ScrollReveal == "undefined") return;
-      clearInterval(checkScrollReveal);
-      pjax_scrollrebeal();
-    }, 100);
-  })
-  volantis.pjax.push(pjax_scrollrebeal);
-</script>
 
 
 
