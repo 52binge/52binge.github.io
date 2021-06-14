@@ -2716,20 +2716,26 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>对象的赋值，拷贝（深/浅拷贝）之间是有差异的，如果使用不当，可能产生意外的结果.</p>
 <span id="more"></span>
-<h2 id="id"><a href="#id" class="headerlink" title="id"></a>id</h2><p>什么是<code>id</code>？一个对象的<code>id</code>值在<code>CPython</code>解释器里就代表它在内存中的`地址</p>
+<h2 id="id"><a class="markdownIt-Anchor" href="#id"></a> id</h2>
+<p>什么是<code>id</code>？一个对象的<code>id</code>值在<code>CPython</code>解释器里就代表它在内存中的`地址</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line">a=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line">b=a</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">id</span>(a))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">id</span>(b))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">id</span>(a)==<span class="built_in">id</span>(b))    <span class="comment">#附值后，两者的id相同，为true。</span></span><br><span class="line"></span><br><span class="line">b[<span class="number">0</span>]=<span class="number">222222</span>  <span class="comment"># 此时，改变b的第一个值，也会导致a值改变。</span></span><br><span class="line"><span class="built_in">print</span>(a,b)</span><br></pre></td></tr></table></figure>
 <pre><code>4449594888
 4449594888
 True
 [222222, 2, 3] [222222, 2, 3]
-</code></pre><h2 id="浅拷贝"><a href="#浅拷贝" class="headerlink" title="浅拷贝"></a>浅拷贝</h2><p>当使用浅拷贝时，python 只是拷贝了最外围的对象本身，内部的元素都只是拷贝了一个引用而已</p>
+</code></pre>
+<h2 id="浅拷贝"><a class="markdownIt-Anchor" href="#浅拷贝"></a> 浅拷贝</h2>
+<p>当使用浅拷贝时，python 只是拷贝了最外围的对象本身，内部的元素都只是拷贝了一个引用而已</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> copy</span><br><span class="line"></span><br><span class="line">a=[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line">c=copy.copy(a)  <span class="comment">#拷贝了a的外围对象本身,</span></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">id</span>(c))</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">id</span>(a)==<span class="built_in">id</span>(c))  <span class="comment">#id 改变 为false</span></span><br><span class="line"></span><br><span class="line">c[<span class="number">1</span>]=<span class="number">22222</span>   <span class="comment">#此时，我去改变c的第二个值时，a不会被改变。</span></span><br><span class="line"><span class="built_in">print</span>(a,c)</span><br><span class="line"><span class="comment"># [1, 2, 3] [1, 22222, 3] #a值不变,c的第二个值变了，这就是copy和‘==’的不同</span></span><br></pre></td></tr></table></figure>
 <pre><code>4449594440
 False
 [1, 2, 3] [1, 22222, 3]
-</code></pre><h2 id="深拷贝"><a href="#深拷贝" class="headerlink" title="深拷贝"></a>深拷贝</h2><p><code>deepcopy</code> 对外围和内部元素都进行了拷贝对象本身，而不是对象的引用</p>
+</code></pre>
+<h2 id="深拷贝"><a class="markdownIt-Anchor" href="#深拷贝"></a> 深拷贝</h2>
+<p><code>deepcopy</code> 对外围和内部元素都进行了拷贝对象本身，而不是对象的引用</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#copy.copy()</span></span><br><span class="line"></span><br><span class="line">a=[<span class="number">1</span>,<span class="number">2</span>,[<span class="number">3</span>,<span class="number">4</span>]]  <span class="comment">#第三个值为列表[3,4],即内部元素</span></span><br><span class="line">d=copy.copy(a) <span class="comment">#浅拷贝a中的[3，4]内部元素的引用，非内部元素对象的本身</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">id</span>(a)==<span class="built_in">id</span>(d)</span><br><span class="line"><span class="literal">False</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span><span class="built_in">id</span>(a[<span class="number">2</span>])==<span class="built_in">id</span>(d[<span class="number">2</span>])</span><br><span class="line"><span class="literal">True</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">2</span>][<span class="number">0</span>]=<span class="number">3333</span>  <span class="comment">#改变a中内部原属列表中的第一个值</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>d             <span class="comment">#这时d中的列表元素也会被改变</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3333</span>, <span class="number">4</span>]]</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">#copy.deepcopy()</span></span><br><span class="line"></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>e=copy.deepcopy(a) <span class="comment">#e为深拷贝了a</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>a[<span class="number">2</span>][<span class="number">0</span>]=<span class="number">333</span> <span class="comment">#改变a中内部元素列表第一个的值</span></span><br><span class="line"><span class="meta">&gt;&gt;&gt; </span>e</span><br><span class="line">[<span class="number">1</span>, <span class="number">2</span>, [<span class="number">3333</span>, <span class="number">4</span>]] <span class="comment">#因为时深拷贝，这时e中内部元素[]列表的值不会因为a中的值改变而改变</span></span><br><span class="line">&gt;&gt;&gt;</span><br></pre></td></tr></table></figure>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://docs.python.org/">docs.python.org</a></li>
 <li><a target="_blank" rel="noopener" href="https://morvanzhou.github.io/">python morvanzhou</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.liaoxuefeng.com/">python liaoxuefeng</a></li>
@@ -2851,16 +2857,19 @@ False
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>一般英文聽力練習方法</p>
           <p class='content'>多益 以及 一般英文聽力加強 | 和Cindy學英文 笔记
 
-練習聽力Useful Websites
+ 練習聽力
+Useful Websites
+
 
 News In Levels
 
+
 Umano
+
 
 Lyrics Training
 
-
-List...</p>
+...</p>
         </a>
       
       
@@ -2868,8 +2877,9 @@ List...</p>
           <p class='title'>Python try … except … as …<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>try:, except … as …:
 
-错误处理输出错误：try:, except ... as ...: 看如下代码
-try:    file=open(&#x27;eeee.txt&#x...</p>
+ 错误处理
+输出错误：try:, except ... as ...: 看如下代码
+try:    file=open(&#x27;eeee.txt&...</p>
         </a>
       
     </div>
@@ -2912,7 +2922,7 @@ try:    file=open(&#x27;eeee.txt&#x...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#id"><span class="toc-text">id</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%85%E6%8B%B7%E8%B4%9D"><span class="toc-text">浅拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-text">深拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#id"><span class="toc-text"> id</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B5%85%E6%8B%B7%E8%B4%9D"><span class="toc-text"> 浅拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B7%B1%E6%8B%B7%E8%B4%9D"><span class="toc-text"> 深拷贝</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -2985,7 +2995,7 @@ try:    file=open(&#x27;eeee.txt&#x...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       

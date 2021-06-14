@@ -2717,25 +2717,25 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <p>上篇学习了如何 plot Scatter，今天我们讲述如何 plot <code>Bar</code></p>
 <span id="more"></span>
 <p>今日目标 : 柱状图分成上下两部分，每一个柱体上都有相应的数值标注，并且取消坐标轴的显示.</p>
-<h2 id="生成基本图形"><a href="#生成基本图形" class="headerlink" title="生成基本图形"></a>生成基本图形</h2><p>向上向下生成<code>12个数据</code>，<code>X</code> 为 [0,11] 的整数 ，<code>Y</code>是均匀分布的随机数据。 使用的函数是<code>plt.bar</code>，参数为<code>X</code>和<code>Y</code>：</p>
+<h2 id="生成基本图形"><a class="markdownIt-Anchor" href="#生成基本图形"></a> 生成基本图形</h2>
+<p>向上向下生成<code>12个数据</code>，<code>X</code> 为 [0,11] 的整数 ，<code>Y</code>是均匀分布的随机数据。 使用的函数是<code>plt.bar</code>，参数为<code>X</code>和<code>Y</code>：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">n = <span class="number">12</span></span><br><span class="line"></span><br><span class="line">X = np.arange(n)</span><br><span class="line"></span><br><span class="line">Y1 = (<span class="number">1</span> - X / <span class="built_in">float</span>(n)) * np.random.uniform(<span class="number">0.5</span>, <span class="number">1.0</span>, n)</span><br><span class="line">Y2 = (<span class="number">1</span> - X / <span class="built_in">float</span>(n)) * np.random.uniform(<span class="number">0.5</span>, <span class="number">1.0</span>, n)</span><br><span class="line"></span><br><span class="line">plt.bar(X, +Y1)</span><br><span class="line">plt.bar(X, -Y2)</span><br><span class="line"></span><br><span class="line">plt.xlim(-<span class="number">.5</span>, n)</span><br><span class="line">plt.xticks(())</span><br><span class="line"></span><br><span class="line">plt.ylim(-<span class="number">1.25</span>, <span class="number">1.25</span>)</span><br><span class="line">plt.yticks(())</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
 <div class="limg1">
 <img src="/images/python/matplotlib-9-bar-1-output_1_0.png" class="lazyload" data-srcset="/images/python/matplotlib-9-bar-1-output_1_0.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" height="100" width="550" />
 </div>
-
-<h2 id="加颜色和数据"><a href="#加颜色和数据" class="headerlink" title="加颜色和数据"></a>加颜色和数据</h2><p>用<code>facecolor</code>设置主体颜色，<code>edgecolor</code>设置边框颜色为白色，</p>
+<h2 id="加颜色和数据"><a class="markdownIt-Anchor" href="#加颜色和数据"></a> 加颜色和数据</h2>
+<p>用<code>facecolor</code>设置主体颜色，<code>edgecolor</code>设置边框颜色为白色，</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.bar(X, +Y1, facecolor=<span class="string">&#x27;#9999ff&#x27;</span>, edgecolor=<span class="string">&#x27;white&#x27;</span>)</span><br><span class="line">plt.bar(X, -Y2, facecolor=<span class="string">&#x27;#ff9999&#x27;</span>, edgecolor=<span class="string">&#x27;white&#x27;</span>)</span><br><span class="line"></span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
 <div class="limg1">
 <img src="/images/python/matplotlib-9-bar-2-output_3_0.png" class="lazyload" data-srcset="/images/python/matplotlib-9-bar-2-output_3_0.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" height="100" width="550" />
 </div>
-
-<p>接下来我们用函数<code>plt.text</code>分别在柱体上方（下方）加上数值，用<code>%.2f</code>保留两位小数，横向居中对齐<code>ha=&#39;center&#39;</code>，纵向底部（顶部）对齐<code>va=&#39;bottom&#39;</code>：</p>
+<p>接下来我们用函数<code>plt.text</code>分别在柱体上方（下方）加上数值，用<code>%.2f</code>保留两位小数，横向居中对齐<code>ha='center'</code>，纵向底部（顶部）对齐<code>va='bottom'</code>：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.bar(X, +Y1, facecolor=<span class="string">&#x27;#9999ff&#x27;</span>, edgecolor=<span class="string">&#x27;white&#x27;</span>)</span><br><span class="line">plt.bar(X, -Y2, facecolor=<span class="string">&#x27;#ff9999&#x27;</span>, edgecolor=<span class="string">&#x27;white&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x, y <span class="keyword">in</span> <span class="built_in">zip</span>(X, Y1):</span><br><span class="line">    <span class="comment"># ha: horizontal alignment</span></span><br><span class="line">    <span class="comment"># va: vertical alignment</span></span><br><span class="line">    plt.text(x + <span class="number">0.4</span>, y + <span class="number">0.05</span>, <span class="string">&#x27;%.2f&#x27;</span> % y, ha=<span class="string">&#x27;center&#x27;</span>, va=<span class="string">&#x27;bottom&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> x, y <span class="keyword">in</span> <span class="built_in">zip</span>(X, Y2):</span><br><span class="line">    <span class="comment"># ha: horizontal alignment</span></span><br><span class="line">    <span class="comment"># va: vertical alignment</span></span><br><span class="line">    plt.text(x + <span class="number">0.4</span>, -y - <span class="number">0.05</span>, <span class="string">&#x27;%.2f&#x27;</span> % y, ha=<span class="string">&#x27;center&#x27;</span>, va=<span class="string">&#x27;top&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
 <div class="limg1">
 <img src="/images/python/matplotlib-9-bar-3-output_5_0.png" class="lazyload" data-srcset="/images/python/matplotlib-9-bar-3-output_5_0.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" height="100" width="550" />
 </div>
-
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://matplotlib.org/">matplotlib.org</a></li>
 <li><a target="_blank" rel="noopener" href="https://matplotlib.org/contents.html">matplotlib docs</a></li>
 <li><a target="_blank" rel="noopener" href="https://morvanzhou.github.io">morvanzhou</a></li>
@@ -2857,8 +2857,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Python 函数式编程 zip、lambda、map...</p>
           <p class='content'>zip、lambda、map…
 
-zipzip 函数接受任意多个（包括0个和1个）序列作为参数，合并后返回一个tuple列表
-a=[1,2,3]b=[4,5,6]ab=zip(a,b)print...</p>
+ zip
+zip 函数接受任意多个（包括0个和1个）序列作为参数，合并后返回一个tuple列表
+a=[1,2,3]b=[4,5,6]ab=zip(a,b)pri...</p>
         </a>
       
       
@@ -2909,7 +2910,7 @@ a=[1,2,3]b=[4,5,6]ab=zip(a,b)print...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E5%9F%BA%E6%9C%AC%E5%9B%BE%E5%BD%A2"><span class="toc-text">生成基本图形</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E9%A2%9C%E8%89%B2%E5%92%8C%E6%95%B0%E6%8D%AE"><span class="toc-text">加颜色和数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E6%88%90%E5%9F%BA%E6%9C%AC%E5%9B%BE%E5%BD%A2"><span class="toc-text"> 生成基本图形</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A0%E9%A2%9C%E8%89%B2%E5%92%8C%E6%95%B0%E6%8D%AE"><span class="toc-text"> 加颜色和数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -2982,7 +2983,7 @@ a=[1,2,3]b=[4,5,6]ab=zip(a,b)print...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
