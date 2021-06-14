@@ -2712,18 +2712,17 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <img src="/images/spark/spark-summary-logo-1.jpg" class="lazyload" data-srcset="/images/spark/spark-summary-logo-1.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="500" alt="" />
+  <p><img src="/images/spark/spark-summary-logo-1.jpg" class="lazyload" data-srcset="/images/spark/spark-summary-logo-1.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="500" alt="" /></p>
 <span id="more"></span>
-<h2 id="1-spark-data-skew"><a class="markdownIt-Anchor" href="#1-spark-data-skew"></a> 1. Spark Data Skew</h2>
-<p>For example, there are a total of 1,000 tasks, 997 tasks are executed within 1 minute, but the remaining two or three tasks take one or two hours. This situation is very common.</p>
+<h2 id="1-Spark-Data-Skew"><a href="#1-Spark-Data-Skew" class="headerlink" title="1. Spark Data Skew"></a>1. Spark Data Skew</h2><p>For example, there are a total of 1,000 tasks, 997 tasks are executed within 1 minute, but the remaining two or three tasks take one or two hours. This situation is very common.</p>
 <p><strong>Most tasks are executed very fast, but some tasks are extremely slow.</strong></p>
 <blockquote>
 <p>the progress of the entire Spark job is determined by the task with the longest running time.</p>
 </blockquote>
-<h2 id="2-the-principle-of-data-skew"><a class="markdownIt-Anchor" href="#2-the-principle-of-data-skew"></a> 2. The principle of Data Skew</h2>
-<p>when performing shuffle, the <code>same key on each node</code> must be pulled to <code>a task on a node</code> for processing, such as <strong><code>aggregation or join</code></strong> operations according to the key.</p>
-<p>For example, most keys correspond to 10 pieces of data, but individual keys correspond to 1 million pieces of data, so most tasks may only be assigned to 10 pieces of data, and then run out in 1 second; but individual tasks may be assigned 1 million pieces The data will run for one or two hours.</p>
-<img src="/images/spark/spark-data-skew-1.png" class="lazyload" data-srcset="/images/spark/spark-data-skew-1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" alt="Data skew only occurs during the shuffle process." />
+<h2 id="2-The-principle-of-Data-Skew"><a href="#2-The-principle-of-Data-Skew" class="headerlink" title="2. The principle of Data Skew"></a>2. The principle of Data Skew</h2><p>when performing shuffle, the <code>same key on each node</code> must be pulled to <code>a task on a node</code> for processing, such as <strong><code>aggregation or join</code></strong> operations according to the key. </p>
+<p>For example, most keys correspond to 10 pieces of data, but individual keys correspond to 1 million pieces of data, so most tasks may only be assigned to 10 pieces of data, and then run out in 1 second; but individual tasks may be assigned 1 million pieces The data will run for one or two hours. </p>
+<p><img src="/images/spark/spark-data-skew-1.png" class="lazyload" data-srcset="/images/spark/spark-data-skew-1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" alt="Data skew only occurs during the shuffle process." /></p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -2750,12 +2749,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 <tr>
 <td style="text-align:center">5.</td>
-<td style="text-align:left">join, cogroup, repartition, etc.</td>
+<td style="text-align:left">join, cogroup, repartition, etc. </td>
 </tr>
 </tbody>
 </table>
-<h2 id="3-the-execution-of-a-task-slow"><a class="markdownIt-Anchor" href="#3-the-execution-of-a-task-slow"></a> 3. The execution of a task slow</h2>
-<p>The first thing to look at is <strong>which stage of data skew occurs</strong> in.</p>
+</div>
+<h2 id="3-The-execution-of-a-task-slow"><a href="#3-The-execution-of-a-task-slow" class="headerlink" title="3. The execution of a task slow"></a>3. The execution of a task slow</h2><p>The first thing to look at is <strong>which stage of data skew occurs</strong> in.</p>
 <ol>
 <li>yarn-client submit, you can see the log locally, find which stage is currently running in the log;</li>
 <li>yarn-cluster submit, Spark Web UI Run to the first few stages.</li>
@@ -2763,21 +2762,16 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>Whether using the yarn-client mode or the yarn-cluster mode, we can take a deep look at the amount of data allocated by <strong>each task of this stage</strong> on the Spark Web UI, so as to further determine whether the uneven data allocated by the task causes data skew.</p>
 </blockquote>
-<img src="/images/spark/spark-data-skew-2.png" class="lazyload" data-srcset="/images/spark/spark-data-skew-2.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="880" alt="Data skew only occurs during the shuffle process." />
-<p>After knowing which stage the data skew occurs, then we need to calculate which part of the code corresponds to the stage where the skew occurs based on the principle of stage division.</p>
+<p><img src="/images/spark/spark-data-skew-2.png" class="lazyload" data-srcset="/images/spark/spark-data-skew-2.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="880" alt="Data skew only occurs during the shuffle process." /></p>
+<p>After knowing which stage the data skew occurs, then we need to calculate which part of the code corresponds to the stage where the skew occurs based on the principle of stage division. </p>
 <p><strong>solution</strong>: as long as you see a shuffle operator or Spark SQL SQL in the Spark code If there is a statement that will cause shuffle in the statement (such as a group by statement), then it can be determined that the front and the back stage are divided by that place.</p>
 <p><strong>Word Count</strong></p>
 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>()</span><br><span class="line"><span class="keyword">val</span> sc = <span class="keyword">new</span> <span class="type">SparkContext</span>(conf)</span><br><span class="line"> </span><br><span class="line"><span class="keyword">val</span> lines = sc.textFile(<span class="string">&quot;hdfs://...&quot;</span>)</span><br><span class="line"><span class="keyword">val</span> words = lines.flatMap(_.split(<span class="string">&quot; &quot;</span>))</span><br><span class="line"><span class="keyword">val</span> pairs = words.map((_, <span class="number">1</span>))</span><br><span class="line"><span class="keyword">val</span> wordCounts = pairs.reduceByKey(_ + _)</span><br><span class="line"> </span><br><span class="line">wordCounts.collect().foreach(println(_))</span><br></pre></td></tr></table></figure>
-<h3 id="31-stages-divided"><a class="markdownIt-Anchor" href="#31-stages-divided"></a> 3.1 stages divided</h3>
-<p>the entire code, only one reduceByKey operator will shuffle, the front and back stages will be divided.<br />
-* stage0, mainly to perform operations from textFile to map, and perform <strong>shuffle write operations</strong>.</p>
-<h3 id="32-shuffle-write"><a class="markdownIt-Anchor" href="#32-shuffle-write"></a> 3.2 shuffle write</h3>
-<p>The shuffle write operation can be simply understood as <strong>partitioning the data in the pairs RDD</strong>. In the data processed by each task, the same key will be written to the same disk file.<br />
-* Stage1 is mainly to perform operations from reduceByKey to collect.</p>
-<h3 id="33-shuffle-read"><a class="markdownIt-Anchor" href="#33-shuffle-read"></a> 3.3 shuffle read</h3>
-<p>When <strong>each task of stage1</strong> starts to run, it will first perform shuffle read operation. The task that performs the shuffle read operation will pull those keys that <code>belong to the node where each task of stage 0 is located</code>, and then perform operations such as global aggregation or join on the same key. Here, the value of the key is accumulated.</p>
+<h3 id="3-1-stages-divided"><a href="#3-1-stages-divided" class="headerlink" title="3.1 stages divided"></a>3.1 stages divided</h3><p>the entire code, only one reduceByKey operator will shuffle, the front and back stages will be divided.<br>* stage0, mainly to perform operations from textFile to map, and perform <strong>shuffle write operations</strong>. </p>
+<h3 id="3-2-shuffle-write"><a href="#3-2-shuffle-write" class="headerlink" title="3.2 shuffle write"></a>3.2 shuffle write</h3><p>The shuffle write operation can be simply understood as <strong>partitioning the data in the pairs RDD</strong>. In the data processed by each task, the same key will be written to the same disk file.<br>* Stage1 is mainly to perform operations from reduceByKey to collect. </p>
+<h3 id="3-3-shuffle-read"><a href="#3-3-shuffle-read" class="headerlink" title="3.3 shuffle read"></a>3.3 shuffle read</h3><p>When <strong>each task of stage1</strong> starts to run, it will first perform shuffle read operation. The task that performs the shuffle read operation will pull those keys that <code>belong to the node where each task of stage 0 is located</code>, and then perform operations such as global aggregation or join on the same key. Here, the value of the key is accumulated. </p>
 <p>After <code>stage1 executes the reduceByKey operator, it calculates the final wordCounts RDD</code>, and then executes the collect operator to pull all the data to the Driver for us to traverse and print out.</p>
-<h2 id="4-data-skew-distribution-of-keys"><a class="markdownIt-Anchor" href="#4-data-skew-distribution-of-keys"></a> 4. data skew - distribution of keys</h2>
+<h2 id="4-data-skew-distribution-of-keys"><a href="#4-data-skew-distribution-of-keys" class="headerlink" title="4. data skew - distribution of keys"></a>4. data skew - distribution of keys</h2><div class="table-container">
 <table>
 <thead>
 <tr>
@@ -2788,7 +2782,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <tbody>
 <tr>
 <td style="text-align:center">1.</td>
-<td style="text-align:left">If the data skew caused by the group by and join statements in Spark SQL, then query the key distribution of the table used in SQL Happening.</td>
+<td style="text-align:left">If the data skew caused by the group by and join statements in Spark SQL, then query the key distribution of the table used in SQL Happening. </td>
 </tr>
 <tr>
 <td style="text-align:center">2.</td>
@@ -2796,11 +2790,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
+</div>
 <blockquote>
 <p>For example, Word Count</p>
 <p>we can first sample 10% of the sample data for pairs, then use the countByKey operator to count the number of occurrences of each key, and finally traverse and print the number of occurrences of each key in the sample data on the client.</p>
 </blockquote>
 <figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">val</span> sampledPairs = pairs.sample(<span class="literal">false</span>, <span class="number">0.1</span>)</span><br><span class="line"><span class="keyword">val</span> sampledWordCounts = sampledPairs.countByKey()</span><br><span class="line">sampledWordCounts.foreach(println(_))</span><br></pre></td></tr></table></figure>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -2820,41 +2816,45 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <tr>
 <td style="text-align:center">3.</td>
 <td style="text-align:left">Convert reduce join to map join <br><br><strong>advantages</strong>: The effect is very good for data skew caused by the join operation, because shuffle and data skew will not happen at all. <br> <strong>disadvantages</strong>: only suitable for <code>a large table and a small table</code>. After all, we need to broadcast the small table, which <code>consumes more memory resources</code>. <br>The driver and each Executor will have a full amount of data of a small RDD in the memory. <br> If the RDD data we broadcast is relatively large, such as 10G or more, then memory overflow may occur. Therefore, it is not suitable for the situation where both are large tables.</td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<img src="/images/spark/spark-data-skew-reduce-by-key.png" class="lazyload" data-srcset="/images/spark/spark-data-skew-reduce-by-key.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="" alt="Data skew only occurs during the shuffle process." />
+</div>
+<p><img src="/images/spark/spark-data-skew-reduce-by-key.png" class="lazyload" data-srcset="/images/spark/spark-data-skew-reduce-by-key.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="" alt="Data skew only occurs during the shuffle process." /></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sys</span><br><span class="line"><span class="keyword">import</span> random </span><br><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkContext, SparkConf</span><br><span class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</span><br><span class="line"><span class="comment"># sc, random.randint(0,2) # 0 or 1 0r 2</span></span><br></pre></td></tr></table></figure>
 <details>
 <summary>WordCounts reduceByKey More Info...</summary>
+
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># read data from text file and split each line into words</span></span><br><span class="line">input_file = sc.textFile(<span class="string">&quot;/Users/blair/Desktop/input.txt&quot;</span>, <span class="number">2</span>)</span><br><span class="line">words=input_file.flatMap(<span class="keyword">lambda</span> line: line.split(<span class="string">&quot; &quot;</span>))</span><br><span class="line"><span class="comment"># words.collect() # [&#x27;China&#x27;, &#x27;Singapore&#x27;, &#x27;bbb&#x27;, &#x27;Singapore&#x27;, &#x27;hello&#x27;, &#x27;haha&#x27;, &#x27;hello&#x27;, &#x27;world&#x27;] </span></span><br><span class="line"><span class="comment"># words.first()</span></span><br></pre></td></tr></table></figure>
+
+
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># count the occurrence of each word</span></span><br><span class="line">wordCounts = words.<span class="built_in">map</span>(<span class="keyword">lambda</span> word: (<span class="string">f&#x27;<span class="subst">&#123;random.randint(<span class="number">0</span>,<span class="number">2</span>)&#125;</span>_<span class="subst">&#123;word&#125;</span>&#x27;</span>, <span class="number">1</span>)).reduceByKey(add)</span><br><span class="line">wordCounts.take(<span class="number">10</span>)</span><br></pre></td></tr></table></figure>
-<pre><code>[('0_Singapore', 3),
- ('2_bbb', 1),
- ('0_hello', 1),
- ('2_haha', 1),
- ('0_world', 1),
- ('1_ShangHai', 1),
- ('0_China', 1),
- ('2_Singapore', 4),
- ('1_Singapore', 1),
- ('2_hello', 1)]
-</code></pre>
+
+    [('0_Singapore', 3),
+     ('2_bbb', 1),
+     ('0_hello', 1),
+     ('2_haha', 1),
+     ('0_world', 1),
+     ('1_ShangHai', 1),
+     ('0_China', 1),
+     ('2_Singapore', 4),
+     ('1_Singapore', 1),
+     ('2_hello', 1)]
+
+
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">words_recover = wordCounts.<span class="built_in">map</span>(<span class="keyword">lambda</span> x: (x[<span class="number">0</span>][x[<span class="number">0</span>].find(<span class="string">&#x27;_&#x27;</span>)+<span class="number">1</span>:], x[<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line">word_count_ret = words_recover.reduceByKey(add)</span><br><span class="line">word_count_ret.take(<span class="number">5</span>)</span><br></pre></td></tr></table></figure>
 </details>
-<pre><code>[('world', 1), ('ShangHai', 1), ('China', 1), ('Singapore', 8), ('bbb', 1)]
-</code></pre>
-<h2 id="5-convert-reduce-join-to-map-join"><a class="markdownIt-Anchor" href="#5-convert-reduce-join-to-map-join"></a> 5. Convert reduce join to map join</h2>
-<img src="/images/spark/spark-data-skew-5-join.png" class="lazyload" data-srcset="/images/spark/spark-data-skew-5-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="750" alt="the smaller RDD directly into the Driver memory through the collect operator, and then create a Broadcast variable" />
+
+<pre><code>[(&#39;world&#39;, 1), (&#39;ShangHai&#39;, 1), (&#39;China&#39;, 1), (&#39;Singapore&#39;, 8), (&#39;bbb&#39;, 1)]
+</code></pre><h2 id="5-Convert-reduce-join-to-map-join"><a href="#5-Convert-reduce-join-to-map-join" class="headerlink" title="5. Convert reduce join to map join"></a>5. Convert reduce join to map join</h2><p><img src="/images/spark/spark-data-skew-5-join.png" class="lazyload" data-srcset="/images/spark/spark-data-skew-5-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="750" alt="the smaller RDD directly into the Driver memory through the collect operator, and then create a Broadcast variable" /></p>
 <p>code:</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">// 首先将数据量比较小的RDD的数据，collect到Driver中来。</span><br><span class="line">rdd1Data = rdd1.collect()</span><br><span class="line">// 然后使用Spark的广播功能，将小RDD的数据转换成广播变量，这样每个Executor就只有一份RDD的数据。</span><br><span class="line">// 可以尽可能节省内存空间，并且减少网络传输性能开销。</span><br><span class="line">rdd1DataBroadcast = sc.broadcast(rdd1Data)</span><br><span class="line">  </span><br><span class="line">// 对另外一个RDD执行<span class="built_in">map</span>类操作，而不再是join类操作。</span><br><span class="line">JavaPairRDD&lt;String, Tuple2&lt;String, Row&gt;&gt; joinedRdd = rdd2.mapToPair(</span><br><span class="line">        new PairFunction&lt;Tuple2&lt;Long,String&gt;, String, Tuple2&lt;String, Row&gt;&gt;() &#123;</span><br><span class="line">            private static final long serialVersionUID = <span class="number">1L</span>;</span><br><span class="line"><span class="meta">            @Override</span></span><br><span class="line">            public Tuple2&lt;String, Tuple2&lt;String, Row&gt;&gt; call(Tuple2&lt;Long, String&gt; <span class="built_in">tuple</span>)</span><br><span class="line">                    throws Exception &#123;</span><br><span class="line">                // 在算子函数中，通过广播变量，获取到本地Executor中的rdd1数据。</span><br><span class="line">                <span class="type">List</span>&lt;Tuple2&lt;Long, Row&gt;&gt; rdd1Data = rdd1DataBroadcast.value();</span><br><span class="line">                // 可以将rdd1的数据转换为一个Map，便于后面进行join操作。</span><br><span class="line">                Map&lt;Long, Row&gt; rdd1DataMap = new HashMap&lt;Long, Row&gt;();</span><br><span class="line">                <span class="keyword">for</span>(Tuple2&lt;Long, Row&gt; data : rdd1Data) &#123;</span><br><span class="line">                    rdd1DataMap.put(data._1, data._2);</span><br><span class="line">                &#125;</span><br><span class="line">                // 获取当前RDD数据的key以及value。</span><br><span class="line">                String key = <span class="built_in">tuple</span>._1;</span><br><span class="line">                String value = <span class="built_in">tuple</span>._2;</span><br><span class="line">                // 从rdd1数据Map中，根据key获取到可以join到的数据。</span><br><span class="line">                Row rdd1Value = rdd1DataMap.get(key);</span><br><span class="line">                <span class="keyword">return</span> new Tuple2&lt;String, String&gt;(key, new Tuple2&lt;String, Row&gt;(value, rdd1Value));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">  </span><br><span class="line">// 这里得提示一下。</span><br><span class="line">// 上面的做法，仅仅适用于rdd1中的key没有重复，全部是唯一的场景。</span><br><span class="line">// 如果rdd1中有多个相同的key，那么就得用flatMap类的操作，在进行join的时候不能用<span class="built_in">map</span>，而是得遍历rdd1所有数据进行join。</span><br><span class="line">// rdd2中每条数据都可能会返回多条join后的数据。</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>方案实践经验：曾经开发一个数据需求的时候，发现一个join导致了数据倾斜。优化之前，作业的执行时间大约是60分钟左右；使用该方案优化之后，执行时间缩短到10分钟左右，性能提升了6倍。</p>
-<p>Other Solution 1: Use Hive ETL to preprocess data<br />
-Other Solution 2: Filter a few keys that cause skew</p>
+<p>Other Solution 1: Use Hive ETL to preprocess data<br>Other Solution 2: Filter a few keys that cause skew</p>
 </blockquote>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/wwcom614/Spark/blob/master/src/main/scala/com/ww/rdd/performance_optimize/BroadcastMapJoins.scala">https://github.com/wwcom614/Spark/blob/master/src/main/scala/com/ww/rdd/performance_optimize/BroadcastMapJoins.scala</a></li>
 <li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/HusOqNA-45lpf5GduLz-pA">每个Spark工程师都应该知道的</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/jmx_bigdata/article/details/109480551?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs">Spark的五种JOIN策略解析</a></li>
@@ -2862,7 +2862,7 @@ Other Solution 2: Filter a few keys that cause skew</p>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/lb812913059/article/details/83313853?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs&amp;depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.baidujs">Spark Join——Broadcast Join、Shuffle Hash Join、Sort Merge Join</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/zhuiqiuuuu/article/details/79290926">spark sql优化：小表大表关联优化 &amp; union替换or &amp; broadcast join</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/257917645">Hive数仓建表该选用ORC还是Parquet，压缩选LZO还是Snappy？</a></li>
-<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/stillcoolme/p/10576563.html">Spark实践 – 性能优化基础</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/stillcoolme/p/10576563.html">Spark实践 — 性能优化基础</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV11A411L7CK?p=184">尚硅谷2021迎新版大数据Spark从入门到精通</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1Hp4y1z7aZ?p=79">尚硅谷大数据电商数仓V3.0版本教程（数据仓库项目开发实战）</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/sinat_36231857/article/details/88819553">Spark Sql 与 MySql 使用 group by 的差别</a></li>
@@ -3000,8 +3000,7 @@ SQL 是如何运行的？
           <p class='title'>SQL@Leetcode<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>
 
- SQL Practice
- 图解SQL面试题：经典50题
+SQL Practice图解SQL面试题：经典50题
 
 
 
@@ -3018,7 +3017,7 @@ Flag
 
 
 2.
-176. S...</p>
+176. Seco...</p>
         </a>
       
     </div>
@@ -3061,7 +3060,7 @@ Flag
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-spark-data-skew"><span class="toc-text"> 1. Spark Data Skew</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-the-principle-of-data-skew"><span class="toc-text"> 2. The principle of Data Skew</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-the-execution-of-a-task-slow"><span class="toc-text"> 3. The execution of a task slow</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#31-stages-divided"><span class="toc-text"> 3.1 stages divided</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-shuffle-write"><span class="toc-text"> 3.2 shuffle write</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#33-shuffle-read"><span class="toc-text"> 3.3 shuffle read</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-data-skew-distribution-of-keys"><span class="toc-text"> 4. data skew - distribution of keys</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-convert-reduce-join-to-map-join"><span class="toc-text"> 5. Convert reduce join to map join</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Spark-Data-Skew"><span class="toc-text">1. Spark Data Skew</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-The-principle-of-Data-Skew"><span class="toc-text">2. The principle of Data Skew</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-The-execution-of-a-task-slow"><span class="toc-text">3. The execution of a task slow</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-stages-divided"><span class="toc-text">3.1 stages divided</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-shuffle-write"><span class="toc-text">3.2 shuffle write</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-shuffle-read"><span class="toc-text">3.3 shuffle read</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-data-skew-distribution-of-keys"><span class="toc-text">4. data skew - distribution of keys</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Convert-reduce-join-to-map-join"><span class="toc-text">5. Convert reduce join to map join</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3134,7 +3133,7 @@ Flag
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       
@@ -4086,7 +4085,7 @@ function setSearchService() {
 
   
 <script>
-  var imgs=["/images/parallax_images/7_logo1.png", "/images/parallax_images/7_logo2.png", "/images/parallax_images/7_logo3.png", "/images/parallax_images/7_logo4.png"];
+  var imgs=["/images/parallax_logo/7_logo1.png", "/images/parallax_logo/7_logo2.png", "/images/parallax_logo/7_logo3.png", "/images/parallax_logo/7_logo4.png"];
   var index=0;
   
       function shuffle(arr){
