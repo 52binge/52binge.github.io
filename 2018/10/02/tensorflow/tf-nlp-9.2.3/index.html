@@ -33,7 +33,7 @@
 
   
     <meta name="description" content="上篇 PTB 数据集 batching 中我们介绍了如何对 PTB 数据集进行 连接、切割 成多个 batch，作为 NNLM 的输入。
-本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。">
+本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。 ">
   
 
   <!-- feed -->
@@ -2576,8 +2576,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <div class='top'>
     
     
-      <p class="title">Volantis</p>
+      <p class="title">星の海</p>
     
+    
+      <p class="subtitle">👩🏻‍💻ちんぶれあ</p>
     
   </div>
   <div class='bottom'>
@@ -2716,11 +2718,11 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   <p>上篇 <code>PTB</code> 数据集 batching 中我们介绍了如何对 <code>PTB</code> 数据集进行 连接、切割 成多个 batch，作为 NNLM 的输入。</p>
-<p>本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。</p>
+<p>本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。 </p>
 <span id="more"></span>
-<img src="/images/tensorflow/tf-nlp-9.2.3_1.jpg" class="lazyload" data-srcset="/images/tensorflow/tf-nlp-9.2.3_1.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" />
-<h2 id="1-embedding-层"><a class="markdownIt-Anchor" href="#1-embedding-层"></a> 1. Embedding 层</h2>
-<p>将 word 编号 转化为 word embedding 两大作用 :</p>
+<p><img src="/images/tensorflow/tf-nlp-9.2.3_1.jpg" class="lazyload" data-srcset="/images/tensorflow/tf-nlp-9.2.3_1.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" /></p>
+<h2 id="1-Embedding-层"><a href="#1-Embedding-层" class="headerlink" title="1. Embedding 层"></a>1. Embedding 层</h2><p>将 word 编号 转化为 word embedding 两大作用 :</p>
+<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -2742,30 +2744,28 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
+</div>
 <blockquote>
 <p>词向量维度: EMB_SIZE，词汇表大小: VOCAB_SIZE</p>
 <p>所有单词的词向量可以放入一个大小为 <strong>(EMB_SIZE, VOCAB_SIZE)</strong> 的矩阵内</p>
 <p>在读取词向量时，可以调用 <strong>tf.nn.embedding_lookup</strong> 方法。</p>
 <p>用 tf.Variable 来表示词向量，这样就可以采用任意初始化的词向量，学习过程中也会优化词向量。</p>
 </blockquote>
-<img src="/images/tensorflow/tf-nlp-9.2.3_2.jpg" class="lazyload" data-srcset="/images/tensorflow/tf-nlp-9.2.3_2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" />
+<p><img src="/images/tensorflow/tf-nlp-9.2.3_2.jpg" class="lazyload" data-srcset="/images/tensorflow/tf-nlp-9.2.3_2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="700" /></p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义单词的词向量矩阵</span></span><br><span class="line">embedding = tf.get_variable(<span class="string">&quot;embedding&quot;</span>, [VOCAB_SIZE, EMB_SIZE])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 将数据转化为词向量表示</span></span><br><span class="line">inputs = tf.nn.embedding_lookup(embedding, input_data)</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>其中输入数据 input_data 的维度是 (batch_size * num_steps)</p>
-<p>而输出的 input_embedding 的维度成为 (batch_size * num_steps * EMB_SIZE).</p>
-<p>在本文中，我们输入数据维度是 (<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>20</mn><mo>×</mo><mn>35</mn></mrow><annotation encoding="application/x-tex">20 \times 35</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">5</span></span></span></span>) ，EMB_SIZE = 300, 输入词向量维度时 (<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>20</mn><mo>×</mo><mn>35</mn><mo>×</mo><mn>300</mn></mrow><annotation encoding="application/x-tex">20 \times 35 \times 300</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">2</span><span class="mord">0</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.72777em;vertical-align:-0.08333em;"></span><span class="mord">3</span><span class="mord">5</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">3</span><span class="mord">0</span><span class="mord">0</span></span></span></span>) .</p>
+<p>而输出的 input_embedding 的维度成为 (batch_size * num_steps * EMB_SIZE). </p>
+<p>在本文中，我们输入数据维度是 ($20 \times 35$) ，EMB_SIZE = 300, 输入词向量维度时 ($20 \times 35 \times 300$) .</p>
 </blockquote>
-<h2 id="2-softmax-层"><a class="markdownIt-Anchor" href="#2-softmax-层"></a> 2. Softmax 层</h2>
-<p>Softmax层 的作用是将 RNN 的输出 转化为一个单词表中每个单词的输出概率，为此需要两个步骤：</p>
-<h3 id="21-第一步"><a class="markdownIt-Anchor" href="#21-第一步"></a> 2.1 第一步</h3>
-<p>使用一个线性映射将 RNN 的输出映射为一个维度与词汇表大小相同的向量，这一步的输出叫做 <strong>logits</strong>. 代码如下所示：</p>
+<h2 id="2-Softmax-层"><a href="#2-Softmax-层" class="headerlink" title="2. Softmax 层"></a>2. Softmax 层</h2><p>Softmax层 的作用是将 RNN 的输出 转化为一个单词表中每个单词的输出概率，为此需要两个步骤：</p>
+<h3 id="2-1-第一步"><a href="#2-1-第一步" class="headerlink" title="2.1 第一步"></a>2.1 第一步</h3><p>使用一个线性映射将 RNN 的输出映射为一个维度与词汇表大小相同的向量，这一步的输出叫做 <strong>logits</strong>. 代码如下所示：</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 首先定义映射用到的参数</span></span><br><span class="line"><span class="comment"># HIDDEN_SIZE 是 RNN 的隐藏状态维度，VOCAB_SIZE 是词汇表大小</span></span><br><span class="line">weight = tf.get_variable(<span class="string">&quot;weight&quot;</span>, [HIDDEN_ZIZE, VOCAB_SIZE])</span><br><span class="line">bias = tf.get_variable(<span class="string">&quot;bias&quot;</span>, [VOCAB_SIZE])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算线性映射</span></span><br><span class="line">logits = tf.matmul(output, weight) + bias</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>其中 output 是 RNN 的输出，维度是 [batch_size * num_steps, <strong>HIDDEN_SIZE</strong>]</p>
 <p>经过线性映射后，输出结果是 [batch_size * num_steps, <strong>VOCAB_SIZE</strong>].</p>
 </blockquote>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/">tensorflow.org</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/52250059/answer/146260654">tf.nn.embedding_lookup函数原理？</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/48107602/answer/159801895">求通俗讲解下tensorflow的embedding_lookup接口的意思？</a></li>
@@ -2833,7 +2833,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
           target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://iequa.com/2018/10/02/tensorflow/tf-nlp-9.2.3/&title=RNN 的语言模型 TensorFlow 实现 - Auckland New Zealand&summary=上篇 PTB 数据集 batching 中我们介绍了如何对 PTB 数据集进行 连接、切割 成多个 batch，作为 NNLM 的输入。
-本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。"
+本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。 "
           
           >
           
@@ -2846,7 +2846,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
         <a class="-mob-share-qzone" title="" rel="external nofollow noopener noreferrer noopener"
           
           target="_blank" href="https://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=http://iequa.com/2018/10/02/tensorflow/tf-nlp-9.2.3/&title=RNN 的语言模型 TensorFlow 实现 - Auckland New Zealand&summary=上篇 PTB 数据集 batching 中我们介绍了如何对 PTB 数据集进行 连接、切割 成多个 batch，作为 NNLM 的输入。
-本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。"
+本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。 "
           
           >
           
@@ -2859,7 +2859,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
           target="_blank" href="http://service.weibo.com/share/share.php?url=http://iequa.com/2018/10/02/tensorflow/tf-nlp-9.2.3/&title=RNN 的语言模型 TensorFlow 实现 - Auckland New Zealand&summary=上篇 PTB 数据集 batching 中我们介绍了如何对 PTB 数据集进行 连接、切割 成多个 batch，作为 NNLM 的输入。
-本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。"
+本文将介绍如何采用 TensorFlow 实现 RNN-based NNLM。 "
           
           >
           
@@ -2904,7 +2904,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='content'>PTB 数据集 batching 介绍, 如何对 PTB 数据集进行 连接、切割 成多个 batch。
 重点了解 batch_size、num_batch、num_step 这三个概念。
 
- b...</p>
+ba...</p>
         </a>
       
     </div>
@@ -2947,7 +2947,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-embedding-%E5%B1%82"><span class="toc-text"> 1. Embedding 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-softmax-%E5%B1%82"><span class="toc-text"> 2. Softmax 层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-%E7%AC%AC%E4%B8%80%E6%AD%A5"><span class="toc-text"> 2.1 第一步</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Embedding-%E5%B1%82"><span class="toc-text">1. Embedding 层</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Softmax-%E5%B1%82"><span class="toc-text">2. Softmax 层</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%AC%AC%E4%B8%80%E6%AD%A5"><span class="toc-text">2.1 第一步</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3020,7 +3020,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       

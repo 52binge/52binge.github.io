@@ -2575,8 +2575,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <div class='top'>
     
     
-      <p class="title">Volantis</p>
+      <p class="title">星の海</p>
     
+    
+      <p class="subtitle">👩🏻‍💻ちんぶれあ</p>
     
   </div>
   <div class='bottom'>
@@ -2716,38 +2718,24 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>这次提到了怎样建造一个完整的神经网络, 包括添加 <strong>神经层</strong>, <strong>计算误差</strong>, <strong>训练步骤</strong>, 判断是否在学习.</p>
 <span id="more"></span>
-<h2 id="1-add_layer-功能"><a class="markdownIt-Anchor" href="#1-add_layer-功能"></a> 1. add_layer 功能</h2>
-<p>首先，我们导入本次所需的模块</p>
+<h2 id="1-add-layer-功能"><a href="#1-add-layer-功能" class="headerlink" title="1. add_layer 功能"></a>1. add_layer 功能</h2><p>首先，我们导入本次所需的模块</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># 构造添加一个神经层的函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_layer</span>(<span class="params">inputs, in_size, out_size, activation_function=<span class="literal">None</span></span>):</span></span><br><span class="line"></span><br><span class="line">    Weights = tf.Variable(tf.random_normal([in_size, out_size]))</span><br><span class="line">    biases = tf.Variable(tf.zeros([<span class="number">1</span>, out_size]) + <span class="number">0.1</span>)</span><br><span class="line"></span><br><span class="line">    Wx_plus_b = tf.matmul(inputs, Weights) + biases</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> activation_function <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        outputs = Wx_plus_b</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        outputs = activation_function(Wx_plus_b)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> outputs</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.w3cschool.cn/tensorflow_python/tensorflow_python-n7hl2gmf.html">TensorFlow随机值: tf.random_normal函数：</a> 将返回一个指定形状的张量，通过随机的正常值填充</p>
 <p>tf.random_normal(shape, mean=0.0, stddev=1.0, dtype=tf.float32, seed=None, name=None)</p>
 </blockquote>
-<h2 id="2-导入数据"><a class="markdownIt-Anchor" href="#2-导入数据"></a> 2. 导入数据</h2>
-<p>构建所需的数据。</p>
+<h2 id="2-导入数据"><a href="#2-导入数据" class="headerlink" title="2. 导入数据"></a>2. 导入数据</h2><p>构建所需的数据。 </p>
 <p>这里的 <code>x_data</code> 和 <code>y_data</code> 并不是严格的一元二次函数的关系，因为我们多加了一个 <code>noise</code>, 这样看起来会更像真实情况</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">x_data = np.linspace(-<span class="number">1</span>,<span class="number">1</span>,<span class="number">300</span>, dtype=np.float32)[:, np.newaxis]</span><br><span class="line"><span class="comment"># numpy.linspace(start, stop, num=50, endpoint=True, retstep=False, dtype=None)</span></span><br><span class="line"><span class="comment"># 得到 300 个大小的一维数组， 通过 [:, np.newaxis] 行变列，变为 300 行，1 列 的二维 数组</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># numpy.random.normal(loc=0.0 均值, scale=1.0 标准差, size=None 形状)</span></span><br><span class="line">noise = np.random.normal(<span class="number">0</span>, <span class="number">0.05</span>, x_data.shape).astype(np.float32)</span><br><span class="line"></span><br><span class="line">y_data = np.square(x_data) - <span class="number">0.5</span> + noise</span><br><span class="line"></span><br><span class="line"><span class="comment"># 利用占位符定义我们所需的神经网络的输入。 `tf.placeholder()` 就是代表占位符</span></span><br><span class="line"><span class="comment"># 这里的 `None` 代表无论输入有多少都可以，因为输入只有一个特征，所以这里是 `1`。</span></span><br><span class="line"></span><br><span class="line">xs = tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">1</span>])</span><br><span class="line">ys = tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">1</span>])</span><br></pre></td></tr></table></figure>
 <p>接下来，我们就可以开始定义神经层了。 通常神经层都包括 <strong>input</strong>输入层、<strong>hide</strong>隐藏层 和 <strong>output</strong>输出层。这里的输入层只有一个属性， 所以我们就只有一个输入；隐藏层我们可以自己假设，这里我们假设隐藏层有<strong>10</strong>个神经元； 输出层和输入层的结构是一样的，所以我们的输出层也是只有一层。 所以，我们构建的是——输入层1个、隐藏层10个、输出层1个的神经网络。</p>
-<h2 id="3-搭建网络"><a class="markdownIt-Anchor" href="#3-搭建网络"></a> 3. 搭建网络</h2>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义 hide隐藏层， 利用之前的 `add_layer()` 函数，这里使用 Tensorflow 自带的激励函数 `tf.nn.relu`。</span></span><br><span class="line">l1 = add_layer(xs, <span class="number">1</span>, <span class="number">10</span>, activation_function=tf.nn.relu)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接着，定义输出层。此时的输入就是隐藏层的输出 —— `l1`，输入有 10 层（隐藏层的输出层），输出有 1 层。</span></span><br><span class="line">prediction = add_layer(l1, <span class="number">10</span>, <span class="number">1</span>, activation_function=<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算预测值 `prediction` 和 真实值的误差，对二者差的平方求和再取平均。</span></span><br><span class="line">loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction),</span><br><span class="line">                     reduction_indices=[<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接下来，是很关键的一步，如何让机器学习提升它的准确率。</span></span><br><span class="line"><span class="comment"># `tf.train.GradientDescentOptimizer()` 中的值通常都小于 `1`，这里取的是 `0.1`，代表以 `0.1` 的效率来最小化误差 `loss`。</span></span><br><span class="line"></span><br><span class="line">train_step = tf.train.GradientDescentOptimizer(<span class="number">0.1</span>).minimize(loss)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用变量时，都要对它进行初始化，这是必不可少的。</span></span><br><span class="line">init = tf.global_variables_initializer()  <span class="comment"># 替换成这样就好</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义 `Session`，并用 `Session` 来执行 `init` 初始化步骤。 </span></span><br><span class="line"><span class="comment">#（注意：在 `tensorflow` 中，只有session.run()才会执行我们定义的运算。）</span></span><br><span class="line">sess = tf.Session()</span><br><span class="line">sess.run(init)</span><br></pre></td></tr></table></figure>
-<h2 id="4-训练"><a class="markdownIt-Anchor" href="#4-训练"></a> 4. 训练</h2>
-<p>下面，让机器开始学习。</p>
+<h2 id="3-搭建网络"><a href="#3-搭建网络" class="headerlink" title="3. 搭建网络"></a>3. 搭建网络</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 定义 hide隐藏层， 利用之前的 `add_layer()` 函数，这里使用 Tensorflow 自带的激励函数 `tf.nn.relu`。</span></span><br><span class="line">l1 = add_layer(xs, <span class="number">1</span>, <span class="number">10</span>, activation_function=tf.nn.relu)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接着，定义输出层。此时的输入就是隐藏层的输出 —— `l1`，输入有 10 层（隐藏层的输出层），输出有 1 层。</span></span><br><span class="line">prediction = add_layer(l1, <span class="number">10</span>, <span class="number">1</span>, activation_function=<span class="literal">None</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算预测值 `prediction` 和 真实值的误差，对二者差的平方求和再取平均。</span></span><br><span class="line">loss = tf.reduce_mean(tf.reduce_sum(tf.square(ys - prediction),</span><br><span class="line">                     reduction_indices=[<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接下来，是很关键的一步，如何让机器学习提升它的准确率。</span></span><br><span class="line"><span class="comment"># `tf.train.GradientDescentOptimizer()` 中的值通常都小于 `1`，这里取的是 `0.1`，代表以 `0.1` 的效率来最小化误差 `loss`。</span></span><br><span class="line"></span><br><span class="line">train_step = tf.train.GradientDescentOptimizer(<span class="number">0.1</span>).minimize(loss)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用变量时，都要对它进行初始化，这是必不可少的。</span></span><br><span class="line">init = tf.global_variables_initializer()  <span class="comment"># 替换成这样就好</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义 `Session`，并用 `Session` 来执行 `init` 初始化步骤。 </span></span><br><span class="line"><span class="comment">#（注意：在 `tensorflow` 中，只有session.run()才会执行我们定义的运算。）</span></span><br><span class="line">sess = tf.Session()</span><br><span class="line">sess.run(init)</span><br></pre></td></tr></table></figure>
+<h2 id="4-训练"><a href="#4-训练" class="headerlink" title="4. 训练"></a>4. 训练</h2><p>下面，让机器开始学习。</p>
 <p>比如这里，我们让机器学习1000次。机器学习的内容是 <code>train_step</code>, 用 <code>Session</code> 来 <code>run</code> 每一次 training 的数据，逐步提升神经网络的预测准确性。 (注意：当运算要用到 <code>placeholder</code> 时，就需要 <code>feed_dict</code> 这个字典来指定输入。)</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1000</span>):</span><br><span class="line">    <span class="comment"># training</span></span><br><span class="line">    sess.run(train_step, feed_dict=&#123;xs: x_data, ys: y_data&#125;)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 每 50 步 我们输出一下机器学习的误差。</span></span><br><span class="line">    <span class="keyword">if</span> i % <span class="number">50</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(sess.run(loss, feed_dict=&#123;xs: x_data, ys: y_data&#125;))</span><br></pre></td></tr></table></figure>
 <p>在电脑上运行本次代码的结果为：</p>
-<p>0.0587868<br />
-0.00416427<br />
-0.00312624<br />
-0.00291327<br />
-0.00282026<br />
-0.0027577<br />
-0.00270546<br />
-0.00266943<br />
-0.00265278<br />
-0.00263559</p>
+<p>0.0587868<br>0.00416427<br>0.00312624<br>0.00291327<br>0.00282026<br>0.0027577<br>0.00270546<br>0.00266943<br>0.00265278<br>0.00263559</p>
 <p>通过上图可以看出，误差在逐渐减小，这说明机器学习是有积极的效果的</p>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/">tensorflow.org</a></li>
 <li><a target="_blank" rel="noopener" href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/">莫烦Python</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_guides/python/nn">Tensorflow 提供的一些 激励函数</a></li>
@@ -2878,8 +2866,7 @@ import numpy as npx1 = np.array([10, 20, 3...</p>
           <p class='title'>Tensorflow 例子3 ： 添加层 def add_layer()<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>在 Tensorflow 里定义一个 添加层的函数， 可以很容易的 添加神经层, 为之后的添加省下不少时间.
 
- 定义 add_layer()
-神经层里常见的参数通常有 weights、bias...</p>
+定义 add_layer()神经层里常见的参数通常有 weights、biases...</p>
         </a>
       
     </div>
@@ -2922,7 +2909,7 @@ import numpy as npx1 = np.array([10, 20, 3...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-add_layer-%E5%8A%9F%E8%83%BD"><span class="toc-text"> 1. add_layer 功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="toc-text"> 2. 导入数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%90%AD%E5%BB%BA%E7%BD%91%E7%BB%9C"><span class="toc-text"> 3. 搭建网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%AE%AD%E7%BB%83"><span class="toc-text"> 4. 训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-add-layer-%E5%8A%9F%E8%83%BD"><span class="toc-text">1. add_layer 功能</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AF%BC%E5%85%A5%E6%95%B0%E6%8D%AE"><span class="toc-text">2. 导入数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%90%AD%E5%BB%BA%E7%BD%91%E7%BB%9C"><span class="toc-text">3. 搭建网络</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%AE%AD%E7%BB%83"><span class="toc-text">4. 训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -2995,7 +2982,7 @@ import numpy as npx1 = np.array([10, 20, 3...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       

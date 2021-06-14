@@ -2575,8 +2575,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <div class='top'>
     
     
-      <p class="title">Volantis</p>
+      <p class="title">星の海</p>
     
+    
+      <p class="subtitle">👩🏻‍💻ちんぶれあ</p>
     
   </div>
   <div class='bottom'>
@@ -2716,21 +2718,19 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>Sklearn 中的 <code>learning curve</code> 可以很直观的看出我们的 <code>model</code> 学习的进度, 对比发现有没有 <code>overfitting</code> 的问题. 然后我们可以对我们的 <code>model</code> 进行调整, 克服 <code>overfitting</code> 的问题.</p>
 <span id="more"></span>
-<h2 id="learning-curve-检视过拟合"><a class="markdownIt-Anchor" href="#learning-curve-检视过拟合"></a> Learning curve 检视过拟合</h2>
-<p>加载对应模块:</p>
+<h2 id="Learning-curve-检视过拟合"><a href="#Learning-curve-检视过拟合" class="headerlink" title="Learning curve 检视过拟合"></a>Learning curve 检视过拟合</h2><p>加载对应模块:</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.learning_curve <span class="keyword">import</span> learning_curve <span class="comment">#学习曲线模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_digits <span class="comment">#digits数据集</span></span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC <span class="comment">#Support Vector Classifier</span></span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span class="comment">#可视化模块</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure>
-<p>加载digits数据集，其包含的是手写体的数字，从0到9。<br />
-数据集总共有1797个样本，每个样本由64个特征组成， 分别为其手写体对应的8×8像素表示，每个特征取值0~16。</p>
+<p>加载digits数据集，其包含的是手写体的数字，从0到9。<br>数据集总共有1797个样本，每个样本由64个特征组成， 分别为其手写体对应的8×8像素表示，每个特征取值0~16。</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">digits = load_digits()</span><br><span class="line">X = digits.data</span><br><span class="line">y = digits.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#print(len(X[0]))</span></span><br></pre></td></tr></table></figure>
-<p>观察样本由小到大的学习曲线变化, 采用K折交叉验证 <code>cv=10</code>, 选择平均方差检视模型效能 <code>scoring='mean_squared_error'</code>, 样本由小到大分成5轮检视学习曲线(<code>10%</code>, <code>25%</code>, <code>50%</code>, <code>75%</code>, <code>100%</code>):</p>
+<p>观察样本由小到大的学习曲线变化, 采用K折交叉验证 <code>cv=10</code>, 选择平均方差检视模型效能 <code>scoring=&#39;mean_squared_error&#39;</code>, 样本由小到大分成5轮检视学习曲线(<code>10%</code>, <code>25%</code>, <code>50%</code>, <code>75%</code>, <code>100%</code>):</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">train_sizes, train_loss, test_loss = learning_curve(</span><br><span class="line">    SVC(gamma=<span class="number">0.001</span>), X, y, cv=<span class="number">10</span>, scoring=<span class="string">&#x27;mean_squared_error&#x27;</span>,</span><br><span class="line">    train_sizes=[<span class="number">0.1</span>, <span class="number">0.25</span>, <span class="number">0.5</span>, <span class="number">0.75</span>, <span class="number">1</span>])</span><br><span class="line"></span><br><span class="line"><span class="comment">#平均每一轮所得到的平均方差(共5轮，分别为样本10%、25%、50%、75%、100%)</span></span><br><span class="line">train_loss_mean = -np.mean(train_loss, axis=<span class="number">1</span>)</span><br><span class="line">test_loss_mean = -np.mean(test_loss, axis=<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
 <p>可视化图形:</p>
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line">plt.plot(train_sizes, train_loss_mean, <span class="string">&#x27;o-&#x27;</span>, color=<span class="string">&quot;r&quot;</span>,</span><br><span class="line">         label=<span class="string">&quot;Training&quot;</span>)</span><br><span class="line">plt.plot(train_sizes, test_loss_mean, <span class="string">&#x27;o-&#x27;</span>, color=<span class="string">&quot;g&quot;</span>,</span><br><span class="line">        label=<span class="string">&quot;Cross-validation&quot;</span>)</span><br><span class="line"></span><br><span class="line">plt.xlabel(<span class="string">&quot;Training examples&quot;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&quot;Loss&quot;</span>)</span><br><span class="line">plt.legend(loc=<span class="string">&quot;best&quot;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
 <div class="limg1">
 <img src="/images/python/sklearn-6-cross-validation-2-output_7_0.png" class="lazyload" data-srcset="/images/python/sklearn-6-cross-validation-2-output_7_0.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="400" />
 </div>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="http://scikit-learn.org/">scikit-learn.org</a></li>
 <li><a target="_blank" rel="noopener" href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html">scikit-learn docs</a></li>
 <li><a target="_blank" rel="noopener" href="https://morvanzhou.github.io">scikit-learn morvanzhou</a></li>
@@ -2900,7 +2900,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#learning-curve-%E6%A3%80%E8%A7%86%E8%BF%87%E6%8B%9F%E5%90%88"><span class="toc-text"> Learning curve 检视过拟合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Learning-curve-%E6%A3%80%E8%A7%86%E8%BF%87%E6%8B%9F%E5%90%88"><span class="toc-text">Learning curve 检视过拟合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -2973,7 +2973,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       

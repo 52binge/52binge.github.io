@@ -2576,8 +2576,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <div class='top'>
     
     
-      <p class="title">Volantis</p>
+      <p class="title">星の海</p>
     
+    
+      <p class="subtitle">👩🏻‍💻ちんぶれあ</p>
     
   </div>
   <div class='bottom'>
@@ -2725,10 +2727,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>Cloudera Hadoop（CDH）：CDH：Cloudera公司的发行版本，基于Apache Hadoop的二次开发，优化了组件兼容和交互接口、简化安装配置、增加Cloudera兼容特性。</li>
 </ul>
 </blockquote>
-<h2 id="1-操作环境"><a class="markdownIt-Anchor" href="#1-操作环境"></a> 1. 操作环境</h2>
-<ul>
-<li>CentOS 7.3 x64 （4C/10G/50G）</li>
-<li>Cloudera Manager：6.0.1</li>
+<h2 id="1-操作环境"><a href="#1-操作环境" class="headerlink" title="1. 操作环境"></a>1. 操作环境</h2><ul>
+<li>CentOS 7.3 x64 （4C/10G/50G） </li>
+<li>Cloudera Manager：6.0.1  </li>
 <li>CDH: 6.0.1</li>
 </ul>
 <p>相关包地址</p>
@@ -2751,8 +2752,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </ul>
 </blockquote>
 <p>注意：以下操作均用root用户操作。</p>
-<h2 id="2-网络配置所有节点"><a class="markdownIt-Anchor" href="#2-网络配置所有节点"></a> 2. 网络配置(所有节点)</h2>
-<p><strong>在所有节点上把IP和主机名的对应关系写入</strong></p>
+<h2 id="2-网络配置-所有节点"><a href="#2-网络配置-所有节点" class="headerlink" title="2. 网络配置(所有节点)"></a>2. 网络配置(所有节点)</h2><p><strong>在所有节点上把IP和主机名的对应关系写入</strong></p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /etc/hosts</span><br><span class="line"></span><br><span class="line"><span class="comment"># 注释掉原有的语句, 增加：</span></span><br><span class="line">192.192.0.25 server</span><br><span class="line">192.192.0.26 chdagent1</span><br><span class="line">192.192.0.27 chdagent2</span><br></pre></td></tr></table></figure>
 <p><strong>在相应的节点主机上修改主机名</strong></p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">vim /etc/sysconfig/network</span><br><span class="line"></span><br><span class="line">NETWORKING=yes</span><br><span class="line">HOSTNAME=cdhserver</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改或者添加 HOSTNAME=cdhserver</span></span><br></pre></td></tr></table></figure>
@@ -2763,31 +2763,26 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># hostname cdhserver</span><br></pre></td></tr></table></figure>
 <p>CentOS7要多执行以下这步：</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">hostnamectl set-hostname cdhserver</span><br></pre></td></tr></table></figure>
-<h2 id="3-打通ssh"><a class="markdownIt-Anchor" href="#3-打通ssh"></a> 3. 打通SSH</h2>
-<p>设置ssh无密码登陆（所有节点）</p>
-<h2 id="4-关闭防火墙和selinux"><a class="markdownIt-Anchor" href="#4-关闭防火墙和selinux"></a> 4. 关闭防火墙和SELinux</h2>
-<p>注意： 需要在所有的节点上执行，因为涉及到的端口太多了，临时关闭防火墙是为了安装起来更方便，安装完毕后可以根据需要设置防火墙策略，保证集群安全。</p>
+<h2 id="3-打通SSH"><a href="#3-打通SSH" class="headerlink" title="3. 打通SSH"></a>3. 打通SSH</h2><p>设置ssh无密码登陆（所有节点）</p>
+<h2 id="4-关闭防火墙和SELinux"><a href="#4-关闭防火墙和SELinux" class="headerlink" title="4. 关闭防火墙和SELinux"></a>4. 关闭防火墙和SELinux</h2><p>注意： 需要在所有的节点上执行，因为涉及到的端口太多了，临时关闭防火墙是为了安装起来更方便，安装完毕后可以根据需要设置防火墙策略，保证集群安全。</p>
 <p>关闭防火墙并关闭自启动：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl stop firewalld</span><br><span class="line">systemctl <span class="built_in">disable</span> firewalld</span><br></pre></td></tr></table></figure>
-<h2 id="5-所有节点配置ntp服务"><a class="markdownIt-Anchor" href="#5-所有节点配置ntp服务"></a> 5. 所有节点配置NTP服务</h2>
-<p>集群中所有主机必须保持时间同步，如果时间相差较大会引起各种问题。 具体思路如下：</p>
+<h2 id="5-所有节点配置NTP服务"><a href="#5-所有节点配置NTP服务" class="headerlink" title="5. 所有节点配置NTP服务"></a>5. 所有节点配置NTP服务</h2><p>集群中所有主机必须保持时间同步，如果时间相差较大会引起各种问题。 具体思路如下：</p>
 <p>master节点作为ntp服务器与外界对时中心同步时间，随后对所有datanode节点提供时间同步服务。</p>
 <p>所有datanode节点以master节点为基础同步时间。</p>
 <p>所有节点安装相关组件：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install ntp</span><br></pre></td></tr></table></figure>
-<p>启动服务：</p>
+<p>启动服务： </p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start ntpd</span><br></pre></td></tr></table></figure>
 <p>配置开机启动：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl <span class="built_in">enable</span> ntpd</span><br></pre></td></tr></table></figure>
-<h2 id="6-安装-python-27"><a class="markdownIt-Anchor" href="#6-安装-python-27"></a> 6. 安装 python 2.7</h2>
-<p>必须是python2.7版本，CentOS 7 系统可以不用装，系统自带的。</p>
+<h2 id="6-安装-python-2-7"><a href="#6-安装-python-2-7" class="headerlink" title="6. 安装 python 2.7"></a>6. 安装 python 2.7</h2><p>必须是python2.7版本，CentOS 7 系统可以不用装，系统自带的。</p>
 <figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">#下载并安装EPEL，安装python-pip，psycopg2有依赖</span><br><span class="line">[root@localhost ~]# wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm</span><br><span class="line">[root@localhost ~]# rpm -ivh epel-release-latest-7.noarch.rpm</span><br><span class="line">[root@localhost ~]# yum repolist  #检查是否已添加至源列表</span><br></pre></td></tr></table></figure>
 <p>升级软件依赖版本</p>
 <p>Starting with CDH 6, PostgreSQL-backed Hue requires the Psycopg2 version to be at least 2.5.4</p>
 <p>首先安装epel扩展源：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum -y install epel-release</span><br><span class="line">yum -y install python-pip</span><br><span class="line">pip install --upgrade psycopg2</span><br></pre></td></tr></table></figure>
-<h2 id="7-准备parcels用以安装cdh6"><a class="markdownIt-Anchor" href="#7-准备parcels用以安装cdh6"></a> 7. 准备Parcels，用以安装CDH6</h2>
-<p>将CHD6相关的Parcel包放到主节点的/opt/cloudera/parcel-repo/目录中，如果没有此目录，可以自己创建。</p>
+<h2 id="7-准备Parcels，用以安装CDH6"><a href="#7-准备Parcels，用以安装CDH6" class="headerlink" title="7. 准备Parcels，用以安装CDH6"></a>7. 准备Parcels，用以安装CDH6</h2><p>将CHD6相关的Parcel包放到主节点的/opt/cloudera/parcel-repo/目录中，如果没有此目录，可以自己创建。</p>
 <blockquote>
 <ul>
 <li>CDH-6.0.0-1.cdh6.0.0.p0.537114-el7.parcel</li>
@@ -2796,14 +2791,14 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </ul>
 </blockquote>
 <p>注意：最后将CDH-6.0.0-1.cdh6.0.0.p0.537114-el7.parcel.sha256，重命名为CDH-6.0.0-1.cdh6.0.0.p0.537114-el7.parcel.sha</p>
-<p><strong>安装repo</strong>:</p>
+<p><strong>安装repo</strong>: </p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget https://archive.cloudera.com/cm6/6.0.0/redhat7/yum/cloudera-manager.repo -P /etc/yum.repos.d/</span><br></pre></td></tr></table></figure>
-<p><strong>导入GPG key</strong>:</p>
+<p><strong>导入GPG key</strong>: </p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rpm --import https://archive.cloudera.com/cm6/6.0.0/redhat7/yum/RPM-GPG-KEY-cloudera</span><br></pre></td></tr></table></figure>
-<p><strong>JDK install</strong>:</p>
+<p><strong>JDK install</strong>: </p>
 <blockquote>
 <p>yum install oracle-j2sdk1.8</p>
-<p>注意 ：</p>
+<p>注意 ： </p>
 <ul>
 <li>使用 yum 下载，需要确定版本与安装CDH6官方要求的需要的版本一致</li>
 <li>也可不使用 yum 安装，使用自己下载 JDK，然后手动绿色安装配置</li>
@@ -2811,10 +2806,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </ul>
 <p>三种方式任选其一便可</p>
 </blockquote>
-<p><strong>yum安装CM</strong>:</p>
+<p><strong>yum安装CM</strong>: </p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install cloudera-manager-server</span><br></pre></td></tr></table></figure>
-<h2 id="8-安装mysql"><a class="markdownIt-Anchor" href="#8-安装mysql"></a> 8. 安装MySql</h2>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm</span><br><span class="line">rpm -ivh mysql-community-release-el7-5.noarch.rpm</span><br><span class="line">yum update</span><br><span class="line">yum install mysql-server</span><br><span class="line">systemctl start mysqld</span><br><span class="line">systemctl <span class="built_in">enable</span> mysqld</span><br></pre></td></tr></table></figure>
+<h2 id="8-安装MySql"><a href="#8-安装MySql" class="headerlink" title="8. 安装MySql"></a>8. 安装MySql</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">wget http://repo.mysql.com/mysql-community-release-el7-5.noarch.rpm</span><br><span class="line">rpm -ivh mysql-community-release-el7-5.noarch.rpm</span><br><span class="line">yum update</span><br><span class="line">yum install mysql-server</span><br><span class="line">systemctl start mysqld</span><br><span class="line">systemctl <span class="built_in">enable</span> mysqld</span><br></pre></td></tr></table></figure>
 <p>初始化Mysql</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/bin/mysql_secure_installation</span><br></pre></td></tr></table></figure>
 <p>配置JDBC</p>
@@ -2825,17 +2819,15 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </blockquote>
 <p>出现如下日志：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">JAVA_HOME=/usr/java/jdk1.8.0_141-cloudera</span><br><span class="line">Verifying that we can write to /etc/cloudera-scm-server</span><br><span class="line">Creating SCM configuration file <span class="keyword">in</span> /etc/cloudera-scm-server</span><br><span class="line">Executing:  /usr/java/jdk1.8.0_141-cloudera/bin/java -cp /usr/share/java/mysql-connector-java.jar:/usr/share/java/oracle-connector-java.jar:/usr/share/java/postgresql-connector-java.jar:/opt/cloudera/cm/schema/../lib/* com.cloudera.enterprise.dbutil.DbCommandExecutor /etc/cloudera-scm-server/db.properties com.cloudera.cmf.db.</span><br><span class="line">[main] DbCommandExecutor INFO  Successfully connected to database.</span><br><span class="line">All <span class="keyword">done</span>, your SCM database is configured correctly!</span><br></pre></td></tr></table></figure>
-<h2 id="9-启动cm服务"><a class="markdownIt-Anchor" href="#9-启动cm服务"></a> 9. 启动CM服务</h2>
-<p>启动：</p>
+<h2 id="9-启动CM服务"><a href="#9-启动CM服务" class="headerlink" title="9. 启动CM服务"></a>9. 启动CM服务</h2><p>启动：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start cloudera-scm-server</span><br></pre></td></tr></table></figure>
 <p>查看日志：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tail -f /var/<span class="built_in">log</span>/cloudera-scm-server/cloudera-scm-server.log</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>出现：INFO WebServerImpl:com.cloudera.server.cmf.WebServerImpl: Started Jetty server.则表示服务正常启动</p>
 </blockquote>
-<p>登录 http://&lt;server_host&gt;:7180 账号：admin</p>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<p>登录 http://<server_host>:7180 账号：admin</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/caolijun1166/article/details/82714387">CDH 6.0.0 搭建</a></li>
 <li><a target="_blank" rel="noopener" href="http://blog.51cto.com/pizibaidu/2174297">CDH6.0.0详细安装教程及所遇到的问题</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.cloudera.com/documentation/enterprise/6/6.0/topics/installation.html">官方文档 - Cloudera Installation Guide</a></li>
@@ -3012,7 +3004,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%93%8D%E4%BD%9C%E7%8E%AF%E5%A2%83"><span class="toc-text"> 1. 操作环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9"><span class="toc-text"> 2. 网络配置(所有节点)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%89%93%E9%80%9Assh"><span class="toc-text"> 3. 打通SSH</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8Cselinux"><span class="toc-text"> 4. 关闭防火墙和SELinux</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E9%85%8D%E7%BD%AEntp%E6%9C%8D%E5%8A%A1"><span class="toc-text"> 5. 所有节点配置NTP服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%AE%89%E8%A3%85-python-27"><span class="toc-text"> 6. 安装 python 2.7</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%87%86%E5%A4%87parcels%E7%94%A8%E4%BB%A5%E5%AE%89%E8%A3%85cdh6"><span class="toc-text"> 7. 准备Parcels，用以安装CDH6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E5%AE%89%E8%A3%85mysql"><span class="toc-text"> 8. 安装MySql</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E5%90%AF%E5%8A%A8cm%E6%9C%8D%E5%8A%A1"><span class="toc-text"> 9. 启动CM服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%93%8D%E4%BD%9C%E7%8E%AF%E5%A2%83"><span class="toc-text">1. 操作环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%BD%91%E7%BB%9C%E9%85%8D%E7%BD%AE-%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9"><span class="toc-text">2. 网络配置(所有节点)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%89%93%E9%80%9ASSH"><span class="toc-text">3. 打通SSH</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%85%B3%E9%97%AD%E9%98%B2%E7%81%AB%E5%A2%99%E5%92%8CSELinux"><span class="toc-text">4. 关闭防火墙和SELinux</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E9%85%8D%E7%BD%AENTP%E6%9C%8D%E5%8A%A1"><span class="toc-text">5. 所有节点配置NTP服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%AE%89%E8%A3%85-python-2-7"><span class="toc-text">6. 安装 python 2.7</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#7-%E5%87%86%E5%A4%87Parcels%EF%BC%8C%E7%94%A8%E4%BB%A5%E5%AE%89%E8%A3%85CDH6"><span class="toc-text">7. 准备Parcels，用以安装CDH6</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#8-%E5%AE%89%E8%A3%85MySql"><span class="toc-text">8. 安装MySql</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#9-%E5%90%AF%E5%8A%A8CM%E6%9C%8D%E5%8A%A1"><span class="toc-text">9. 启动CM服务</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3085,7 +3077,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       

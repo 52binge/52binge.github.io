@@ -2573,8 +2573,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <div class='top'>
     
     
-      <p class="title">Volantis</p>
+      <p class="title">星の海</p>
     
+    
+      <p class="subtitle">👩🏻‍💻ちんぶれあ</p>
     
   </div>
   <div class='bottom'>
@@ -2712,7 +2714,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <img src="/images/spark/spark-3.0-rdd-logo.png" class="lazyload" data-srcset="/images/spark/spark-3.0-rdd-logo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="Spark RDD Feature" />
+  <p><img src="/images/spark/spark-3.0-rdd-logo.png" class="lazyload" data-srcset="/images/spark/spark-3.0-rdd-logo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="Spark RDD Feature" /></p>
 <span id="more"></span>
 <p>有两种方式使用SparkSQL</p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/huang66666666/article/details/86558454">Spark SQL性能调优以及原理图</a></p>
@@ -2720,33 +2722,20 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>是直接写sql语句，这个需要有元数据库支持，例如Hive等</li>
 <li>通过Dataset/DataFrame编写Spark应用程序。</li>
 </ol>
-<h2 id="1-sparksql总体流程"><a class="markdownIt-Anchor" href="#1-sparksql总体流程"></a> 1. SparkSQL总体流程</h2>
-<img src="/images/spark/spark-catalyst.jpg" class="lazyload" data-srcset="/images/spark/spark-catalyst.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="Spark" />
-<h2 id="2-join基本要素"><a class="markdownIt-Anchor" href="#2-join基本要素"></a> 2. Join基本要素</h2>
-<img src="/images/spark/spark-sql-join-ness.png" class="lazyload" data-srcset="/images/spark/spark-sql-join-ness.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" />
+<h2 id="1-SparkSQL总体流程"><a href="#1-SparkSQL总体流程" class="headerlink" title="1. SparkSQL总体流程"></a>1. SparkSQL总体流程</h2><p><img src="/images/spark/spark-catalyst.jpg" class="lazyload" data-srcset="/images/spark/spark-catalyst.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="Spark" /></p>
+<h2 id="2-Join基本要素"><a href="#2-Join基本要素" class="headerlink" title="2. Join基本要素"></a>2. Join基本要素</h2><p><img src="/images/spark/spark-sql-join-ness.png" class="lazyload" data-srcset="/images/spark/spark-sql-join-ness.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" /></p>
 <p><strong>Join基本实现流程</strong></p>
 <p>Spark将参与Join的两张表抽象为流式遍历表(streamIter)和查找表(buildIter)，通常streamIter为大表，buildIter为小表，我们不用担心哪个表为streamIter，哪个表为buildIter，这个spark会根据join语句自动帮我们完成.</p>
-<h3 id="21-sort-merge-join实现"><a class="markdownIt-Anchor" href="#21-sort-merge-join实现"></a> 2.1 sort merge join实现</h3>
-<blockquote>
+<h3 id="2-1-sort-merge-join实现"><a href="#2-1-sort-merge-join实现" class="headerlink" title="2.1 sort merge join实现"></a>2.1 sort merge join实现</h3><blockquote>
 <p>要让两条记录能join到一起，首先需要将具有相同key的记录在同一个分区，所以通常来说，需要做一次shuffle，map阶段根据join条件确定每条记录的key，基于该key做shuffle write，将可能join到一起的记录分到同一个分区中，这样在shuffle read阶段就可以将两个表中具有相同key的记录拉到同一个分区处理.</p>
 </blockquote>
-<img src="/images/spark/spark-sort-merge-join.jpeg" class="lazyload" data-srcset="/images/spark/spark-sort-merge-join.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" />
-<h3 id="22-broadcast-join实现"><a class="markdownIt-Anchor" href="#22-broadcast-join实现"></a> 2.2 broadcast join实现</h3>
-<p>当buildIter的估计大小不超过参数<code>spark.sql.autoBroadcastJoinThreshold</code>设定的值(默认10M)，那么就会自动采用broadcast join，否则采用sort merge join.</p>
-<h3 id="23-hash-join实现"><a class="markdownIt-Anchor" href="#23-hash-join实现"></a> 2.3 hash join实现</h3>
-<h3 id="24-inner-join"><a class="markdownIt-Anchor" href="#24-inner-join"></a> 2.4 inner join</h3>
-<h3 id="25-left-outer-join"><a class="markdownIt-Anchor" href="#25-left-outer-join"></a> 2.5 left outer join</h3>
-<h3 id="26-right-outer-join"><a class="markdownIt-Anchor" href="#26-right-outer-join"></a> 2.6 right outer join</h3>
-<h3 id="27-full-outer-join"><a class="markdownIt-Anchor" href="#27-full-outer-join"></a> 2.7 full outer join</h3>
-<p>full outer join仅采用sort merge join实现，左边和右表既要作为streamIter，又要作为buildIter，其基本实现流程如下图所示:</p>
-<img src="/images/spark/spark-full-outer-join.png" class="lazyload" data-srcset="/images/spark/spark-full-outer-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" />
-<h3 id="28-left-semi-join"><a class="markdownIt-Anchor" href="#28-left-semi-join"></a> 2.8 left semi join</h3>
-<img src="/images/spark/spark-left-semi-join.png" class="lazyload" data-srcset="/images/spark/spark-left-semi-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" />
-<h3 id="29-left-anti-join"><a class="markdownIt-Anchor" href="#29-left-anti-join"></a> 2.9 left anti join</h3>
-<h2 id="3-spark-执行图"><a class="markdownIt-Anchor" href="#3-spark-执行图"></a> 3. Spark 执行图</h2>
-<p>Join是数据库查询中一个非常重要的语法特性，在数据库领域可以说是“得join者得天下”，SparkSQL作为一种分布式数据仓库系统，给我们提供了全面的join支持，并在内部实现上无声无息地做了很多优化，了解join的实现将有助于我们更深刻的了解我们的应用程序的运行轨迹.</p>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<p><img src="/images/spark/spark-sort-merge-join.jpeg" class="lazyload" data-srcset="/images/spark/spark-sort-merge-join.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" /></p>
+<h3 id="2-2-broadcast-join实现"><a href="#2-2-broadcast-join实现" class="headerlink" title="2.2 broadcast join实现"></a>2.2 broadcast join实现</h3><p>当buildIter的估计大小不超过参数<code>spark.sql.autoBroadcastJoinThreshold</code>设定的值(默认10M)，那么就会自动采用broadcast join，否则采用sort merge join.</p>
+<h3 id="2-3-hash-join实现"><a href="#2-3-hash-join实现" class="headerlink" title="2.3 hash join实现"></a>2.3 hash join实现</h3><h3 id="2-4-inner-join"><a href="#2-4-inner-join" class="headerlink" title="2.4 inner join"></a>2.4 inner join</h3><h3 id="2-5-left-outer-join"><a href="#2-5-left-outer-join" class="headerlink" title="2.5 left outer join"></a>2.5 left outer join</h3><h3 id="2-6-right-outer-join"><a href="#2-6-right-outer-join" class="headerlink" title="2.6 right outer join"></a>2.6 right outer join</h3><h3 id="2-7-full-outer-join"><a href="#2-7-full-outer-join" class="headerlink" title="2.7 full outer join"></a>2.7 full outer join</h3><p>full outer join仅采用sort merge join实现，左边和右表既要作为streamIter，又要作为buildIter，其基本实现流程如下图所示:</p>
+<p><img src="/images/spark/spark-full-outer-join.png" class="lazyload" data-srcset="/images/spark/spark-full-outer-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" /></p>
+<h3 id="2-8-left-semi-join"><a href="#2-8-left-semi-join" class="headerlink" title="2.8 left semi join"></a>2.8 left semi join</h3><p><img src="/images/spark/spark-left-semi-join.png" class="lazyload" data-srcset="/images/spark/spark-left-semi-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" /></p>
+<h3 id="2-9-left-anti-join"><a href="#2-9-left-anti-join" class="headerlink" title="2.9 left anti join"></a>2.9 left anti join</h3><h2 id="3-Spark-执行图"><a href="#3-Spark-执行图" class="headerlink" title="3. Spark 执行图"></a>3. Spark 执行图</h2><p>Join是数据库查询中一个非常重要的语法特性，在数据库领域可以说是“得join者得天下”，SparkSQL作为一种分布式数据仓库系统，给我们提供了全面的join支持，并在内部实现上无声无息地做了很多优化，了解join的实现将有助于我们更深刻的了解我们的应用程序的运行轨迹.</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/129083349">Spark shuffle内存管理与调优</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.iteblog.com/archives/9870.html">每个 Spark 工程师都应该知道的五种 Join 策略</a></li>
 <li><a target="_blank" rel="noopener" href="https://database.51cto.com/art/202009/626552.htm">面试必知的Spark SQL几种Join实现</a></li>
@@ -2869,13 +2858,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Python WSGI 协议详解</p>
           <p class='content'>
 
-Web应用程序的本质:
+Web应用程序的本质: 
 User 通过 浏览器 访问 互联网上指定的 网页文件 展示到浏览器上。
 
 技术角度，以下3个步骤：
 
 浏览器，将要请求的内容按照HTTP协议发送服务端
-服务端，根据...</p>
+服务端，根...</p>
         </a>
       
       
@@ -2930,7 +2919,7 @@ Spark 分区(Partition)的认识、理解和...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-sparksql%E6%80%BB%E4%BD%93%E6%B5%81%E7%A8%8B"><span class="toc-text"> 1. SparkSQL总体流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-join%E5%9F%BA%E6%9C%AC%E8%A6%81%E7%B4%A0"><span class="toc-text"> 2. Join基本要素</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-sort-merge-join%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 2.1 sort merge join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-broadcast-join%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 2.2 broadcast join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-hash-join%E5%AE%9E%E7%8E%B0"><span class="toc-text"> 2.3 hash join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-inner-join"><span class="toc-text"> 2.4 inner join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#25-left-outer-join"><span class="toc-text"> 2.5 left outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#26-right-outer-join"><span class="toc-text"> 2.6 right outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#27-full-outer-join"><span class="toc-text"> 2.7 full outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#28-left-semi-join"><span class="toc-text"> 2.8 left semi join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#29-left-anti-join"><span class="toc-text"> 2.9 left anti join</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-spark-%E6%89%A7%E8%A1%8C%E5%9B%BE"><span class="toc-text"> 3. Spark 执行图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-SparkSQL%E6%80%BB%E4%BD%93%E6%B5%81%E7%A8%8B"><span class="toc-text">1. SparkSQL总体流程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Join%E5%9F%BA%E6%9C%AC%E8%A6%81%E7%B4%A0"><span class="toc-text">2. Join基本要素</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-sort-merge-join%E5%AE%9E%E7%8E%B0"><span class="toc-text">2.1 sort merge join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-broadcast-join%E5%AE%9E%E7%8E%B0"><span class="toc-text">2.2 broadcast join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-hash-join%E5%AE%9E%E7%8E%B0"><span class="toc-text">2.3 hash join实现</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-4-inner-join"><span class="toc-text">2.4 inner join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-5-left-outer-join"><span class="toc-text">2.5 left outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-6-right-outer-join"><span class="toc-text">2.6 right outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-7-full-outer-join"><span class="toc-text">2.7 full outer join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-8-left-semi-join"><span class="toc-text">2.8 left semi join</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-9-left-anti-join"><span class="toc-text">2.9 left anti join</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Spark-%E6%89%A7%E8%A1%8C%E5%9B%BE"><span class="toc-text">3. Spark 执行图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3003,7 +2992,7 @@ Spark 分区(Partition)的认识、理解和...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       
