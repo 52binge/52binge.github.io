@@ -2726,17 +2726,14 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li><a target="_blank" rel="noopener" href="http://cwiki.apachecn.org/pages/viewpage.action?pageId=10029489">教程参见 cwiki.apachecn.org tf.contrib.learn 基础的记录和监控教程</a></li>
 </ul>
 </blockquote>
-<h2 id="1-使用tensorflow启用日志记录"><a class="markdownIt-Anchor" href="#1-使用tensorflow启用日志记录"></a> 1. 使用TensorFlow启用日志记录</h2>
-<p>默认情况下，TensorFlow被配置在WARN日志级别，但是当跟踪模型训练时，您需要将级别调整为INFO。</p>
+<h2 id="1-使用TensorFlow启用日志记录"><a href="#1-使用TensorFlow启用日志记录" class="headerlink" title="1. 使用TensorFlow启用日志记录"></a>1. 使用TensorFlow启用日志记录</h2><p>默认情况下，TensorFlow被配置在WARN日志级别，但是当跟踪模型训练时，您需要将级别调整为INFO。</p>
 <p>代码的开头（在import导入之后）：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">tf.logging.set_verbosity(tf.logging.INFO)</span><br></pre></td></tr></table></figure>
 <p>运行代码时，会看到如下所示的其他日志输出：</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">INFO:tensorflow:loss = 1.18812, step = 1</span><br><span class="line">INFO:tensorflow:loss = 0.210323, step = 101</span><br><span class="line">INFO:tensorflow:loss = 0.109025, step = 201</span><br></pre></td></tr></table></figure>
 <p>使用INFO级别日志记录，tf.contrib.learn会在每100步之后自动将training-loss metrics输出到stderr。</p>
-<h2 id="2-配置验证监视器进行流评估"><a class="markdownIt-Anchor" href="#2-配置验证监视器进行流评估"></a> 2. 配置验证监视器进行流评估</h2>
-<p>记录训练损失有助于了解您的模型是否收敛，但如果您想进一步了解训练中发生的情况怎么办？tf.contrib.learn提供了几个高级别Monitor，您可以附加到您的fit操作，以进一步跟踪metrics/调试模型训练期间的更低级别TensorFlow操作</p>
-<h3 id="21-每隔n步评估"><a class="markdownIt-Anchor" href="#21-每隔n步评估"></a> 2.1 每隔N步评估</h3>
-<p>对于iris神经网络分类器，在记录训练损失时，您可能还需要同时对测试数据进行评估，以了解该模型的泛化程度。</p>
+<h2 id="2-配置验证监视器进行流评估"><a href="#2-配置验证监视器进行流评估" class="headerlink" title="2. 配置验证监视器进行流评估"></a>2. 配置验证监视器进行流评估</h2><p>记录训练损失有助于了解您的模型是否收敛，但如果您想进一步了解训练中发生的情况怎么办？tf.contrib.learn提供了几个高级别Monitor，您可以附加到您的fit操作，以进一步跟踪metrics/调试模型训练期间的更低级别TensorFlow操作</p>
+<h3 id="2-1-每隔N步评估"><a href="#2-1-每隔N步评估" class="headerlink" title="2.1 每隔N步评估"></a>2.1 每隔N步评估</h3><p>对于iris神经网络分类器，在记录训练损失时，您可能还需要同时对测试数据进行评估，以了解该模型的泛化程度。</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(</span><br><span class="line">    test_set.data,</span><br><span class="line">    test_set.target,</span><br><span class="line">    every_n_steps=<span class="number">50</span>)</span><br></pre></td></tr></table></figure>
 <p>将此代码放在实例化classifier那行之前。</p>
 <p>ValidationMonitor依靠保存的checkpoints执行评估操作，因此您需要添加包含save_checkpoints_secs的<a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/contrib/learn/RunConfig">tf.contrib.learn.RunConfig</a>去修改classifier的实例化，该参数指定在训练期间经过多少秒保存checkpoint。</p>
@@ -2746,19 +2743,15 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">classifier.fit(x=training_set.data,</span><br><span class="line">               y=training_set.target,</span><br><span class="line">               steps=<span class="number">2000</span>,</span><br><span class="line">               monitors=[validation_monitor])</span><br></pre></td></tr></table></figure>
 <p>重新运行代码时，您应该在日志输出中看到验证metrics，例如： (但是我这里试验的时候，并没有出现)</p>
 <figure class="highlight py"><table><tr><td class="code"><pre><span class="line">INFO:tensorflow:Validation (step <span class="number">50</span>): loss = <span class="number">1.71139</span>, global_step = <span class="number">0</span>, accuracy = <span class="number">0.266667</span></span><br><span class="line">...</span><br><span class="line">INFO:tensorflow:Validation (step <span class="number">300</span>): loss = <span class="number">0.0714158</span>, global_step = <span class="number">268</span>, accuracy = <span class="number">0.966667</span></span><br><span class="line">...</span><br><span class="line">INFO:tensorflow:Validation (step <span class="number">1750</span>): loss = <span class="number">0.0574449</span>, global_step = <span class="number">1729</span>, accuracy = <span class="number">0.966667</span></span><br></pre></td></tr></table></figure>
-<h3 id="22-使用metricspec定义evaluation-metrics"><a class="markdownIt-Anchor" href="#22-使用metricspec定义evaluation-metrics"></a> 2.2 使用MetricSpec定义Evaluation Metrics</h3>
-<ul>
+<h3 id="2-2-使用MetricSpec定义Evaluation-Metrics"><a href="#2-2-使用MetricSpec定义Evaluation-Metrics" class="headerlink" title="2.2 使用MetricSpec定义Evaluation Metrics"></a>2.2 使用MetricSpec定义Evaluation Metrics</h3><ul>
 <li><a target="_blank" rel="noopener" href="http://cwiki.apachecn.org/pages/viewpage.action?pageId=10029489">详情参见 cwiki.apachecn.org tf.contrib.learn 基础的记录和监控教程</a></li>
 </ul>
-<h3 id="23-通过validationmonitor提前停止训练"><a class="markdownIt-Anchor" href="#23-通过validationmonitor提前停止训练"></a> 2.3 通过ValidationMonitor提前停止训练</h3>
-<ul>
+<h3 id="2-3-通过ValidationMonitor提前停止训练"><a href="#2-3-通过ValidationMonitor提前停止训练" class="headerlink" title="2.3 通过ValidationMonitor提前停止训练"></a>2.3 通过ValidationMonitor提前停止训练</h3><ul>
 <li><a target="_blank" rel="noopener" href="http://cwiki.apachecn.org/pages/viewpage.action?pageId=10029489">详情参见 cwiki.apachecn.org tf.contrib.learn 基础的记录和监控教程</a></li>
 </ul>
-<h2 id="3-用tensorboard可视化日志数据"><a class="markdownIt-Anchor" href="#3-用tensorboard可视化日志数据"></a> 3. 用TensorBoard可视化日志数据</h2>
-<p>读取通过ValidationMonitor在训练期间产生大量关于模型性能的原始数据的日志，此数据的可视化，对进一步了解趋势可能会有帮助，例如准确性如何随着步数而变化。</p>
+<h2 id="3-用TensorBoard可视化日志数据"><a href="#3-用TensorBoard可视化日志数据" class="headerlink" title="3. 用TensorBoard可视化日志数据"></a>3. 用TensorBoard可视化日志数据</h2><p>读取通过ValidationMonitor在训练期间产生大量关于模型性能的原始数据的日志，此数据的可视化，对进一步了解趋势可能会有帮助，例如准确性如何随着步数而变化。</p>
 <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ tensorboard --logdir=/tmp/iris_model/</span><br><span class="line">Starting TensorBoard 39 on port 6006 </span><br></pre></td></tr></table></figure>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="http://cwiki.apachecn.org/pages/viewpage.action?pageId=10029489">tf.contrib.learn基础的记录和监控教程</a></li>
 </ul>
 
@@ -2934,7 +2927,7 @@ Estimator 提供您可以实例化的类以快速配置常见的模型类型，�
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8tensorflow%E5%90%AF%E7%94%A8%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95"><span class="toc-text"> 1. 使用TensorFlow启用日志记录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AE%E9%AA%8C%E8%AF%81%E7%9B%91%E8%A7%86%E5%99%A8%E8%BF%9B%E8%A1%8C%E6%B5%81%E8%AF%84%E4%BC%B0"><span class="toc-text"> 2. 配置验证监视器进行流评估</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-%E6%AF%8F%E9%9A%94n%E6%AD%A5%E8%AF%84%E4%BC%B0"><span class="toc-text"> 2.1 每隔N步评估</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-%E4%BD%BF%E7%94%A8metricspec%E5%AE%9A%E4%B9%89evaluation-metrics"><span class="toc-text"> 2.2 使用MetricSpec定义Evaluation Metrics</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-%E9%80%9A%E8%BF%87validationmonitor%E6%8F%90%E5%89%8D%E5%81%9C%E6%AD%A2%E8%AE%AD%E7%BB%83"><span class="toc-text"> 2.3 通过ValidationMonitor提前停止训练</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%94%A8tensorboard%E5%8F%AF%E8%A7%86%E5%8C%96%E6%97%A5%E5%BF%97%E6%95%B0%E6%8D%AE"><span class="toc-text"> 3. 用TensorBoard可视化日志数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BD%BF%E7%94%A8TensorFlow%E5%90%AF%E7%94%A8%E6%97%A5%E5%BF%97%E8%AE%B0%E5%BD%95"><span class="toc-text">1. 使用TensorFlow启用日志记录</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E9%85%8D%E7%BD%AE%E9%AA%8C%E8%AF%81%E7%9B%91%E8%A7%86%E5%99%A8%E8%BF%9B%E8%A1%8C%E6%B5%81%E8%AF%84%E4%BC%B0"><span class="toc-text">2. 配置验证监视器进行流评估</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E6%AF%8F%E9%9A%94N%E6%AD%A5%E8%AF%84%E4%BC%B0"><span class="toc-text">2.1 每隔N步评估</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E4%BD%BF%E7%94%A8MetricSpec%E5%AE%9A%E4%B9%89Evaluation-Metrics"><span class="toc-text">2.2 使用MetricSpec定义Evaluation Metrics</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-%E9%80%9A%E8%BF%87ValidationMonitor%E6%8F%90%E5%89%8D%E5%81%9C%E6%AD%A2%E8%AE%AD%E7%BB%83"><span class="toc-text">2.3 通过ValidationMonitor提前停止训练</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%94%A8TensorBoard%E5%8F%AF%E8%A7%86%E5%8C%96%E6%97%A5%E5%BF%97%E6%95%B0%E6%8D%AE"><span class="toc-text">3. 用TensorBoard可视化日志数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3007,7 +3000,7 @@ Estimator 提供您可以实例化的类以快速配置常见的模型类型，�
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       
@@ -3959,7 +3952,7 @@ function setSearchService() {
 
   
 <script>
-  var imgs=["/images/parallax_logo/7_logo1.png", "/images/parallax_logo/7_logo2.png", "/images/parallax_logo/7_logo3.png", "/images/parallax_logo/7_logo4.png"];
+  var imgs=["/images/parallax_logo/7_logo1.png", "/images/parallax_logo/7_logo2.png", "/images/parallax_logo/7_logo3.png", "/images/parallax_logo/7_logo4.png", "/images/parallax_logo/7_logo5.png", "/images/parallax_logo/7_logo6.png"];
   var index=0;
   
       function shuffle(arr){
