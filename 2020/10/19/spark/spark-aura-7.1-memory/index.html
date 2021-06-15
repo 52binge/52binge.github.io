@@ -2111,19 +2111,6 @@ ul.list-v >li>a:hover {
   :root:not([data-user-color-scheme]) .aplayer.aplayer-withlist .aplayer-info {
     border-bottom: 1px solid var(--color-block);
   }
-  :root:not([data-user-color-scheme]) #valine_container button {
-    background-color: var(--color-block) !important;
-  }
-  :root:not([data-user-color-scheme]) #valine_container .vcards .vcontent.expand:before {
-    background: none !important;
-  }
-  :root:not([data-user-color-scheme]) #valine_container .vcards .vcontent.expand:after {
-    background: #393c40 !important;
-  }
-  :root:not([data-user-color-scheme]) .v[data-class=v] code,
-  :root:not([data-user-color-scheme]) .v[data-class=v] pre {
-    background-color: #332828 !important;
-  }
 }
 [data-user-color-scheme='dark'] {
   --color-site-body: #000;
@@ -2289,19 +2276,6 @@ ul.list-v >li>a:hover {
 [data-user-color-scheme='dark'] .aplayer.aplayer-withlist .aplayer-info {
   border-bottom: 1px solid var(--color-block);
 }
-[data-user-color-scheme='dark'] #valine_container button {
-  background-color: var(--color-block) !important;
-}
-[data-user-color-scheme='dark'] #valine_container .vcards .vcontent.expand:before {
-  background: none !important;
-}
-[data-user-color-scheme='dark'] #valine_container .vcards .vcontent.expand:after {
-  background: #393c40 !important;
-}
-[data-user-color-scheme='dark'] .v[data-class=v] code,
-[data-user-color-scheme='dark'] .v[data-class=v] pre {
-  background-color: #332828 !important;
-}
 @media screen and (prefers-color-scheme: dark) and (max-width: 500px) {
   .l_header .m_search {
     background: var(--color-site-bg) !important;
@@ -2370,7 +2344,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <body>
     
 
-<header id="l_header" class="l_header auto shadow blur " style='opacity: 0' >
+<header id="l_header" class="l_header auto shadow blur show" style='opacity: 0' >
   <div class='container'>
   <div id='wrapper'>
     <div class='nav-sub'>
@@ -2590,7 +2564,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
     
       <!-- see: /layout/_partial/scripts/coverCtrl.ejs -->
-        <div id="half" class='cover-wrapper post search' style="display: ;">
+        <div id="none" class='cover-wrapper post search' style="display: none;">
           
             <div id="parallax-window"></div>
           
@@ -3447,10 +3421,12 @@ good - 数据模型设计（推荐收藏）
   
 
   <article class="post white-box reveal shadow" id="comments">
-    <p ct><i class='fas fa-comments'></i> 评论</p>
+    <p ct><i class='fas fa-comments'></i> Comments</p>
     
-    <div id="valine_container" class="valine_thread">
-  <i class="fas fa-cog fa-spin fa-fw fa-2x"></i>
+    <div id="disqus_thread">
+  <div id="notShowDisqus" style="display: none;text-align: center;"><i class='fas fa-exclamation-triangle'></i>&nbsp;Unable to load Disqus, please make sure your network can access.</div>
+  <div id="load-btns"><a class="load-comments" onclick="needLoadDisqus()">Load Disqus</a></div>
+  <div id="loading-comments" style="display: none"><i class="fa fa-cog fa-spin fa-fw fa-2x"></i><br>Checking if Disqus is accessible...</div>
 </div>
 
   </article>
@@ -3505,14 +3481,14 @@ good - 数据模型设计（推荐收藏）
     // header
     var l_header=document.getElementById("l_header");
     
-    l_header.classList.remove("show");
+    l_header.classList.add("show");
     
     
       // cover
       var cover_wrapper=document.querySelector('#l_cover .cover-wrapper');
       var scroll_down=document.getElementById('scroll-down');
-      cover_wrapper.id="half";
-      cover_wrapper.style.display="";
+      cover_wrapper.id="none";
+      cover_wrapper.style.display="none";
       scroll_down.style.display="none";
     
   
@@ -4242,44 +4218,95 @@ volantis.pjax.push(bindToggleButton);
 
 
   <script>
-  function emoji(path, idx, ext) {
-    return path + "/" + path + "-" + idx + "." + ext;
+  const disqus_shortname = "blairos-sn";
+  const autoload = "true";
+  const global_url = "http://iequa.com"; //  must use an absolute URL; relative URLs won’t work.
+
+  function checkDisqus() {
+    // 正在检查 Disqus 能否访问...
+    const runcheck = (domain) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const timeout = setTimeout(() => {
+          img.onerror = img.onload = null;
+          reject();
+        }, 3000);
+        img.onerror = () => {
+          clearTimeout(timeout);
+          reject();
+        };
+        img.onload = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+        img.src = `https://${domain}/favicon.ico?${+new Date()}=${+new Date()}`;
+      });
+    };
+    return Promise.all([
+      runcheck("blairos-sn.disqus.com"),
+    ]).then(loadDisqus, showError);
   }
-  var emojiMaps = {};
-  for (var i = 1; i <= 54; i++) {
-    emojiMaps['tieba-' + i] = emoji('tieba', i, 'png');
-  }
-  for (var i = 1; i <= 101; i++) {
-    emojiMaps['qq-' + i] = emoji('qq', i, 'gif');
-  }
-  for (var i = 1; i <= 116; i++) {
-    emojiMaps['aru-' + i] = emoji('aru', i, 'gif');
-  }
-  for (var i = 1; i <= 125; i++) {
-    emojiMaps['twemoji-' + i] = emoji('twemoji', i, 'png');
-  }
-  for (var i = 1; i <= 4; i++) {
-    emojiMaps['weibo-' + i] = emoji('weibo', i, 'png');
-  }
-  function pjax_valine() {
-    if(!document.querySelectorAll("#valine_container")[0])return;
-    let pagePlaceholder = pdata.commentPlaceholder || "快来评论吧~";
+
+  function loadDisqus() {
     let path = pdata.commentPath;
     if (path.length == 0) {
-      let defaultPath = '';
+      let defaultPath = "";
       path = defaultPath || decodeURI(window.location.pathname);
     }
-    var valine = new Valine();
-    valine.init(Object.assign({"path":null,"placeholder":"快来评论吧~","appId":null,"appKey":null,"meta":["nick","mail","link"],"requiredFields":["nick","mail"],"enableQQ":true,"recordIP":false,"avatar":"robohash","pageSize":10,"lang":"en","highlight":true,"mathJax":false}, {
-      el: '#valine_container',
-      path: path,
-      placeholder: pagePlaceholder,
-      emojiCDN: 'https://cdn.jsdelivr.net/gh/volantis-x/cdn-emoji/valine/',
-      emojiMaps: emojiMaps,
-    }))
+    if (window.DISQUS) {
+      window.DISQUS.reset({
+        reload: true,
+        config() {
+          this.page.identifier = global_url + path;
+          this.page.url = global_url + path;
+        },
+      });
+    } else {
+      window.disqus_config = function () {
+        this.page.url = global_url + path;
+        this.page.identifier = global_url + path;
+      };
+      let d = document,
+        s = d.createElement("script");
+      s.async = true;
+      s.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+      s.setAttribute("data-timestamp", +new Date());
+      (d.head || d.body).appendChild(s);
+    }
   }
-  volantis.js('/js/valine.js').then(pjax_valine)
-  volantis.pjax.push(pjax_valine);
+
+  // 加载错误
+  function showError() {
+    volantis.dom.$(document.getElementById("loading-comments")).hide();
+    volantis.dom.$(document.getElementById("notShowDisqus")).show();
+  }
+
+  // 点击了加载
+  function needLoadDisqus() {
+    checkDisqus();
+    volantis.dom.$(document.getElementById("load-btns")).hide();
+    volantis.dom.$(document.getElementById("loading-comments")).show();
+  }
+
+  // pjax 重载
+  function pjax_disqus() {
+    // 排除当前页面不存在评论框的情形
+    if (!document.getElementById("disqus_thread")) return;
+    // 如果 DISQUS 已被实例化，则可直接加载
+    if (window.DISQUS) {
+      volantis.dom.$(document.getElementById("load-btns")).hide();
+      volantis.dom.$(document.getElementById("notShowDisqus")).hide();
+      volantis.dom.$(document.getElementById("loading-comments")).hide();
+      loadDisqus();
+    } else if (autoload == "true") {
+      // 设置自动加载但是上个页面加载失败了
+      needLoadDisqus();
+    }
+  }
+  if (autoload == "true") {
+    needLoadDisqus();
+  }
+  volantis.pjax.push(pjax_disqus);
 </script>
 
 
