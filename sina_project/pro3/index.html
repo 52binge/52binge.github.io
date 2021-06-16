@@ -2646,8 +2646,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <h2 id="3-离线分析调度框架"><a class="markdownIt-Anchor" href="#3-离线分析调度框架"></a> 3. 离线分析调度框架</h2>
-<p>这是一个 shell 等其他语言配合写成的灵活调度框架. 该示例模块架 适用于离线分析调度，特别是每天跑的crontab任务，或者是每周、每月跑的任务. 多用于 hive 语句 或 其他脚本离线运行.</p>
+  <h2 id="3-离线分析调度框架"><a href="#3-离线分析调度框架" class="headerlink" title="3. 离线分析调度框架"></a>3. 离线分析调度框架</h2><p>这是一个 shell 等其他语言配合写成的灵活调度框架. 该示例模块架 适用于离线分析调度，特别是每天跑的crontab任务，或者是每周、每月跑的任务. 多用于 hive 语句 或 其他脚本离线运行.</p>
 <ol>
 <li>提供一些 best practice</li>
 <li>提高各模块结构及代码的一致性</li>
@@ -2660,26 +2659,80 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>不同人负责的模块不同，模块目录结构是一样的，如下所示</p>
 <p>开发模块的时候，每个人只需要编写自己模块 script 下脚本 和 少量 crontab_job 脚本的改动即可.</p>
 </blockquote>
-<p>目录结构 | 功能 | 详细说明<br />
-:— | :-- | -:-<br />
-─ <strong>crontab_job</strong> | crontab 脚本 | 由 linux crontab 触发, 检测整条流水线任务依赖关系, 调用 script 目录脚本等<br />
-─ <strong>script</strong> | 主脚本 | shell、python脚本. shell 里主为 hql 或 streaming MR、spark-submit 任务等<br />
-─ conf | 配置文件 | default.conf、vars.conf、alert.conf<br />
-─ <strong>log</strong> | 日志文件 | 主脚本log (多次运行多个log file)、crontab 脚本log (一个log file)<br />
-─ flag | 标记文件 | (标志该模块已运行，或运行完毕， crontab 会轮询检测) <br>          crontab_label.2017-12-13、ods_e_coupon/2017-12-13.all.done<br />
-─ util | 工具脚本 | <code>logging</code>、<code>static_functions</code>、<code>static_hive_lib</code>、<code>crontab_job_env</code>、<code>env</code><br />
-─ alert | 报警封装 | (发送报警邮件的封装 <code>alert</code>、<code>send_mail.py</code>、<code>constant_mail.py</code>)<br />
-| |<br />
-─ create_table | 建表脚本 | 建里 hive table 的语句<br />
-─ jar | jar包 | 如 无 则不需要建立<br />
-─ java | udf、udaf | 如 无 则不需要建立</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">目录结构</th>
+<th style="text-align:left">功能</th>
+<th>详细说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">─ <strong>crontab_job</strong></td>
+<td style="text-align:left">crontab 脚本</td>
+<td>由 linux crontab 触发, 检测整条流水线任务依赖关系, 调用 script 目录脚本等</td>
+</tr>
+<tr>
+<td style="text-align:left">─ <strong>script</strong></td>
+<td style="text-align:left">主脚本</td>
+<td>shell、python脚本. shell 里主为 hql 或 streaming MR、spark-submit 任务等</td>
+</tr>
+<tr>
+<td style="text-align:left">─ conf</td>
+<td style="text-align:left">配置文件</td>
+<td>default.conf、vars.conf、alert.conf</td>
+</tr>
+<tr>
+<td style="text-align:left">─ <strong>log</strong></td>
+<td style="text-align:left">日志文件</td>
+<td>主脚本log (多次运行多个log file)、crontab 脚本log (一个log file)</td>
+</tr>
+<tr>
+<td style="text-align:left">─ flag</td>
+<td style="text-align:left">标记文件</td>
+<td>(标志该模块已运行，或运行完毕， crontab 会轮询检测) <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; crontab_label.2017-12-13、ods_e_coupon/2017-12-13.all.done</td>
+</tr>
+<tr>
+<td style="text-align:left">─ util</td>
+<td style="text-align:left">工具脚本</td>
+<td><code>logging</code>、<code>static_functions</code>、<code>static_hive_lib</code>、<code>crontab_job_env</code>、<code>env</code></td>
+</tr>
+<tr>
+<td style="text-align:left">─ alert</td>
+<td style="text-align:left">报警封装</td>
+<td>(发送报警邮件的封装 <code>alert</code>、<code>send_mail.py</code>、<code>constant_mail.py</code>)</td>
+</tr>
+<tr>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td></td>
+</tr>
+<tr>
+<td style="text-align:left">─ create_table</td>
+<td style="text-align:left">建表脚本</td>
+<td>建里 hive table 的语句</td>
+</tr>
+<tr>
+<td style="text-align:left">─ jar</td>
+<td style="text-align:left">jar包</td>
+<td>如 无 则不需要建立</td>
+</tr>
+<tr>
+<td style="text-align:left">─ java</td>
+<td style="text-align:left">udf、udaf</td>
+<td>如 无 则不需要建立</td>
+</tr>
+</tbody>
+</table>
+</div>
 <p><strong>conf/default.conf</strong></p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#系统环境变量</span></span><br><span class="line"><span class="built_in">export</span> HADOOP=<span class="string">&quot;<span class="variable">$&#123;HADOOP_HOME&#125;</span>/bin/hadoop&quot;</span></span><br><span class="line"><span class="built_in">export</span> HIVE=<span class="string">&quot;<span class="variable">$&#123;HIVE_HOME&#125;</span>/bin/hive&quot;</span></span><br><span class="line"><span class="built_in">export</span> JAVA=<span class="string">&quot;<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin/java&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#hadoop jar</span></span><br><span class="line">hadoop_jar=<span class="string">&quot;<span class="variable">$&#123;HADOOP_HOME&#125;</span>/share/packages/hadoop2/hadoop-streaming-2.7.2.jar&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#log_util</span></span><br><span class="line">scheduler_log_script=<span class="string">&quot;<span class="variable">$&#123;util_dir&#125;</span>/logging&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#控制日志运行方式</span></span><br><span class="line">open_log=<span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#运行hadoop任务的用户名</span></span><br><span class="line">user=<span class="string">&quot;data_mining&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#hive表路径</span></span><br><span class="line">ods_hive_dir=<span class="string">&quot;/data_mining/dm/ods/&quot;</span></span><br><span class="line">mds_hive_dir=<span class="string">&quot;/data_mining/dm/mds/&quot;</span></span><br><span class="line">tmp_hive_dir=<span class="string">&quot;/data_mining/dm/tmp/&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## OSS</span></span><br><span class="line">OSS_URL=<span class="string">&quot;oss://your-key:your-value@x-bigdata.oss-cn-hangzhou-internal.aliyuncs.com&quot;</span></span><br></pre></td></tr></table></figure>
 <p>crontab_job</p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line"><span class="comment">#check crontab_label whether exist</span></span><br><span class="line"><span class="keyword">if</span> check_local_crontab_label <span class="variable">$&#123;flag_dir&#125;</span> <span class="variable">$&#123;d1&#125;</span></span><br><span class="line">  <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">&quot;[INFO] script already run!&quot;</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;[INFO] check dependention&quot;</span></span><br><span class="line"> </span><br><span class="line">  check_hive_partitions tablename 2018-04-19</span><br><span class="line"><span class="comment">#  check_local_file()</span></span><br><span class="line"><span class="comment">#  check_hdfs_file()</span></span><br><span class="line"><span class="comment"># ...</span></span><br><span class="line">  </span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;[INFO] script run!&quot;</span></span><br><span class="line"><span class="comment"># generate crontab_label</span></span><br><span class="line">  touch_local_crontab_label <span class="variable">$&#123;flag_dir&#125;</span> <span class="variable">$&#123;d1&#125;</span></span><br><span class="line"><span class="comment"># run main script</span></span><br><span class="line">  <span class="built_in">echo</span> <span class="string">&quot;[INFO] start run...&quot;</span></span><br><span class="line"></span><br><span class="line">  sh ods_dm_e_coupon.sh <span class="variable">$d1</span></span><br><span class="line"></span><br><span class="line">  check_crontab_success <span class="variable">$&#123;flag_dir&#125;</span> <span class="variable">$&#123;d1&#125;</span></span><br><span class="line">  </span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">echo_ex <span class="string">&quot;run <span class="variable">$0</span> end!&quot;</span></span><br></pre></td></tr></table></figure>
 <p><a target="_blank" rel="noopener" href="https://github.com/blair101/bigdata/tree/master/bigdata-offline-demo">bigdata-offline-demo 更多项目详情请点击…</a></p>
-<h2 id="next"><a class="markdownIt-Anchor" href="#next"></a> next…</h2>
-
+<h2 id="next"><a href="#next" class="headerlink" title="next.."></a>next..</h2>
   
   
   
@@ -2712,7 +2765,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://iequa.com/sina_project/pro3/index.html&title= - Blair's Blog&summary="
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/sina_project/pro3/index.html&title= - Blair's Blog&summary="
           
           >
           
@@ -2724,7 +2777,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://service.weibo.com/share/share.php?url=http://iequa.com/sina_project/pro3/index.html&title= - Blair's Blog&summary="
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/sina_project/pro3/index.html&title= - Blair's Blog&summary="
           
           >
           
@@ -2736,7 +2789,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-facebook" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://iequa.com/sina_project/pro3/index.html&title= - Blair's Blog&summary="
+          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/sina_project/pro3/index.html&title= - Blair's Blog&summary="
           
           >
           
@@ -2748,7 +2801,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-twitter" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://twitter.com/intent/tweet?url=http://iequa.com/sina_project/pro3/index.html&title= - Blair's Blog&summary="
+          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/sina_project/pro3/index.html&title= - Blair's Blog&summary="
           
           >
           
@@ -2812,7 +2865,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%A6%BB%E7%BA%BF%E5%88%86%E6%9E%90%E8%B0%83%E5%BA%A6%E6%A1%86%E6%9E%B6"><span class="toc-text"> 3. 离线分析调度框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next"><span class="toc-text"> next…</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E7%A6%BB%E7%BA%BF%E5%88%86%E6%9E%90%E8%B0%83%E5%BA%A6%E6%A1%86%E6%9E%B6"><span class="toc-text">3. 离线分析调度框架</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#next"><span class="toc-text">next..</span></a></li></ol>
     </div>
   </section>
 
@@ -2901,7 +2954,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       
@@ -3382,7 +3435,7 @@ volantis.pjax.push(bindToggleButton);
   <script>
   const disqus_shortname = "blairos-sn";
   const autoload = "true";
-  const global_url = "http://iequa.com"; //  must use an absolute URL; relative URLs won’t work.
+  const global_url = "http://www.iequa.com"; //  must use an absolute URL; relative URLs won’t work.
 
   function checkDisqus() {
     // 正在检查 Disqus 能否访问...
@@ -3617,7 +3670,7 @@ function setSearchService() {
       // 请求 PV 并自增
       var pvCtn = document.querySelector('#lc-sv');
       if (pvCtn || enableIncr) {
-        var pvGetter = this.getRecord(Counter, 'http://iequa.com' + '/#lc-sv', 'Visits').then((record) => {
+        var pvGetter = this.getRecord(Counter, 'http://www.iequa.com' + '/#lc-sv', 'Visits').then((record) => {
           incrArr.push(this.buildIncrement(record.objectId))
           var eles = document.querySelectorAll('#lc-sv #number');
           if (eles.length > 0) {
@@ -3635,7 +3688,7 @@ function setSearchService() {
       // 请求 UV 并自增
       var uvCtn = document.querySelector('#lc-uv');
       if (uvCtn || enableIncr) {
-        var uvGetter = this.getRecord(Counter, 'http://iequa.com' + '/#lc-uv', 'Visitors').then((record) => {
+        var uvGetter = this.getRecord(Counter, 'http://www.iequa.com' + '/#lc-uv', 'Visitors').then((record) => {
           var vuv = this.validUV();
           vuv && incrArr.push(this.buildIncrement(record.objectId))
           var eles = document.querySelectorAll('#lc-uv #number');
@@ -3657,7 +3710,7 @@ function setSearchService() {
         for (i = 0; i < allPV.length; i++) {
           let pv = allPV[i];
           let title = pv.getAttribute('data-title');
-          var url = 'http://iequa.com' + pv.getAttribute('data-path');
+          var url = 'http://www.iequa.com' + pv.getAttribute('data-path');
           if (url) {
             var viewGetter = this.getRecord(Counter, url, title).then((record) => {
               // 是当前页面就自增
