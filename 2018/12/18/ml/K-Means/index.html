@@ -10,8 +10,6 @@
   <!-- SEO相关 -->
   
     
-      <meta name="robots" content="noindex,follow">
-    
   
   <!-- 渲染优化 -->
   <meta http-equiv='x-dns-prefetch-control' content='on' />
@@ -28,9 +26,14 @@
 
   <!-- 页面元数据 -->
   
-  <title>Tag: CDH - Blair&#39;s Blog</title>
+  <title>K-means - Blair&#39;s Blog</title>
+  
+    <meta name="keywords" content="Kmeans">
   
 
+  
+    <meta name="description" content="
+">
   
 
   <!-- feed -->
@@ -2621,7 +2624,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
     
       <!-- see: /layout/_partial/scripts/coverCtrl.ejs -->
-        <div id="none" class='cover-wrapper  search' style="display: none;">
+        <div id="none" class='cover-wrapper post search' style="display: none;">
           
             <div id="parallax-window"></div>
           
@@ -2692,121 +2695,295 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
         <div class="body-wrapper" id="pjax-container">
           
 
-
 <div id="l_main" class=''>
+  <article class="article post white-box reveal md shadow article-type-post" id="post" itemscope itemprop="blogPost">
   
+
+
+  
+  <div class="article-meta" id="top">
     
-      
-  <section class="post-list">
     
-      
+    
+      <h1 class="title">
+        K-means
+      </h1>
+      <div class='new-meta-box'>
         
+          
+            
+<div class='new-meta-item author'>
+  <a class='author' href="/" rel="nofollow">
+    <img no-lazy src="/images/logos/logo10.png">
+    <p>blairchen</p>
+  </a>
+</div>
+
           
         
           
-        
-      
-    
-    
-      
-        
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
-  
-  
-  
-  
-    
-    <h2 class="article-title" >
-      <a href="/2018/11/02/hadoop/ops-install-CDH6.0.1/">
-        大数据平台CDH6.0集群在线安装
-      </a>
-    </h2>
-  
-  <div class='md'>
-    
-      <p>介绍了 CDH 集群的搭建与安装</p>
-<p>标签： Cloudera-Manager CDH Hadoop 部署 集群</p>
-    
+            
+  <div class='new-meta-item category'>
+    <a class='notlink'>
+      <i class="fas fa-folder-open fa-fw" aria-hidden="true"></i>
+      <a class="category-link" href="/categories/machine-learning/">machine-learning</a>
+    </a>
   </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
+
+
+          
         
-        <time>2018-11-02</time>
+          
+            <div class="new-meta-item date">
+  <a class='notlink'>
+    <i class="fas fa-calendar-alt fa-fw" aria-hidden="true"></i>
+    <p>Publish：Dec 18, 2018</p>
+  </a>
+</div>
+
+          
         
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/hadoop/">hadoop</a>
+          
+            
+  <div class="new-meta-item browse leancloud">
+    <a class='notlink'>
+      
+      <div id="lc-pv" data-title="K-means" data-path="/2018/12/18/ml/K-Means/">
+        <i class="fas fa-eye fa-fw" aria-hidden="true"></i>
+        <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span>
+        views
+      </div>
+    </a>
+  </div>
+
+
+          
         
       </div>
+    
+  </div>
+
+
+  
+  
+  
+  <p><img src="/images/ml/k-means/K-Means.gif" class="lazyload" data-srcset="/images/ml/k-means/K-Means.gif" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" /></p>
+<p><span id="more"></span><br></p>
+<p>在数据挖掘中， k-Means 算法是一种 cluster analysis 的算法，其主要是来计算数据聚集的算法，主要通过不断地取离种子点最近均值的算法。</p>
+<h2 id="1-问题"><a href="#1-问题" class="headerlink" title="1. 问题"></a>1. 问题</h2><p>K-Means算法主要解决的问题如下图所示。我们可以看到，在图的左边有一些点，我们用肉眼可以看出来有四个点群，但是我们怎么通过计算机程序找出这几个点群来呢？于是就出现了我们的K-Means算法.</p>
+<p><img src="/images/ml/k-means/K-Means-1.png" class="lazyload" data-srcset="/images/ml/k-means/K-Means-1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="750" /></p>
+<p>K均值聚类的基本思想是，通过迭代方式寻找K个簇(Cluster)的一种划分方案，使得聚类结果对应的代价函数最小。特别的，代价函数可以定义为各个样本距离所属簇中心点的误差平方和</p>
+<p><img src="/images/ml/k-means/K-Means-2.svg" class="lazyload" data-srcset="/images/ml/k-means/K-Means-2.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="K-Means 算法概要"></p>
+<h2 id="2-算法概要"><a href="#2-算法概要" class="headerlink" title="2. 算法概要"></a>2. 算法概要</h2><p>这个算法其实很简单，如下图所示：</p>
+<p><img src="/images/ml/k-means/K-Means.jpg" class="lazyload" data-srcset="/images/ml/k-means/K-Means.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="K-Means 算法概要"></p>
+<p>从上图中，我们可以看到，A, B, C, D, E 是五个在图中点。而灰色的点是我们的种子点，也就是我们用来找点群的点。有两个种子点，所以K=2。</p>
+<p>然后，K-Means的算法如下：</p>
+<blockquote>
+<p>1). 随机在图中取K（这里K=2）个种子点。  </p>
+<p>2). 然后对图中的所有点求到这K个种子点的距离，假如点Pi离种子点Si最近，那么Pi属于Si点群。（上图中，我们可以看到A,B属于上面的种子点，C,D,E属于下面中部的种子点）. </p>
+<p>3). 接下来，我们要移动种子点到属于他的“点群”的中心。（见图上的第三步）. </p>
+<p>4). 然后重复 第2）和 第3）步，直到，种子点没有移动（我们可以看到图中的第四步上面的种子点聚合了A,B,C，下面的种子点 聚合了D，E）。  </p>
+</blockquote>
+<p>这个算法很简单。</p>
+<h2 id="3-K-Means-具体步骤"><a href="#3-K-Means-具体步骤" class="headerlink" title="3. K-Means 具体步骤"></a>3. K-Means 具体步骤</h2><blockquote>
+<p>(1). 数据预处理、归一化、离群点处理。</p>
+<p>(2). 随机选择 K 个簇中心，记为 ${\mu_1}^{(0)}, {\mu_2}^{(0)}, {\mu_3}^{(0)}, …, {\mu_k}^{(0)}$</p>
+<p>(3). 定义代价函数 :</p>
+<p><img src="/images/ml/k-means/K-Means-5.svg" class="lazyload" data-srcset="/images/ml/k-means/K-Means-5.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="280" /></p>
+<p>(4). 令 t=0,1,2,… 为迭代轮数，重复下面的过程知道 J 收敛:</p>
+<ul>
+<li>对于每一个样本 $x_i$, 将其分配到距离最近的簇.</li>
+</ul>
+<p><img src="/images/ml/k-means/K-Means-3.svg" class="lazyload" data-srcset="/images/ml/k-means/K-Means-3.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="280" /></p>
+<ul>
+<li>对于每一个类簇 $k$, 重新计算该类簇的中心</li>
+</ul>
+<p><img src="/images/ml/k-means/K-Means-4.svg" class="lazyload" data-srcset="/images/ml/k-means/K-Means-4.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="280" /></p>
+</blockquote>
+<h2 id="4-K-Means-优缺点"><a href="#4-K-Means-优缺点" class="headerlink" title="4. K-Means 优缺点"></a>4. K-Means 优缺点</h2><p><strong>Advantage：</strong></p>
+<blockquote>
+<p>对于大数据集，K均值 高效且可伸缩，它的复杂度是 $O(NKt)$，接近于线性。 其中 t是迭代轮数。</p>
+</blockquote>
+<p><strong>Disadvantage：</strong></p>
+<blockquote>
+<p>(1) <strong><code>需要人工预设K值，且该值和真实数据分布未必吻合</code></strong>；  </p>
+<p>(2) <strong><code>受初值和离群点的影响，每次的结果不稳定</code></strong>；  </p>
+<p>(3) <strong><code>受初值影响，结果通常是局部最优</code></strong>；  </p>
+<p>(4) 无法很好地解决数据簇分布差别比较大的情况(如一类是另一类样本数量的100倍)；  </p>
+<p>(5) 不太适用于离散分布；样本点只能被划分到单一的类中。  </p>
+</blockquote>
+<h2 id="5-K-Means"><a href="#5-K-Means" class="headerlink" title="5. K-Means++"></a>5. K-Means++</h2><blockquote>
+<p>K-means 最开始是随机选取数据集中的K个点作为聚类中心.</p>
+<p>K-means++ <strong>改进了初始值的选择，会尽量使聚类中心越远越好</strong>.</p>
+</blockquote>
+<h2 id="6-扩展"><a href="#6-扩展" class="headerlink" title="6. 扩展"></a>6. 扩展</h2><ul>
+<li>ISODATA算法(迭代自组织数据分析法)</li>
+<li>高斯混合模型、EM</li>
+<li>自组织映射神经网络 (SOM)</li>
+<li>聚类算法的评估</li>
+</ul>
+<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/7676f3b9808f">百面机器学习</a> 、 <a target="_blank" rel="noopener" href="https://study.163.com/course/courseLearn.htm?courseId=1004570029#/learn/video?lessonId=1052320898&amp;courseId=1004570029">网易云课堂</a></li>
+<li><a target="_blank" rel="noopener" href="https://coolshell.cn/articles/7779.html">COOLSHELL K-MEANS 算法</a></li>
+<li><a target="_blank" rel="noopener" href="https://coolshell.cn/articles/8052.html">K NEAREST NEIGHBOR</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/howhigh/article/details/74527651">单位矩阵和逆矩阵</a></li>
+</ul>
+
+  
+  
+    
+    <div class='footer'>
       
-        <div>
-          <a class='readmore' href='/2018/11/02/hadoop/ops-install-CDH6.0.1/'>
-            Read More
-          </a>
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=http://www.iequa.com/2018/12/18/ml/K-Means/>http://www.iequa.com/2018/12/18/ml/K-Means/</a></p>
+              
+            
+          </blockquote>
         </div>
+      
       
     </div>
   
+  
+    
 
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-10-20T12:30:35+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Oct 20, 2019</p>
+  </a>
 </div>
 
-          </div>
         
       
         
-          <div class='post-wrapper'>
-            <div class="post post-v3 white-box reveal shadow">
+          
   
-  
-  
-  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Kmeans/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>Kmeans</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
     
-    <h2 class="article-title" >
-      <a href="/2016/03/14/hadoop/hadoop-cdh-install-online/">
-        大数据平台CDH集群在线安装
-      </a>
-    </h2>
-  
-  <div class='md'>
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2018/12/18/ml/K-Means/&title=K-means - Blair's Blog&summary=
+"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
     
-      <p>介绍了 CDH 集群的搭建与安装，其中 Server 安装步骤非常准确, Agent 需要进一步验证.</p>
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2018/12/18/ml/K-Means/&title=K-means - Blair's Blog&summary=
+"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-facebook" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2018/12/18/ml/K-Means/&title=K-means - Blair's Blog&summary=
+"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/facebook.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/facebook.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-twitter" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2018/12/18/ml/K-Means/&title=K-means - Blair's Blog&summary=
+"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/twitter.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/twitter.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
     
   </div>
-  
-    <div class='meta-v3' line_style='solid'>
-      <div>
+</div>
+
+
+
         
-        <time>2016-03-14</time>
-        
-          <span class="dot"></span>
-          <a class="category-link" href="/categories/hadoop/">hadoop</a>
-        
-      </div>
       
-        <div>
-          <a class='readmore' href='/2016/03/14/hadoop/hadoop-cdh-install-online/'>
-            Read More
-          </a>
-        </div>
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+        <a class='prev' href='/2018/12/19/nlp/fastText/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>FastText 用于高效文本分类的技巧</p>
+          <p class='content'>fasttext word2vec
+
+fastText 是 2016年 FAIR(Facebook AIResearch) 推出的一款文本分类与向量化工具。
+fastText 是 智慧与美貌并重...</p>
+        </a>
+      
+      
+        <a class='next' href='/2018/12/16/nlp/textCNN/'>
+          <p class='title'>TextCNN 文本情感分类的卷积神经网络<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>
+
+textCNN 是 2014年 提出的用来做文本分类的卷积神经网络，结构简单、效果好.
+论文链接： Convolutional Neural Networks for Sentence Cl...</p>
+        </a>
       
     </div>
   
+</article>
 
-</div>
 
-          </div>
-        
-      
-    
-  </section>
   
-    
+
   
 
 
-    
-  
+
+
+
+
 </div>
 <aside id='l_side'>
   
@@ -2814,349 +2991,22 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
     
 
-<section class="widget blogger shadow desktop mobile">
-  <div class='content'>
-    
-      
-        <a class='avatar flat-box circle' href='/aboutMe/'>
-          <img no-lazy src='/images/logos/logo10.png'/>
-        </a>
-      
-    
-    
-      <div class='text'>
-        
-          <h2>BlairChen</h2>
-        
-        
-          <p>Gravitation is not responsible for people falling in love</p>
 
-        
-        
-      </div>
-    
-    
-      <div class="social-wrapper">
-        
-          
-            <a href="mailto:blair.value@gmail.com"
-              class="social fas fa-envelope flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="https://www.github.com/blair101/"
-              class="social fab fa-github flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="https://bit.ly/3cyng4n"
-              class="social fab fa-youtube flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-          
-            <a href="https://www.twitter.com/blairechin"
-              class="social fab fa-twitter-square flat-btn"
-              target="_blank"
-              rel="external nofollow noopener noreferrer">
-              
-            </a>
-          
-        
-      </div>
-    
-  </div>
-</section>
 
-  
-
-  
-    
-    
-  
-
-  <section class="widget category shadow desktop">
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
     
   <header>
     
-      <a href='/categories/'><i class="fas fa-folder-open fa-fw" aria-hidden="true"></i><span class='name'>Categories</span></a>
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>Toc 本文目录</span>
     
   </header>
 
 
     <div class='content'>
-      <ul class="entry navigation">
-        
-          <li><a class="flat-box"
-            title="/categories/English/" href="/categories/English/"
-            id="categoriesEnglish"
-            ><div class='name'>English</div><div class='badge'>(6)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/data-analysis/" href="/categories/data-analysis/"
-            id="categoriesdata-analysis"
-            ><div class='name'>data-analysis</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/data-science/" href="/categories/data-science/"
-            id="categoriesdata-science"
-            ><div class='name'>data-science</div><div class='badge'>(5)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/data-warehouse/" href="/categories/data-warehouse/"
-            id="categoriesdata-warehouse"
-            ><div class='name'>data-warehouse</div><div class='badge'>(18)</div></a></li>
-        
-          <li><a class="flat-box child"
-            title="/categories/data-warehouse/hive/" href="/categories/data-warehouse/hive/"
-            id="categoriesdata-warehousehive"
-            ><div class='name'>hive</div><div class='badge'>(1)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/deeplearning/" href="/categories/deeplearning/"
-            id="categoriesdeeplearning"
-            ><div class='name'>deeplearning</div><div class='badge'>(21)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/devops/" href="/categories/devops/"
-            id="categoriesdevops"
-            ><div class='name'>devops</div><div class='badge'>(29)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/elastic/" href="/categories/elastic/"
-            id="categorieselastic"
-            ><div class='name'>elastic</div><div class='badge'>(3)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/hadoop/" href="/categories/hadoop/"
-            id="categorieshadoop"
-            ><div class='name'>hadoop</div><div class='badge'>(10)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/java/" href="/categories/java/"
-            id="categoriesjava"
-            ><div class='name'>java</div><div class='badge'>(11)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/leetcode/" href="/categories/leetcode/"
-            id="categoriesleetcode"
-            ><div class='name'>leetcode</div><div class='badge'>(14)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/machine-learning/" href="/categories/machine-learning/"
-            id="categoriesmachine-learning"
-            ><div class='name'>machine-learning</div><div class='badge'>(30)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/nlp/" href="/categories/nlp/"
-            id="categoriesnlp"
-            ><div class='name'>nlp</div><div class='badge'>(24)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/python/" href="/categories/python/"
-            id="categoriespython"
-            ><div class='name'>python</div><div class='badge'>(59)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/spark/" href="/categories/spark/"
-            id="categoriesspark"
-            ><div class='name'>spark</div><div class='badge'>(36)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/tensorflow/" href="/categories/tensorflow/"
-            id="categoriestensorflow"
-            ><div class='name'>tensorflow</div><div class='badge'>(22)</div></a></li>
-        
-          <li><a class="flat-box"
-            title="/categories/tools/" href="/categories/tools/"
-            id="categoriestools"
-            ><div class='name'>tools</div><div class='badge'>(5)</div></a></li>
-        
-      </ul>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%97%AE%E9%A2%98"><span class="toc-text">1. 问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E7%AE%97%E6%B3%95%E6%A6%82%E8%A6%81"><span class="toc-text">2. 算法概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-K-Means-%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4"><span class="toc-text">3. K-Means 具体步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-K-Means-%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-text">4. K-Means 优缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-K-Means"><span class="toc-text">5. K-Means++</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E6%89%A9%E5%B1%95"><span class="toc-text">6. 扩展</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-text">Reference article</span></a></li></ol>
     </div>
   </section>
 
-
-  
-
-  
-    
-    
-  
-
-  <section class="widget tagcloud shadow ">
-    
-  <header>
-    
-      <a href='/tags/'><i class="fas fa-tags fa-fw" aria-hidden="true"></i><span class='name'>TagCloud</span></a>
-    
-  </header>
-
-
-    <div class='content'>
-      <a href="/tags/ALS/" style="font-size: 14px; color: #999">ALS</a> <a href="/tags/Airflow/" style="font-size: 14px; color: #999">Airflow</a> <a href="/tags/Anaconda/" style="font-size: 14px; color: #999">Anaconda</a> <a href="/tags/Anaconda3/" style="font-size: 14px; color: #999">Anaconda3</a> <a href="/tags/Attention/" style="font-size: 14px; color: #999">Attention</a> <a href="/tags/BERT/" style="font-size: 15.67px; color: #8e8e8e">BERT</a> <a href="/tags/Bayes/" style="font-size: 14.83px; color: #939393">Bayes</a> <a href="/tags/CDH/" style="font-size: 14.83px; color: #939393">CDH</a> <a href="/tags/CNN/" style="font-size: 15.67px; color: #8e8e8e">CNN</a> <a href="/tags/CS231n/" style="font-size: 14px; color: #999">CS231n</a> <a href="/tags/Chatbot/" style="font-size: 19.83px; color: #717171">Chatbot</a> <a href="/tags/Chicken-soup/" style="font-size: 14px; color: #999">Chicken-soup</a> <a href="/tags/Chinese-s-name/" style="font-size: 14px; color: #999">Chinese's name</a> <a href="/tags/Credit-Score/" style="font-size: 14px; color: #999">Credit-Score</a> <a href="/tags/DWH/" style="font-size: 14px; color: #999">DWH</a> <a href="/tags/Docker/" style="font-size: 15.67px; color: #8e8e8e">Docker</a> <a href="/tags/ETL/" style="font-size: 14px; color: #999">ETL</a> <a href="/tags/ElasticSearch/" style="font-size: 14px; color: #999">ElasticSearch</a> <a href="/tags/Ensemble/" style="font-size: 14px; color: #999">Ensemble</a> <a href="/tags/Ensumble/" style="font-size: 14px; color: #999">Ensumble</a> <a href="/tags/Fluentd/" style="font-size: 14px; color: #999">Fluentd</a> <a href="/tags/Glove/" style="font-size: 14px; color: #999">Glove</a> <a href="/tags/Hive/" style="font-size: 14.83px; color: #939393">Hive</a> <a href="/tags/IELTS/" style="font-size: 15.67px; color: #8e8e8e">IELTS</a> <a href="/tags/ITFIN/" style="font-size: 15.67px; color: #8e8e8e">ITFIN</a> <a href="/tags/Kmeans/" style="font-size: 14px; color: #999">Kmeans</a> <a href="/tags/Kubernetes/" style="font-size: 14px; color: #999">Kubernetes</a> <a href="/tags/L1-L2/" style="font-size: 14px; color: #999">L1-L2</a> <a href="/tags/Linux-C/" style="font-size: 14px; color: #999">Linux_C</a> <a href="/tags/Logistic-Regression/" style="font-size: 14px; color: #999">Logistic_Regression</a> <a href="/tags/MLP/" style="font-size: 14px; color: #999">MLP</a> <a href="/tags/MapReduce/" style="font-size: 14px; color: #999">MapReduce</a> <a href="/tags/Maryland/" style="font-size: 14px; color: #999">Maryland</a> <a href="/tags/Matplotlib/" style="font-size: 19px; color: #777">Matplotlib</a> <a href="/tags/Metric/" style="font-size: 14px; color: #999">Metric</a> <a href="/tags/NLTK/" style="font-size: 14px; color: #999">NLTK</a> <a href="/tags/Numpy/" style="font-size: 17.33px; color: #828282">Numpy</a> <a href="/tags/PCA/" style="font-size: 14.83px; color: #939393">PCA</a> <a href="/tags/PPL/" style="font-size: 14px; color: #999">PPL</a> <a href="/tags/Pandas/" style="font-size: 17.33px; color: #828282">Pandas</a> <a href="/tags/RD/" style="font-size: 14px; color: #999">RD</a> <a href="/tags/RNN/" style="font-size: 15.67px; color: #8e8e8e">RNN</a> <a href="/tags/RS/" style="font-size: 14px; color: #999">RS</a> <a href="/tags/Rondom-Forest/" style="font-size: 14px; color: #999">Rondom_Forest</a> <a href="/tags/SQL/" style="font-size: 15.67px; color: #8e8e8e">SQL</a> <a href="/tags/SVM/" style="font-size: 14.83px; color: #939393">SVM</a> <a href="/tags/Sentiment/" style="font-size: 14px; color: #999">Sentiment</a> <a href="/tags/Seq2Seq/" style="font-size: 14px; color: #999">Seq2Seq</a> <a href="/tags/Shadowsocks/" style="font-size: 14px; color: #999">Shadowsocks</a> <a href="/tags/Sklearn/" style="font-size: 18.17px; color: #7d7d7d">Sklearn</a> <a href="/tags/Stack/" style="font-size: 14px; color: #999">Stack</a> <a href="/tags/Systemd/" style="font-size: 14px; color: #999">Systemd</a> <a href="/tags/TextCNN/" style="font-size: 14px; color: #999">TextCNN</a> <a href="/tags/WSGI/" style="font-size: 14px; color: #999">WSGI</a> <a href="/tags/Word2Vec/" style="font-size: 14px; color: #999">Word2Vec</a> <a href="/tags/acm/" style="font-size: 19px; color: #777">acm</a> <a href="/tags/banwagon/" style="font-size: 14px; color: #999">banwagon</a> <a href="/tags/bashrc/" style="font-size: 14px; color: #999">bashrc</a> <a href="/tags/body/" style="font-size: 14px; color: #999">body</a> <a href="/tags/data-warehouse/" style="font-size: 20.67px; color: #6c6c6c">data warehouse</a> <a href="/tags/data-analysis/" style="font-size: 14px; color: #999">data-analysis</a> <a href="/tags/decision-tree/" style="font-size: 14.83px; color: #939393">decision-tree</a> <a href="/tags/deeplearning-ai/" style="font-size: 22.33px; color: #606060">deeplearning.ai</a> <a href="/tags/developer/" style="font-size: 14px; color: #999">developer</a> <a href="/tags/dynamic-programming/" style="font-size: 14px; color: #999">dynamic programming</a> <a href="/tags/elasticsearch/" style="font-size: 14.83px; color: #939393">elasticsearch</a> <a href="/tags/english/" style="font-size: 14px; color: #999">english</a> <a href="/tags/entropy/" style="font-size: 14.83px; color: #939393">entropy</a> <a href="/tags/estimation/" style="font-size: 14px; color: #999">estimation</a> <a href="/tags/fastText/" style="font-size: 14px; color: #999">fastText</a> <a href="/tags/g/" style="font-size: 14px; color: #999">g++</a> <a href="/tags/getattr/" style="font-size: 14px; color: #999">getattr</a> <a href="/tags/hadoop/" style="font-size: 14px; color: #999">hadoop</a> <a href="/tags/hdfs/" style="font-size: 14.83px; color: #939393">hdfs</a> <a href="/tags/health/" style="font-size: 14px; color: #999">health</a> <a href="/tags/help/" style="font-size: 14.83px; color: #939393">help</a> <a href="/tags/hive/" style="font-size: 14.83px; color: #939393">hive</a> <a href="/tags/interview/" style="font-size: 14px; color: #999">interview</a> <a href="/tags/java/" style="font-size: 18.17px; color: #7d7d7d">java</a> <a href="/tags/jieba/" style="font-size: 14px; color: #999">jieba</a> <a href="/tags/jvm/" style="font-size: 14.83px; color: #939393">jvm</a> <a href="/tags/keras/" style="font-size: 16.5px; color: #888">keras</a> <a href="/tags/leetcode/" style="font-size: 15.67px; color: #8e8e8e">leetcode</a> <a href="/tags/life/" style="font-size: 14px; color: #999">life</a> <a href="/tags/linux/" style="font-size: 14.83px; color: #939393">linux</a> <a href="/tags/linuxbird/" style="font-size: 14px; color: #999">linuxbird</a> <a href="/tags/logback/" style="font-size: 14px; color: #999">logback</a> <a href="/tags/mac/" style="font-size: 14.83px; color: #939393">mac</a> <a href="/tags/machine-learning/" style="font-size: 20.67px; color: #6c6c6c">machine-learning</a> <a href="/tags/macos/" style="font-size: 14.83px; color: #939393">macos</a> <a href="/tags/math/" style="font-size: 14px; color: #999">math</a> <a href="/tags/memory/" style="font-size: 14px; color: #999">memory</a> <a href="/tags/mysql/" style="font-size: 14px; color: #999">mysql</a> <a href="/tags/newaxis/" style="font-size: 14px; color: #999">newaxis</a> <a href="/tags/numpy/" style="font-size: 14px; color: #999">numpy</a> <a href="/tags/pyCharm/" style="font-size: 14px; color: #999">pyCharm</a> <a href="/tags/python/" style="font-size: 23.17px; color: #5b5b5b">python</a> <a href="/tags/python3/" style="font-size: 14px; color: #999">python3</a> <a href="/tags/recommendation-system/" style="font-size: 14px; color: #999">recommendation-system</a> <a href="/tags/sbt/" style="font-size: 14px; color: #999">sbt</a> <a href="/tags/scala/" style="font-size: 14px; color: #999">scala</a> <a href="/tags/scikit-learn/" style="font-size: 14px; color: #999">scikit-learn</a> <a href="/tags/seq2seq-Attention/" style="font-size: 14px; color: #999">seq2seq+Attention</a> <a href="/tags/sequence-loss/" style="font-size: 14px; color: #999">sequence_loss</a> <a href="/tags/sina/" style="font-size: 14px; color: #999">sina</a> <a href="/tags/spark/" style="font-size: 24px; color: #555">spark</a> <a href="/tags/sparkSQL/" style="font-size: 16.5px; color: #888">sparkSQL</a> <a href="/tags/spring/" style="font-size: 14px; color: #999">spring</a> <a href="/tags/sqoop/" style="font-size: 14px; color: #999">sqoop</a> <a href="/tags/tensorflow/" style="font-size: 21.5px; color: #666">tensorflow</a> <a href="/tags/vimrc/" style="font-size: 14px; color: #999">vimrc</a> <a href="/tags/word2vec/" style="font-size: 14px; color: #999">word2vec</a> <a href="/tags/work-cmd/" style="font-size: 14px; color: #999">work-cmd</a> <a href="/tags/zshrc/" style="font-size: 14px; color: #999">zshrc</a>
-    </div>
-  </section>
-
-
-  
-
-  
-    
-    
-
-<section class="widget shadow desktop">
-  
-  <header>
-    
-      <i class="fas fa-award fa-fw" aria-hidden="true"></i><span class='name'>About Website</span>
-    
-  </header>
-
-
-  <div class='content'>
-    <div class="webinfo">
-      
-        <div class="webinfo-item">
-          <div>Number of Articles：</div>
-          <div>294 articl</div>
-        </div>
-      
-
-      
-        <div class="webinfo-item">
-          <div>Site Running Time：</div>
-          <div id="webinfo-runtime-count" publish_date="03/24/2020 21:34:09"></div>
-        </div>
-        <script>
-          var BirthDay = new Date(new Date('2016/03/22'));
-          var today = new Date();
-          var timeold = (today.getTime() - BirthDay.getTime());
-          var daysold = Math.floor(timeold / (24 * 60 * 60 * 1000));
-          document.getElementById('webinfo-runtime-count').innerHTML = daysold + ' days';
-        </script>
-      
-
-
-      
-
-      
-        <div class="webinfo-item">
-          <div>Number of Visitors：</div>
-          
-          <div><span id="lc-uv"><span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span></span> pepl</div>
-          
-        </div>
-      
-
-      
-        <div class="webinfo-item">
-          <div>Total Visits ：</div>
-          
-          <div><span id="lc-sv"><span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span></span> times</div>
-          
-        </div>
-      
-
-      
-        <div class="webinfo-item">
-          <div>Activity Time：</div>
-          
-            <div id="last-update" style="display: none;">Sat Jun 19 2021 00:37:57 GMT+0800 (Singapore Standard Time)</div>
-            <div id="last-update-show">2021-06-19 days</div>
-          
-        </div>
-        
-        <script>
-          function timeago(dateTimeStamp) {
-              var minute = 1000 * 60; //把分，时，天，周，半个月，一个月用毫秒表示
-              var hour = minute * 60;
-              var day = hour * 24;
-              var week = day * 7;
-              var month = day * 30;
-              var now = new Date().getTime(); //获取当前时间毫秒
-              var diffValue = now - dateTimeStamp; //时间差
-              if (diffValue < 0) {
-                  return;
-              }
-              var minC = diffValue / minute; //计算时间差的分，时，天，周，月
-              var hourC = diffValue / hour;
-              var dayC = diffValue / day;
-              var weekC = diffValue / week;
-              var monthC = diffValue / month;
-              if (monthC >= 1 && monthC <= 3) {
-                  result = " " + parseInt(monthC) + " months before"
-              } else if (weekC >= 1 && weekC <= 3) {
-                  result = " " + parseInt(weekC) + " weeks before"
-              } else if (dayC >= 1 && dayC <= 6) {
-                  result = " " + parseInt(dayC) + " days before"
-              } else if (hourC >= 1 && hourC <= 23) {
-                  result = " " + parseInt(hourC) + " hours before"
-              } else if (minC >= 1 && minC <= 59) {
-                  result = " " + parseInt(minC) + " minutes before"
-              } else if (diffValue >= 0 && diffValue <= minute) {
-                  result = "Just now"
-              } else {
-                  var datetime = new Date();
-                  datetime.setTime(dateTimeStamp);
-                  var Nyear = datetime.getFullYear();
-                  var Nmonth = datetime.getMonth() + 1 < 10 ? "0" + (datetime.getMonth() + 1) : datetime.getMonth() + 1;
-                  var Ndate = datetime.getDate() < 10 ? "0" + datetime.getDate() : datetime.getDate();
-                  var Nhour = datetime.getHours() < 10 ? "0" + datetime.getHours() : datetime.getHours();
-                  var Nminute = datetime.getMinutes() < 10 ? "0" + datetime.getMinutes() : datetime.getMinutes();
-                  var Nsecond = datetime.getSeconds() < 10 ? "0" + datetime.getSeconds() : datetime.getSeconds();
-                  result = Nyear + "-" + Nmonth + "-" + Ndate
-              }
-              return result;
-          }
-          var lastUpDate = document.getElementById('last-update').innerHTML;
-          try {
-            document.getElementById('last-update-show').innerHTML = timeago(new Date(lastUpDate));
-          } catch (error) {
-            document.getElementById('last-update-show').innerHTML = '2021-06-19 days';
-          }
-        </script>
-        
-      
-    </div>
-  </div>
-</section>
-
-  
-
-  
-    
-    
-
-<section class="widget qrcode shadow desktop mobile">
-  
-  <header>
-    
-      <i class="fab fa-alipay fa-fw" aria-hidden="true"></i><span class='name'>QRcode</span>
-    
-  </header>
-
-
-  <div class='content article-entry'>
-    
-      <img src='/images/logos/pay_blog.png'
-      
-        height='204px'
-      />
-    
-  </div>
-</section>
 
   
 
@@ -3164,13 +3014,14 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </aside>
 
 
+
           <!--此文件用来存放一些不方便取值的变量-->
 <!--思路大概是将值藏到重加载的区域内-->
 
 <script>
   window.pdata={}
-  pdata.ispage=false;
-  pdata.postTitle="";
+  pdata.ispage=true;
+  pdata.postTitle="K-means";
   pdata.commentPath="";
   pdata.commentPlaceholder="";
   //  see: /layout/_partial/scripts/coverCtrl.ejs
@@ -3241,7 +3092,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       
