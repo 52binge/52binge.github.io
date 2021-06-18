@@ -2506,6 +2506,16 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
             
           
           
+            
+            
+              <li>
+                <a class="menuitem flat-box header toggle-mode-btn">
+                  <i class='far fa-moon fa-fw'></i>
+                </a>
+              <li>
+            
+          
+          
 				</ul>
 			</div>
 
@@ -2657,6 +2667,16 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
                   </ul>
                 
               </li>
+            
+          
+            
+              
+            
+              <li>
+                <a class="menuitem flat-box header toggle-mode-btn">
+                  <i class='far fa-moon fa-fw'></i>
+                </a>
+              <li>
             
           
             
@@ -2816,10 +2836,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <img src="/images/nlp/bert-keras-1.jpeg" class="lazyload" data-srcset="/images/nlp/bert-keras-1.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="bert 遇见 keras" />
+  <p><img src="/images/nlp/bert-keras-1.jpeg" class="lazyload" data-srcset="/images/nlp/bert-keras-1.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="bert 遇见 keras" /></p>
 <span id="more"></span>
-<h2 id="1-当bert遇上keras"><a class="markdownIt-Anchor" href="#1-当bert遇上keras"></a> 1. 当Bert遇上Keras</h2>
-<p>在Keras下对Bert最好的封装是：</p>
+<h2 id="1-当Bert遇上Keras"><a href="#1-当Bert遇上Keras" class="headerlink" title="1. 当Bert遇上Keras"></a>1. 当Bert遇上Keras</h2><p>在Keras下对Bert最好的封装是：</p>
 <p>keras-bert：<a target="_blank" rel="noopener" href="https://github.com/CyberZHG/keras-bert">https://github.com/CyberZHG/keras-bert</a></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! -*- coding:utf-8 -*-</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">from</span> random <span class="keyword">import</span> choice</span><br><span class="line"><span class="keyword">from</span> keras_bert <span class="keyword">import</span> load_trained_model_from_checkpoint, Tokenizer</span><br><span class="line"><span class="keyword">import</span> re, os</span><br><span class="line"><span class="keyword">import</span> codecs</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">maxlen = <span class="number">100</span></span><br><span class="line">config_path = <span class="string">&#x27;../bert/chinese_L-12_H-768_A-12/bert_config.json&#x27;</span></span><br><span class="line">checkpoint_path = <span class="string">&#x27;../bert/chinese_L-12_H-768_A-12/bert_model.ckpt&#x27;</span></span><br><span class="line">dict_path = <span class="string">&#x27;../bert/chinese_L-12_H-768_A-12/vocab.txt&#x27;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">token_dict = &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># dict_path = &#x27;./bert/chinese_L-12_H-768_A-12/vocab.txt&#x27;</span></span><br><span class="line"><span class="keyword">with</span> codecs.<span class="built_in">open</span>(dict_path, <span class="string">&#x27;r&#x27;</span>, <span class="string">&#x27;utf8&#x27;</span>) <span class="keyword">as</span> reader:</span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> reader:</span><br><span class="line">        token = line.strip()</span><br><span class="line">        token_dict[token] = <span class="built_in">len</span>(token_dict)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">OurTokenizer</span>(<span class="params">Tokenizer</span>):</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">_tokenize</span>(<span class="params">self, text</span>):</span></span><br><span class="line">        R = []</span><br><span class="line">        <span class="keyword">for</span> c <span class="keyword">in</span> text:</span><br><span class="line">            <span class="keyword">if</span> c <span class="keyword">in</span> self._token_dict:</span><br><span class="line">                <span class="built_in">print</span>(c)</span><br><span class="line">                R.append(c)</span><br><span class="line">            <span class="keyword">elif</span> self._is_space(c):</span><br><span class="line">                R.append(<span class="string">&#x27;[unused1]&#x27;</span>) <span class="comment"># space类用未经训练的[unused1]表示</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                R.append(<span class="string">&#x27;[UNK]&#x27;</span>) <span class="comment"># 剩余的字符是[UNK]</span></span><br><span class="line">        <span class="keyword">return</span> R</span><br><span class="line"></span><br><span class="line">tokenizer = OurTokenizer(token_dict)</span><br><span class="line">tokenizer</span><br><span class="line"></span><br><span class="line">tokenizer = OurTokenizer(token_dict)</span><br><span class="line">tokenizer.tokenize(<span class="string">u&#x27;今天天 气不错&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p>output:</p>
@@ -2827,30 +2846,26 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[&#x27;[CLS]&#x27;, &#x27;今&#x27;, &#x27;天&#x27;, &#x27;天&#x27;, &#x27;[unused1]&#x27;, &#x27;气&#x27;, &#x27;不&#x27;, &#x27;错&#x27;, &#x27;[SEP]&#x27;]</span><br></pre></td></tr></table></figure>
 <p>这里简单解释一下Tokenizer的输出结果。首先，默认情况下，分词后句子首位会分别加上[CLS]和[SEP]标记，其中[CLS]位置对应的输出向量是能代表整句的句向量（反正Bert是这样设计的），而[SEP]则是句间的分隔符，其余部分则是单字输出（对于中文来说）</p>
 </blockquote>
-<h2 id="2-sentiment-classification"><a class="markdownIt-Anchor" href="#2-sentiment-classification"></a> 2. Sentiment classification</h2>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/3360">文本情感分类（一）：传统模型</a></li>
-<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/3414">文本情感分类（二）：深度学习模型</a></li>
+<h2 id="2-Sentiment-classification"><a href="#2-Sentiment-classification" class="headerlink" title="2. Sentiment classification"></a>2. Sentiment classification</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/3360">文本情感分类（一）：传统模型</a> </li>
+<li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/3414">文本情感分类（二）：深度学习模型</a> </li>
 </ul>
 <p>做一个最基本的文本分类任务:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">bert_model = load_trained_model_from_checkpoint(config_path, checkpoint_path, seq_len=None)</span><br><span class="line"></span><br><span class="line">for l in bert_model.layers:</span><br><span class="line">    l.trainable = True</span><br><span class="line"></span><br><span class="line">x1_in = Input(shape=(None,))</span><br><span class="line">x2_in = Input(shape=(None,))</span><br><span class="line"></span><br><span class="line">x = bert_model([x1_in, x2_in])</span><br><span class="line">x = Lambda(lambda x: x[:, 0])(x) # 取出[CLS]对应的向量用来做分类</span><br><span class="line">p = Dense(1, activation=&#x27;sigmoid&#x27;)(x)</span><br><span class="line"></span><br><span class="line">model = Model([x1_in, x2_in], p)</span><br><span class="line">model.compile(</span><br><span class="line">    loss=&#x27;binary_crossentropy&#x27;,</span><br><span class="line">    optimizer=Adam(1e-5), # </span><br><span class="line">    metrics=[&#x27;accuracy&#x27;]</span><br><span class="line">)</span><br><span class="line">model.summary()</span><br></pre></td></tr></table></figure>
 <p>在Keras中调用Bert来做情感分类任务就这样写完了～写完了～～</p>
-<h2 id="3-运行效果"><a class="markdownIt-Anchor" href="#3-运行效果"></a> 3. 运行效果</h2>
-<p>所有的 params train</p>
+<h2 id="3-运行效果"><a href="#3-运行效果" class="headerlink" title="3. 运行效果"></a>3. 运行效果</h2><p>所有的 params train</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> l <span class="keyword">in</span> bert_model.layers:</span><br><span class="line">    l.trainable = <span class="literal">True</span></span><br></pre></td></tr></table></figure>
-<img src="/images/nlp/bert-keras-2.png" class="lazyload" data-srcset="/images/nlp/bert-keras-2.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="800" alt="bert keras Sentiment analysis" />
+<p><img src="/images/nlp/bert-keras-2.png" class="lazyload" data-srcset="/images/nlp/bert-keras-2.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="800" alt="bert keras Sentiment analysis" /></p>
 <p>加载的 bert params non-train</p>
-<img src="/images/nlp/bert-keras-3.png" class="lazyload" data-srcset="/images/nlp/bert-keras-3.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="800" alt="bert keras Sentiment analysis" />
-<h2 id="4-指导原则"><a class="markdownIt-Anchor" href="#4-指导原则"></a> 4. 指导原则</h2>
-<p>有什么原则来指导Bert后面应该要接哪些层？</p>
+<p><img src="/images/nlp/bert-keras-3.png" class="lazyload" data-srcset="/images/nlp/bert-keras-3.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="800" alt="bert keras Sentiment analysis" /></p>
+<h2 id="4-指导原则"><a href="#4-指导原则" class="headerlink" title="4. 指导原则"></a>4. 指导原则</h2><p>有什么原则来指导Bert后面应该要接哪些层？</p>
 <blockquote>
 <p>答案是：用尽可能少的层来完成你的任务。</p>
 <p>比如上述情感分析只是一个二分类任务，你就取出第一个向量然后加个Dense(1)就好了，不要想着多加几层Dense，更加不要想着接个LSTM再接Dense；</p>
 <p>如果你要做序列标注（比如NER），那你就接个Dense+CRF就好，也不要多加其他东西。</p>
 <p>总之，额外加的东西尽可能少。一是因为Bert本身就足够复杂，它有足够能力应对你要做的很多任务；二来你自己加的层都是随即初始化的，加太多会对Bert的预训练权重造成剧烈扰动，容易降低效果甚至造成模型不收敛</p>
 </blockquote>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://kexue.fm/archives/4765">《Attention is All You Need》-苏神</a></li>
 <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1810.04805">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/itplus">深度学习教程-苏神</a> 、 <a target="_blank" rel="noopener" href="https://kexue.fm/archives/6736">当Bert遇上Keras-苏神</a></li>
@@ -2983,10 +2998,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Anaconda + Tensorflow 环境搭建</p>
           <p class='content'>
 
- 1. Anaconda
- 1.1 Anaconda 常用命令
-12conda --versionconda update conda
-123456# 帮助命令conda -h# 更新所有包...</p>
+1. Anaconda1.1 Anaconda 常用命令12conda --versionconda update conda
+123456# 帮助命令conda -h# 更新所有包cond...</p>
         </a>
       
       
@@ -2994,13 +3007,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'>ElasticSearch 各种查询关键字的区别<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>
 
- Reference
-
+Reference
 ElasticSearch各种查询关键字的区别
 终于有人把elasticsearch原理讲通了！
 深入搜索
 Function Score 查询
-ElasticSear...</p>
+ElasticSearch...</p>
         </a>
       
     </div>
@@ -3036,7 +3048,7 @@ ElasticSear...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BD%93bert%E9%81%87%E4%B8%8Akeras"><span class="toc-text"> 1. 当Bert遇上Keras</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-sentiment-classification"><span class="toc-text"> 2. Sentiment classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C"><span class="toc-text"> 3. 运行效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%8C%87%E5%AF%BC%E5%8E%9F%E5%88%99"><span class="toc-text"> 4. 指导原则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%BD%93Bert%E9%81%87%E4%B8%8AKeras"><span class="toc-text">1. 当Bert遇上Keras</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Sentiment-classification"><span class="toc-text">2. Sentiment classification</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%BF%90%E8%A1%8C%E6%95%88%E6%9E%9C"><span class="toc-text">3. 运行效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E6%8C%87%E5%AF%BC%E5%8E%9F%E5%88%99"><span class="toc-text">4. 指导原则</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3125,7 +3137,7 @@ ElasticSear...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       
