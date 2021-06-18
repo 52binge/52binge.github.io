@@ -2836,7 +2836,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/credit-score-02.jpg" class="lazyload" data-srcset="/images/datascience/credit-score-02.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="Credit Score Card"/></div><span class="image-caption">Credit Score Card</span></div>
+  <img src="/images/datascience/credit-score-02.jpg" class="lazyload" data-srcset="/images/datascience/credit-score-02.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="Credit Score Card"/>
 <span id="more"></span>
 <p>信用评分卡模型是最常见的金融风控手段之一，它是指根据客户的各种属性和行为数据，利用一定的信用评分模型，对客户进行信用评分，据此决定是否给予授信以及授信的额度和利率，从而识别和减少在金融交易中存在的交易风险。</p>
 <p>按照借贷用户的借贷时间，评分卡模型可以划分为以下三种：</p>
@@ -2849,25 +2849,30 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>如需了解更多关于 互联网金融风控 的相关背景知识，请参阅：</p>
 <ul>
-<li><p><a href="/2018/04/20/datascience/internet-finance-1/">Internet Financial Risk Control (part1) ： The Fraud Risk of Financial Technology Enterprises</a></p>
+<li>
+<p><a href="/2018/04/20/datascience/internet-finance-1/">Internet Financial Risk Control (part1) ： The Fraud Risk of Financial Technology Enterprises</a></p>
 </li>
-<li><p><a href="/2018/04/21/datascience/internet-finance-2/">Internet Financial Risk Control (part2) ： model strategy</a></p>
+<li>
+<p><a href="/2018/04/21/datascience/internet-finance-2/">Internet Financial Risk Control (part2) ： model strategy</a></p>
 </li>
-<li><p><a href="/2018/04/23/datascience/internet-finance-3/">Internet Financial Risk Control (part3) ： Lending Club Data dev</a></p>
+<li>
+<p><a href="/2018/04/23/datascience/internet-finance-3/">Internet Financial Risk Control (part3) ： Lending Club Data dev</a></p>
 </li>
 </ul>
 </blockquote>
-<h2 id="1-数据获取"><a href="#1-数据获取" class="headerlink" title="1. 数据获取"></a>1. 数据获取</h2><ul>
+<h2 id="1-数据获取"><a class="markdownIt-Anchor" href="#1-数据获取"></a> 1. 数据获取</h2>
+<ul>
 <li>金融机构自身字段： 年龄，户籍，性别，收入，…；</li>
 <li>第三方机构的数据： 消费行为…</li>
 </ul>
 <blockquote>
 <p><strong>数据情况：</strong></p>
-<p>23W+ 去掉一些灰用户，剩余 </p>
+<p>23W+ 去掉一些灰用户，剩余</p>
 <p>M1标准： 好/坏: 13W+ 坏 4K</p>
 <p>30~50 : 1 都是正常的</p>
 </blockquote>
-<h2 id="2-EDA"><a href="#2-EDA" class="headerlink" title="2. EDA"></a>2. EDA</h2><p>Exploratory Data Analysis</p>
+<h2 id="2-eda"><a class="markdownIt-Anchor" href="#2-eda"></a> 2. EDA</h2>
+<p>Exploratory Data Analysis</p>
 <blockquote>
 <p>每个字段的缺失值情况、异常值情况、平均值、中位数、最大值、最小值、分布情况等</p>
 </blockquote>
@@ -2880,30 +2885,37 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>缺失值的处理，还可以用 RF 去拟合.</p>
 </blockquote>
-<h2 id="3-数据预处理"><a href="#3-数据预处理" class="headerlink" title="3. 数据预处理"></a>3. 数据预处理</h2><p>(1). 数据清洗</p>
+<h2 id="3-数据预处理"><a class="markdownIt-Anchor" href="#3-数据预处理"></a> 3. 数据预处理</h2>
+<p>(1). 数据清洗</p>
 <p>(2). 变量分箱</p>
 <p>(3). WOE 编码</p>
 <blockquote>
 <ol>
 <li>缺失值太多</li>
-<li>非数值变量多 (emp_title..)</li>
+<li>非数值变量多 (emp_title…)</li>
 <li>id, member_id 等</li>
 <li>loan_amnt != df.funded_amnt</li>
 <li>空值填充为 0</li>
 <li>带 % 的浮点，去掉 %</li>
 </ol>
+</blockquote>
+<blockquote>
 <p>好坏比是 34:1 是非常难以处理的样本了.</p>
 </blockquote>
-<h3 id="3-1-数据清洗"><a href="#3-1-数据清洗" class="headerlink" title="3.1 数据清洗"></a>3.1 数据清洗</h3><p>缺失值太多</p>
+<h3 id="31-数据清洗"><a class="markdownIt-Anchor" href="#31-数据清洗"></a> 3.1 数据清洗</h3>
+<p>缺失值太多</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 处理对象类型的缺失，unique</span></span><br><span class="line">df.select_dtypes(include=[<span class="string">&#x27;O&#x27;</span>]).describe().T.\</span><br><span class="line">assign(missing_pct=df.apply(<span class="keyword">lambda</span> x : (<span class="built_in">len</span>(x)-x.count())/<span class="built_in">float</span>(<span class="built_in">len</span>(x))))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 缺失值特别高的可以删除掉</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 我们可以对 非数值型 变量，做一个循环，发现 zip_code 有 873 个 unique 的值，那么先不处理</span></span><br><span class="line"><span class="keyword">for</span> col <span class="keyword">in</span> df.select_dtypes(include=[<span class="string">&#x27;object&#x27;</span>]).columns:</span><br><span class="line">    <span class="built_in">print</span> (<span class="string">&quot;Column &#123;&#125; has &#123;&#125; unique instances&quot;</span>.<span class="built_in">format</span>( col, <span class="built_in">len</span>(df[col].unique())) )</span><br></pre></td></tr></table></figure>
-<h3 id="3-2-变量分箱"><a href="#3-2-变量分箱" class="headerlink" title="3.2 变量分箱"></a>3.2 变量分箱</h3><ul>
+<h3 id="32-变量分箱"><a class="markdownIt-Anchor" href="#32-变量分箱"></a> 3.2 变量分箱</h3>
+<ul>
 <li>对连续变量进行分段离散化；</li>
 <li>将多状态的离散变量进行合并，减少离散变量的状态数。</li>
 </ul>
-<p>先可以粗分箱，之后在合并。 比如 年龄取值数有 30个，那么分为 30 箱，最后合为 5 箱。<br>其他变量可能粗分箱为 100 箱，之后合并.</p>
+<p>先可以粗分箱，之后在合并。 比如 年龄取值数有 30个，那么分为 30 箱，最后合为 5 箱。<br />
+其他变量可能粗分箱为 100 箱，之后合并.</p>
 <blockquote>
 <p>分箱方法很多，最常见的方法之一： Merge分箱中的 Chimerge 分箱.</p>
-<p>Chimerge 其基本思想是如果两个相邻的区间具有类似的类分布，则这两个区间合并；<br>否则，它们应保持分开。Chimerge通常采用<strong>卡方值</strong>来衡量两相邻区间的类分布情况。</p>
+<p>Chimerge 其基本思想是如果两个相邻的区间具有类似的类分布，则这两个区间合并；<br />
+否则，它们应保持分开。Chimerge通常采用<strong>卡方值</strong>来衡量两相邻区间的类分布情况。</p>
 <ul>
 <li>连续值按升序排列，离散值先转化为坏客户的比率，然后再按升序排列；</li>
 <li>为了减少计算量，对于状态数大于某一阈值 (建议为100) 的变量，利用等频分箱进行粗分箱。</li>
@@ -2913,6 +2925,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p><strong>分箱的最大区间数 &amp; 分箱初始化</strong></p>
 <blockquote>
 <p>这里我取： n = 5</p>
+</blockquote>
+<blockquote>
 <ol>
 <li>连续值按升序排列，离散值先转化为坏客户的比率，然后再按升序排列；</li>
 <li>为了减少计算量，对于状态数大于某一阈值 (建议为100) 的变量，利用等频分箱进行粗分箱。</li>
@@ -2950,11 +2964,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/zengxiantao1994/article/details/77855644">方差、标准差和均方根误差的区别总结</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wzdLY/p/9649101.html">基于卡方分箱的评分卡建模</a></li>
 </ul>
-<hr>
+<hr />
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wzdLY/p/9649101.html">good 基于卡方分箱的评分卡建模 , 卡方分布—chi-square distribution, χ2-distribution</a></p>
 <p><strong>卡方值的意义,举个例子：</strong></p>
-<p>某医院对某种病症的患者使用了 $A$，$B$ 两种不同的疗法，结果如表1，问两种疗法有无差别？</p>
-<div class="table-container">
+<p>某医院对某种病症的患者使用了 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>A</mi></mrow><annotation encoding="application/x-tex">A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault">A</span></span></span></span>，<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span> 两种不同的疗法，结果如表1，问两种疗法有无差别？</p>
 <table>
 <thead>
 <tr>
@@ -2989,12 +3002,11 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
-</div>
 <p>可以计算出各格内的期望频数：</p>
-<p>第1行1列： 43×53/87=26.2 , </p>
-<p>第1行2列： 43×34/87=16.8 , </p>
-<p>第2行1列： 44×53/87=26.8 , </p>
-<p>第2行2列： 44×34/87=17.2 </p>
+<p>第1行1列： 43×53/87=26.2 ,</p>
+<p>第1行2列： 43×34/87=16.8 ,</p>
+<p>第2行1列： 44×53/87=26.8 ,</p>
+<p>第2行2列： 44×34/87=17.2</p>
 <p>A箱</p>
 <p>(26.2-19)*(26.2-19) / 26.2  -&gt; <strong>(26.2 是 正类的期望频数， 19 是真实频数)</strong></p>
 <p>(16.8-24)*(16.8-24) / 16.8 (16.8 是 负类的期望频数)</p>
@@ -3004,44 +3016,36 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>先建立原假设：A、B两种疗法没有区别。根据卡方值的计算公式，计算：卡方值=10.01。得到卡方值以后，接下来需要查询卡方分布表来判断p值，从而做出接受或拒绝原假设的决定。</p>
 <details>
   <summary> 点击时的区域标题： 卡方分布—chi-square distribution, χ2-distribution </summary>
-
-**χ2-distribution:**
-
+<p><strong>χ2-distribution:</strong></p>
 <strong>
 若 $k$ 个独立的随机变量 $Z\_1, Z\_2, ..., Z\_k$ 满足标准正态分布 $N(0,1)$ , 则这 $k$ 个随机变量的平方和：
-
 <img src="/images/datascience/credit-score-01.jpeg" class="lazyload" data-srcset="/images/datascience/credit-score-01.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="150" alt=""/>
-
-卡方检验—χ2检验是以χ2分布为基础的一种假设检验方法，主要用于分类变量之间的独立性检验
-
-思想是根据样本数据推断 **`总体分布与期望分布 是否有显著性差异`**，或者推断两个分类变量是否相关或者独立。
-
-一般可以设原假设为 ：观察频数与期望频数没有差异，或者两个变量相互独立不相关。
-
-实际应用中，我们先假设原假设成立，计算出卡方值，卡方表示观察值与理论值间的偏离程度。
-
+<p>卡方检验—χ2检验是以χ2分布为基础的一种假设检验方法，主要用于分类变量之间的独立性检验</p>
+<p>思想是根据样本数据推断 <strong><code>总体分布与期望分布 是否有显著性差异</code></strong>，或者推断两个分类变量是否相关或者独立。</p>
+<p>一般可以设原假设为 ：观察频数与期望频数没有差异，或者两个变量相互独立不相关。</p>
+<p>实际应用中，我们先假设原假设成立，计算出卡方值，卡方表示观察值与理论值间的偏离程度。</p>
 <img src="/images/datascience/credit-score-03.png" class="lazyload" data-srcset="/images/datascience/credit-score-03.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="500" alt=""/>
-
-卡方值只是一个中间过程，通过卡方值计算出p值，p值才是我们最重要需要的。p小于0.05意味着存在显著差异。
-
-卡方值是非参数检验中的一个统计量，主要用于非参数统计分析中。它的作用是检验数据的相关性。如果卡方值的显著性（即SIG.）小于0.05，说明两个变量是显著相关的。
-</strong>
+<p>卡方值只是一个中间过程，通过卡方值计算出p值，p值才是我们最重要需要的。p小于0.05意味着存在显著差异。</p>
+<p>卡方值是非参数检验中的一个统计量，主要用于非参数统计分析中。它的作用是检验数据的相关性。如果卡方值的显著性（即SIG.）小于0.05，说明两个变量是显著相关的。<br />
+</strong></p>
 </details>
-
-<hr>
-<h3 id="3-3-WOE-weight-of-evidence"><a href="#3-3-WOE-weight-of-evidence" class="headerlink" title="3.3 WOE (weight of evidence)"></a>3.3 WOE (weight of evidence)</h3><blockquote>
+<hr />
+<h3 id="33-woe-weight-of-evidence"><a class="markdownIt-Anchor" href="#33-woe-weight-of-evidence"></a> 3.3 WOE (weight of evidence)</h3>
+<blockquote>
 <p>WOE 称为证据权重(weight of evidence) , 将离散变量转化为连续变量。</p>
 </blockquote>
-<p>WOE 将预测类别的集中度的属性作为编码的数值。对于自变量第 $i$ 箱的WOE值为：</p>
-<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/credit-score-04.svg" class="lazyload" data-srcset="/images/datascience/credit-score-04.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="600" alt=""/></div><span class="image-caption"></span></div>
+<p>WOE 将预测类别的集中度的属性作为编码的数值。对于自变量第 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span> 箱的WOE值为：</p>
+<img src="/images/datascience/credit-score-04.svg" class="lazyload" data-srcset="/images/datascience/credit-score-04.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="600" alt=""/>
 <blockquote>
-<p>$p_{i1}$ 是第 $i$ 箱中坏客户占所有坏客户比例</p>
-<p>$p_{i0}$ 是第 $i$ 箱中好客户占所有好客户比例</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>p</mi><mi mathvariant="normal">_</mi><mrow><mi>i</mi><mn>1</mn></mrow></mrow><annotation encoding="application/x-tex">p\_{i1}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9695199999999999em;vertical-align:-0.31em;"></span><span class="mord mathdefault">p</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord"><span class="mord mathdefault">i</span><span class="mord">1</span></span></span></span></span> 是第 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span> 箱中坏客户占所有坏客户比例</p>
+<p><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>p</mi><mi mathvariant="normal">_</mi><mrow><mi>i</mi><mn>0</mn></mrow></mrow><annotation encoding="application/x-tex">p\_{i0}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9695199999999999em;vertical-align:-0.31em;"></span><span class="mord mathdefault">p</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord"><span class="mord mathdefault">i</span><span class="mord">0</span></span></span></span></span> 是第 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>i</mi></mrow><annotation encoding="application/x-tex">i</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.65952em;vertical-align:0em;"></span><span class="mord mathdefault">i</span></span></span></span> 箱中好客户占所有好客户比例</p>
 <p><strong><code>WOE: 当前分箱中坏客户和好客户的比值，和所有样本中这个比值的差异</code></strong></p>
+</blockquote>
+<blockquote>
 <p>当分箱中坏客户和好客户的比例等于随机坏客户和好客户的比值时，说明这个分箱没有预测能力，即WOE=0。 (WOE为0，说明该箱出的特征对结果没有区分度)</p>
 </blockquote>
 <p>实际上WOE编码相当于把分箱后的特征从非线性可分映射到近似线性可分的空间内:</p>
-<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/credit-score-05.svg" class="lazyload" data-srcset="/images/datascience/credit-score-05.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="600" alt=""/></div><span class="image-caption"></span></div>
+<img src="/images/datascience/credit-score-05.svg" class="lazyload" data-srcset="/images/datascience/credit-score-05.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="600" alt=""/>
 <p>总结一下WOE编码的优势：</p>
 <blockquote>
 <ol>
@@ -3053,8 +3057,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>与独热向量编码相比，可以保证变量的完整性，同时避免稀疏矩阵和维度灾难</li>
 </ol>
 </blockquote>
-<hr>
-<h2 id="4-变量筛选"><a href="#4-变量筛选" class="headerlink" title="4. 变量筛选"></a>4. 变量筛选</h2><p>主要衡量标准: 变量的预测能力和变量的线性相关性。</p>
+<hr />
+<h2 id="4-变量筛选"><a class="markdownIt-Anchor" href="#4-变量筛选"></a> 4. 变量筛选</h2>
+<p>主要衡量标准: 变量的预测能力和变量的线性相关性。</p>
 <p>挑选入模变量:</p>
 <blockquote>
 <ol>
@@ -3064,17 +3069,19 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </ol>
 </blockquote>
 <p>变量两两相关性分析，变量的多重共线性分析。</p>
-<h3 id="4-1-单变量筛选"><a href="#4-1-单变量筛选" class="headerlink" title="4.1 单变量筛选"></a>4.1 单变量筛选</h3><p>IV 信息价值(information value)，自变量的IV值越大，表示自变量的预测能力越强。 类似指标还有信息增益等。</p>
-<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/credit-score-06.jpg" class="lazyload" data-srcset="/images/datascience/credit-score-06.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="850" alt=""/></div><span class="image-caption"></span></div>
-<p><img src="https://www.zhihu.com/equation?tex=IV_i+%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+log+%28%5Cfrac%7B%5C%23B_i%2F%5C%23B_T%7D%7B%5C%23G_i%2F%5C%23G_T%7D%29%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+WOE_i+%5C%5C" class="lazyload" data-srcset="https://www.zhihu.com/equation?tex=IV_i+%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+log+%28%5Cfrac%7B%5C%23B_i%2F%5C%23B_T%7D%7B%5C%23G_i%2F%5C%23G_T%7D%29%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+WOE_i+%5C%5C" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt=""></p>
+<h3 id="41-单变量筛选"><a class="markdownIt-Anchor" href="#41-单变量筛选"></a> 4.1 单变量筛选</h3>
+<p>IV 信息价值(information value)，自变量的IV值越大，表示自变量的预测能力越强。 类似指标还有信息增益等。</p>
+<img src="/images/datascience/credit-score-06.jpg" class="lazyload" data-srcset="/images/datascience/credit-score-06.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="850" alt=""/>
+<p><img src="https://www.zhihu.com/equation?tex=IV_i+%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+log+%28%5Cfrac%7B%5C%23B_i%2F%5C%23B_T%7D%7B%5C%23G_i%2F%5C%23G_T%7D%29%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+WOE_i+%5C%5C" class="lazyload" data-srcset="https://www.zhihu.com/equation?tex=IV_i+%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+log+%28%5Cfrac%7B%5C%23B_i%2F%5C%23B_T%7D%7B%5C%23G_i%2F%5C%23G_T%7D%29%3D%28%5Cfrac%7B%5C%23B_i%7D%7B%5C%23B_T%7D-%5Cfrac%7B%5C%23G_i%7D%7B%5C%23G_T%7D%29+%2A+WOE_i+%5C%5C" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="" /></p>
 <p>变量对应的IV值为所有分箱对应的 IV 值之和：</p>
-<p><img src="https://www.zhihu.com/equation?tex=IV+%3D+%5Csum%5Climits_i%5En+IV_i+%5C%5C" class="lazyload" data-srcset="https://www.zhihu.com/equation?tex=IV+%3D+%5Csum%5Climits_i%5En+IV_i+%5C%5C" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt=""></p>
+<p><img src="https://www.zhihu.com/equation?tex=IV+%3D+%5Csum%5Climits_i%5En+IV_i+%5C%5C" class="lazyload" data-srcset="https://www.zhihu.com/equation?tex=IV+%3D+%5Csum%5Climits_i%5En+IV_i+%5C%5C" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="" /></p>
 <p>IV 值实际上式变量各个分箱的加权求和。且和决策树中的交叉熵有异曲同工之妙。以下为交叉熵公式：</p>
-<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/credit-score-07.svg" class="lazyload" data-srcset="/images/datascience/credit-score-07.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="600" alt=""/></div><span class="image-caption"></span></div>
+<img src="/images/datascience/credit-score-07.svg" class="lazyload" data-srcset="/images/datascience/credit-score-07.svg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="600" alt=""/>
 <p>IV值的具体的计算流程如下：</p>
-<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/credit-score-08.jpg" class="lazyload" data-srcset="/images/datascience/credit-score-08.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="800" alt=""/></div><span class="image-caption"></span></div>
+<img src="/images/datascience/credit-score-08.jpg" class="lazyload" data-srcset="/images/datascience/credit-score-08.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="800" alt=""/>
 <p>IV排序后，选择IV&gt;0.02的变量，共58个变量IV&gt;0.02</p>
-<h3 id="4-2-多变量分析"><a href="#4-2-多变量分析" class="headerlink" title="4.2 多变量分析"></a>4.2 多变量分析</h3><p>保留相关性低于阈值0.6的变量，剩余27个变量</p>
+<h3 id="42-多变量分析"><a class="markdownIt-Anchor" href="#42-多变量分析"></a> 4.2 多变量分析</h3>
+<p>保留相关性低于阈值0.6的变量，剩余27个变量</p>
 <p><strong>为什么要进行相关性分析？</strong></p>
 <blockquote>
 <p>理想状态下，系数权重会有无数种取法，使系数权重变得无法解释，导致变量的每个分段的得分也有无数种取法（后面我们会发现变量中不同分段的评分会用到变量的系数）</p>
@@ -3088,7 +3095,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </ol>
 <p>特征相关度筛选</p>
 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cor = df.corr()</span><br><span class="line">cor.loc[:,:] = np.tril(cor, k=-<span class="number">1</span>) <span class="comment"># below main lower triangle of an array</span></span><br><span class="line">cor = cor.stack()</span><br><span class="line">cor[(cor &gt; <span class="number">0.55</span>) | (cor &lt; -<span class="number">0.55</span>)] <span class="comment"># 特征相关度筛选</span></span><br></pre></td></tr></table></figure>
-<h3 id="4-3-显著性分析"><a href="#4-3-显著性分析" class="headerlink" title="4.3 显著性分析"></a>4.3 显著性分析</h3><p>删除P值不显著的变量，剩余12个变量了。</p>
+<h3 id="43-显著性分析"><a class="markdownIt-Anchor" href="#43-显著性分析"></a> 4.3 显著性分析</h3>
+<p>删除P值不显著的变量，剩余12个变量了。</p>
 <p><strong>GBDT, GBRT, Xgboost, RF grid search</strong></p>
 <figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">param_grid = &#123;</span><br><span class="line">    <span class="string">&#x27;learning_rate&#x27;</span>: [<span class="number">0.1</span>, <span class="number">0.05</span>, <span class="number">0.02</span>, <span class="number">0.01</span>],</span><br><span class="line">    <span class="string">&#x27;max_depth&#x27;</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>,<span class="number">4</span>],</span><br><span class="line">    <span class="string">&#x27;min_samples_split&#x27;</span>: [<span class="number">50</span>,<span class="number">100</span>,<span class="number">200</span>,<span class="number">400</span>],</span><br><span class="line">    <span class="string">&#x27;n_estimators&#x27;</span>: [<span class="number">100</span>,<span class="number">200</span>,<span class="number">400</span>,<span class="number">800</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p><strong>特征重要度：</strong></p>
@@ -3098,33 +3106,36 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>挑选变量的时候，开始每个月我一直在看它的均值和方差的变化是否在容忍的范围内，超过50%舍</p>
 </blockquote>
-<h2 id="5-转化为评分卡"><a href="#5-转化为评分卡" class="headerlink" title="5. 转化为评分卡"></a>5. 转化为评分卡</h2><p>将 odds 带入可得：</p>
-<p><img src="https://www.zhihu.com/equation?tex=%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%3D+%5Ctheta%5ETx+%5C%5C" class="lazyload" data-srcset="https://www.zhihu.com/equation?tex=%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%3D+%5Ctheta%5ETx+%5C%5C" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt=""></p>
-<p>评分卡的分值可以定义为比率对数的线性表达来，即： </p>
-<p><img src="https://www.zhihu.com/equation?tex=Score+%3D+A+-B+%5Ctimes+%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%5C%5C" class="lazyload" data-srcset="https://www.zhihu.com/equation?tex=Score+%3D+A+-B+%5Ctimes+%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%5C%5C" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt=""></p>
+<h2 id="5-转化为评分卡"><a class="markdownIt-Anchor" href="#5-转化为评分卡"></a> 5. 转化为评分卡</h2>
+<p>将 odds 带入可得：</p>
+<p><img src="https://www.zhihu.com/equation?tex=%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%3D+%5Ctheta%5ETx+%5C%5C" class="lazyload" data-srcset="https://www.zhihu.com/equation?tex=%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%3D+%5Ctheta%5ETx+%5C%5C" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="" /></p>
+<p>评分卡的分值可以定义为比率对数的线性表达来，即：</p>
+<p><img src="https://www.zhihu.com/equation?tex=Score+%3D+A+-B+%5Ctimes+%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%5C%5C" class="lazyload" data-srcset="https://www.zhihu.com/equation?tex=Score+%3D+A+-B+%5Ctimes+%5Ctext%7Blog%7D%28+%5Ctext%7Bodds%7D%29+%5C%5C" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="" /></p>
 <p>最终得到评分卡模型：</p>
-<p><img src="https://pic2.zhimg.com/80/v2-fec98ff9de65d835a5be217f01f678a5_hd.jpg" class="lazyload" data-srcset="https://pic2.zhimg.com/80/v2-fec98ff9de65d835a5be217f01f678a5_hd.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt=""></p>
+<p><img src="https://pic2.zhimg.com/80/v2-fec98ff9de65d835a5be217f01f678a5_hd.jpg" class="lazyload" data-srcset="https://pic2.zhimg.com/80/v2-fec98ff9de65d835a5be217f01f678a5_hd.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="" /></p>
 <p>需要设定两个假设：</p>
 <ul>
-<li>某个特定的违约概率下的预期评分，即比率 即比率 $\text{odds}$ 为 $θ_0$ 时的分数为 $P_0$</li>
-<li>该odds为$2θ_0$情况下评分的减少量（PDO）</li>
+<li>某个特定的违约概率下的预期评分，即比率 即比率 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtext>odds</mtext></mrow><annotation encoding="application/x-tex">\text{odds}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord text"><span class="mord">odds</span></span></span></span></span> 为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>θ</mi><mi mathvariant="normal">_</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">θ\_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.00444em;vertical-align:-0.31em;"></span><span class="mord mathdefault" style="margin-right:0.02778em;">θ</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord">0</span></span></span></span> 时的分数为 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>P</mi><mi mathvariant="normal">_</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">P\_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.99333em;vertical-align:-0.31em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord">0</span></span></span></span></li>
+<li>该odds为<span class="katex"><span class="katex-mathml"><math><semantics><mrow><mn>2</mn><mi>θ</mi><mi mathvariant="normal">_</mi><mn>0</mn></mrow><annotation encoding="application/x-tex">2θ\_0</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.00444em;vertical-align:-0.31em;"></span><span class="mord">2</span><span class="mord mathdefault" style="margin-right:0.02778em;">θ</span><span class="mord" style="margin-right:0.02778em;">_</span><span class="mord">0</span></span></span></span>情况下评分的减少量（PDO）</li>
 </ul>
-<h2 id="6-KS-评估"><a href="#6-KS-评估" class="headerlink" title="6. KS 评估"></a>6. KS 评估</h2><p>K-S曲线其实数据来源和本质和ROC曲线是一致的，只是ROC曲线是把真正率和假正率当作横纵轴，而K-S曲线是把真正率和假正率都当作是纵轴，横轴则由选定的阈值来充当。</p>
+<h2 id="6-ks-评估"><a class="markdownIt-Anchor" href="#6-ks-评估"></a> 6. KS 评估</h2>
+<p>K-S曲线其实数据来源和本质和ROC曲线是一致的，只是ROC曲线是把真正率和假正率当作横纵轴，而K-S曲线是把真正率和假正率都当作是纵轴，横轴则由选定的阈值来充当。</p>
 <blockquote>
-<p>由于ks值能找出模型中差异最大的一个分段，因此适合用于cut_off，像评分卡这种就很适合用ks值来评估。但是ks值只能反映出哪个分段是区分最大的，而不能总体反映出所有分段的效果，因果AUC值更能胜任。 </p>
+<p>由于ks值能找出模型中差异最大的一个分段，因此适合用于cut_off，像评分卡这种就很适合用ks值来评估。但是ks值只能反映出哪个分段是区分最大的，而不能总体反映出所有分段的效果，因果AUC值更能胜任。</p>
 <p>KS值表示了模型将+和-区分开来的能力。值越大，模型的预测准确性越好。</p>
 </blockquote>
 <p>KS 值表示了模型区分好坏客户的能力。</p>
 <p>等分 10 份，两条洛伦兹曲线， TPR 与 FPR 的差值. 好坏客户的区程度.</p>
-<p>其实质是 $TPR - FPR$ 随好坏客户阈值变化的最大值。KS 值越大，模型的预测准确性越好。一般，KS &gt; 0.4 即认为模型有很好的预测性能。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<p>其实质是 <span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>T</mi><mi>P</mi><mi>R</mi><mo>−</mo><mi>F</mi><mi>P</mi><mi>R</mi></mrow><annotation encoding="application/x-tex">TPR - FPR</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.76666em;vertical-align:-0.08333em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">T</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.13889em;">F</span><span class="mord mathdefault" style="margin-right:0.13889em;">P</span><span class="mord mathdefault" style="margin-right:0.00773em;">R</span></span></span></span> 随好坏客户阈值变化的最大值。KS 值越大，模型的预测准确性越好。一般，KS &gt; 0.4 即认为模型有很好的预测性能。</p>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/34370741">Python三大评分卡之行为评分卡</a></li>
 <li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/36539125">玩转逻辑回归之金融评分卡模型</a></li>
 <li><a target="_blank" rel="noopener" href="http://www.sfinst.com/?p=1389">拍拍贷教你如何用GBDT做评分卡</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/zs15321583801/article/details/88217839">模型区分度指标 KS 值</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/Orange_Spotty_Cat/article/details/82425113">分类模型评判指标 ROC，AUC，GINI，KS</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/gczr/p/10354646.html">深入理解KS</a></li>
-<li><a target="_blank" rel="noopener" href="http://rosen.xyz/2018/02/01/AUC和KS指标">AUC和KS指标</a></li>
+<li><a target="_blank" rel="noopener" href="http://rosen.xyz/2018/02/01/AUC%E5%92%8CKS%E6%8C%87%E6%A0%87">AUC和KS指标</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/sscc_learning/article/details/86707005">一文完全理解模型ks指标含义并画出ks曲线</a></li>
 </ul>
 
@@ -3250,18 +3261,18 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class='prev' href='/2019/06/25/nlp/Fine-grained-Sentiment-Analysis-of-User-Online-Reviews/'>
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Fine-grained Sentiment Analysis of User Online Reviews</p>
-          <p class='content'>AI-Challenger
+          <p class='content'>
 
 Challenger.AI
-Online reviews have become the critical factor to make consumption d...</p>
+Online reviews have become the critical factor to make consumption decision in re...</p>
         </a>
       
       
         <a class='next' href='/2019/06/20/nlp/chatbot/chatbot-project/'>
           <p class='title'>Chatbot Project<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-          <p class='content'>chatbot
+          <p class='content'>
 
-                聊天机器人（chatbot），也被称为会话代理或对话系统，现已成为了一个热门话题。微软在聊天机器人上押上了重注，Facebook（M）、苹果（S...</p>
+����������������聊天机器人（chatbot），也被称为会话代理或对话系统，现已成为了一个热门话题。微软在聊天机器人上押上了重注，Facebook（M）、苹果（Siri）、谷歌...</p>
         </a>
       
     </div>
@@ -3350,7 +3361,7 @@ Online reviews have become the critical factor to make consumption d...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96"><span class="toc-text">1. 数据获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-EDA"><span class="toc-text">2. EDA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-text">3. 数据预处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97"><span class="toc-text">3.1 数据清洗</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E5%8F%98%E9%87%8F%E5%88%86%E7%AE%B1"><span class="toc-text">3.2 变量分箱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-WOE-weight-of-evidence"><span class="toc-text">3.3 WOE (weight of evidence)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%98%E9%87%8F%E7%AD%9B%E9%80%89"><span class="toc-text">4. 变量筛选</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E5%8D%95%E5%8F%98%E9%87%8F%E7%AD%9B%E9%80%89"><span class="toc-text">4.1 单变量筛选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E5%A4%9A%E5%8F%98%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-text">4.2 多变量分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-%E6%98%BE%E8%91%97%E6%80%A7%E5%88%86%E6%9E%90"><span class="toc-text">4.3 显著性分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%BD%AC%E5%8C%96%E4%B8%BA%E8%AF%84%E5%88%86%E5%8D%A1"><span class="toc-text">5. 转化为评分卡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-KS-%E8%AF%84%E4%BC%B0"><span class="toc-text">6. KS 评估</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E8%8E%B7%E5%8F%96"><span class="toc-text"> 1. 数据获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-eda"><span class="toc-text"> 2. EDA</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86"><span class="toc-text"> 3. 数据预处理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#31-%E6%95%B0%E6%8D%AE%E6%B8%85%E6%B4%97"><span class="toc-text"> 3.1 数据清洗</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-%E5%8F%98%E9%87%8F%E5%88%86%E7%AE%B1"><span class="toc-text"> 3.2 变量分箱</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#33-woe-weight-of-evidence"><span class="toc-text"> 3.3 WOE (weight of evidence)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E5%8F%98%E9%87%8F%E7%AD%9B%E9%80%89"><span class="toc-text"> 4. 变量筛选</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#41-%E5%8D%95%E5%8F%98%E9%87%8F%E7%AD%9B%E9%80%89"><span class="toc-text"> 4.1 单变量筛选</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#42-%E5%A4%9A%E5%8F%98%E9%87%8F%E5%88%86%E6%9E%90"><span class="toc-text"> 4.2 多变量分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#43-%E6%98%BE%E8%91%97%E6%80%A7%E5%88%86%E6%9E%90"><span class="toc-text"> 4.3 显著性分析</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%BD%AC%E5%8C%96%E4%B8%BA%E8%AF%84%E5%88%86%E5%8D%A1"><span class="toc-text"> 5. 转化为评分卡</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-ks-%E8%AF%84%E4%BC%B0"><span class="toc-text"> 6. KS 评估</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3439,7 +3450,7 @@ Online reviews have become the critical factor to make consumption d...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
