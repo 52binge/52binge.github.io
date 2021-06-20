@@ -2768,11 +2768,11 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>NN 可用来模拟 regression，给一组数据，用一条线对数据进行拟合，并可预测新输入 x 的输出值。</p>
 <span id="more"></span>
-<img src="/images/tensorflow/keras-regressor-1.2-1.png" class="lazyload" data-srcset="/images/tensorflow/keras-regressor-1.2-1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="450" alt="Regressor in Keras"/>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/tensorflow/keras-regressor-1.2-1.png" class="lazyload" data-srcset="/images/tensorflow/keras-regressor-1.2-1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Regressor in Keras" style="width:450px;"/></div><span class="image-caption">Regressor in Keras</span></div>
 <p><strong>创建数据</strong></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line">np.random.seed(<span class="number">1337</span>)  <span class="comment"># for reproducibility</span></span><br><span class="line"><span class="keyword">from</span> keras.models <span class="keyword">import</span> Sequential</span><br><span class="line"><span class="keyword">from</span> keras.layers <span class="keyword">import</span> Dense</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt <span class="comment"># 可视化模块</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create some data</span></span><br><span class="line">X = np.linspace(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">200</span>)</span><br><span class="line"></span><br><span class="line">np.random.shuffle(X)    <span class="comment"># randomize the data</span></span><br><span class="line"></span><br><span class="line">Y = <span class="number">0.5</span> * X + <span class="number">2</span> + np.random.normal(<span class="number">0</span>, <span class="number">0.05</span>, (<span class="number">200</span>, ))</span><br></pre></td></tr></table></figure>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># plot data</span></span><br><span class="line">plt.scatter(X, Y)</span><br><span class="line">plt.show()</span><br><span class="line"></span><br><span class="line">X_train, Y_train = X[:<span class="number">160</span>], Y[:<span class="number">160</span>]     <span class="comment"># train 前 160 data points</span></span><br><span class="line">X_test, Y_test = X[<span class="number">160</span>:], Y[<span class="number">160</span>:]       <span class="comment"># test 后 40 data points</span></span><br></pre></td></tr></table></figure>
-<img src="/images/tensorflow/keras-regressor-1.2-2.png" class="lazyload" data-srcset="/images/tensorflow/keras-regressor-1.2-2.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="450" />
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/tensorflow/keras-regressor-1.2-2.png" class="lazyload" data-srcset="/images/tensorflow/keras-regressor-1.2-2.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:450px;"/></div></div>
 <h2 id="1-build-model"><a class="markdownIt-Anchor" href="#1-build-model"></a> 1. build model</h2>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">model = Sequential()</span><br><span class="line">model.add(Dense(output_dim=<span class="number">1</span>, input_dim=<span class="number">1</span>))</span><br></pre></td></tr></table></figure>
 <blockquote>
@@ -2795,7 +2795,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </blockquote>
 <h2 id="5-visualization"><a class="markdownIt-Anchor" href="#5-visualization"></a> 5. Visualization</h2>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># plotting the prediction</span></span><br><span class="line">Y_pred = model.predict(X_test)</span><br><span class="line">plt.scatter(X_test, Y_test)</span><br><span class="line">plt.plot(X_test, Y_pred)</span><br><span class="line">plt.show()</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<img src="/images/tensorflow/keras-regressor-1.2-3.png" class="lazyload" data-srcset="/images/tensorflow/keras-regressor-1.2-3.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="450" />
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/tensorflow/keras-regressor-1.2-3.png" class="lazyload" data-srcset="/images/tensorflow/keras-regressor-1.2-3.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:450px;"/></div></div>
 <h2 id="6-gaussian-distribution"><a class="markdownIt-Anchor" href="#6-gaussian-distribution"></a> 6. Gaussian Distribution</h2>
 <p>先看伟大的高斯分布（Gaussian Distribution）的概率密度函数（probability density function）</p>
 <p class='katex-block'><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>f</mi><mo stretchy="false">(</mo><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mfrac><mn>1</mn><mrow><msqrt><mrow><mn>2</mn><mi>π</mi></mrow></msqrt><mi>σ</mi></mrow></mfrac><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mo>−</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>x</mi><mo>−</mo><mi>μ</mi><msup><mo stretchy="false">)</mo><mn>2</mn></msup></mrow><mrow><mn>2</mn><msup><mi>σ</mi><mn>2</mn></msup></mrow></mfrac><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">f(x)=\frac1{\sqrt{2\pi}\sigma}\exp(-\frac{(x-\mu)^2}{2\sigma^2})
@@ -2849,10 +2849,10 @@ s-65,47,-65,47z M834 80H400000v40H845z'/></svg></span></span></span><span class=
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2019-10-20T12:30:35+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-06-20T11:40:29+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Oct 20, 2019</p>
+    <p>更新于：Jun 20, 2021</p>
   </a>
 </div>
 
@@ -2938,18 +2938,16 @@ s-65,47,-65,47z M834 80H400000v40H845z'/></svg></span></span></span><span class=
       
         <a class='prev' href='/2019/08/22/tensorflow/keras-1.3-classifier/'>
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Classifier in Keras</p>
-          <p class='content'>
+          <p class='content'>Classifier in Keras
 
 data preprocessing
-123456789101112131415161718192021222324from keras.datasets import mnist# dow...</p>
+123456789101112131415161718192021222324from keras.dataset...</p>
         </a>
       
       
         <a class='next' href='/2019/08/19/tensorflow/keras-1.1-intro/'>
           <p class='title'>Keras Introduce<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-          <p class='content'>
-Keras 开发重点是支持快速的实验。能够以最小的时延把你的想法转换为实验结果，是做好研究的关键。
-Keras 并不处理如张量乘法、卷积等底层操作。这些操作依赖于某种特定的、优化良好的张量操作...</p>
+          <p class='content'></p>
         </a>
       
     </div>

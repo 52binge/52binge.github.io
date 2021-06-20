@@ -32,6 +32,8 @@
   
 
   
+    <meta name="description" content="Spark RDD Feature">
+  
 
   <!-- feed -->
   
@@ -2764,7 +2766,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <img src="/images/spark/spark-3.0-rdd-logo.png" class="lazyload" data-srcset="/images/spark/spark-3.0-rdd-logo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="Spark RDD Feature" />
+  <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-3.0-rdd-logo.png" class="lazyload" data-srcset="/images/spark/spark-3.0-rdd-logo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Spark RDD Feature" style="width:550px;"/></div><span class="image-caption">Spark RDD Feature</span></div>
 <span id="more"></span>
 <p>有两种方式使用SparkSQL</p>
 <p><a target="_blank" rel="noopener" href="https://blog.csdn.net/huang66666666/article/details/86558454">Spark SQL性能调优以及原理图</a></p>
@@ -2773,16 +2775,16 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>通过Dataset/DataFrame编写Spark应用程序。</li>
 </ol>
 <h2 id="1-sparksql总体流程"><a class="markdownIt-Anchor" href="#1-sparksql总体流程"></a> 1. SparkSQL总体流程</h2>
-<img src="/images/spark/spark-catalyst.jpg" class="lazyload" data-srcset="/images/spark/spark-catalyst.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="550" alt="Spark" />
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-catalyst.jpg" class="lazyload" data-srcset="/images/spark/spark-catalyst.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Spark" style="width:550px;"/></div><span class="image-caption">Spark</span></div>
 <h2 id="2-join基本要素"><a class="markdownIt-Anchor" href="#2-join基本要素"></a> 2. Join基本要素</h2>
-<img src="/images/spark/spark-sql-join-ness.png" class="lazyload" data-srcset="/images/spark/spark-sql-join-ness.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" />
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-sql-join-ness.png" class="lazyload" data-srcset="/images/spark/spark-sql-join-ness.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Spark" style="width:650px;"/></div><span class="image-caption">Spark</span></div>
 <p><strong>Join基本实现流程</strong></p>
 <p>Spark将参与Join的两张表抽象为流式遍历表(streamIter)和查找表(buildIter)，通常streamIter为大表，buildIter为小表，我们不用担心哪个表为streamIter，哪个表为buildIter，这个spark会根据join语句自动帮我们完成.</p>
 <h3 id="21-sort-merge-join实现"><a class="markdownIt-Anchor" href="#21-sort-merge-join实现"></a> 2.1 sort merge join实现</h3>
 <blockquote>
 <p>要让两条记录能join到一起，首先需要将具有相同key的记录在同一个分区，所以通常来说，需要做一次shuffle，map阶段根据join条件确定每条记录的key，基于该key做shuffle write，将可能join到一起的记录分到同一个分区中，这样在shuffle read阶段就可以将两个表中具有相同key的记录拉到同一个分区处理.</p>
 </blockquote>
-<img src="/images/spark/spark-sort-merge-join.jpeg" class="lazyload" data-srcset="/images/spark/spark-sort-merge-join.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" />
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-sort-merge-join.jpeg" class="lazyload" data-srcset="/images/spark/spark-sort-merge-join.jpeg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Spark" style="width:650px;"/></div><span class="image-caption">Spark</span></div>
 <h3 id="22-broadcast-join实现"><a class="markdownIt-Anchor" href="#22-broadcast-join实现"></a> 2.2 broadcast join实现</h3>
 <p>当buildIter的估计大小不超过参数<code>spark.sql.autoBroadcastJoinThreshold</code>设定的值(默认10M)，那么就会自动采用broadcast join，否则采用sort merge join.</p>
 <h3 id="23-hash-join实现"><a class="markdownIt-Anchor" href="#23-hash-join实现"></a> 2.3 hash join实现</h3>
@@ -2791,9 +2793,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <h3 id="26-right-outer-join"><a class="markdownIt-Anchor" href="#26-right-outer-join"></a> 2.6 right outer join</h3>
 <h3 id="27-full-outer-join"><a class="markdownIt-Anchor" href="#27-full-outer-join"></a> 2.7 full outer join</h3>
 <p>full outer join仅采用sort merge join实现，左边和右表既要作为streamIter，又要作为buildIter，其基本实现流程如下图所示:</p>
-<img src="/images/spark/spark-full-outer-join.png" class="lazyload" data-srcset="/images/spark/spark-full-outer-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" />
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-full-outer-join.png" class="lazyload" data-srcset="/images/spark/spark-full-outer-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Spark" style="width:650px;"/></div><span class="image-caption">Spark</span></div>
 <h3 id="28-left-semi-join"><a class="markdownIt-Anchor" href="#28-left-semi-join"></a> 2.8 left semi join</h3>
-<img src="/images/spark/spark-left-semi-join.png" class="lazyload" data-srcset="/images/spark/spark-left-semi-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" width="650" alt="Spark" />
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-left-semi-join.png" class="lazyload" data-srcset="/images/spark/spark-left-semi-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Spark" style="width:650px;"/></div><span class="image-caption">Spark</span></div>
 <h3 id="29-left-anti-join"><a class="markdownIt-Anchor" href="#29-left-anti-join"></a> 2.9 left anti join</h3>
 <h2 id="3-spark-执行图"><a class="markdownIt-Anchor" href="#3-spark-执行图"></a> 3. Spark 执行图</h2>
 <p>Join是数据库查询中一个非常重要的语法特性，在数据库领域可以说是“得join者得天下”，SparkSQL作为一种分布式数据仓库系统，给我们提供了全面的join支持，并在内部实现上无声无息地做了很多优化，了解join的实现将有助于我们更深刻的了解我们的应用程序的运行轨迹.</p>
@@ -2838,10 +2840,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-06-17T10:34:00+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-06-20T11:40:30+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：Jun 17, 2021</p>
+    <p>更新于：Jun 20, 2021</p>
   </a>
 </div>
 
@@ -2863,7 +2865,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2020/09/26/spark/spark-sql-join-core/&title=Spark SQL几种Join实现 - Blair's Blog&summary="
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2020/09/26/spark/spark-sql-join-core/&title=Spark SQL几种Join实现 - Blair's Blog&summary=Spark RDD Feature"
           
           >
           
@@ -2875,7 +2877,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2020/09/26/spark/spark-sql-join-core/&title=Spark SQL几种Join实现 - Blair's Blog&summary="
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2020/09/26/spark/spark-sql-join-core/&title=Spark SQL几种Join实现 - Blair's Blog&summary=Spark RDD Feature"
           
           >
           
@@ -2887,7 +2889,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-facebook" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2020/09/26/spark/spark-sql-join-core/&title=Spark SQL几种Join实现 - Blair's Blog&summary="
+          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2020/09/26/spark/spark-sql-join-core/&title=Spark SQL几种Join实现 - Blair's Blog&summary=Spark RDD Feature"
           
           >
           
@@ -2899,7 +2901,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-twitter" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2020/09/26/spark/spark-sql-join-core/&title=Spark SQL几种Join实现 - Blair's Blog&summary="
+          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2020/09/26/spark/spark-sql-join-core/&title=Spark SQL几种Join实现 - Blair's Blog&summary=Spark RDD Feature"
           
           >
           
