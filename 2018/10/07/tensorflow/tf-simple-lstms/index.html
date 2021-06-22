@@ -2770,4 +2770,1410 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>声明： 本文部分内容转自 <a target="_blank" rel="noopener" href="https://blog.csdn.net/Jerr__y/article/details/61195257">永永夜 Tensorflow学习之路</a></p>
 <p>自己做了一个示意图，希望帮助初学者更好地理解 多层RNN.</p>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/tensorflow/tf-4.4_1-simple-lstms.png" class="lazyload" data-srcset="/images/tensorflow/tf-4.4_1-simple-lstms.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:800px;"/></div></div>
-<p>通过本例，你可以了解到单层 LSTM 的实现，多层 LSTM 的实现。输入输出数据的格式。 RNN 的 dropout lay
+<p>通过本例，你可以了解到单层 LSTM 的实现，多层 LSTM 的实现。输入输出数据的格式。 RNN 的 dropout layer 的实现。</p>
+<h2 id="mnist-背景"><a class="markdownIt-Anchor" href="#mnist-背景"></a> MNIST 背景</h2>
+<p><strong>准备数据</strong></p>
+<p>MNIST 是在机器学习领域中的一个经典问题。该问题解决的是把 28x28像素 的灰度手写数字图片识别为相应的数字，其中数字的范围从 0到9.</p>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/tensorflow/tf-4.4_5-mnist_digits.png" class="lazyload" data-srcset="/images/tensorflow/tf-4.4_5-mnist_digits.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:400px;"/></div></div>
+<blockquote>
+<p>MNIST 数据集 包含了 60000 张图片来作为训练数据，10000 张图片作为测试数据。每张图片都代表了 0~9 中的一个数字。图片大小都为 28*28，处理后的每张图片是一个长度为 784 的一维数组，这个数组中的元素对应图片像素矩阵提供给神经网络的输入层，像素矩阵中元素的取值范围 [0, 1]， 它代表了颜色的深浅。其中 0 表示白色背景(background)，1 表示黑色前景(foreground)。</p>
+</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding:utf-8 -*-</span></span><br><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">from</span> tensorflow.contrib <span class="keyword">import</span> rnn</span><br><span class="line"><span class="keyword">from</span> tensorflow.examples.tutorials.mnist <span class="keyword">import</span> input_data</span><br><span class="line"></span><br><span class="line"><span class="comment"># 设置 GPU 按需增长</span></span><br><span class="line">config = tf.ConfigProto()</span><br><span class="line">config.gpu_options.allow_growth = <span class="literal">True</span></span><br><span class="line">sess = tf.Session(config=config)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 首先导入数据，看一下数据的形式</span></span><br><span class="line">mnist = input_data.read_data_sets(<span class="string">&#x27;MNIST_data&#x27;</span>, one_hot=<span class="literal">True</span>)</span><br><span class="line"><span class="built_in">print</span>(mnist.train.images.shape)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Extracting MNIST_data/train-images-idx3-ubyte.gz</span><br><span class="line">Extracting MNIST_data/train-labels-idx1-ubyte.gz</span><br><span class="line">Extracting MNIST_data/t10k-images-idx3-ubyte.gz</span><br><span class="line">Extracting MNIST_data/t10k-labels-idx1-ubyte.gz</span><br><span class="line">(55000, 784) # 训练集图片 - 55000 张 * 784维一维数组</span><br></pre></td></tr></table></figure>
+<p>执行 input_data.read_data_sets 后自动创建一个目录 MNIST_data，并开始下载数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">(anaconda3)</span><br><span class="line"><span class="comment"># ~/ghome/github/TensorFlowExamples [master ✗ (98591d9)] [16:15:03]</span></span><br><span class="line">➜ ll</span><br><span class="line">total 24</span><br><span class="line">drwxr-xr-x   6 blair  staff   192B Oct  9 16:14 MNIST_data</span><br><span class="line">-rw-r--r--   1 blair  staff   2.3K Oct  9 16:13 simple-lstms.ipynb</span><br><span class="line">(anaconda3)</span><br><span class="line"><span class="comment"># ~/ghome/github/TensorFlowExamples [master ✗ (98591d9)] [16:15:06]</span></span><br><span class="line">➜ ll MNIST_data</span><br><span class="line">total 22672</span><br><span class="line">-rw-r--r--  1 blair  staff   1.6M Oct  9 16:14 t10k-images-idx3-ubyte.gz</span><br><span class="line">-rw-r--r--  1 blair  staff   4.4K Oct  9 16:14 t10k-labels-idx1-ubyte.gz</span><br><span class="line">-rw-r--r--  1 blair  staff   9.5M Oct  9 16:14 train-images-idx3-ubyte.gz</span><br><span class="line">-rw-r--r--  1 blair  staff    28K Oct  9 16:14 train-labels-idx1-ubyte.gz</span><br><span class="line">(anaconda3)</span><br><span class="line"><span class="comment"># ~/ghome/github/TensorFlowExamples [master ✗ (98591d9)] [16:15:12]</span></span><br></pre></td></tr></table></figure>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">文件</th>
+<th style="text-align:center">内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">train-images-idx3-ubyte.gz</td>
+<td style="text-align:center">训练集图片 - 55000 张 训练图片, 5000 张 验证图片</td>
+</tr>
+<tr>
+<td style="text-align:center">train-labels-idx1-ubyte.gz</td>
+<td style="text-align:center">训练集图片对应的数字标签</td>
+</tr>
+<tr>
+<td style="text-align:center">t10k-images-idx3-ubyte.gz</td>
+<td style="text-align:center">测试集图片 - 10000 张 图片</td>
+</tr>
+<tr>
+<td style="text-align:center">t10k-labels-idx1-ubyte.gz</td>
+<td style="text-align:center">测试集图片对应的数字标签</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;training data shape &#x27;</span>, mnist.train.images.shape)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&#x27;training label shape &#x27;</span>, mnist.train.labels.shape)</span><br><span class="line"></span><br><span class="line"><span class="comment"># training data shape  (55000, 784)</span></span><br><span class="line"><span class="comment"># training label shape  (55000, 10)</span></span><br></pre></td></tr></table></figure>
+<h2 id="1-首先设置好模型用到的各个超参数"><a class="markdownIt-Anchor" href="#1-首先设置好模型用到的各个超参数"></a> 1. 首先设置好模型用到的各个超参数</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">lr = <span class="number">1e-3</span> <span class="comment"># 0.001</span></span><br><span class="line"><span class="comment"># 在训练和测试的时候，我们想用不同的 batch_size.所以采用占位符的方式</span></span><br><span class="line">batch_size = tf.placeholder(tf.int32, [])  <span class="comment"># 注意类型必须为 tf.int32</span></span><br><span class="line"></span><br><span class="line">keep_prob = tf.placeholder(tf.float32, [])</span><br><span class="line"></span><br><span class="line"><span class="comment"># 每个时刻的输入特征是28维的，就是每个时刻输入一行，一行有 28 个像素</span></span><br><span class="line">input_size = <span class="number">28</span></span><br><span class="line"><span class="comment"># 时序持续长度为28，即每做一次预测，需要先输入28行</span></span><br><span class="line">timestep_size = <span class="number">28</span></span><br><span class="line"><span class="comment"># 每个隐含层的节点数</span></span><br><span class="line">hidden_size = <span class="number">256</span></span><br><span class="line"><span class="comment"># LSTM layer 的层数</span></span><br><span class="line">layer_num = <span class="number">2</span></span><br><span class="line"><span class="comment"># 最后输出分类类别数量，如果是回归预测的话应该是 1</span></span><br><span class="line">class_num = <span class="number">10</span></span><br><span class="line"></span><br><span class="line">_X = tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">784</span>])</span><br><span class="line">y = tf.placeholder(tf.float32, [<span class="literal">None</span>, class_num])</span><br></pre></td></tr></table></figure>
+<h2 id="2-开始搭建-lstm-模型其实普通-rnns-模型也一样"><a class="markdownIt-Anchor" href="#2-开始搭建-lstm-模型其实普通-rnns-模型也一样"></a> 2. 开始搭建 LSTM 模型，其实普通 RNNs 模型也一样</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 把784个点的字符信息还原成 28 * 28 的图片</span></span><br><span class="line"><span class="comment"># 下面几个步骤是实现 RNN / LSTM 的关键</span></span><br><span class="line"><span class="comment">###################################################################</span></span><br><span class="line"><span class="comment"># tf.reshape(tensor, shape, name=None)  函数的作用是将 tensor 变换为参数shape的形式</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># **步骤1：RNN 的输入shape = (batch_size, timestep_size, input_size) </span></span><br><span class="line">X = tf.reshape(_X, [-<span class="number">1</span>, <span class="number">28</span>, <span class="number">28</span>]) </span><br><span class="line"></span><br><span class="line"><span class="comment"># **步骤2：定义一层 LSTM_cell，只需要说明 hidden_size, 它会自动匹配输入的 X 的维度</span></span><br><span class="line">lstm_cell = rnn.BasicLSTMCell(num_units=hidden_size, forget_bias=<span class="number">1.0</span>, state_is_tuple=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># **步骤3：添加 dropout layer, 一般只设置 output_keep_prob</span></span><br><span class="line">lstm_cell = rnn.DropoutWrapper(cell=lstm_cell, input_keep_prob=<span class="number">1.0</span>, output_keep_prob=keep_prob)</span><br><span class="line"></span><br><span class="line"><span class="comment"># **步骤4：调用 MultiRNNCell 来实现多层 LSTM</span></span><br><span class="line">mlstm_cell = rnn.MultiRNNCell([lstm_cell] * layer_num, state_is_tuple=<span class="literal">True</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># **步骤5：用全零来初始化state</span></span><br><span class="line">init_state = mlstm_cell.zero_state(batch_size, dtype=tf.float32)</span><br><span class="line"></span><br><span class="line"><span class="comment"># **步骤6：方法一，调用 dynamic_rnn() 来让我们构建好的网络运行起来</span></span><br><span class="line"><span class="comment"># ** 当 time_major==False 时， outputs.shape = [batch_size, timestep_size, hidden_size] </span></span><br><span class="line"><span class="comment"># ** 所以，可以取 h_state = outputs[:, -1, :] 作为最后输出</span></span><br><span class="line"><span class="comment"># ** state.shape = [layer_num, 2, batch_size, hidden_size], </span></span><br><span class="line"><span class="comment"># ** 或者，可以取 h_state = state[-1][1] 作为最后输出</span></span><br><span class="line"><span class="comment"># ** 最后输出维度是 [batch_size, hidden_size]</span></span><br><span class="line"><span class="comment"># outputs, state = tf.nn.dynamic_rnn(mlstm_cell, inputs=X, initial_state=init_state, time_major=False)</span></span><br><span class="line"><span class="comment"># h_state = outputs[:, -1, :]  # 或者 h_state = state[-1][1]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># *************** 为了更好的理解 LSTM 工作原理，我们把上面 步骤6 中的函数自己来实现 ***************</span></span><br><span class="line"><span class="comment"># 通过查看文档你会发现， RNNCell 都提供了一个 __call__()函数（见最后附），我们可以用它来展开实现LSTM按时间步迭代。</span></span><br><span class="line"><span class="comment"># **步骤6：方法二，按时间步展开计算 (暂时没有运行通过)</span></span><br><span class="line">outputs = <span class="built_in">list</span>()</span><br><span class="line">state = init_state</span><br><span class="line"><span class="keyword">with</span> tf.variable_scope(<span class="string">&#x27;RNN&#x27;</span>):</span><br><span class="line">    <span class="keyword">for</span> timestep <span class="keyword">in</span> <span class="built_in">range</span>(timestep_size):</span><br><span class="line">        <span class="keyword">if</span> timestep &gt; <span class="number">0</span>:</span><br><span class="line">            tf.get_variable_scope().reuse_variables()</span><br><span class="line">        <span class="comment"># 这里的state保存了每一层 LSTM 的状态</span></span><br><span class="line">        (cell_output, state) = mlstm_cell(X[:, timestep, :], state)</span><br><span class="line">        outputs.append(cell_output)</span><br><span class="line">h_state = outputs[-<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment">#  X[:, timestep, :] 就是取第timestep个时刻的特征 x_t 输入 mlstm_cell 中计算，因为每次用 batch_size 个样本来训练，所以相当于（并行）输入 batch_size 个 x_t 到 mlstm_cell 中计算。</span></span><br></pre></td></tr></table></figure>
+<h2 id="3-设置-loss-function-和-优化器展开训练并完成测试"><a class="markdownIt-Anchor" href="#3-设置-loss-function-和-优化器展开训练并完成测试"></a> 3. 设置 loss function 和 优化器，展开训练并完成测试</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 上面 LSTM 部分的输出会是一个 [hidden_size] 的 tensor，我们要分类的话，还需要接一个 softmax 层</span></span><br><span class="line"><span class="comment"># 首先定义 softmax 的连接权重矩阵和偏置</span></span><br><span class="line"><span class="comment"># out_W = tf.placeholder(tf.float32, [hidden_size, class_num], name=&#x27;out_Weights&#x27;)</span></span><br><span class="line"><span class="comment"># out_bias = tf.placeholder(tf.float32, [class_num], name=&#x27;out_bias&#x27;)</span></span><br><span class="line"><span class="comment"># 开始训练和测试</span></span><br><span class="line">W = tf.Variable(tf.truncated_normal([hidden_size, class_num], stddev=<span class="number">0.1</span>), dtype=tf.float32)</span><br><span class="line">bias = tf.Variable(tf.constant(<span class="number">0.1</span>,shape=[class_num]), dtype=tf.float32)</span><br><span class="line">y_pre = tf.nn.softmax(tf.matmul(h_state, W) + bias)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 损失和评估函数</span></span><br><span class="line">cross_entropy = -tf.reduce_mean(y * tf.log(y_pre))</span><br><span class="line">train_op = tf.train.AdamOptimizer(lr).minimize(cross_entropy)</span><br><span class="line"></span><br><span class="line">correct_prediction = tf.equal(tf.argmax(y_pre,<span class="number">1</span>), tf.argmax(y,<span class="number">1</span>))</span><br><span class="line">accuracy = tf.reduce_mean(tf.cast(correct_prediction, <span class="string">&quot;float&quot;</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">sess.run(tf.global_variables_initializer())</span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2000</span>):</span><br><span class="line">    _batch_size = <span class="number">128</span></span><br><span class="line">    batch = mnist.train.next_batch(_batch_size)</span><br><span class="line">    sess.run(train_op, feed_dict=&#123;_X: batch[<span class="number">0</span>], y: batch[<span class="number">1</span>], keep_prob: <span class="number">0.5</span>, batch_size: _batch_size&#125;)</span><br><span class="line">    <span class="keyword">if</span> (i+<span class="number">1</span>)%<span class="number">200</span> == <span class="number">0</span>:</span><br><span class="line">        train_accuracy = sess.run(accuracy, feed_dict=&#123;</span><br><span class="line">            _X:batch[<span class="number">0</span>], y: batch[<span class="number">1</span>], keep_prob: <span class="number">1.0</span>, batch_size: _batch_size&#125;)</span><br><span class="line">        <span class="comment"># 已经迭代完成的 epoch 数: mnist.train.epochs_completed</span></span><br><span class="line">        <span class="built_in">print</span> <span class="string">&quot;Iter%d, step %d, training accuracy %g&quot;</span> % ( mnist.train.epochs_completed, (i+<span class="number">1</span>), train_accuracy)</span><br><span class="line">    </span><br><span class="line"><span class="comment"># 计算测试数据的准确率</span></span><br><span class="line"><span class="built_in">print</span> <span class="string">&quot;test accuracy %g&quot;</span>% sess.run(accuracy, feed_dict=&#123;</span><br><span class="line">    _X: mnist.test.images, y: mnist.test.labels, keep_prob: <span class="number">1.0</span>, batch_size:mnist.test.images.shape[<span class="number">0</span>]&#125;)</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Iter0, step 200, training accuracy 0.851562</span><br><span class="line">Iter0, step 400, training accuracy 0.960938</span><br><span class="line">Iter1, step 600, training accuracy 0.984375</span><br><span class="line">Iter1, step 800, training accuracy 0.960938</span><br><span class="line">Iter2, step 1000, training accuracy 0.984375</span><br><span class="line">Iter2, step 1200, training accuracy 0.9375</span><br><span class="line">Iter3, step 1400, training accuracy 0.96875</span><br><span class="line">Iter3, step 1600, training accuracy 0.984375</span><br><span class="line">Iter4, step 1800, training accuracy 0.992188</span><br><span class="line">Iter4, step 2000, training accuracy 0.984375</span><br><span class="line">test accuracy 0.9858</span><br></pre></td></tr></table></figure>
+<p>我们一共只迭代不到 5 个 epoch，在测试集上就已经达到了 0.98 的准确率，可以看出来 LSTM 在做这个字符分类的任务上还是比较有效的，而且我们最后一次性对 10000 张测试图片进行预测，才占了 725 MiB 的显存。而我们在之前的两层 CNNs 网络中，预测 10000 张图片一共用了 8721 MiB 的显存，差了整整 12 倍呀！！ 这主要是因为 RNN/LSTM 网络中，每个时间步所用的权值矩阵都是共享的，可以通过前面介绍的 LSTM 的网络结构分析一下，整个网络的参数非常少。</p>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/jerr__y/article/category/6747409">大学之道，在明明德 永永夜 Tensorflow学习之路</a></li>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/u014595019/article/details/52759104">tensorflow笔记：多层LSTM代码分析 </a></li>
+<li><a target="_blank" rel="noopener" href="http://wiki.jikexueyuan.com/project/tensorflow-zh/tutorials/mnist_download.html">极客学院 MNIST 数据下载</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/41949741">隔壁小王 LSTM 神经网络输入输出究竟是怎样的？</a></li>
+<li><a target="_blank" rel="noopener" href="https://colab.research.google.com">colab.research.google</a></li>
+<li><a target="_blank" rel="noopener" href="https://zh.gluon.ai/">zh.gluon.ai 动手学深度学习</a></li>
+<li><a target="_blank" rel="noopener" href="http://discuss.gluon.ai/">discuss.gluon.ai 论坛</a></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">roll_jj： 博主你好， outputs, state = tf.nn.dynamic_rnn(mlstm_cell, inputs=X, initial_state=init_state, time_major=False) h_state = outputs[:, -1, :] 这两句话里，outputs的三个维度是什么意思，为什么把中间那个维度去掉就是我们要的输出结果了？(1年前#6楼)收起回复举报回复</span><br><span class="line">Jerr__y</span><br><span class="line">CQU_HYX回复 roll_jj： 是的(1年前)</span><br><span class="line">roll_jj</span><br><span class="line">roll_jj回复 CQU_HYX： 谢谢博主解答。我看官方的那个PTB例子里，没有取[-1]的这个操作，而是用了output = tf.reshape(tf.concat(1, outputs), [-1, size])操作，这是因为预测目标的不同么？(1年前)</span><br><span class="line">Jerr__y</span><br><span class="line">CQU_HYX回复 roll_jj： 原文注释上面有说了，outputs.shape = [batch_size, timestep_size, hidden_size]。 因为是分类问题，所有只需要在看完最后一行像素后才输出分类结果。-1 表示取最后一个 timestep 的结果， 而不是说把中间维度去掉</span><br></pre></td></tr></table></figure>
+
+  
+  
+    
+    <div class='footer'>
+      
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=http://www.iequa.com/2018/10/07/tensorflow/tf-simple-lstms/>http://www.iequa.com/2018/10/07/tensorflow/tf-simple-lstms/</a></p>
+              
+            
+          </blockquote>
+        </div>
+      
+      
+    </div>
+  
+  
+    
+
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-06-20T12:12:28+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Jun 20, 2021</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/tensorflow/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>tensorflow</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2018/10/07/tensorflow/tf-simple-lstms/&title=多层 LSTM 通俗版 - Blair's Blog&summary=官方给出的例子，用多层 LSTM 来实现 PTBModel 语言模型，比如： tensorflow笔记：多层LSTM代码分析 感觉这些例子还是太复杂了，所以这里写了个比较简单的版本"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2018/10/07/tensorflow/tf-simple-lstms/&title=多层 LSTM 通俗版 - Blair's Blog&summary=官方给出的例子，用多层 LSTM 来实现 PTBModel 语言模型，比如： tensorflow笔记：多层LSTM代码分析 感觉这些例子还是太复杂了，所以这里写了个比较简单的版本"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-facebook" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2018/10/07/tensorflow/tf-simple-lstms/&title=多层 LSTM 通俗版 - Blair's Blog&summary=官方给出的例子，用多层 LSTM 来实现 PTBModel 语言模型，比如： tensorflow笔记：多层LSTM代码分析 感觉这些例子还是太复杂了，所以这里写了个比较简单的版本"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/facebook.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/facebook.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-twitter" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2018/10/07/tensorflow/tf-simple-lstms/&title=多层 LSTM 通俗版 - Blair's Blog&summary=官方给出的例子，用多层 LSTM 来实现 PTBModel 语言模型，比如： tensorflow笔记：多层LSTM代码分析 感觉这些例子还是太复杂了，所以这里写了个比较简单的版本"
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/twitter.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/twitter.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+        <a class='prev' href='/2018/11/02/hadoop/ops-install-CDH6.0.1/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>大数据平台CDH6.0集群在线安装</p>
+          <p class='content'>介绍了 CDH 集群的搭建与安装
+标签： Cloudera-Manager CDH Hadoop 部署 集群
+
+
+目前Hadoop比较流行的主要有2个版本，Apache和Cloudera版本。
+...</p>
+        </a>
+      
+      
+        <a class='next' href='/2018/10/04/tensorflow/tf-mnist-1-beginners/'>
+          <p class='title'>简单前馈网络实现 mnist 分类<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>我们来实现一个非常简单的两层 FC 全连接网络来完成 MNIST数据 的分类
+ 
+输入 [-1,28*28]， FC1 有 1024 个neurons， FC2 有 10 个neurons。
+
+...</p>
+        </a>
+      
+    </div>
+  
+</article>
+
+
+  
+
+  
+
+
+
+
+
+
+</div>
+<aside id='l_side'>
+  
+  
+    
+    
+
+
+
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>Toc</span>
+    
+  </header>
+
+
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#mnist-%E8%83%8C%E6%99%AF"><span class="toc-text"> MNIST 背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E9%A6%96%E5%85%88%E8%AE%BE%E7%BD%AE%E5%A5%BD%E6%A8%A1%E5%9E%8B%E7%94%A8%E5%88%B0%E7%9A%84%E5%90%84%E4%B8%AA%E8%B6%85%E5%8F%82%E6%95%B0"><span class="toc-text"> 1. 首先设置好模型用到的各个超参数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%BC%80%E5%A7%8B%E6%90%AD%E5%BB%BA-lstm-%E6%A8%A1%E5%9E%8B%E5%85%B6%E5%AE%9E%E6%99%AE%E9%80%9A-rnns-%E6%A8%A1%E5%9E%8B%E4%B9%9F%E4%B8%80%E6%A0%B7"><span class="toc-text"> 2. 开始搭建 LSTM 模型，其实普通 RNNs 模型也一样</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%AE%BE%E7%BD%AE-loss-function-%E5%92%8C-%E4%BC%98%E5%8C%96%E5%99%A8%E5%B1%95%E5%BC%80%E8%AE%AD%E7%BB%83%E5%B9%B6%E5%AE%8C%E6%88%90%E6%B5%8B%E8%AF%95"><span class="toc-text"> 3. 设置 loss function 和 优化器，展开训练并完成测试</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+
+          <!--此文件用来存放一些不方便取值的变量-->
+<!--思路大概是将值藏到重加载的区域内-->
+
+<script>
+  window.pdata={}
+  pdata.ispage=true;
+  pdata.postTitle="多层 LSTM 通俗版";
+  pdata.commentPath="";
+  pdata.commentPlaceholder="";
+  //  see: /layout/_partial/scripts/coverCtrl.ejs
+  
+    // header
+    var l_header=document.getElementById("l_header");
+    
+    l_header.classList.add("show");
+    
+    
+      // cover
+      var cover_wrapper=document.querySelector('#l_cover .cover-wrapper');
+      var scroll_down=document.getElementById('scroll-down');
+      cover_wrapper.id="none";
+      cover_wrapper.style.display="none";
+      scroll_down.style.display="none";
+    
+  
+</script>
+
+        </div>
+        
+  
+  <footer class="footer clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='320px'
+      server='netease'
+      type='playlist'
+      id='3175833810'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+</div>
+        
+      
+    
+      
+        Use
+        <a href="https://github.com/volantis-x/hexo-theme-volantis/tree/5.0.0.alpha.0" target="_blank" class="codename">Volantis</a>
+        as theme
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="/">Copyright © 2016-2021 Blair Chen</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+
+        <a id="s-top" class="fas fa-arrow-up fa-fw" href="javascript:void(0)"></a>
+      </div>
+    </div>
+    <div>
+      <script>
+  /************这个文件存放不需要重载的全局变量和全局函数*********/
+  window.volantis = {}; // volantis 全局变量
+  volantis.dom = {}; // 页面Dom see: /source/js/app.js etc.
+  /******************** volantis.EventListener ********************************/
+  // 事件监听器 see: /source/js/app.js
+  volantis.EventListener={}
+  // 这里存放pjax切换页面时将被移除的事件监听器
+  volantis.EventListener.list=[]
+  //构造方法
+  function volantisEventListener(type,f,ele){
+    this.type=type
+    this.f=f
+    this.ele=ele
+  }
+  // 移除事件监听器
+  volantis.EventListener.remove=()=>{
+    volantis.EventListener.list.forEach(function (i) {
+        i.ele.removeEventListener(i.type,i.f,false)
+    })
+    volantis.EventListener.list=[]
+  }
+  /******************** volantis.dom.$ ********************************/
+  // 注：这里没有选择器，也没有forEach一次只处理一个dom，这里重新封装主题常用的dom方法，返回的是dom对象，对象包含了以下方法，同时保留dom的原生API
+  function volantisDom(ele){
+    if(!ele) ele=document.createElement("div")
+    this.ele=ele;
+    // ==============================================================
+    this.ele.find=(c)=>{
+      let q=this.ele.querySelector(c)
+      if(q)
+        return new volantisDom(q)
+    }
+    // ==============================================================
+    this.ele.hasClass=(c)=>{
+      return this.ele.className.match(new RegExp('(\\s|^)' + c + '(\\s|$)'));
+    }
+    this.ele.addClass=(c)=>{
+      this.ele.classList.add(c);
+      return this.ele
+    }
+    this.ele.removeClass=(c)=>{
+      this.ele.classList.remove(c);
+      return this.ele
+    }
+    this.ele.toggleClass=(c)=>{
+      if(this.ele.hasClass(c)){
+        this.ele.removeClass(c)
+      }else{
+        this.ele.addClass(c)
+      }
+      return this.ele
+    }
+    // ==============================================================
+    // 参数 r 为 true 表示pjax切换页面时事件监听器将被移除，false不移除
+    this.ele.on=(c,f,r=1)=>{
+      this.ele.addEventListener(c,f,false)
+      if(r){
+        volantis.EventListener.list.push(new volantisEventListener(c,f,this.ele))
+      }
+      return this.ele
+    }
+    this.ele.click=(f,r)=>{
+      this.ele.on("click",f,r)
+      return this.ele
+    }
+    this.ele.scroll=(f,r)=>{
+      this.ele.on("scroll",f,r)
+      return this.ele
+    }
+    // ==============================================================
+    this.ele.html=(c)=>{
+      // if(c=== undefined){
+      //   return this.ele.innerHTML
+      // }else{
+        this.ele.innerHTML=c
+        return this.ele
+      // }
+    }
+    // ==============================================================
+    this.ele.hide=(c)=>{
+      this.ele.style.display="none"
+      return this.ele
+    }
+    this.ele.show=(c)=>{
+      this.ele.style.display="block"
+      return this.ele
+    }
+    // ==============================================================
+    return this.ele
+  }
+  volantis.dom.$=(ele)=>{
+    return new volantisDom(ele)
+  }
+  /******************** volantis.dom ********************************/
+  // 页面选择器 将dom对象缓存起来 see: /source/js/app.js etc.
+  volantis.dom.bodyAnchor = volantis.dom.$(document.getElementById("safearea")); // 页面主体
+  volantis.dom.topBtn = volantis.dom.$(document.getElementById('s-top')); // 向上
+  volantis.dom.wrapper = volantis.dom.$(document.getElementById('wrapper')); // 整个导航栏
+  volantis.dom.coverAnchor = volantis.dom.$(document.querySelector('#l_cover .cover-wrapper')); // 1个
+  volantis.dom.switcher = volantis.dom.$(document.querySelector('#l_header .switcher .s-search')); // 搜索按钮   移动端 1个
+  volantis.dom.header = volantis.dom.$(document.getElementById('l_header')); // 移动端导航栏
+  volantis.dom.search = volantis.dom.$(document.querySelector('#l_header .m_search')); // 搜索框 桌面端 移动端 1个
+  volantis.dom.mPhoneList = volantis.dom.$(document.querySelectorAll('#l_header .m-phone .list-v')); //  手机端 子菜单 多个
+  /******************** RunItem ********************************/
+  function RunItem() {
+    this.list = []; // 存放回调函数
+    this.start = () => {
+      for (var i = 0; i < this.list.length; i++) {
+        this.list[i].run();
+      }
+    };
+    this.push = (fn, name) => {
+      var f = new Item(fn, name);
+      this.list.push(f);
+    };
+    // 构造一个可以run的对象
+    function Item(fn, name) {
+      // 函数名称
+      this.name = name || fn.name;
+      // run方法
+      this.run = () => {
+        try {
+          fn();
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    }
+  }
+  /******************** Pjax ********************************/
+  // /layout/_third-party/pjax/index.ejs
+  // volantis.pjax.send(callBack[,"callBackName"]) 传入pjax:send回调函数
+  // volantis.pjax.push(callBack[,"callBackName"]) 传入pjax:complete回调函数
+  // volantis.pjax.error(callBack[,"callBackName"]) 传入pjax:error回调函数
+  volantis.pjax = {};
+  volantis.pjax.method = {
+    complete: new RunItem(),
+    error: new RunItem(),
+    send: new RunItem(),
+  };
+  volantis.pjax = {
+    ...volantis.pjax,
+    push: volantis.pjax.method.complete.push,
+    error: volantis.pjax.method.error.push,
+    send: volantis.pjax.method.send.push,
+  };
+  /********************  Dark Mode  ********************************/
+  // /layout/_partial/scripts/darkmode.ejs
+  // volantis.dark.mode 当前模式 dark or light
+  // volantis.dark.toggle() 暗黑模式触发器
+  // volantis.dark.push(callBack[,"callBackName"]) 传入触发器回调函数
+  volantis.dark = {};
+  volantis.dark.method = {
+    toggle: new RunItem(),
+  };
+  volantis.dark = {
+    ...volantis.dark,
+    push: volantis.dark.method.toggle.push,
+  };
+  /********************  Message  ********************************/
+  // /layout/_third-party/message/script.ejs
+  // volantis.message(title,message,type,autoClose)
+  /********************  isMobile  ********************************/
+  // /source/js/app.js
+  // volantis.isMobile
+  // volantis.isMobileOld
+  /********************脚本动态加载函数********************************/
+  // volantis.js(src, cb)  cb 可以传入onload回调函数 或者 JSON对象 例如: volantis.js("src", ()=>{}) 或 volantis.js("src", {defer:true,onload:()=>{}})
+  // volantis.css(src)
+
+  // 返回Promise对象，如下方法同步加载资源，这利于处理文件资源之间的依赖关系，例如：APlayer 需要在 MetingJS 之前加载
+  // (async () => {
+  //     await volantis.js("...theme.plugins.aplayer.js.aplayer...")
+  //     await volantis.js("...theme.plugins.aplayer.js.meting...")
+  // })();
+
+  // 已经加入了setTimeout
+  volantis.js = (src, cb) => {
+    return new Promise(resolve => {
+      setTimeout(function () {
+        var HEAD = document.getElementsByTagName("head")[0] || document.documentElement;
+        var script = document.createElement("script");
+        script.setAttribute("type", "text/javascript");
+        if (cb) {
+          if (JSON.stringify(cb)) {
+            for (let p in cb) {
+              if(p=="onload"){
+                script[p]=()=>{
+                  cb[p]()
+                  resolve()
+                }
+              }else{
+                script[p]=cb[p]
+                script.onload = resolve
+              }
+            }
+          } else {
+            script.onload = ()=>{
+              cb()
+              resolve()
+            };
+          }
+        }else{
+          script.onload=resolve
+        }
+        script.setAttribute("src", src);
+        HEAD.appendChild(script);
+      });
+    });
+  }
+  volantis.css = (src)=>{
+    return new Promise(resolve => {
+      setTimeout(function () {
+        var link = document.createElement('link');
+        link.rel = "stylesheet";
+        link.href = src;
+        link.onload = resolve;
+        document.getElementsByTagName("head")[0].appendChild(link);
+      });
+    });
+  }
+  /********************按需加载的插件********************************/
+  // volantis.import.jQuery().then(()=>{})
+  volantis.import={
+    jQuery:()=>{
+      if(typeof jQuery=="undefined"){
+        return volantis.js("https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js")
+      }else{
+        return new Promise(resolve => {resolve()});
+      }
+    }
+  }
+  /*****************************************************************/
+</script>
+
+<script>
+  
+  volantis.css("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14/css/all.min.css");
+  
+  
+  
+  
+  volantis.css("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10/build/styles/solarized-light.min.css");
+  
+</script>
+<!-- required -->
+<!-- 
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js"></script>
+ -->
+
+<!-- internal -->
+
+
+
+
+
+<!-- rightmenu要在darkmode之前（ToggleButton） darkmode要在comments之前（volantis.dark.push）-->
+
+  <script>
+const rootElement = document.documentElement;
+const darkModeStorageKey = "user-color-scheme";
+const rootElementDarkModeAttributeName = "data-user-color-scheme";
+const setLS = (k, v) => {
+    localStorage.setItem(k, v);
+};
+const removeLS = (k) => {
+    localStorage.removeItem(k);
+};
+const getLS = (k) => {
+    return localStorage.getItem(k);
+};
+const getModeFromCSSMediaQuery = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+const resetRootDarkModeAttributeAndLS = () => {
+  rootElement.removeAttribute(rootElementDarkModeAttributeName);
+  removeLS(darkModeStorageKey);
+};
+const validColorModeKeys = {
+  dark: true,
+  light: true,
+};
+const applyCustomDarkModeSettings = (mode) => {
+  const currentSetting = mode || getLS(darkModeStorageKey);
+  getCustomDarkMode();
+  if (currentSetting === getModeFromCSSMediaQuery()) {
+    resetRootDarkModeAttributeAndLS();
+  } else if (validColorModeKeys[currentSetting]) {
+    rootElement.setAttribute(rootElementDarkModeAttributeName, currentSetting);
+  } else {
+    resetRootDarkModeAttributeAndLS();
+  }
+};
+const invertDarkModeObj = {
+  dark: "light",
+  light: "dark",
+};
+/**
+ * get target mode
+ */
+ const getCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  if(currentSetting=="dark"){
+    volantis.dark.mode="light";
+  }else{
+    volantis.dark.mode="dark";
+  }
+  // console.log(volantis.dark.mode)
+};
+const toggleCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  setLS(darkModeStorageKey, currentSetting);
+  return currentSetting;
+};
+/**
+ * 暗黑模式触发器
+ */
+volantis.dark.toggle=()=>{
+  const mode = toggleCustomDarkMode();
+  applyCustomDarkModeSettings(mode);
+  // 使用 volantis.dark.push 方法传入volantis.dark.toggle回调函数 参见layout/_partial/scripts/global.ejs
+  volantis.dark.method.toggle.start();
+}
+/**
+ * bind event for toggle button
+ */
+
+function bindToggleButton() {
+  var btn= document.querySelectorAll("#wrapper .toggle-mode-btn,#rightmenu-wrapper .toggle-mode-btn")
+  btn.forEach(function (e) {
+    volantis.dom.$(e).on('click',volantis.dark.toggle);
+  })
+}
+applyCustomDarkModeSettings();
+document.addEventListener("DOMContentLoaded", bindToggleButton);
+volantis.pjax.push(bindToggleButton);
+</script>
+
+
+
+<script>
+  function loadIssuesJS() {
+    
+      const sites_api = document.getElementById('sites-api');
+      if (sites_api != undefined && typeof SitesJS === 'undefined') {
+        volantis.js("/js/plugins/sites.js")
+      }
+    
+    
+      const friends_api = document.getElementById('friends-api');
+      if (friends_api != undefined && typeof FriendsJS === 'undefined') {
+        volantis.js("/js/plugins/friends.js")
+      }
+    
+    
+      const contributors_api = document.getElementById('contributors-api');
+      if (contributors_api != undefined && typeof ContributorsJS === 'undefined') {
+        volantis.js("/js/plugins/contributors.js")
+      }
+    
+  };
+  loadIssuesJS()
+  volantis.pjax.push(()=>{
+    loadIssuesJS();
+  })
+
+</script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
+
+
+  
+
+<script>
+  window.FPConfig = {
+	delay: 0,
+	ignoreKeywords: ["#"],
+	maxRPS: 6,
+	hoverDelay: 0
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"></script>
+
+
+
+
+
+  <script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  function pjax_CopyCode() {
+    if (!(document.querySelector(".highlight .code pre") || document.querySelector(".article pre code")))
+      return;
+    if (typeof clipboard == "undefined") {
+      var clipboard = new ClipboardJS(".btn-copy", {
+        target: function (trigger) {
+          return trigger.nextElementSibling;
+        },
+      });
+    }
+    var copyHtml = "";
+    copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+    copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+    copyHtml += "</button>";
+    document.querySelectorAll(".highlight .code pre").forEach(e => {
+      e.insertAdjacentHTML("beforebegin", copyHtml)
+    });
+    document.querySelectorAll(".article pre code").forEach(e => {
+      e.insertAdjacentHTML("beforebegin", copyHtml)
+    });
+    clipboard.off("success").on("success", function (e) {
+      let $btn = volantis.dom.$(e.trigger);
+      $btn.addClass("copied");
+      let $icon = volantis.dom.$($btn.find("i"));
+      $icon.removeClass("fa-copy").addClass("fa-check-circle");
+      let $span = volantis.dom.$($btn.find("span"));
+      $span.innerText = "COPIED";
+      wait(function () {
+        $icon.removeClass("fa-check-circle").addClass("fa-copy");
+        $span.innerText = "COPY";
+      }, 2000);
+    });
+    clipboard.off("error").on("error", function (e) {
+      e.clearSelection();
+      let $btn = volantis.dom.$(e.trigger);
+      $btn.addClass("copy-failed");
+      let $icon = volantis.dom.$($btn.find("i"));
+      $icon.removeClass("fa-copy").addClass("fa-times-circle");
+      let $span = volantis.dom.$($btn.find("span"));
+      $span.innerText = "COPY FAILED";
+      wait(function () {
+        $icon.removeClass("fa-times-circle").addClass("fa-copy");
+        $span.innerText = "COPY";
+      }, 2000);
+    });
+  }
+  volantis.js("https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js").then(pjax_CopyCode)
+  volantis.pjax.push(pjax_CopyCode);
+</script>
+
+
+
+
+
+
+  <script>
+    volantis.APlayerController = {};
+    volantis.APlayerController.id = '3175833810';  // 设定全局音乐播放ID
+    volantis.APlayerController.volume = '0.7';
+    volantis.css("https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css");
+    // APlayer 需要在  MetingJS 之前加载
+    (async () => {
+      await volantis.js("https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js")
+      await volantis.js("https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js")
+
+      
+    })();
+  // message see: /layout/_third-party/message/script.ejs
+  
+</script>
+
+
+
+
+
+
+
+
+<script src="/js/app.js"></script>
+
+
+<!-- optional -->
+
+  <script>
+const SearchServiceimagePath="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@master/img/logo/";
+const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
+
+function loadSearchService(){
+  volantis.import.jQuery().then(()=>{
+    // see: layout/_partial/scripts/cdnCtrl.ejs
+    volantis.js('/js/search/hexo.js',setSearchService); // 此处依赖JQ
+  })
+  document.querySelectorAll('.input.u-search-input').forEach((e)=>{
+    e.removeEventListener('focus',loadSearchService,false)
+  })
+}
+
+document.querySelectorAll('.input.u-search-input').forEach((e)=>{
+  e.addEventListener('focus',loadSearchService,false)
+})
+
+function listenSearch(){
+  
+    customSearch = new HexoSearch({
+      imagePath: SearchServiceimagePath
+    });
+  
+}
+function setSearchService() {
+	listenSearch();
+	
+		document.addEventListener("pjax:success", listenSearch);
+	
+}
+</script>
+
+
+
+
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10/build/highlight.min.js"></script>
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script>
+volantis.pjax.push(()=>{
+	document.querySelectorAll('pre code').forEach((block) => {
+	  hljs.highlightBlock(block);
+	});
+},"highlightjs")
+</script>
+
+
+
+  <script defer>
+
+  const LCCounter = {
+    app_id: 'A0QW53VALkBKnFs6wtT1RXhe-MdYXbMMI',
+    app_key: '9wL7mo49KsOOWhM85zQBaITs',
+    custom_api_server: '',
+
+    // 查询存储的记录
+    getRecord(Counter, url, title) {
+      return new Promise(function (resolve, reject) {
+        Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({url})))
+          .then(resp => resp.json())
+          .then(({results, code, error}) => {
+            if (code === 401) {
+              throw error;
+            }
+            if (results && results.length > 0) {
+              var record = results[0];
+              resolve(record);
+            } else {
+              Counter('post', '/classes/Counter', {url, title: title, times: 0})
+                .then(resp => resp.json())
+                .then((record, error) => {
+                  if (error) {
+                    throw error;
+                  }
+                  resolve(record);
+                }).catch(error => {
+                console.error('Failed to create', error);
+                reject(error);
+              });
+            }
+          }).catch((error) => {
+          console.error('LeanCloud Counter Error:', error);
+          reject(error);
+        });
+      })
+    },
+
+    // 发起自增请求
+    increment(Counter, incrArr) {
+      return new Promise(function (resolve, reject) {
+        Counter('post', '/batch', {
+          "requests": incrArr
+        }).then((res) => {
+          res = res.json();
+          if (res.error) {
+            throw res.error;
+          }
+          resolve(res);
+        }).catch((error) => {
+          console.error('Failed to save visitor count', error);
+          reject(error);
+        });
+      });
+    },
+
+    // 构建自增请求体
+    buildIncrement(objectId) {
+      return {
+        "method": "PUT",
+        "path": `/1.1/classes/Counter/${ objectId }`,
+        "body": {
+          "times": {
+            '__op': 'Increment',
+            'amount': 1
+          }
+        }
+      }
+    },
+
+    // 校验是否为有效的 UV
+    validUV() {
+      var key = 'LeanCloudUVTimestamp';
+      var flag = localStorage.getItem(key);
+      if (flag) {
+        // 距离标记小于 24 小时则不计为 UV
+        if (new Date().getTime() - parseInt(flag) <= 86400000) {
+          return false;
+        }
+      }
+      localStorage.setItem(key, new Date().getTime().toString());
+      return true;
+    },
+
+    addCount(Counter) {
+      var enableIncr = '' === 'true' && window.location.hostname !== 'localhost';
+      enableIncr = true;
+      var getterArr = [];
+      var incrArr = [];
+      // 请求 PV 并自增
+      var pvCtn = document.querySelector('#lc-sv');
+      if (pvCtn || enableIncr) {
+        var pvGetter = this.getRecord(Counter, 'http://www.iequa.com' + '/#lc-sv', 'Visits').then((record) => {
+          incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-sv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + 1;
+              if (pvCtn) {
+                pvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(pvGetter);
+      }
+
+      // 请求 UV 并自增
+      var uvCtn = document.querySelector('#lc-uv');
+      if (uvCtn || enableIncr) {
+        var uvGetter = this.getRecord(Counter, 'http://www.iequa.com' + '/#lc-uv', 'Visitors').then((record) => {
+          var vuv = this.validUV();
+          vuv && incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-uv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + (vuv ? 1 : 0);
+              if (uvCtn) {
+                uvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(uvGetter);
+      }
+
+      // 请求文章的浏览数，如果是当前页面就自增
+      var allPV = document.querySelectorAll('#lc-pv');
+      if (allPV.length > 0 || enableIncr) {
+        for (i = 0; i < allPV.length; i++) {
+          let pv = allPV[i];
+          let title = pv.getAttribute('data-title');
+          var url = 'http://www.iequa.com' + pv.getAttribute('data-path');
+          if (url) {
+            var viewGetter = this.getRecord(Counter, url, title).then((record) => {
+              // 是当前页面就自增
+              let curPath = window.location.pathname;
+              if (curPath.includes('index.html')) {
+                curPath = curPath.substring(0, curPath.lastIndexOf('index.html'));
+              }
+              if (pv.getAttribute('data-path') == curPath) {
+                incrArr.push(this.buildIncrement(record.objectId));
+              }
+              if (pv) {
+                var ele = pv.querySelector('#lc-pv #number');
+                if (ele) {
+                  if (pv.getAttribute('data-path') == curPath) {
+                    ele.innerText = (record.times || 0) + 1;
+                  } else {
+                    ele.innerText = record.times || 0;
+                  }
+                  pv.style.display = 'inline';
+                }
+              }
+            });
+            getterArr.push(viewGetter);
+          }
+        }
+      }
+
+      // 如果启动计数自增，批量发起自增请求
+      if (enableIncr) {
+        Promise.all(getterArr).then(() => {
+          incrArr.length > 0 && this.increment(Counter, incrArr);
+        })
+      }
+
+    },
+
+
+    fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${ api_server }/1.1${ url }`, {
+          method,
+          headers: {
+            'X-LC-Id': this.app_id,
+            'X-LC-Key': this.app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      this.addCount(Counter);
+    },
+
+    refreshCounter() {
+      var api_server = this.app_id.slice(-9) !== '-MdYXbMMI' ? this.custom_api_server : `https://${ this.app_id.slice(0, 8).toLowerCase() }.api.lncldglobal.com`;
+      if (api_server) {
+        this.fetchData(api_server);
+      } else {
+        fetch('https://app-router.leancloud.cn/2/route?appId=' + this.app_id)
+          .then(resp => resp.json())
+          .then(({api_server}) => {
+            this.fetchData('https://' + api_server);
+          });
+      }
+    }
+
+  };
+
+  LCCounter.refreshCounter();
+
+  document.addEventListener('pjax:complete', function () {
+    LCCounter.refreshCounter();
+  });
+</script>
+
+
+
+
+
+
+
+
+
+  
+<script>
+  var imgs=["/images/logos/parallax-bg/7_logo1.png", "/images/logos/parallax-bg/7_logo2.png", "/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo3.png", "/images/logos/parallax-bg/7_logo4.png", "/images/logos/parallax-bg/7_logo5.png", "/images/logos/parallax-bg/7_logo7.jpeg"];
+  var index=0;
+  
+      function shuffle(arr){
+        /*From countercurrent-time*/
+        var n = arr.length;
+        while(n--) {
+          var index = Math.floor(Math.random() * n);
+          var temp = arr[index];
+          arr[index] = arr[n];
+          arr[n] = temp;
+        }
+      }
+      shuffle(imgs);
+  
+
+  function parallax(src){
+    $('#parallax-window').parallax({
+      src: src,
+      speed: .25,
+      bleed: 0,
+      zIndex: -100,
+      posX: 'center',
+      posY: 'center',
+      overScrollFix: false,
+      excludeAgents: /(iPod|iPhone|iPad|Android)/,
+      aspectRatio: null,
+      // jquery selectors
+      sliderSelector: '>.parallax-slider',
+      mirrorSelector: '#l_cover',
+      // callback functions:
+      afterRefresh: ()=>{
+        // console.log("afterRefresh")
+      },
+      afterRender: ()=>{
+        // console.log("afterRender")
+      },
+      afterSetup: ()=>{
+        // console.log("afterSetup")
+      },
+      afterDestroy: ()=>{
+        // console.log("afterDestroy")
+      },
+    });
+  }
+  function next_parallax(){
+    $("#l_cover .parallax-mirror img")[0].src=imgs[(index)%(imgs.length)];
+    index++;
+    fetch(imgs[(index)%(imgs.length)]); // cach
+  }
+  function pjax_parallax(){
+    next_parallax();
+    volantis.IntervalParallax = setInterval(function () {
+      next_parallax();
+    }, 15000)
+  }
+  volantis.import.jQuery().then(()=>{
+    // https://github.com/pixelcog/parallax.js/tree/v2.0.0-alpha
+    // 这是 2.0.0-alpha，（1.x不兼容pjax） alpha版本官方尚未正式发布 上一次更新时间：30 Nov 2017
+    volantis.js('/js/jquery.parallax.min.js').then(()=>{
+        parallax(imgs[(index)%(imgs.length)])
+    })
+  })
+  volantis.pjax.push(pjax_parallax);
+  volantis.pjax.send(()=>{
+    try {
+      clearInterval(volantis.IntervalParallax);
+    } catch (error) {}
+  },'pjax_parallax')
+</script>
+
+
+
+<script>
+  volantis.message = (title, message, type, autoClose, time = 3000) => { // 此处依赖JQ
+    volantis.import.jQuery().then(()=>{
+      if (typeof $.message == "undefined") {
+        volantis.css('/css/message.css')
+        volantis.js('/js/message.js', () => {
+          start(title, message, type, autoClose, time);
+        });
+      } else {
+        start(title, message, type, autoClose, time);
+      }
+    })
+    function start(title, message, type, autoClose, time) {
+      $.message({
+        title: title,
+        message: message,
+        type: type,
+        autoClose: autoClose,
+        time: time,
+      });
+    }
+  };
+</script>
+
+
+<pjax>
+
+</pjax>
+
+<pjax>
+
+</pjax>
+
+<script>
+function listennSidebarTOC() {
+  const navItems = document.querySelectorAll(".toc li");
+  if (!navItems.length) return;
+  const sections = [...navItems].map((element) => {
+    const link = element.querySelector(".toc-link");
+    const target = document.getElementById(
+      decodeURI(link.getAttribute("href")).replace("#", "")
+    );
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({
+        top: target.offsetTop + document.getElementById("safearea").offsetTop + 5,
+        
+          behavior: "smooth"
+        
+	    });
+    });
+    return target;
+  });
+
+  function activateNavByIndex(target) {
+    if (target.classList.contains("active-current")) return;
+
+    document.querySelectorAll(".toc .active").forEach((element) => {
+      element.classList.remove("active", "active-current");
+    });
+    target.classList.add("active", "active-current");
+    let parent = target.parentNode;
+    while (!parent.matches(".toc")) {
+      if (parent.matches("li")) parent.classList.add("active");
+      parent = parent.parentNode;
+    }
+  }
+
+  function findIndex(entries) {
+    let index = 0;
+    let entry = entries[index];
+    if (entry.boundingClientRect.top > 0) {
+      index = sections.indexOf(entry.target);
+      return index === 0 ? 0 : index - 1;
+    }
+    for (; index < entries.length; index++) {
+      if (entries[index].boundingClientRect.top <= 0) {
+        entry = entries[index];
+      } else {
+        return sections.indexOf(entry.target);
+      }
+    }
+    return sections.indexOf(entry.target);
+  }
+
+  function createIntersectionObserver(marginTop) {
+    marginTop = Math.floor(marginTop + 10000);
+    let intersectionObserver = new IntersectionObserver(
+      (entries, observe) => {
+        let scrollHeight = document.documentElement.scrollHeight + document.getElementById("safearea").offsetTop + 5;
+        if (scrollHeight > marginTop) {
+          observe.disconnect();
+          createIntersectionObserver(scrollHeight);
+          return;
+        }
+        let index = findIndex(entries);
+        activateNavByIndex(navItems[index]);
+      },
+      {
+        rootMargin: marginTop + "px 0px -100% 0px",
+        threshold: 0,
+      }
+    );
+    sections.forEach((element) => {
+      element && intersectionObserver.observe(element);
+    });
+  }
+  createIntersectionObserver(document.documentElement.scrollHeight);
+}
+
+document.addEventListener("DOMContentLoaded", listennSidebarTOC);
+document.addEventListener("pjax:success", listennSidebarTOC);
+</script>
+
+<!-- more -->
+
+  
+  <script></script>
+
+
+
+
+      
+        <!-- 
+  pjax重载区域接口：
+  1.  <pjax></pjax> 标签
+  2.  script[data-pjax]
+  3.  .pjax-reload script
+-->
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
+
+
+<script>
+    var pjax;
+    document.addEventListener('DOMContentLoaded', function () {
+      pjax = new Pjax({
+        elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([pjax-fancybox])',
+        selectors: [
+          "title",
+          
+          "#pjax-container",
+          "#pjax-header-nav-list",
+          "pjax", // <pjax></pjax> 标签
+          "script[data-pjax], .pjax-reload script" // script标签添加data-pjax 或 script标签外层添加.pjax-reload 的script代码段重载
+        ],
+        cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
+        timeout: 5000
+      });
+    });
+
+    document.addEventListener('pjax:send', function (e) {
+      //window.stop(); // 相当于点击了浏览器的停止按钮
+
+      try {
+        var currentUrl = window.location.pathname;
+        var targetUrl = e.triggerElement.href;
+        var banUrl = [""];
+        if (banUrl[0] != "") {
+          banUrl.forEach(item => {
+            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
+              window.location.href = targetUrl;
+            }
+          });
+        }
+      } catch (error) {}
+
+      // 使用 volantis.pjax.send 方法传入pjax:send回调函数 参见layout/_partial/scripts/global.ejs
+      volantis.pjax.method.send.start();
+    });
+
+    document.addEventListener('pjax:complete', function () {
+      // 使用 volantis.pjax.push 方法传入重载函数 参见layout/_partial/scripts/global.ejs
+      volantis.pjax.method.complete.start();
+    });
+
+    document.addEventListener('pjax:error', function (e) {
+      // 使用 volantis.pjax.error 方法传入pjax:error回调函数 参见layout/_partial/scripts/global.ejs
+      volantis.pjax.method.error.start();
+      window.location.href = e.triggerElement.href;
+    });
+</script>
+
+      
+    </div>
+  </body>
+</html>

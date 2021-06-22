@@ -2780,4 +2780,1378 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>我们则希望他可以涵盖更多的话题、回复真实可信等等。</p>
 </blockquote>
-<p>这些都是我们想要对话系统所拥有的能力，但是往往在一个具体的任务中我们只能关注某一�
+<p>这些都是我们想要对话系统所拥有的能力，但是往往在一个具体的任务中我们只能关注某一项或者几项指标，这里我们主要针对开放域生成式对话模型的评价指标进行总结。</p>
+<h2 id="2-词重叠评价指标"><a class="markdownIt-Anchor" href="#2-词重叠评价指标"></a> 2. 词重叠评价指标</h2>
+<p>首先来看词重叠评价指标，他们认为有效地回答应该和真实回答之间存在大量的词重叠<br />
+（但是对话系统的答案空间往往是发散的，也就是一个问题的答案可能是完全不同的两句话，这种情况下该评价指标效果不好），也就是说这是一个非常强的假设。（以下环节中r表示真是响应，r^表示系统生成响应）</p>
+<h2 id="3-bleu"><a class="markdownIt-Anchor" href="#3-bleu"></a> 3. BLEU</h2>
+<p>该评价指标有IBM在2002年提出，参考论文“BLEU: a Method for Automatic Evaluation of Machine Translation”，常作为机器翻译系统评价指标。其实就是统计生成响应和真实响应中的n-gram词组在整个训练语料中出现次数。公式如下所示：</p>
+<p>&lt;img src=&quot;/images/chatbot/chatbot-12.1.jpg&quot; width=“400” /img&gt;</p>
+<blockquote>
+<p>ROUGE : 该指标常用于文本摘要领域<br />
+METEOR: BLEU 的升级版</p>
+</blockquote>
+<h2 id="4-词向量评价指标"><a class="markdownIt-Anchor" href="#4-词向量评价指标"></a> 4. 词向量评价指标</h2>
+<p>上面的词重叠评价指标基本上都是n-gram方式，去计算生成响应和真实响应之间的重合程度，共现程度等指标。而词向量则是通过Word2Vec等方法将句子转换为向量表示，这样一个句子就被映射到一个低维空间，句向量在一定程度上表征了其含义，在通过余弦相似度等方法就可以计算两个句子之间的相似程度。使用词向量的好处是，可以一定程度上增加答案的多样性，因为这里大多采用词语相似度进行表征，相比词重叠中要求出现完全相同的词语，限制降低了很多。</p>
+<h2 id="5-perplexity困惑度"><a class="markdownIt-Anchor" href="#5-perplexity困惑度"></a> 5. perplexity困惑度</h2>
+<p>perplexity是语言模型中的指标，用于评价语言模型的好坏，其实就是估算一句话出现的概率，看一句话是否通顺。也经常会在对话系统中出现评价生成的响应是否符合语言规则，计算方法也很简单，如下图所示：</p>
+<p>&lt;img src=&quot;/images/chatbot/chatbot-12.3.jpg&quot; width=“400” /img&gt;</p>
+<p>所以当我们使用tf.contrib.seq2seq.sequence_loss()函数计算模型loss的时候，perplexity的计算就显得很简单了，直接对计算出来的loss取个指数就行了，命令如下所示：</p>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">train_perp = math.exp(<span class="built_in">float</span>(mean_loss)) <span class="keyword">if</span> mean_loss &lt; <span class="number">300</span> <span class="keyword">else</span> math.inf</span><br></pre></td></tr></table></figure>
+<p>现在我训练的对话系统，一般都只是用了perplexity来评判模型的效果，最终perplexity可以降到20左右（越小越好，说明越接近于自然语言）。</p>
+<h2 id="6-人工指标"><a class="markdownIt-Anchor" href="#6-人工指标"></a> 6. 人工指标</h2>
+<p>最后说一下人工评价，首先来讲，上面说了这么多的评价指标，并没有一个可以很好的解决对话系统的问题，就像“How NOT To Evaluate Your Dialogue System”论文中说到的那样，当下的这些评价指标都跟人工评价成弱相关或者完全没有关系，相关程度跟具体的数据集有关。</p>
+<p>以下摘自徐阿衡的回答：</p>
+<ul>
+<li>在闲聊性质的数据集上，上述 metric 和人工判断有一定微弱的关联 (only a small positive correlation on chitchat oriented Twitter dataset)</li>
+<li>在技术类的数据集上，上述 metric 和人工判断完全没有关联(no correlation at all on the technical UDC)</li>
+<li>当局限于一个特别具体的领域时，BLEU 会有不错的表现</li>
+</ul>
+<p>随着发展，还逐渐有了一些别的评价方法，比如使用GAN网络来评价生成的回复是否跟人类回复相似等等。。。</p>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+
+  
+  
+    
+    <div class='footer'>
+      
+      
+      
+        <div class='copyright'>
+          <blockquote>
+            
+              
+                <p>博客内容遵循 署名-非商业性使用-相同方式共享 4.0 国际 (CC BY-NC-SA 4.0) 协议</p>
+
+              
+            
+              
+                <p>本文永久链接是：<a href=http://www.iequa.com/2018/12/01/nlp/chatbot/chatbot-research12/>http://www.iequa.com/2018/12/01/nlp/chatbot/chatbot-research12/</a></p>
+              
+            
+          </blockquote>
+        </div>
+      
+      
+    </div>
+  
+  
+    
+
+
+  <div class='article-meta' id="bottom">
+    <div class='new-meta-box'>
+      
+        
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2021-06-20T12:12:28+08:00">
+  <a class='notlink'>
+    <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
+    <p>更新于：Jun 20, 2021</p>
+  </a>
+</div>
+
+        
+      
+        
+          
+  
+  <div class="new-meta-item meta-tags"><a class="tag" href="/tags/Chatbot/" rel="nofollow"><i class="fas fa-hashtag fa-fw" aria-hidden="true"></i><p>Chatbot</p></a></div>
+
+
+        
+      
+        
+          
+  <div class="new-meta-item share -mob-share-list">
+  <div class="-mob-share-list share-body">
+    
+      
+        <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2018/12/01/nlp/chatbot/chatbot-research12/&title=Chatbot Research 12 - 理论篇： 评价指标介绍 - Blair's Blog&summary=对话系统之所以没有取得突破性的进展，很大程度是因为没有一个可以准确表示回答效果好坏的评价标准。对话系统中大都使用机器翻译、摘要生成领域提出来的评价指标，但是很明显对话系统的场景和需求与他们是存在差别的."
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/qq.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2018/12/01/nlp/chatbot/chatbot-research12/&title=Chatbot Research 12 - 理论篇： 评价指标介绍 - Blair's Blog&summary=对话系统之所以没有取得突破性的进展，很大程度是因为没有一个可以准确表示回答效果好坏的评价标准。对话系统中大都使用机器翻译、摘要生成领域提出来的评价指标，但是很明显对话系统的场景和需求与他们是存在差别的."
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/weibo.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-facebook" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2018/12/01/nlp/chatbot/chatbot-research12/&title=Chatbot Research 12 - 理论篇： 评价指标介绍 - Blair's Blog&summary=对话系统之所以没有取得突破性的进展，很大程度是因为没有一个可以准确表示回答效果好坏的评价标准。对话系统中大都使用机器翻译、摘要生成领域提出来的评价指标，但是很明显对话系统的场景和需求与他们是存在差别的."
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/facebook.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/facebook.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+      
+        <a class="-mob-share-twitter" title="" rel="external nofollow noopener noreferrer noopener"
+          
+          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2018/12/01/nlp/chatbot/chatbot-research12/&title=Chatbot Research 12 - 理论篇： 评价指标介绍 - Blair's Blog&summary=对话系统之所以没有取得突破性的进展，很大程度是因为没有一个可以准确表示回答效果好坏的评价标准。对话系统中大都使用机器翻译、摘要生成领域提出来的评价指标，但是很明显对话系统的场景和需求与他们是存在差别的."
+          
+          >
+          
+            <img src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/twitter.png" class="lazyload" data-srcset="https://cdn.jsdelivr.net/gh/volantis-x/cdn-org/logo/128/twitter.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=">
+          
+        </a>
+      
+    
+  </div>
+</div>
+
+
+
+        
+      
+    </div>
+  </div>
+
+
+  
+  
+
+  
+    <div class="prev-next">
+      
+        <a class='prev' href='/2018/12/16/nlp/textCNN/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>TextCNN 文本情感分类的卷积神经网络</p>
+          <p class='content'>
+
+textCNN 是 2014年 提出的用来做文本分类的卷积神经网络，结构简单、效果好.
+论文链接： Convolutional Neural Networks for Sentence Cl...</p>
+        </a>
+      
+      
+        <a class='next' href='/2018/12/01/tensorflow/sequence_loss/'>
+          <p class='title'>Tensorflow Sequence_loss<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'>sequence_loss 是 nlp算法 中非常重要的一个函数. rnn,lstm,attention都要用到这个函数.看下面代码:
+
+ 1. 特殊的🌰
+123456789101112131...</p>
+        </a>
+      
+    </div>
+  
+</article>
+
+
+  
+
+  
+
+
+
+
+
+
+</div>
+<aside id='l_side'>
+  
+  
+    
+    
+
+
+
+  <section class="widget toc-wrapper shadow desktop mobile" id="toc-div" >
+    
+  <header>
+    
+      <i class="fas fa-list fa-fw" aria-hidden="true"></i><span class='name'>Toc</span>
+    
+  </header>
+
+
+    <div class='content'>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87%E6%A6%82%E8%A7%88"><span class="toc-text"> 1. 评价指标*概览</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%AF%8D%E9%87%8D%E5%8F%A0%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87"><span class="toc-text"> 2. 词重叠评价指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-bleu"><span class="toc-text"> 3. BLEU</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E8%AF%8D%E5%90%91%E9%87%8F%E8%AF%84%E4%BB%B7%E6%8C%87%E6%A0%87"><span class="toc-text"> 4. 词向量评价指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-perplexity%E5%9B%B0%E6%83%91%E5%BA%A6"><span class="toc-text"> 5. perplexity困惑度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E4%BA%BA%E5%B7%A5%E6%8C%87%E6%A0%87"><span class="toc-text"> 6. 人工指标</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+    </div>
+  </section>
+
+
+  
+
+
+</aside>
+
+
+
+          <!--此文件用来存放一些不方便取值的变量-->
+<!--思路大概是将值藏到重加载的区域内-->
+
+<script>
+  window.pdata={}
+  pdata.ispage=true;
+  pdata.postTitle="Chatbot Research 12 - 理论篇： 评价指标介绍";
+  pdata.commentPath="";
+  pdata.commentPlaceholder="";
+  //  see: /layout/_partial/scripts/coverCtrl.ejs
+  
+    // header
+    var l_header=document.getElementById("l_header");
+    
+    l_header.classList.add("show");
+    
+    
+      // cover
+      var cover_wrapper=document.querySelector('#l_cover .cover-wrapper');
+      var scroll_down=document.getElementById('scroll-down');
+      cover_wrapper.id="none";
+      cover_wrapper.style.display="none";
+      scroll_down.style.display="none";
+    
+  
+</script>
+
+        </div>
+        
+  
+  <footer class="footer clearfix">
+    <br><br>
+    
+      
+        <div class="aplayer-container">
+          
+
+  
+    <meting-js
+      theme='#1BCDFC'
+      autoplay='false'
+      volume='0.7'
+      loop='all'
+      order='list'
+      fixed='false'
+      list-max-height='320px'
+      server='netease'
+      type='playlist'
+      id='3175833810'
+      list-folded='true'>
+    </meting-js>
+  
+
+
+        </div>
+      
+    
+      
+        <br>
+        <div class="social-wrapper">
+          
+            
+          
+            
+          
+            
+          
+        </div>
+      
+    
+      
+        <div><p>Blog content follows the <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en">Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0) License</a></p>
+</div>
+      
+    
+      
+        
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+</div>
+        
+      
+    
+      
+        Use
+        <a href="https://github.com/volantis-x/hexo-theme-volantis/tree/5.0.0.alpha.0" target="_blank" class="codename">Volantis</a>
+        as theme
+      
+    
+      
+        <div class='copyright'>
+        <p><a href="/">Copyright © 2016-2021 Blair Chen</a></p>
+
+        </div>
+      
+    
+  </footer>
+
+
+        <a id="s-top" class="fas fa-arrow-up fa-fw" href="javascript:void(0)"></a>
+      </div>
+    </div>
+    <div>
+      <script>
+  /************这个文件存放不需要重载的全局变量和全局函数*********/
+  window.volantis = {}; // volantis 全局变量
+  volantis.dom = {}; // 页面Dom see: /source/js/app.js etc.
+  /******************** volantis.EventListener ********************************/
+  // 事件监听器 see: /source/js/app.js
+  volantis.EventListener={}
+  // 这里存放pjax切换页面时将被移除的事件监听器
+  volantis.EventListener.list=[]
+  //构造方法
+  function volantisEventListener(type,f,ele){
+    this.type=type
+    this.f=f
+    this.ele=ele
+  }
+  // 移除事件监听器
+  volantis.EventListener.remove=()=>{
+    volantis.EventListener.list.forEach(function (i) {
+        i.ele.removeEventListener(i.type,i.f,false)
+    })
+    volantis.EventListener.list=[]
+  }
+  /******************** volantis.dom.$ ********************************/
+  // 注：这里没有选择器，也没有forEach一次只处理一个dom，这里重新封装主题常用的dom方法，返回的是dom对象，对象包含了以下方法，同时保留dom的原生API
+  function volantisDom(ele){
+    if(!ele) ele=document.createElement("div")
+    this.ele=ele;
+    // ==============================================================
+    this.ele.find=(c)=>{
+      let q=this.ele.querySelector(c)
+      if(q)
+        return new volantisDom(q)
+    }
+    // ==============================================================
+    this.ele.hasClass=(c)=>{
+      return this.ele.className.match(new RegExp('(\\s|^)' + c + '(\\s|$)'));
+    }
+    this.ele.addClass=(c)=>{
+      this.ele.classList.add(c);
+      return this.ele
+    }
+    this.ele.removeClass=(c)=>{
+      this.ele.classList.remove(c);
+      return this.ele
+    }
+    this.ele.toggleClass=(c)=>{
+      if(this.ele.hasClass(c)){
+        this.ele.removeClass(c)
+      }else{
+        this.ele.addClass(c)
+      }
+      return this.ele
+    }
+    // ==============================================================
+    // 参数 r 为 true 表示pjax切换页面时事件监听器将被移除，false不移除
+    this.ele.on=(c,f,r=1)=>{
+      this.ele.addEventListener(c,f,false)
+      if(r){
+        volantis.EventListener.list.push(new volantisEventListener(c,f,this.ele))
+      }
+      return this.ele
+    }
+    this.ele.click=(f,r)=>{
+      this.ele.on("click",f,r)
+      return this.ele
+    }
+    this.ele.scroll=(f,r)=>{
+      this.ele.on("scroll",f,r)
+      return this.ele
+    }
+    // ==============================================================
+    this.ele.html=(c)=>{
+      // if(c=== undefined){
+      //   return this.ele.innerHTML
+      // }else{
+        this.ele.innerHTML=c
+        return this.ele
+      // }
+    }
+    // ==============================================================
+    this.ele.hide=(c)=>{
+      this.ele.style.display="none"
+      return this.ele
+    }
+    this.ele.show=(c)=>{
+      this.ele.style.display="block"
+      return this.ele
+    }
+    // ==============================================================
+    return this.ele
+  }
+  volantis.dom.$=(ele)=>{
+    return new volantisDom(ele)
+  }
+  /******************** volantis.dom ********************************/
+  // 页面选择器 将dom对象缓存起来 see: /source/js/app.js etc.
+  volantis.dom.bodyAnchor = volantis.dom.$(document.getElementById("safearea")); // 页面主体
+  volantis.dom.topBtn = volantis.dom.$(document.getElementById('s-top')); // 向上
+  volantis.dom.wrapper = volantis.dom.$(document.getElementById('wrapper')); // 整个导航栏
+  volantis.dom.coverAnchor = volantis.dom.$(document.querySelector('#l_cover .cover-wrapper')); // 1个
+  volantis.dom.switcher = volantis.dom.$(document.querySelector('#l_header .switcher .s-search')); // 搜索按钮   移动端 1个
+  volantis.dom.header = volantis.dom.$(document.getElementById('l_header')); // 移动端导航栏
+  volantis.dom.search = volantis.dom.$(document.querySelector('#l_header .m_search')); // 搜索框 桌面端 移动端 1个
+  volantis.dom.mPhoneList = volantis.dom.$(document.querySelectorAll('#l_header .m-phone .list-v')); //  手机端 子菜单 多个
+  /******************** RunItem ********************************/
+  function RunItem() {
+    this.list = []; // 存放回调函数
+    this.start = () => {
+      for (var i = 0; i < this.list.length; i++) {
+        this.list[i].run();
+      }
+    };
+    this.push = (fn, name) => {
+      var f = new Item(fn, name);
+      this.list.push(f);
+    };
+    // 构造一个可以run的对象
+    function Item(fn, name) {
+      // 函数名称
+      this.name = name || fn.name;
+      // run方法
+      this.run = () => {
+        try {
+          fn();
+        } catch (error) {
+          console.log(error);
+        }
+      };
+    }
+  }
+  /******************** Pjax ********************************/
+  // /layout/_third-party/pjax/index.ejs
+  // volantis.pjax.send(callBack[,"callBackName"]) 传入pjax:send回调函数
+  // volantis.pjax.push(callBack[,"callBackName"]) 传入pjax:complete回调函数
+  // volantis.pjax.error(callBack[,"callBackName"]) 传入pjax:error回调函数
+  volantis.pjax = {};
+  volantis.pjax.method = {
+    complete: new RunItem(),
+    error: new RunItem(),
+    send: new RunItem(),
+  };
+  volantis.pjax = {
+    ...volantis.pjax,
+    push: volantis.pjax.method.complete.push,
+    error: volantis.pjax.method.error.push,
+    send: volantis.pjax.method.send.push,
+  };
+  /********************  Dark Mode  ********************************/
+  // /layout/_partial/scripts/darkmode.ejs
+  // volantis.dark.mode 当前模式 dark or light
+  // volantis.dark.toggle() 暗黑模式触发器
+  // volantis.dark.push(callBack[,"callBackName"]) 传入触发器回调函数
+  volantis.dark = {};
+  volantis.dark.method = {
+    toggle: new RunItem(),
+  };
+  volantis.dark = {
+    ...volantis.dark,
+    push: volantis.dark.method.toggle.push,
+  };
+  /********************  Message  ********************************/
+  // /layout/_third-party/message/script.ejs
+  // volantis.message(title,message,type,autoClose)
+  /********************  isMobile  ********************************/
+  // /source/js/app.js
+  // volantis.isMobile
+  // volantis.isMobileOld
+  /********************脚本动态加载函数********************************/
+  // volantis.js(src, cb)  cb 可以传入onload回调函数 或者 JSON对象 例如: volantis.js("src", ()=>{}) 或 volantis.js("src", {defer:true,onload:()=>{}})
+  // volantis.css(src)
+
+  // 返回Promise对象，如下方法同步加载资源，这利于处理文件资源之间的依赖关系，例如：APlayer 需要在 MetingJS 之前加载
+  // (async () => {
+  //     await volantis.js("...theme.plugins.aplayer.js.aplayer...")
+  //     await volantis.js("...theme.plugins.aplayer.js.meting...")
+  // })();
+
+  // 已经加入了setTimeout
+  volantis.js = (src, cb) => {
+    return new Promise(resolve => {
+      setTimeout(function () {
+        var HEAD = document.getElementsByTagName("head")[0] || document.documentElement;
+        var script = document.createElement("script");
+        script.setAttribute("type", "text/javascript");
+        if (cb) {
+          if (JSON.stringify(cb)) {
+            for (let p in cb) {
+              if(p=="onload"){
+                script[p]=()=>{
+                  cb[p]()
+                  resolve()
+                }
+              }else{
+                script[p]=cb[p]
+                script.onload = resolve
+              }
+            }
+          } else {
+            script.onload = ()=>{
+              cb()
+              resolve()
+            };
+          }
+        }else{
+          script.onload=resolve
+        }
+        script.setAttribute("src", src);
+        HEAD.appendChild(script);
+      });
+    });
+  }
+  volantis.css = (src)=>{
+    return new Promise(resolve => {
+      setTimeout(function () {
+        var link = document.createElement('link');
+        link.rel = "stylesheet";
+        link.href = src;
+        link.onload = resolve;
+        document.getElementsByTagName("head")[0].appendChild(link);
+      });
+    });
+  }
+  /********************按需加载的插件********************************/
+  // volantis.import.jQuery().then(()=>{})
+  volantis.import={
+    jQuery:()=>{
+      if(typeof jQuery=="undefined"){
+        return volantis.js("https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js")
+      }else{
+        return new Promise(resolve => {resolve()});
+      }
+    }
+  }
+  /*****************************************************************/
+</script>
+
+<script>
+  
+  volantis.css("https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.14/css/all.min.css");
+  
+  
+  
+  
+  volantis.css("https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10/build/styles/solarized-light.min.css");
+  
+</script>
+<!-- required -->
+<!-- 
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.5/dist/jquery.min.js"></script>
+ -->
+
+<!-- internal -->
+
+
+
+
+
+<!-- rightmenu要在darkmode之前（ToggleButton） darkmode要在comments之前（volantis.dark.push）-->
+
+  <script>
+const rootElement = document.documentElement;
+const darkModeStorageKey = "user-color-scheme";
+const rootElementDarkModeAttributeName = "data-user-color-scheme";
+const setLS = (k, v) => {
+    localStorage.setItem(k, v);
+};
+const removeLS = (k) => {
+    localStorage.removeItem(k);
+};
+const getLS = (k) => {
+    return localStorage.getItem(k);
+};
+const getModeFromCSSMediaQuery = () => {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+};
+const resetRootDarkModeAttributeAndLS = () => {
+  rootElement.removeAttribute(rootElementDarkModeAttributeName);
+  removeLS(darkModeStorageKey);
+};
+const validColorModeKeys = {
+  dark: true,
+  light: true,
+};
+const applyCustomDarkModeSettings = (mode) => {
+  const currentSetting = mode || getLS(darkModeStorageKey);
+  getCustomDarkMode();
+  if (currentSetting === getModeFromCSSMediaQuery()) {
+    resetRootDarkModeAttributeAndLS();
+  } else if (validColorModeKeys[currentSetting]) {
+    rootElement.setAttribute(rootElementDarkModeAttributeName, currentSetting);
+  } else {
+    resetRootDarkModeAttributeAndLS();
+  }
+};
+const invertDarkModeObj = {
+  dark: "light",
+  light: "dark",
+};
+/**
+ * get target mode
+ */
+ const getCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  if(currentSetting=="dark"){
+    volantis.dark.mode="light";
+  }else{
+    volantis.dark.mode="dark";
+  }
+  // console.log(volantis.dark.mode)
+};
+const toggleCustomDarkMode = () => {
+  let currentSetting = getLS(darkModeStorageKey);
+  if (validColorModeKeys[currentSetting]) {
+    currentSetting = invertDarkModeObj[currentSetting];
+  } else if (currentSetting === null) {
+    currentSetting = invertDarkModeObj[getModeFromCSSMediaQuery()];
+  } else {
+    return;
+  }
+  setLS(darkModeStorageKey, currentSetting);
+  return currentSetting;
+};
+/**
+ * 暗黑模式触发器
+ */
+volantis.dark.toggle=()=>{
+  const mode = toggleCustomDarkMode();
+  applyCustomDarkModeSettings(mode);
+  // 使用 volantis.dark.push 方法传入volantis.dark.toggle回调函数 参见layout/_partial/scripts/global.ejs
+  volantis.dark.method.toggle.start();
+}
+/**
+ * bind event for toggle button
+ */
+
+function bindToggleButton() {
+  var btn= document.querySelectorAll("#wrapper .toggle-mode-btn,#rightmenu-wrapper .toggle-mode-btn")
+  btn.forEach(function (e) {
+    volantis.dom.$(e).on('click',volantis.dark.toggle);
+  })
+}
+applyCustomDarkModeSettings();
+document.addEventListener("DOMContentLoaded", bindToggleButton);
+volantis.pjax.push(bindToggleButton);
+</script>
+
+
+
+<script>
+  function loadIssuesJS() {
+    
+      const sites_api = document.getElementById('sites-api');
+      if (sites_api != undefined && typeof SitesJS === 'undefined') {
+        volantis.js("/js/plugins/sites.js")
+      }
+    
+    
+      const friends_api = document.getElementById('friends-api');
+      if (friends_api != undefined && typeof FriendsJS === 'undefined') {
+        volantis.js("/js/plugins/friends.js")
+      }
+    
+    
+      const contributors_api = document.getElementById('contributors-api');
+      if (contributors_api != undefined && typeof ContributorsJS === 'undefined') {
+        volantis.js("/js/plugins/contributors.js")
+      }
+    
+  };
+  loadIssuesJS()
+  volantis.pjax.push(()=>{
+    loadIssuesJS();
+  })
+
+</script>
+
+
+
+  <script defer src="https://cdn.jsdelivr.net/npm/vanilla-lazyload@17.1.0/dist/lazyload.min.js"></script>
+<script>
+  // https://www.npmjs.com/package/vanilla-lazyload
+  // Set the options globally
+  // to make LazyLoad self-initialize
+  window.lazyLoadOptions = {
+    elements_selector: ".lazyload",
+    threshold: 0
+  };
+  // Listen to the initialization event
+  // and get the instance of LazyLoad
+  window.addEventListener(
+    "LazyLoad::Initialized",
+    function (event) {
+      window.lazyLoadInstance = event.detail.instance;
+    },
+    false
+  );
+  document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadInstance.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
+
+
+  
+
+<script>
+  window.FPConfig = {
+	delay: 0,
+	ignoreKeywords: ["#"],
+	maxRPS: 6,
+	hoverDelay: 0
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"></script>
+
+
+
+
+
+  <script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  function pjax_CopyCode() {
+    if (!(document.querySelector(".highlight .code pre") || document.querySelector(".article pre code")))
+      return;
+    if (typeof clipboard == "undefined") {
+      var clipboard = new ClipboardJS(".btn-copy", {
+        target: function (trigger) {
+          return trigger.nextElementSibling;
+        },
+      });
+    }
+    var copyHtml = "";
+    copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+    copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+    copyHtml += "</button>";
+    document.querySelectorAll(".highlight .code pre").forEach(e => {
+      e.insertAdjacentHTML("beforebegin", copyHtml)
+    });
+    document.querySelectorAll(".article pre code").forEach(e => {
+      e.insertAdjacentHTML("beforebegin", copyHtml)
+    });
+    clipboard.off("success").on("success", function (e) {
+      let $btn = volantis.dom.$(e.trigger);
+      $btn.addClass("copied");
+      let $icon = volantis.dom.$($btn.find("i"));
+      $icon.removeClass("fa-copy").addClass("fa-check-circle");
+      let $span = volantis.dom.$($btn.find("span"));
+      $span.innerText = "COPIED";
+      wait(function () {
+        $icon.removeClass("fa-check-circle").addClass("fa-copy");
+        $span.innerText = "COPY";
+      }, 2000);
+    });
+    clipboard.off("error").on("error", function (e) {
+      e.clearSelection();
+      let $btn = volantis.dom.$(e.trigger);
+      $btn.addClass("copy-failed");
+      let $icon = volantis.dom.$($btn.find("i"));
+      $icon.removeClass("fa-copy").addClass("fa-times-circle");
+      let $span = volantis.dom.$($btn.find("span"));
+      $span.innerText = "COPY FAILED";
+      wait(function () {
+        $icon.removeClass("fa-times-circle").addClass("fa-copy");
+        $span.innerText = "COPY";
+      }, 2000);
+    });
+  }
+  volantis.js("https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js").then(pjax_CopyCode)
+  volantis.pjax.push(pjax_CopyCode);
+</script>
+
+
+
+
+
+
+  <script>
+    volantis.APlayerController = {};
+    volantis.APlayerController.id = '3175833810';  // 设定全局音乐播放ID
+    volantis.APlayerController.volume = '0.7';
+    volantis.css("https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css");
+    // APlayer 需要在  MetingJS 之前加载
+    (async () => {
+      await volantis.js("https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js")
+      await volantis.js("https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js")
+
+      
+    })();
+  // message see: /layout/_third-party/message/script.ejs
+  
+</script>
+
+
+
+
+
+
+
+
+<script src="/js/app.js"></script>
+
+
+<!-- optional -->
+
+  <script>
+const SearchServiceimagePath="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@master/img/logo/";
+const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
+
+function loadSearchService(){
+  volantis.import.jQuery().then(()=>{
+    // see: layout/_partial/scripts/cdnCtrl.ejs
+    volantis.js('/js/search/hexo.js',setSearchService); // 此处依赖JQ
+  })
+  document.querySelectorAll('.input.u-search-input').forEach((e)=>{
+    e.removeEventListener('focus',loadSearchService,false)
+  })
+}
+
+document.querySelectorAll('.input.u-search-input').forEach((e)=>{
+  e.addEventListener('focus',loadSearchService,false)
+})
+
+function listenSearch(){
+  
+    customSearch = new HexoSearch({
+      imagePath: SearchServiceimagePath
+    });
+  
+}
+function setSearchService() {
+	listenSearch();
+	
+		document.addEventListener("pjax:success", listenSearch);
+	
+}
+</script>
+
+
+
+
+
+
+
+  
+<script src="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@2/js/comment_typing.js"></script>
+
+
+
+
+  
+
+<script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@10/build/highlight.min.js"></script>
+
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script>
+volantis.pjax.push(()=>{
+	document.querySelectorAll('pre code').forEach((block) => {
+	  hljs.highlightBlock(block);
+	});
+},"highlightjs")
+</script>
+
+
+
+  <script defer>
+
+  const LCCounter = {
+    app_id: 'A0QW53VALkBKnFs6wtT1RXhe-MdYXbMMI',
+    app_key: '9wL7mo49KsOOWhM85zQBaITs',
+    custom_api_server: '',
+
+    // 查询存储的记录
+    getRecord(Counter, url, title) {
+      return new Promise(function (resolve, reject) {
+        Counter('get', '/classes/Counter?where=' + encodeURIComponent(JSON.stringify({url})))
+          .then(resp => resp.json())
+          .then(({results, code, error}) => {
+            if (code === 401) {
+              throw error;
+            }
+            if (results && results.length > 0) {
+              var record = results[0];
+              resolve(record);
+            } else {
+              Counter('post', '/classes/Counter', {url, title: title, times: 0})
+                .then(resp => resp.json())
+                .then((record, error) => {
+                  if (error) {
+                    throw error;
+                  }
+                  resolve(record);
+                }).catch(error => {
+                console.error('Failed to create', error);
+                reject(error);
+              });
+            }
+          }).catch((error) => {
+          console.error('LeanCloud Counter Error:', error);
+          reject(error);
+        });
+      })
+    },
+
+    // 发起自增请求
+    increment(Counter, incrArr) {
+      return new Promise(function (resolve, reject) {
+        Counter('post', '/batch', {
+          "requests": incrArr
+        }).then((res) => {
+          res = res.json();
+          if (res.error) {
+            throw res.error;
+          }
+          resolve(res);
+        }).catch((error) => {
+          console.error('Failed to save visitor count', error);
+          reject(error);
+        });
+      });
+    },
+
+    // 构建自增请求体
+    buildIncrement(objectId) {
+      return {
+        "method": "PUT",
+        "path": `/1.1/classes/Counter/${ objectId }`,
+        "body": {
+          "times": {
+            '__op': 'Increment',
+            'amount': 1
+          }
+        }
+      }
+    },
+
+    // 校验是否为有效的 UV
+    validUV() {
+      var key = 'LeanCloudUVTimestamp';
+      var flag = localStorage.getItem(key);
+      if (flag) {
+        // 距离标记小于 24 小时则不计为 UV
+        if (new Date().getTime() - parseInt(flag) <= 86400000) {
+          return false;
+        }
+      }
+      localStorage.setItem(key, new Date().getTime().toString());
+      return true;
+    },
+
+    addCount(Counter) {
+      var enableIncr = '' === 'true' && window.location.hostname !== 'localhost';
+      enableIncr = true;
+      var getterArr = [];
+      var incrArr = [];
+      // 请求 PV 并自增
+      var pvCtn = document.querySelector('#lc-sv');
+      if (pvCtn || enableIncr) {
+        var pvGetter = this.getRecord(Counter, 'http://www.iequa.com' + '/#lc-sv', 'Visits').then((record) => {
+          incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-sv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + 1;
+              if (pvCtn) {
+                pvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(pvGetter);
+      }
+
+      // 请求 UV 并自增
+      var uvCtn = document.querySelector('#lc-uv');
+      if (uvCtn || enableIncr) {
+        var uvGetter = this.getRecord(Counter, 'http://www.iequa.com' + '/#lc-uv', 'Visitors').then((record) => {
+          var vuv = this.validUV();
+          vuv && incrArr.push(this.buildIncrement(record.objectId))
+          var eles = document.querySelectorAll('#lc-uv #number');
+          if (eles.length > 0) {
+            eles.forEach((el,index,array)=>{
+              el.innerText = record.times + (vuv ? 1 : 0);
+              if (uvCtn) {
+                uvCtn.style.display = 'inline';
+              }
+            })
+          }
+        });
+        getterArr.push(uvGetter);
+      }
+
+      // 请求文章的浏览数，如果是当前页面就自增
+      var allPV = document.querySelectorAll('#lc-pv');
+      if (allPV.length > 0 || enableIncr) {
+        for (i = 0; i < allPV.length; i++) {
+          let pv = allPV[i];
+          let title = pv.getAttribute('data-title');
+          var url = 'http://www.iequa.com' + pv.getAttribute('data-path');
+          if (url) {
+            var viewGetter = this.getRecord(Counter, url, title).then((record) => {
+              // 是当前页面就自增
+              let curPath = window.location.pathname;
+              if (curPath.includes('index.html')) {
+                curPath = curPath.substring(0, curPath.lastIndexOf('index.html'));
+              }
+              if (pv.getAttribute('data-path') == curPath) {
+                incrArr.push(this.buildIncrement(record.objectId));
+              }
+              if (pv) {
+                var ele = pv.querySelector('#lc-pv #number');
+                if (ele) {
+                  if (pv.getAttribute('data-path') == curPath) {
+                    ele.innerText = (record.times || 0) + 1;
+                  } else {
+                    ele.innerText = record.times || 0;
+                  }
+                  pv.style.display = 'inline';
+                }
+              }
+            });
+            getterArr.push(viewGetter);
+          }
+        }
+      }
+
+      // 如果启动计数自增，批量发起自增请求
+      if (enableIncr) {
+        Promise.all(getterArr).then(() => {
+          incrArr.length > 0 && this.increment(Counter, incrArr);
+        })
+      }
+
+    },
+
+
+    fetchData(api_server) {
+      var Counter = (method, url, data) => {
+        return fetch(`${ api_server }/1.1${ url }`, {
+          method,
+          headers: {
+            'X-LC-Id': this.app_id,
+            'X-LC-Key': this.app_key,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        });
+      };
+      this.addCount(Counter);
+    },
+
+    refreshCounter() {
+      var api_server = this.app_id.slice(-9) !== '-MdYXbMMI' ? this.custom_api_server : `https://${ this.app_id.slice(0, 8).toLowerCase() }.api.lncldglobal.com`;
+      if (api_server) {
+        this.fetchData(api_server);
+      } else {
+        fetch('https://app-router.leancloud.cn/2/route?appId=' + this.app_id)
+          .then(resp => resp.json())
+          .then(({api_server}) => {
+            this.fetchData('https://' + api_server);
+          });
+      }
+    }
+
+  };
+
+  LCCounter.refreshCounter();
+
+  document.addEventListener('pjax:complete', function () {
+    LCCounter.refreshCounter();
+  });
+</script>
+
+
+
+
+
+
+
+
+
+  
+<script>
+  var imgs=["/images/logos/parallax-bg/7_logo1.png", "/images/logos/parallax-bg/7_logo2.png", "/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo3.png", "/images/logos/parallax-bg/7_logo4.png", "/images/logos/parallax-bg/7_logo5.png", "/images/logos/parallax-bg/7_logo7.jpeg"];
+  var index=0;
+  
+      function shuffle(arr){
+        /*From countercurrent-time*/
+        var n = arr.length;
+        while(n--) {
+          var index = Math.floor(Math.random() * n);
+          var temp = arr[index];
+          arr[index] = arr[n];
+          arr[n] = temp;
+        }
+      }
+      shuffle(imgs);
+  
+
+  function parallax(src){
+    $('#parallax-window').parallax({
+      src: src,
+      speed: .25,
+      bleed: 0,
+      zIndex: -100,
+      posX: 'center',
+      posY: 'center',
+      overScrollFix: false,
+      excludeAgents: /(iPod|iPhone|iPad|Android)/,
+      aspectRatio: null,
+      // jquery selectors
+      sliderSelector: '>.parallax-slider',
+      mirrorSelector: '#l_cover',
+      // callback functions:
+      afterRefresh: ()=>{
+        // console.log("afterRefresh")
+      },
+      afterRender: ()=>{
+        // console.log("afterRender")
+      },
+      afterSetup: ()=>{
+        // console.log("afterSetup")
+      },
+      afterDestroy: ()=>{
+        // console.log("afterDestroy")
+      },
+    });
+  }
+  function next_parallax(){
+    $("#l_cover .parallax-mirror img")[0].src=imgs[(index)%(imgs.length)];
+    index++;
+    fetch(imgs[(index)%(imgs.length)]); // cach
+  }
+  function pjax_parallax(){
+    next_parallax();
+    volantis.IntervalParallax = setInterval(function () {
+      next_parallax();
+    }, 15000)
+  }
+  volantis.import.jQuery().then(()=>{
+    // https://github.com/pixelcog/parallax.js/tree/v2.0.0-alpha
+    // 这是 2.0.0-alpha，（1.x不兼容pjax） alpha版本官方尚未正式发布 上一次更新时间：30 Nov 2017
+    volantis.js('/js/jquery.parallax.min.js').then(()=>{
+        parallax(imgs[(index)%(imgs.length)])
+    })
+  })
+  volantis.pjax.push(pjax_parallax);
+  volantis.pjax.send(()=>{
+    try {
+      clearInterval(volantis.IntervalParallax);
+    } catch (error) {}
+  },'pjax_parallax')
+</script>
+
+
+
+<script>
+  volantis.message = (title, message, type, autoClose, time = 3000) => { // 此处依赖JQ
+    volantis.import.jQuery().then(()=>{
+      if (typeof $.message == "undefined") {
+        volantis.css('/css/message.css')
+        volantis.js('/js/message.js', () => {
+          start(title, message, type, autoClose, time);
+        });
+      } else {
+        start(title, message, type, autoClose, time);
+      }
+    })
+    function start(title, message, type, autoClose, time) {
+      $.message({
+        title: title,
+        message: message,
+        type: type,
+        autoClose: autoClose,
+        time: time,
+      });
+    }
+  };
+</script>
+
+
+<pjax>
+
+</pjax>
+
+<pjax>
+
+</pjax>
+
+<script>
+function listennSidebarTOC() {
+  const navItems = document.querySelectorAll(".toc li");
+  if (!navItems.length) return;
+  const sections = [...navItems].map((element) => {
+    const link = element.querySelector(".toc-link");
+    const target = document.getElementById(
+      decodeURI(link.getAttribute("href")).replace("#", "")
+    );
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({
+        top: target.offsetTop + document.getElementById("safearea").offsetTop + 5,
+        
+          behavior: "smooth"
+        
+	    });
+    });
+    return target;
+  });
+
+  function activateNavByIndex(target) {
+    if (target.classList.contains("active-current")) return;
+
+    document.querySelectorAll(".toc .active").forEach((element) => {
+      element.classList.remove("active", "active-current");
+    });
+    target.classList.add("active", "active-current");
+    let parent = target.parentNode;
+    while (!parent.matches(".toc")) {
+      if (parent.matches("li")) parent.classList.add("active");
+      parent = parent.parentNode;
+    }
+  }
+
+  function findIndex(entries) {
+    let index = 0;
+    let entry = entries[index];
+    if (entry.boundingClientRect.top > 0) {
+      index = sections.indexOf(entry.target);
+      return index === 0 ? 0 : index - 1;
+    }
+    for (; index < entries.length; index++) {
+      if (entries[index].boundingClientRect.top <= 0) {
+        entry = entries[index];
+      } else {
+        return sections.indexOf(entry.target);
+      }
+    }
+    return sections.indexOf(entry.target);
+  }
+
+  function createIntersectionObserver(marginTop) {
+    marginTop = Math.floor(marginTop + 10000);
+    let intersectionObserver = new IntersectionObserver(
+      (entries, observe) => {
+        let scrollHeight = document.documentElement.scrollHeight + document.getElementById("safearea").offsetTop + 5;
+        if (scrollHeight > marginTop) {
+          observe.disconnect();
+          createIntersectionObserver(scrollHeight);
+          return;
+        }
+        let index = findIndex(entries);
+        activateNavByIndex(navItems[index]);
+      },
+      {
+        rootMargin: marginTop + "px 0px -100% 0px",
+        threshold: 0,
+      }
+    );
+    sections.forEach((element) => {
+      element && intersectionObserver.observe(element);
+    });
+  }
+  createIntersectionObserver(document.documentElement.scrollHeight);
+}
+
+document.addEventListener("DOMContentLoaded", listennSidebarTOC);
+document.addEventListener("pjax:success", listennSidebarTOC);
+</script>
+
+<!-- more -->
+
+  
+  <script></script>
+
+
+
+
+      
+        <!-- 
+  pjax重载区域接口：
+  1.  <pjax></pjax> 标签
+  2.  script[data-pjax]
+  3.  .pjax-reload script
+-->
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
+
+
+<script>
+    var pjax;
+    document.addEventListener('DOMContentLoaded', function () {
+      pjax = new Pjax({
+        elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([pjax-fancybox])',
+        selectors: [
+          "title",
+          
+          "#pjax-container",
+          "#pjax-header-nav-list",
+          "pjax", // <pjax></pjax> 标签
+          "script[data-pjax], .pjax-reload script" // script标签添加data-pjax 或 script标签外层添加.pjax-reload 的script代码段重载
+        ],
+        cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
+        timeout: 5000
+      });
+    });
+
+    document.addEventListener('pjax:send', function (e) {
+      //window.stop(); // 相当于点击了浏览器的停止按钮
+
+      try {
+        var currentUrl = window.location.pathname;
+        var targetUrl = e.triggerElement.href;
+        var banUrl = [""];
+        if (banUrl[0] != "") {
+          banUrl.forEach(item => {
+            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
+              window.location.href = targetUrl;
+            }
+          });
+        }
+      } catch (error) {}
+
+      // 使用 volantis.pjax.send 方法传入pjax:send回调函数 参见layout/_partial/scripts/global.ejs
+      volantis.pjax.method.send.start();
+    });
+
+    document.addEventListener('pjax:complete', function () {
+      // 使用 volantis.pjax.push 方法传入重载函数 参见layout/_partial/scripts/global.ejs
+      volantis.pjax.method.complete.start();
+    });
+
+    document.addEventListener('pjax:error', function (e) {
+      // 使用 volantis.pjax.error 方法传入pjax:error回调函数 参见layout/_partial/scripts/global.ejs
+      volantis.pjax.method.error.start();
+      window.location.href = e.triggerElement.href;
+    });
+</script>
+
+      
+    </div>
+  </body>
+</html>
