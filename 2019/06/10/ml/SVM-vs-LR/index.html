@@ -32,7 +32,7 @@
   
 
   
-    <meta name="description" content="&lt;img class=“img-fancy” src=&quot;/images/ml/svm/svm-01.jpg&quot;, width=“600” border=“0px”, alt=“SVM vs LR”%}
+    <meta name="description" content="&lt;img class=”img-fancy” src=”/images/ml/svm/svm-01.jpg”, width=”600” border=”0px”, alt=”SVM vs LR”%}
 ">
   
 
@@ -2766,21 +2766,20 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <p>&lt;img class=“img-fancy” src=&quot;/images/ml/svm/svm-01.jpg&quot;, width=“600” border=“0px”, alt=“SVM vs LR”%}</p>
+  <p>&lt;img class=”img-fancy” src=”/images/ml/svm/svm-01.jpg”, width=”600” border=”0px”, alt=”SVM vs LR”%}</p>
 <!--<a href="/2019/06/02/ml/Random_Forest_and_GBDT/" target="_self" style="display:block; margin:0 auto; background:url('/images/ml/ensumble/ensumble-1.png') no-repeat 0 0 / contain; height:304px; width:550px;"></a>
 -->
 <span id="more"></span>
 <p>关于 SVM 的详细原理与推导过程，详见： <a href="/2018/06/20/ml/svm-hanxiaoyang/">Support Vecor Machine (六部曲)</a></p>
 <p>其实我认为 SVM 的使用率已经明显在下降趋势了，主要原因是随着神经网络的兴起之后，所以我不建议一定要花非常多的经历去学习 SVM 的原理和推导了，可以简单了解下。 主要还是了解下适用范围和场景等就可以了。</p>
-<h2 id="1-lr-vs-svm"><a class="markdownIt-Anchor" href="#1-lr-vs-svm"></a> 1. LR vs SVM</h2>
-<p>要说有什么本质区别，那就是 loss function 不同，两者对数据和参数的敏感程度不同</p>
+<h2 id="1-LR-vs-SVM"><a href="#1-LR-vs-SVM" class="headerlink" title="1. LR vs SVM"></a>1. LR vs SVM</h2><p>要说有什么本质区别，那就是 loss function 不同，两者对数据和参数的敏感程度不同</p>
 <blockquote>
 <p>(1). 对非线性表达上，LR 只能通过人工的特征组合来实现，而 SVM 引入核函数来实现非线性表达。</p>
 <p>(2). LR 产出的是概率值，而 SVM 只能产出是正类还是负类，不能产出概率。</p>
 <p>(3). Linear SVM 依赖数据表达的距离测度，所以需要对数据先做 normalization；LR不受其影响.</p>
 <p>(4). SVM 不直接依赖数据分布，而LR则依赖, SVM 主要关注的是“支持向量”，也就是和分类最相关的少数点，即关注局部关键信息；而 LR 是在全局进行优化的。这导致 SVM 天然比 LR 有<strong>更好的泛化能力</strong>，防止过拟合。 LR则受所有数据点的影响，如果数据不同类别 strongly unbalance 一般需要先对数据做 balancing。</p>
 <p>(5). 损失函数的优化方法不同，LR 是使用 GD 来求解 <strong>对数似然函数</strong> 的最优解；SVM 使用 (Sequnential Minimal Optimal) 顺序最小优化，来求解条件约束损失函数的对偶形式。</p>
-<hr />
+<hr>
 <p>一般用线性核和高斯核，也就是Linear核与RBF核需要注意的是需要对 <strong>数据归一化处理</strong>.</p>
 <p>一般情况下RBF效果是不会差于Linear但是时间上RBF会耗费更多</p>
 </blockquote>
@@ -2788,8 +2787,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p><strong>注</strong>：不带正则化的LR，其做 normalization 的目的是为了方便选择优化过程的起始值，不代表最后的解的 performance 会跟 normalization 相关，而其线性约束是可以被放缩的（等式两边可同时乘以一个系数），所以做 normalization 只是为了求解优化模型过程中更容易选择初始值</p>
 </blockquote>
-<h2 id="2-andrew-ng"><a class="markdownIt-Anchor" href="#2-andrew-ng"></a> 2. Andrew Ng</h2>
-<blockquote>
+<h2 id="2-Andrew-Ng"><a href="#2-Andrew-Ng" class="headerlink" title="2. Andrew Ng"></a>2. Andrew Ng</h2><blockquote>
 <ol>
 <li>如果Feature的数量很大，跟样本数量差不多，这时候选用LR或者是Linear Kernel的SVM</li>
 <li>如果Feature的数量比较小，样本数量一般，不算大也不算小，选用SVM+Gaussian Kernel</li>
@@ -2798,17 +2796,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </blockquote>
 <p><strong>如何量化 feature number 和 sample number：</strong></p>
 <blockquote>
-<p>n 是feature的数量, m是样本数</p>
+<p>n 是feature的数量, m是样本数   </p>
+<p>1). feature number &gt;&gt; sample number，则使用LR算法或者不带核函数的SVM（线性分类）<br>  &nbsp;&nbsp;&nbsp;&nbsp; feature number = 1W， sample number = 1K</p>
+<p>2). <strong>fn</strong> 小， sample number <strong>一般</strong>1W，使用带有 <strong>kernel函数</strong> 的 SVM算法.  </p>
+<p>3). <strong>fn</strong> 小， sample number <strong>很大</strong>5W+（n=1-1000，m=50000+）<br>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; 增加更多的 feature 然后使用LR 算法或者 not have kernel 的 SVM</p>
 </blockquote>
-<blockquote>
-<p>1). feature number &gt;&gt; sample number，则使用LR算法或者不带核函数的SVM（线性分类）<br />
-     feature number = 1W， sample number = 1K</p>
-<p>2). <strong>fn</strong> 小， sample number <strong>一般</strong>1W，使用带有 <strong>kernel函数</strong> 的 SVM算法.</p>
-<p>3). <strong>fn</strong> 小， sample number <strong>很大</strong>5W+（n=1-1000，m=50000+）<br />
-          增加更多的 feature 然后使用LR 算法或者 not have kernel 的 SVM</p>
-</blockquote>
-<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
-<ul>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhizhan/p/5038747.html">LR 与 SVM的异同</a></li>
 <li><a target="_blank" rel="noopener" href="http://izhaoyi.top/2017/06/02/Note-StatisticalML/">懒死骆驼 - 统计学习方法笔记(一)</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/24900876">知乎 : 最小二乘、极大似然、梯度下降有何区别？</a></li>
@@ -2878,7 +2871,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2019/06/10/ml/SVM-vs-LR/&title=SVM 和 LR 的区别与联系？ - Blair's Blog&summary=&lt;img class=“img-fancy” src=&quot;/images/ml/svm/svm-01.jpg&quot;, width=“600” border=“0px”, alt=“SVM vs LR”%}
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2019/06/10/ml/SVM-vs-LR/&title=SVM 和 LR 的区别与联系？ - Blair's Blog&summary=&lt;img class=”img-fancy” src=”/images/ml/svm/svm-01.jpg”, width=”600” border=”0px”, alt=”SVM vs LR”%}
 "
           
           >
@@ -2891,7 +2884,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2019/06/10/ml/SVM-vs-LR/&title=SVM 和 LR 的区别与联系？ - Blair's Blog&summary=&lt;img class=“img-fancy” src=&quot;/images/ml/svm/svm-01.jpg&quot;, width=“600” border=“0px”, alt=“SVM vs LR”%}
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2019/06/10/ml/SVM-vs-LR/&title=SVM 和 LR 的区别与联系？ - Blair's Blog&summary=&lt;img class=”img-fancy” src=”/images/ml/svm/svm-01.jpg”, width=”600” border=”0px”, alt=”SVM vs LR”%}
 "
           
           >
@@ -2904,7 +2897,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-facebook" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2019/06/10/ml/SVM-vs-LR/&title=SVM 和 LR 的区别与联系？ - Blair's Blog&summary=&lt;img class=“img-fancy” src=&quot;/images/ml/svm/svm-01.jpg&quot;, width=“600” border=“0px”, alt=“SVM vs LR”%}
+          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2019/06/10/ml/SVM-vs-LR/&title=SVM 和 LR 的区别与联系？ - Blair's Blog&summary=&lt;img class=”img-fancy” src=”/images/ml/svm/svm-01.jpg”, width=”600” border=”0px”, alt=”SVM vs LR”%}
 "
           
           >
@@ -2917,7 +2910,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-twitter" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2019/06/10/ml/SVM-vs-LR/&title=SVM 和 LR 的区别与联系？ - Blair's Blog&summary=&lt;img class=“img-fancy” src=&quot;/images/ml/svm/svm-01.jpg&quot;, width=“600” border=“0px”, alt=“SVM vs LR”%}
+          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2019/06/10/ml/SVM-vs-LR/&title=SVM 和 LR 的区别与联系？ - Blair's Blog&summary=&lt;img class=”img-fancy” src=”/images/ml/svm/svm-01.jpg”, width=”600” border=”0px”, alt=”SVM vs LR”%}
 "
           
           >
@@ -2948,16 +2941,16 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Deep Feedforward Networks</p>
           <p class='content'>
 
-**更多基础知识系列详情参见 : Deep Learning Notes
-**
+更多基础知识系列详情参见 : Deep Learning Notes
 
-Feedforward Networks 是一种最简单的神经网络，各神经元分层排列。每个神经元只与前一层的神...</p>
+
+Feedforward Networks 是一种最简单的神经网络，各神经元分层排列。每个神经元只与前一层的神经元相连...</p>
         </a>
       
       
         <a class='next' href='/2019/06/09/ml/ERM-SRM-L1-L2/'>
           <p class='title'>L1、L2 Regularization<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-          <p class='content'>&lt;img class=“img-fancy” src=&quot;/images/ml/intro/L1l2regularization.png&quot;, width=“550” bo...</p>
+          <p class='content'>&lt;img class=”img-fancy” src=”/images/ml/intro/L1l2regularization.png”, width=”550” border=”0px”...</p>
         </a>
       
     </div>
@@ -2993,7 +2986,7 @@ Feedforward Networks 是一种最简单的神经网络，各神经元分层排�
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-lr-vs-svm"><span class="toc-text"> 1. LR vs SVM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-andrew-ng"><span class="toc-text"> 2. Andrew Ng</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-LR-vs-SVM"><span class="toc-text">1. LR vs SVM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Andrew-Ng"><span class="toc-text">2. Andrew Ng</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3082,7 +3075,7 @@ Feedforward Networks 是一种最简单的神经网络，各神经元分层排�
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       
