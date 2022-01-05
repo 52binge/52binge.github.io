@@ -2773,40 +2773,47 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>为用户进行推荐和求指定物品的类似物品；</li>
 <li>评估该模型的预测能力。</li>
 </ul>
-<h2 id="1-推荐模型分类"><a href="#1-推荐模型分类" class="headerlink" title="1. 推荐模型分类"></a>1. 推荐模型分类</h2><ul>
+<h2 id="1-推荐模型分类"><a class="markdownIt-Anchor" href="#1-推荐模型分类"></a> 1. 推荐模型分类</h2>
+<ul>
 <li>内容过滤</li>
 <li>协同过滤</li>
 <li>矩阵分解</li>
 </ul>
-<h3 id="1-1-内容过滤-类似物品"><a href="#1-1-内容过滤-类似物品" class="headerlink" title="1.1 内容过滤 - (类似物品)"></a>1.1 内容过滤 - (类似物品)</h3><p>利用物品相似度定义，来求出与该物品类似的物品。</p>
+<h3 id="11-内容过滤-类似物品"><a class="markdownIt-Anchor" href="#11-内容过滤-类似物品"></a> 1.1 内容过滤 - (类似物品)</h3>
+<p>利用物品相似度定义，来求出与该物品类似的物品。</p>
 <blockquote>
 <p>对用户的推荐可以根据用户的属性或描述得出，之后再通过相同的相似度定义来与物品属性做匹配。</p>
 </blockquote>
-<h3 id="1-2-协同过滤-估计未触"><a href="#1-2-协同过滤-估计未触" class="headerlink" title="1.2 协同过滤 - (估计未触)"></a>1.2 协同过滤 - (估计未触)</h3><p>协同过滤是一种利用大量已有的用户偏好来估计用户对其<code>未接触过</code>的物品的喜好程度。其内在思想是<strong>相似度的定义</strong>。</p>
+<h3 id="12-协同过滤-估计未触"><a class="markdownIt-Anchor" href="#12-协同过滤-估计未触"></a> 1.2 协同过滤 - (估计未触)</h3>
+<p>协同过滤是一种利用大量已有的用户偏好来估计用户对其<code>未接触过</code>的物品的喜好程度。其内在思想是<strong>相似度的定义</strong>。</p>
 <ul>
-<li><p>基于用户</p>
+<li>基于用户</li>
+</ul>
 <blockquote>
 <p>如果两个用户表现出相似的偏好，认为他们的兴趣类似。要对他们中的一个用户推荐一个未知物品，便可选取若干与其类似的用户并根据他们的喜好计算出对各个物品的综合得分。</p>
 </blockquote>
-</li>
-<li><p>基于物品</p>
+<ul>
+<li>基于物品</li>
+</ul>
 <blockquote>
 <p>据现有用户对物品的偏好或是评级情况，来计算物品之间的某种相似度。已有物品相似的物品被用来生成一个综合得分，而该得分用于评估未知物品的相似度。</p>
 </blockquote>
-</li>
-</ul>
 <p>基于<strong>用户</strong>或<strong>物品</strong>的方法得分取决于若干用户或是物品之间依据相似度所构成的集合（即邻居），故它们也常被称为KNN。</p>
 <p>对“用户-物品”<code>偏好建模</code></p>
-<h3 id="1-3-矩阵分解"><a href="#1-3-矩阵分解" class="headerlink" title="1.3 矩阵分解"></a>1.3 矩阵分解</h3><p>Spark推荐模型库 包含基于矩阵分解（matrix factorization）的实现，该模型在协同过滤中的表现十分出色。</p>
-<h4 id="1-3-1-显式矩阵分解"><a href="#1-3-1-显式矩阵分解" class="headerlink" title="1.3.1 显式矩阵分解"></a>1.3.1 显式矩阵分解</h4><p>显式自身偏好数据</p>
+<h3 id="13-矩阵分解"><a class="markdownIt-Anchor" href="#13-矩阵分解"></a> 1.3 矩阵分解</h3>
+<p>Spark推荐模型库 包含基于矩阵分解（matrix factorization）的实现，该模型在协同过滤中的表现十分出色。</p>
+<h4 id="131-显式矩阵分解"><a class="markdownIt-Anchor" href="#131-显式矩阵分解"></a> 1.3.1 显式矩阵分解</h4>
+<p>显式自身偏好数据</p>
 <blockquote>
 <p>这类数据包括如物品评级、赞、喜欢等用户对物品的评价。转换为以用户为行、物品为列的二维矩阵。</p>
+</blockquote>
+<blockquote>
 <p>大部分情况下单个用户只会和少部分物品接触，所以该矩阵很稀疏。</p>
 </blockquote>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Tom, Star Wars, 5</span><br><span class="line">Jane, Titanic,　4</span><br><span class="line">Bill, Batman,　3</span><br><span class="line">Jane, Star Wars, 2</span><br><span class="line">Bill, Titanic, 3</span><br></pre></td></tr></table></figure>
-<p><img src="/images/spark/spark-ml-4.1.png" class="lazyload" data-srcset="/images/spark/spark-ml-4.1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="一个简单的电影评级矩阵"></p>
+<p><img src="/images/spark/spark-ml-4.1.png" class="lazyload" data-srcset="/images/spark/spark-ml-4.1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="一个简单的电影评级矩阵" /></p>
 <p>用户-物品 矩阵的维度为 U × I</p>
-<p><img src="/images/spark/spark-ml-4.2.jpg" class="lazyload" data-srcset="/images/spark/spark-ml-4.2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-2 一个稀疏的评级矩阵"> </p>
+<p><img src="/images/spark/spark-ml-4.2.jpg" class="lazyload" data-srcset="/images/spark/spark-ml-4.2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-2 一个稀疏的评级矩阵" /></p>
 <p><strong>为了降维</strong></p>
 <ul>
 <li>表示用户的 U × k 维矩阵</li>
@@ -2814,19 +2821,20 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </ul>
 <blockquote>
 <p>这两个矩阵也称作因子矩阵, 乘积是原始评级矩阵的一个近似.</p>
+</blockquote>
+<blockquote>
 <p>原始评级矩阵通常很稀疏，但因子矩阵却是稠密的</p>
 </blockquote>
-<p><img src="/images/spark/spark-ml-4.3.jpg" class="lazyload" data-srcset="/images/spark/spark-ml-4.3.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-3 用户因子矩阵和物品因子矩阵"></p>
+<p><img src="/images/spark/spark-ml-4.3.jpg" class="lazyload" data-srcset="/images/spark/spark-ml-4.3.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-3 用户因子矩阵和物品因子矩阵" /></p>
 <blockquote>
 <p>因子可能表示了某些含义，比如对电影的某个导演、种类、风格或某些演员的偏好。</p>
 </blockquote>
 <p><code>要计算给定用户对某个物品的预计评级</code> = 行（用户因子向量） 与 列（物品因子向量），两者点积</p>
-<p><img src="/images/spark/spark-ml-4.4.jpg" class="lazyload" data-srcset="/images/spark/spark-ml-4.4.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-4 用用户因子矩阵和物品因子矩阵计算推荐"></p>
+<p><img src="/images/spark/spark-ml-4.4.jpg" class="lazyload" data-srcset="/images/spark/spark-ml-4.4.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-4 用用户因子矩阵和物品因子矩阵计算推荐" /></p>
 <blockquote>
 <p>物品之间相似度的计算，转换为对两物品因子向量之间相似度的计算</p>
 </blockquote>
-<p><img src="/images/spark/spark-ml-4.5.jpg" class="lazyload" data-srcset="/images/spark/spark-ml-4.5.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-5 用物品因子矩阵计算相似度"></p>
-<div class="table-container">
+<p><img src="/images/spark/spark-ml-4.5.jpg" class="lazyload" data-srcset="/images/spark/spark-ml-4.5.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-5 用物品因子矩阵计算相似度" /></p>
 <table>
 <thead>
 <tr>
@@ -2841,25 +2849,29 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
-</div>
-<h4 id="1-3-2-隐式矩阵分解"><a href="#1-3-2-隐式矩阵分解" class="headerlink" title="1.3.2. 隐式矩阵分解"></a>1.3.2. 隐式矩阵分解</h4><p>隐含在用户与物品的交互之中。二元数据（比如用户是否观看了某个电影或是否购买了某个商品）和计数数据（比如用户观看某电影的次数）便是这类数据。</p>
+<h4 id="132-隐式矩阵分解"><a class="markdownIt-Anchor" href="#132-隐式矩阵分解"></a> 1.3.2. 隐式矩阵分解</h4>
+<p>隐含在用户与物品的交互之中。二元数据（比如用户是否观看了某个电影或是否购买了某个商品）和计数数据（比如用户观看某电影的次数）便是这类数据。</p>
 <p>MLlib 处理隐式数据：</p>
 <ol>
-<li>一个二元偏好矩阵 P </li>
+<li>一个二元偏好矩阵 P</li>
 <li>一个信心权重矩阵 C</li>
 </ol>
-<p><img src="/images/spark/spark-ml-4.6.png" class="lazyload" data-srcset="/images/spark/spark-ml-4.6.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-6 用物品因子矩阵计算相似度"></p>
+<p><img src="/images/spark/spark-ml-4.6.png" class="lazyload" data-srcset="/images/spark/spark-ml-4.6.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="图4-6 用物品因子矩阵计算相似度" /></p>
 <p>隐式模型仍然会创建一个用户因子矩阵和一个物品因子矩阵。但是，模型所求解的是偏好矩阵而非评级矩阵的近似。</p>
 <p><strong>3. 最小二乘法</strong></p>
 <p>最小二乘法（Alternating Least Squares，ALS）是一种求解矩阵分解问题的最优化方法。且相对容易并行化。</p>
 <blockquote>
 <p>ALS的实现原理是迭代式求解一系列最小二乘回归问题。在每一次迭代时，固定用户因子矩阵或是物品因子矩阵中的一个，然后用固定的这个矩阵以及评级数据来更新另一个矩阵。之后，被更新的矩阵被固定住，再更新另外一个矩阵。如此迭代，直到模型收敛（或是迭代了预设好的次数）。</p>
 </blockquote>
-<h2 id="2-提取有效特征"><a href="#2-提取有效特征" class="headerlink" title="2. 提取有效特征"></a>2. 提取有效特征</h2><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt;./bin/spark-shell –-driver-memory <span class="number">2</span>g</span><br><span class="line"><span class="keyword">val</span> rawData = sc.textFile(<span class="string">&quot;/Users/hp/ghome/github/Recommendation/spark-ml/ml-100k/u.data&quot;</span>)</span><br><span class="line">rawData.first()</span><br><span class="line"><span class="keyword">val</span> rawRatings = rawData.map(_.split(<span class="string">&quot;\t&quot;</span>).take(<span class="number">3</span>))</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">ALS</span></span><br><span class="line"></span><br><span class="line"><span class="type">ALS</span>.</span><br><span class="line">asInstanceOf    isInstanceOf   main   toString        train           trainImplicit</span><br><span class="line"><span class="type">ALS</span>.train</span><br></pre></td></tr></table></figure>
-<p>ALS模型需要一个由Rating记录构成的RDD，而Rating类则是对用户ID、影片ID（这里是通称product）和实际星级这些参数的封装。<br>我们可以调用map方法将原来的各ID和星级的数组转换为对应的Rating对象，从而创建所需的评级数据集。</p>
+<h2 id="2-提取有效特征"><a class="markdownIt-Anchor" href="#2-提取有效特征"></a> 2. 提取有效特征</h2>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&gt;./bin/spark-shell –-driver-memory <span class="number">2</span>g</span><br><span class="line"><span class="keyword">val</span> rawData = sc.textFile(<span class="string">&quot;/Users/hp/ghome/github/Recommendation/spark-ml/ml-100k/u.data&quot;</span>)</span><br><span class="line">rawData.first()</span><br><span class="line"><span class="keyword">val</span> rawRatings = rawData.map(_.split(<span class="string">&quot;\t&quot;</span>).take(<span class="number">3</span>))</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">ALS</span></span><br><span class="line"></span><br><span class="line"><span class="type">ALS</span>.</span><br><span class="line">asInstanceOf    isInstanceOf   main   toString        train           trainImplicit</span><br><span class="line"><span class="type">ALS</span>.train</span><br></pre></td></tr></table></figure>
+<p>ALS模型需要一个由Rating记录构成的RDD，而Rating类则是对用户ID、影片ID（这里是通称product）和实际星级这些参数的封装。<br />
+我们可以调用map方法将原来的各ID和星级的数组转换为对应的Rating对象，从而创建所需的评级数据集。</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">scala&gt; <span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">Rating</span></span><br><span class="line"><span class="keyword">import</span> org.apache.spark.mllib.recommendation.<span class="type">Rating</span></span><br><span class="line"></span><br><span class="line">scala&gt; <span class="keyword">val</span> ratings = rawRatings.map &#123; <span class="keyword">case</span> <span class="type">Array</span>(user, movie, rating) =&gt;</span><br><span class="line">     | <span class="type">Rating</span>(user.toInt, movie.toInt, rating.toDouble) &#125;</span><br><span class="line">ratings: org.apache.spark.rdd.<span class="type">RDD</span>[org.apache.spark.mllib.recommendation.<span class="type">Rating</span>] = <span class="type">MapPartitionsRDD</span>[<span class="number">3</span>] at map at &lt;console&gt;:<span class="number">27</span></span><br><span class="line"></span><br><span class="line">scala&gt; ratings.first()</span><br><span class="line">res3: org.apache.spark.mllib.recommendation.<span class="type">Rating</span> = <span class="type">Rating</span>(<span class="number">196</span>,<span class="number">242</span>,<span class="number">3.0</span>)</span><br><span class="line"></span><br><span class="line">scala&gt; ratings.take(<span class="number">10</span>)</span><br><span class="line">res4: <span class="type">Array</span>[org.apache.spark.mllib.recommendation.<span class="type">Rating</span>] = <span class="type">Array</span>(<span class="type">Rating</span>(<span class="number">196</span>,<span class="number">242</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">186</span>,<span class="number">302</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">22</span>,<span class="number">377</span>,<span class="number">1.0</span>), <span class="type">Rating</span>(<span class="number">244</span>,<span class="number">51</span>,<span class="number">2.0</span>), <span class="type">Rating</span>(<span class="number">166</span>,<span class="number">346</span>,<span class="number">1.0</span>), <span class="type">Rating</span>(<span class="number">298</span>,<span class="number">474</span>,<span class="number">4.0</span>), <span class="type">Rating</span>(<span class="number">115</span>,<span class="number">265</span>,<span class="number">2.0</span>), <span class="type">Rating</span>(<span class="number">253</span>,<span class="number">465</span>,<span class="number">5.0</span>), <span class="type">Rating</span>(<span class="number">305</span>,<span class="number">451</span>,<span class="number">3.0</span>), <span class="type">Rating</span>(<span class="number">6</span>,<span class="number">86</span>,<span class="number">3.0</span>))</span><br></pre></td></tr></table></figure>
-<h2 id="3-训练推荐模型"><a href="#3-训练推荐模型" class="headerlink" title="3. 训练推荐模型"></a>3. 训练推荐模型</h2><p>从原始数据提取出这些简单特征后，便可训练模型。MLlib已实现模型训练的细节，这不需要我们担心。我们只需提供上述指定类型的新RDD以及其他所需参数来作为训练的输入即可。</p>
-<h3 id="3-1-Movie-100k-train-model"><a href="#3-1-Movie-100k-train-model" class="headerlink" title="3.1 Movie-100k train model"></a>3.1 Movie-100k train model</h3><p>现在开始训练模型了，所需的其他参数有以下几个</p>
+<h2 id="3-训练推荐模型"><a class="markdownIt-Anchor" href="#3-训练推荐模型"></a> 3. 训练推荐模型</h2>
+<p>从原始数据提取出这些简单特征后，便可训练模型。MLlib已实现模型训练的细节，这不需要我们担心。我们只需提供上述指定类型的新RDD以及其他所需参数来作为训练的输入即可。</p>
+<h3 id="31-movie-100k-train-model"><a class="markdownIt-Anchor" href="#31-movie-100k-train-model"></a> 3.1 Movie-100k train model</h3>
+<p>现在开始训练模型了，所需的其他参数有以下几个</p>
 <ul>
 <li><code>rank</code>：对应ALS模型中的因子个数，也就是在低阶近似矩阵中的隐含特征个数。因子个数一般越多越好。但它也会直接影响模型训练和保存时所需的内存开销，尤其是在用户和物品很多的时候。因此实践中该参数常作为训练效果与系统开销之间的调节参数。通常，其合理取值为10到200。</li>
 <li><code>iterations</code>：对应运行时的迭代次数。ALS能确保每次迭代都能降低评级矩阵的重建误差，但一般经少数次迭代后ALS模型便已能收敛为一个比较合理的好模型。这样，大部分情况下都没必要迭代太多次（10次左右一般就挺好）。</li>
@@ -2867,12 +2879,16 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </ul>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">scala&gt; <span class="keyword">val</span> model = <span class="type">ALS</span>.train(ratings, <span class="number">50</span>, <span class="number">10</span>, <span class="number">0.01</span>)</span><br><span class="line">model: org.apache.spark.mllib.recommendation.<span class="type">MatrixFactorizationModel</span> = org.apache.spark.mllib.recommendation.<span class="type">MatrixFactorizationModel</span>@<span class="number">2e835760</span></span><br><span class="line"></span><br><span class="line">scala&gt; model.userFeatures</span><br><span class="line">res5: org.apache.spark.rdd.<span class="type">RDD</span>[(<span class="type">Int</span>, <span class="type">Array</span>[<span class="type">Double</span>])] = users <span class="type">MapPartitionsRDD</span>[<span class="number">209</span>] at mapValues at <span class="type">ALS</span>.scala:<span class="number">255</span></span><br><span class="line"></span><br><span class="line">scala&gt; model.userFeatures.count</span><br><span class="line">res6: <span class="type">Long</span> = <span class="number">943</span></span><br></pre></td></tr></table></figure>
 <blockquote>
-<p><code>MatrixFactorizationModel</code> 对象将 用户因子和物品因子分别保存在一个 <code>(id,factor)</code> 对类型的RDD中。<br>它们分别称作<code>userFeatures</code> 和 <code>productFeatures</code>。</p>
+<p><code>MatrixFactorizationModel</code> 对象将 用户因子和物品因子分别保存在一个 <code>(id,factor)</code> 对类型的RDD中。<br />
+它们分别称作<code>userFeatures</code> 和 <code>productFeatures</code>。</p>
 </blockquote>
-<h3 id="3-2-隐式反馈数据训练模型"><a href="#3-2-隐式反馈数据训练模型" class="headerlink" title="3.2 隐式反馈数据训练模型"></a>3.2 隐式反馈数据训练模型</h3><p>MLlib中标准的矩阵分解模型用于显式评级数据的处理。若要处理隐式数据，则可使用<code>trainImplicit</code>函数。其调用方式和标准的<code>train</code>模式类似，但多了一个可设置的<code>alpha</code>参数（也是一个正则化参数，<code>lambda</code>应通过测试和交叉验证法来设置）。</p>
+<h3 id="32-隐式反馈数据训练模型"><a class="markdownIt-Anchor" href="#32-隐式反馈数据训练模型"></a> 3.2 隐式反馈数据训练模型</h3>
+<p>MLlib中标准的矩阵分解模型用于显式评级数据的处理。若要处理隐式数据，则可使用<code>trainImplicit</code>函数。其调用方式和标准的<code>train</code>模式类似，但多了一个可设置的<code>alpha</code>参数（也是一个正则化参数，<code>lambda</code>应通过测试和交叉验证法来设置）。</p>
 <p>alpha参数指定了信心权重所应达到的基准线。该值越高则所训练出的模型越认为用户与他所没评级过的电影之间没有相关性。</p>
-<h2 id="4-使用推荐模型"><a href="#4-使用推荐模型" class="headerlink" title="4. 使用推荐模型"></a>4. 使用推荐模型</h2><p>预测通常有两种：为某个用户推荐物品，或找出与某个物品相关或相似的其他物品。</p>
-<h3 id="4-1-用户推荐"><a href="#4-1-用户推荐" class="headerlink" title="4.1 用户推荐"></a>4.1 用户推荐</h3><p>通过模型求出用户可能喜好程度最高的前K个商品。</p>
+<h2 id="4-使用推荐模型"><a class="markdownIt-Anchor" href="#4-使用推荐模型"></a> 4. 使用推荐模型</h2>
+<p>预测通常有两种：为某个用户推荐物品，或找出与某个物品相关或相似的其他物品。</p>
+<h3 id="41-用户推荐"><a class="markdownIt-Anchor" href="#41-用户推荐"></a> 4.1 用户推荐</h3>
+<p>通过模型求出用户可能喜好程度最高的前K个商品。</p>
 <ol>
 <li>基于<strong>用户的模型</strong>，则会利用相似用户的评级来计算对某个用户的推荐。</li>
 <li>基于<strong>物品的模型</strong>，则会依靠用户接触过的物品与候选物品之间的相似度来获得推荐。</li>
@@ -3003,29 +3019,26 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
     <div class="prev-next">
       
-        <a class='prev' href='/2017/02/28/ml/recommendation-six-mouth-CF/'>
-          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Recommendation System - CF</p>
-          <p class='content'>recommendation system and application
+        <a class='prev' href='/2016/12/09/English/ef/ef-l6u2-Going-to-the-doctor's-l1/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Going to the doctor's L1 Making a doctor's appointment</p>
+          <p class='content'> 1. Vocabulary
 
-推荐算法
-
-基于内容的推荐
-协同过滤 CF
-矩阵分解 与 隐语义模型
-
-1. 推荐系统 What?1.1 数学定义
-...</p>
+I feel terrible.
+vomiting
+I have diarrhea. [,daɪə’riə]
+patient
+make an appointmen...</p>
         </a>
       
       
-        <a class='next' href='/2016/10/24/ml/coursera-ng-w3-LR/'>
-          <p class='title'>Coursera Week 3 - Logistic Regression<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-          <p class='content'>Logistic Regression
+        <a class='next' href='/2016/11/14/English/ef/ef-l5u6-Clothes-and-outfits-l4/'>
+          <p class='title'>Clothes and outfits L4 Complimenting people on their outfits<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
+          <p class='content'> 1. Vocabulary
 
-1. Classification
+Fabrics
+pants
 
-Email: Spam / Not Spam
-Online Transactions: Fraudulent (Y...</p>
+&lt;img src=&quot;/images/ef-l5u6l4.png&quot; width=“460” height=“...</p>
         </a>
       
     </div>
@@ -3061,7 +3074,7 @@ Online Transactions: Fraudulent (Y...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%8E%A8%E8%8D%90%E6%A8%A1%E5%9E%8B%E5%88%86%E7%B1%BB"><span class="toc-text">1. 推荐模型分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%86%85%E5%AE%B9%E8%BF%87%E6%BB%A4-%E7%B1%BB%E4%BC%BC%E7%89%A9%E5%93%81"><span class="toc-text">1.1 内容过滤 - (类似物品)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-%E5%8D%8F%E5%90%8C%E8%BF%87%E6%BB%A4-%E4%BC%B0%E8%AE%A1%E6%9C%AA%E8%A7%A6"><span class="toc-text">1.2 协同过滤 - (估计未触)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3-%E7%9F%A9%E9%98%B5%E5%88%86%E8%A7%A3"><span class="toc-text">1.3 矩阵分解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-1-%E6%98%BE%E5%BC%8F%E7%9F%A9%E9%98%B5%E5%88%86%E8%A7%A3"><span class="toc-text">1.3.1 显式矩阵分解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-2-%E9%9A%90%E5%BC%8F%E7%9F%A9%E9%98%B5%E5%88%86%E8%A7%A3"><span class="toc-text">1.3.2. 隐式矩阵分解</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%8F%90%E5%8F%96%E6%9C%89%E6%95%88%E7%89%B9%E5%BE%81"><span class="toc-text">2. 提取有效特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%AE%AD%E7%BB%83%E6%8E%A8%E8%8D%90%E6%A8%A1%E5%9E%8B"><span class="toc-text">3. 训练推荐模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-Movie-100k-train-model"><span class="toc-text">3.1 Movie-100k train model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E9%9A%90%E5%BC%8F%E5%8F%8D%E9%A6%88%E6%95%B0%E6%8D%AE%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B"><span class="toc-text">3.2 隐式反馈数据训练模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E4%BD%BF%E7%94%A8%E6%8E%A8%E8%8D%90%E6%A8%A1%E5%9E%8B"><span class="toc-text">4. 使用推荐模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E7%94%A8%E6%88%B7%E6%8E%A8%E8%8D%90"><span class="toc-text">4.1 用户推荐</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%8E%A8%E8%8D%90%E6%A8%A1%E5%9E%8B%E5%88%86%E7%B1%BB"><span class="toc-text"> 1. 推荐模型分类</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-%E5%86%85%E5%AE%B9%E8%BF%87%E6%BB%A4-%E7%B1%BB%E4%BC%BC%E7%89%A9%E5%93%81"><span class="toc-text"> 1.1 内容过滤 - (类似物品)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-%E5%8D%8F%E5%90%8C%E8%BF%87%E6%BB%A4-%E4%BC%B0%E8%AE%A1%E6%9C%AA%E8%A7%A6"><span class="toc-text"> 1.2 协同过滤 - (估计未触)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-%E7%9F%A9%E9%98%B5%E5%88%86%E8%A7%A3"><span class="toc-text"> 1.3 矩阵分解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#131-%E6%98%BE%E5%BC%8F%E7%9F%A9%E9%98%B5%E5%88%86%E8%A7%A3"><span class="toc-text"> 1.3.1 显式矩阵分解</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#132-%E9%9A%90%E5%BC%8F%E7%9F%A9%E9%98%B5%E5%88%86%E8%A7%A3"><span class="toc-text"> 1.3.2. 隐式矩阵分解</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%8F%90%E5%8F%96%E6%9C%89%E6%95%88%E7%89%B9%E5%BE%81"><span class="toc-text"> 2. 提取有效特征</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%AE%AD%E7%BB%83%E6%8E%A8%E8%8D%90%E6%A8%A1%E5%9E%8B"><span class="toc-text"> 3. 训练推荐模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#31-movie-100k-train-model"><span class="toc-text"> 3.1 Movie-100k train model</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-%E9%9A%90%E5%BC%8F%E5%8F%8D%E9%A6%88%E6%95%B0%E6%8D%AE%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B"><span class="toc-text"> 3.2 隐式反馈数据训练模型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E4%BD%BF%E7%94%A8%E6%8E%A8%E8%8D%90%E6%A8%A1%E5%9E%8B"><span class="toc-text"> 4. 使用推荐模型</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#41-%E7%94%A8%E6%88%B7%E6%8E%A8%E8%8D%90"><span class="toc-text"> 4.1 用户推荐</span></a></li></ol></li></ol>
     </div>
   </section>
 
@@ -3150,7 +3163,7 @@ Online Transactions: Fraudulent (Y...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
