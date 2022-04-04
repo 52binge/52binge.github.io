@@ -32,7 +32,7 @@
   
 
   
-    <meta name="description" content="学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式. 
+    <meta name="description" content="学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式.
 用最直观的流程图告诉你, 你的神经网络是长怎样,有助于你发现编程中间的问题和疑问.">
   
 
@@ -2766,11 +2766,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <p>学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式. </p>
+  <p>学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式.</p>
 <p>用最直观的流程图告诉你, 你的神经网络是长怎样,有助于你发现编程中间的问题和疑问.</p>
 <span id="more"></span>
-<h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p>这次我们会介绍如何可视化神经网络。因为很多时候我们都是做好了一个神经网络，但是没有一个图像可以展示给大家看。</p>
-<p><strong>TensorFlow</strong> 的可视化工具 <strong>Tensorboard</strong> : 通过使用这个工具我们可以很直观的看到整个神经网络的结构、框架。 </p>
+<h2 id="效果"><a class="markdownIt-Anchor" href="#效果"></a> 效果</h2>
+<p>这次我们会介绍如何可视化神经网络。因为很多时候我们都是做好了一个神经网络，但是没有一个图像可以展示给大家看。</p>
+<p><strong>TensorFlow</strong> 的可视化工具 <strong>Tensorboard</strong> : 通过使用这个工具我们可以很直观的看到整个神经网络的结构、框架。</p>
 <p>今天要显示的神经网络差不多是这样子的</p>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/tensorflow/tf-4.1_1.png" class="lazyload" data-srcset="/images/tensorflow/tf-4.1_1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div>
 <p>同时我们也可以展开看每个layer中的一些具体的结构：</p>
@@ -2780,20 +2781,22 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <ul>
 <li>一个输入层（<strong>inputs</strong>）</li>
 <li>一个隐含层（<strong>layer</strong>）</li>
-<li>一个输出层（<strong>output</strong>） </li>
+<li>一个输出层（<strong>output</strong>）</li>
 </ul>
 </blockquote>
 <p>现在可以看看如何进行可视化.</p>
-<h2 id="搭建图纸"><a href="#搭建图纸" class="headerlink" title="搭建图纸"></a>搭建图纸</h2><p>首先从 <code>Input</code> 开始：</p>
+<h2 id="搭建图纸"><a class="markdownIt-Anchor" href="#搭建图纸"></a> 搭建图纸</h2>
+<p>首先从 <code>Input</code> 开始：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># define placeholder for inputs to network</span></span><br><span class="line">xs = tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">1</span>])</span><br><span class="line">ys = tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">1</span>])</span><br></pre></td></tr></table></figure>
 <p>对于 input 我们进行如下修改： 首先，可以为<code>xs</code>指定名称为<code>x_in</code>, <code>ys</code> 同样。 :</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xs= tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">1</span>],name=<span class="string">&#x27;x_in&#x27;</span>)</span><br><span class="line">ys= tf.placeholder(tf.loat32, [<span class="literal">None</span>, <span class="number">1</span>],name=<span class="string">&#x27;y_in&#x27;</span>)</span><br></pre></td></tr></table></figure>
 <p>这里指定的名称将来会在可视化的图层 <code>inputs</code> 中显示出来</p>
-<p>使用 <code>with tf.name_scope(&#39;inputs&#39;)</code> 可以将 <code>xs</code> 和 <code>ys</code> 包含进来，形成一个大的图层，图层的名字就是 <code>with tf.name_scope()</code> 方法里的参数</p>
+<p>使用 <code>with tf.name_scope('inputs')</code> 可以将 <code>xs</code> 和 <code>ys</code> 包含进来，形成一个大的图层，图层的名字就是 <code>with tf.name_scope()</code> 方法里的参数</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;inputs&#x27;</span>):</span><br><span class="line">    <span class="comment"># define placeholder for inputs to network</span></span><br><span class="line">    xs = tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">1</span>])</span><br><span class="line">    ys = tf.placeholder(tf.float32, [<span class="literal">None</span>, <span class="number">1</span>])</span><br></pre></td></tr></table></figure>
 <p>接下来开始编辑 <code>layer</code> ， 请看编辑前的程序片段 ：</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_layer</span>(<span class="params">inputs, in_size, out_size, activation_function=<span class="literal">None</span></span>):</span></span><br><span class="line">    <span class="comment"># add one more layer and return the output of this layer</span></span><br><span class="line">    Weights = tf.Variable(tf.random_normal([in_size, out_size]))</span><br><span class="line">    biases = tf.Variable(tf.zeros([<span class="number">1</span>, out_size]) + <span class="number">0.1</span>)</span><br><span class="line">    Wx_plus_b = tf.add(tf.matmul(inputs, Weights), biases)</span><br><span class="line">    <span class="keyword">if</span> activation_function <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        outputs = Wx_plus_b</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        outputs = activation_function(Wx_plus_b, )</span><br><span class="line">    <span class="keyword">return</span> outputs</span><br></pre></td></tr></table></figure>
-<h3 id="2-1-编辑后-add-layer"><a href="#2-1-编辑后-add-layer" class="headerlink" title="2.1 编辑后 add_layer"></a>2.1 编辑后 add_layer</h3><p><font color="green"><strong>编辑后， 这里的名字应该叫 layer, 下面是编辑后的</strong></font>:</p>
+<h3 id="21-编辑后-add_layer"><a class="markdownIt-Anchor" href="#21-编辑后-add_layer"></a> 2.1 编辑后 add_layer</h3>
+<p><font color="green"><strong>编辑后， 这里的名字应该叫 layer, 下面是编辑后的</strong></font>:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">add_layer</span>(<span class="params">inputs, in_size, out_size, activation_function=<span class="literal">None</span></span>):</span></span><br><span class="line">    <span class="comment"># add one more layer and return the output of this layer</span></span><br><span class="line">    <span class="keyword">with</span> tf.name_scope(<span class="string">&#x27;layer&#x27;</span>):</span><br><span class="line">        Weights= tf.Variable(tf.random_normal([in_size, out_size]))</span><br><span class="line">        <span class="comment"># and so on...</span></span><br></pre></td></tr></table></figure>
 <p>在定义完大的框架layer之后，同时也需要定义每一个’框架‘里面的小部件：(Weights biases 和 activation function): 现在现对 <code>Weights</code> 定义： 定义的方法同上，可以使用<code>tf.name.scope()</code> 方法，同时也可以在 <code>Weights</code> 中指定名称 <code>W</code> 。 即为：</p>
 <p>接着继续定义 <code>biases</code> ， 定义方式同上。</p>
@@ -2812,8 +2815,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>最后在你的terminal（终端）中 ，使用以下命令</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tensorboard --logdir logs</span><br></pre></td></tr></table></figure>
 <p>同时将终端中输出的网址复制到浏览器中，便可以看到之前定义的视图框架了。</p>
-<p>tensorboard 还有很多其他的参数，希望大家可以多多了解, 可以使用 tensorboard —help 查看tensorboard的详细参数 最终的全部代码在这里</p>
-<h2 id="可能会遇到的问题"><a href="#可能会遇到的问题" class="headerlink" title="可能会遇到的问题"></a>可能会遇到的问题</h2><p>(1) 与 Tensorboard 兼容的浏览器是 “Google Chrome”. 使用其他的浏览器不保证所有内容都能正常显示.</p>
+<p>tensorboard 还有很多其他的参数，希望大家可以多多了解, 可以使用 tensorboard --help 查看tensorboard的详细参数 最终的全部代码在这里</p>
+<h2 id="可能会遇到的问题"><a class="markdownIt-Anchor" href="#可能会遇到的问题"></a> 可能会遇到的问题</h2>
+<p>(1) 与 Tensorboard 兼容的浏览器是 “Google Chrome”. 使用其他的浏览器不保证所有内容都能正常显示.</p>
 <p>(2) 请使用 <a target="_blank" rel="noopener" href="http://localhost:6006">http://localhost:6006</a>, 大多数朋友都是这个问题.</p>
 <p>(3) 请确保你的 tensorboard 指令是在你的 logs 文件根目录执行的. 如果在其他目录下, 比如 <code>Desktop</code> 等, 可能不会成功看到图. 比如在下面这个目录, 你要 cd 到 <code>project</code> 这个地方执行 <code>/project &gt; tensorboard --logdir logs</code></p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">- project</span><br><span class="line">   - logs</span><br><span class="line">   model.py</span><br><span class="line">   env.py</span><br></pre></td></tr></table></figure>
@@ -2821,7 +2825,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>有的朋友使用 anaconda 下的 python3.5 的虚拟环境, 如果你输入 tensorboard 的指令, 出现报错: <code>&quot;tensorboard&quot; is not recognized as an internal or external command...</code></p>
 <p>解决方法的关键就是需要激活TensorFlow. 管理员模式打开 Anaconda Prompt, 输入 activate tensorflow, 接着按照上面的流程执行 tensorboard 指令.</p>
 </blockquote>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/">tensorflow.org</a></li>
 <li><a target="_blank" rel="noopener" href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/">莫烦Python</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/MorvanZhou/tutorials/blob/master/tensorflowTUT/tf14_tensorboard/full_code.py">莫烦代码 tf14_tensorboard/full_code.py</a></li>
@@ -2885,7 +2890,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-qq" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2018/09/12/tensorflow/tf-4.1-tensorboard1/&title=Tensorboard 可视化好帮手 1 - Blair's Blog&summary=学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式. 
+          target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://www.iequa.com/2018/09/12/tensorflow/tf-4.1-tensorboard1/&title=Tensorboard 可视化好帮手 1 - Blair's Blog&summary=学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式.
 用最直观的流程图告诉你, 你的神经网络是长怎样,有助于你发现编程中间的问题和疑问."
           
           >
@@ -2898,7 +2903,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-weibo" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2018/09/12/tensorflow/tf-4.1-tensorboard1/&title=Tensorboard 可视化好帮手 1 - Blair's Blog&summary=学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式. 
+          target="_blank" href="http://service.weibo.com/share/share.php?url=http://www.iequa.com/2018/09/12/tensorflow/tf-4.1-tensorboard1/&title=Tensorboard 可视化好帮手 1 - Blair's Blog&summary=学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式.
 用最直观的流程图告诉你, 你的神经网络是长怎样,有助于你发现编程中间的问题和疑问."
           
           >
@@ -2911,7 +2916,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-facebook" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2018/09/12/tensorflow/tf-4.1-tensorboard1/&title=Tensorboard 可视化好帮手 1 - Blair's Blog&summary=学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式. 
+          target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://www.iequa.com/2018/09/12/tensorflow/tf-4.1-tensorboard1/&title=Tensorboard 可视化好帮手 1 - Blair's Blog&summary=学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式.
 用最直观的流程图告诉你, 你的神经网络是长怎样,有助于你发现编程中间的问题和疑问."
           
           >
@@ -2924,7 +2929,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class="-mob-share-twitter" title="" rel="external nofollow noopener noreferrer noopener"
           
-          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2018/09/12/tensorflow/tf-4.1-tensorboard1/&title=Tensorboard 可视化好帮手 1 - Blair's Blog&summary=学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式. 
+          target="_blank" href="https://twitter.com/intent/tweet?url=http://www.iequa.com/2018/09/12/tensorflow/tf-4.1-tensorboard1/&title=Tensorboard 可视化好帮手 1 - Blair's Blog&summary=学会用 Tensorflow 自带的 tensorboard 去可视化我们所建造出来的神经网络是一个很好的学习理解方式.
 用最直观的流程图告诉你, 你的神经网络是长怎样,有助于你发现编程中间的问题和疑问."
           
           >
@@ -2955,18 +2960,19 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Chatbot Research 7 - Dialog_Corpus 常用数据集</p>
           <p class='content'>一些用于 Dialog 对话系统的数据集资料汇总
 
-对话系统常用数据集
+ 对话系统常用数据集
+
 介绍一下公开的数据集 :
-可以参考“A Survey of Available Corpora for Building ...</p>
+可以参考“A Survey of Available Corpora for Buildin...</p>
         </a>
       
       
         <a class='next' href='/2018/09/11/python/numpy-pandas/py-numpy-9-numpy.random.normal/'>
           <p class='title'>numpy.random.normal 函数<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
-          <p class='content'>numpy.random.normal 函数，有三个参数（loc, scale, size），代表生成的高斯分布随机数的均值、方差以及输出的 size. 
+          <p class='content'>numpy.random.normal 函数，有三个参数（loc, scale, size），代表生成的高斯分布随机数的均值、方差以及输出的 size.
 
 例子：
-1np.random.nor...</p>
+1np.random.norm...</p>
         </a>
       
     </div>
@@ -3002,7 +3008,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%88%E6%9E%9C"><span class="toc-text">效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%90%AD%E5%BB%BA%E5%9B%BE%E7%BA%B8"><span class="toc-text">搭建图纸</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%BC%96%E8%BE%91%E5%90%8E-add-layer"><span class="toc-text">2.1 编辑后 add_layer</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E8%83%BD%E4%BC%9A%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text">可能会遇到的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%88%E6%9E%9C"><span class="toc-text"> 效果</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%90%AD%E5%BB%BA%E5%9B%BE%E7%BA%B8"><span class="toc-text"> 搭建图纸</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-%E7%BC%96%E8%BE%91%E5%90%8E-add_layer"><span class="toc-text"> 2.1 编辑后 add_layer</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AF%E8%83%BD%E4%BC%9A%E9%81%87%E5%88%B0%E7%9A%84%E9%97%AE%E9%A2%98"><span class="toc-text"> 可能会遇到的问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3091,7 +3097,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
