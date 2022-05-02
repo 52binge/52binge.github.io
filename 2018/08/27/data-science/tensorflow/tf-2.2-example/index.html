@@ -2709,11 +2709,11 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
               <p>Friends</p>
             </a>
           
-            <a href="/aboutMe/"
+            <a href="/about/"
               
               
-              id="aboutMe">
-              <p>AboutMe</p>
+              id="about">
+              <p>About</p>
             </a>
           
         
@@ -2807,21 +2807,27 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <p>Tensorflow 是非常重视结构的, 我们建立好了神经网络的结构, 才能将数字放进去, 运行这个结构.</p>
 <span id="more"></span>
 <p>这个例子简单的阐述了 tensorflow 当中如何用代码来运行我们搭建的结构.</p>
-<h2 id="1-创建数据"><a href="#1-创建数据" class="headerlink" title="1. 创建数据"></a>1. 创建数据</h2><p>首先, 我们这次需要加载 tensorflow 和 numpy 两个模块, 并且使用 numpy 来创建我们的数据.</p>
+<h2 id="1-创建数据"><a class="markdownIt-Anchor" href="#1-创建数据"></a> 1. 创建数据</h2>
+<p>首先, 我们这次需要加载 tensorflow 和 numpy 两个模块, 并且使用 numpy 来创建我们的数据.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> tensorflow <span class="keyword">as</span> tf</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment"># create data</span></span><br><span class="line">x_data = np.random.rand(<span class="number">100</span>).astype(np.float32)</span><br><span class="line">y_data = x_data*<span class="number">0.1</span> + <span class="number">0.3</span></span><br></pre></td></tr></table></figure>
 <p>接着, 我们用 <code>tf.Variable</code> 来创建描述 <code>y</code> 的参数. 我们可以把 <code>y_data = x_data*0.1 + 0.3</code> 想象成 <code>y=Weights * x + biases</code>, 然后神经网络也就是学着把 Weights 变成 0.1, biases 变成 0.3.</p>
-<h2 id="2-搭建模型"><a href="#2-搭建模型" class="headerlink" title="2. 搭建模型"></a>2. 搭建模型</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Weights = tf.Variable(tf.random_uniform([<span class="number">1</span>], -<span class="number">1.0</span>, <span class="number">1.0</span>))</span><br><span class="line">biases = tf.Variable(tf.zeros([<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line">y = Weights*x_data + biases</span><br></pre></td></tr></table></figure>
-<h2 id="3-计算误差"><a href="#3-计算误差" class="headerlink" title="3. 计算误差"></a>3. 计算误差</h2><p>接着就是计算 <code>y</code> 和 <code>y_data</code> 的误差:</p>
+<h2 id="2-搭建模型"><a class="markdownIt-Anchor" href="#2-搭建模型"></a> 2. 搭建模型</h2>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Weights = tf.Variable(tf.random_uniform([<span class="number">1</span>], -<span class="number">1.0</span>, <span class="number">1.0</span>))</span><br><span class="line">biases = tf.Variable(tf.zeros([<span class="number">1</span>]))</span><br><span class="line"></span><br><span class="line">y = Weights*x_data + biases</span><br></pre></td></tr></table></figure>
+<h2 id="3-计算误差"><a class="markdownIt-Anchor" href="#3-计算误差"></a> 3. 计算误差</h2>
+<p>接着就是计算 <code>y</code> 和 <code>y_data</code> 的误差:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">loss = tf.reduce_mean(tf.square(y-y_data))</span><br></pre></td></tr></table></figure>
-<h2 id="4-传播误差"><a href="#4-传播误差" class="headerlink" title="4. 传播误差"></a>4. 传播误差</h2><p>反向传递误差的工作就教给 <code>optimizer</code> 了, 我们使用的误差传递方法是梯度下降法: Gradient Descent </p>
+<h2 id="4-传播误差"><a class="markdownIt-Anchor" href="#4-传播误差"></a> 4. 传播误差</h2>
+<p>反向传递误差的工作就教给 <code>optimizer</code> 了, 我们使用的误差传递方法是梯度下降法: Gradient Descent</p>
 <p>然后我们使用 <code>optimizer</code> 来进行参数的更新.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">optimizer = tf.train.GradientDescentOptimizer(<span class="number">0.5</span>)</span><br><span class="line">train = optimizer.minimize(loss)</span><br></pre></td></tr></table></figure>
-<h2 id="5-训练"><a href="#5-训练" class="headerlink" title="5. 训练"></a>5. 训练</h2><p>到目前为止, 我们只是建立了神经网络的结构, 还没有使用这个结构. </p>
+<h2 id="5-训练"><a class="markdownIt-Anchor" href="#5-训练"></a> 5. 训练</h2>
+<p>到目前为止, 我们只是建立了神经网络的结构, 还没有使用这个结构.</p>
 <p>在使用这个结构之前, 我们必须先初始化所有之前定义的 <code>Variable</code>,  所以这一步是很重要的!</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">init = tf.global_variables_initializer()  <span class="comment"># 替换成这样就好</span></span><br></pre></td></tr></table></figure>
 <p>接着,我们再创建会话 <code>Session</code>. 我们会在下一节中详细讲解 Session. 我们用 <code>Session</code> 来执行 <code>init</code> 初始化步骤. 并且, 用 <code>Session</code> 来 <code>run</code> 每一次 training 的数据. 逐步提升神经网络的预测准确性.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sess = tf.Session()</span><br><span class="line">sess.run(init)          <span class="comment"># Very important</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">201</span>):</span><br><span class="line">    sess.run(train)</span><br><span class="line">    <span class="keyword">if</span> step % <span class="number">20</span> == <span class="number">0</span>:</span><br><span class="line">        <span class="built_in">print</span>(step, sess.run(Weights), sess.run(biases))</span><br></pre></td></tr></table></figure>
-<h2 id="6-Reference"><a href="#6-Reference" class="headerlink" title="6. Reference"></a>6. Reference</h2><ul>
+<h2 id="6-reference"><a class="markdownIt-Anchor" href="#6-reference"></a> 6. Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/">tensorflow.org</a></li>
 <li><a target="_blank" rel="noopener" href="https://morvanzhou.github.io/tutorials/machine-learning/tensorflow/">莫烦Python</a></li>
 </ul>
@@ -2957,8 +2963,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'>Tensorflow 处理结构<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>Tensorflow 首先要定义神经网络的结构, 然后再把数据放入结构当中去运算 和 training.
 
-计算图
-因为 TensorFlow 是采用数据流图（data　flow　graphs）...</p>
+ 计算图
+
+因为 TensorFlow 是采用数据流图（data　flow　graph...</p>
         </a>
       
     </div>
@@ -2994,7 +3001,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E6%95%B0%E6%8D%AE"><span class="toc-text">1. 创建数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%90%AD%E5%BB%BA%E6%A8%A1%E5%9E%8B"><span class="toc-text">2. 搭建模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%AE%A1%E7%AE%97%E8%AF%AF%E5%B7%AE"><span class="toc-text">3. 计算误差</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E4%BC%A0%E6%92%AD%E8%AF%AF%E5%B7%AE"><span class="toc-text">4. 传播误差</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%AE%AD%E7%BB%83"><span class="toc-text">5. 训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-Reference"><span class="toc-text">6. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E5%88%9B%E5%BB%BA%E6%95%B0%E6%8D%AE"><span class="toc-text"> 1. 创建数据</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%90%AD%E5%BB%BA%E6%A8%A1%E5%9E%8B"><span class="toc-text"> 2. 搭建模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E8%AE%A1%E7%AE%97%E8%AF%AF%E5%B7%AE"><span class="toc-text"> 3. 计算误差</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E4%BC%A0%E6%92%AD%E8%AF%AF%E5%B7%AE"><span class="toc-text"> 4. 传播误差</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E8%AE%AD%E7%BB%83"><span class="toc-text"> 5. 训练</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-reference"><span class="toc-text"> 6. Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3083,7 +3090,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
