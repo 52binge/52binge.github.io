@@ -2342,7 +2342,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <body>
     
 
-<header id="l_header" class="l_header auto shadow blur "  >
+<header id="l_header" class="l_header auto shadow blur " style='opacity: 0' >
   <div class='container'>
   <div id='wrapper'>
     <div class='nav-sub'>
@@ -2662,10 +2662,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <div class='top'>
     
     
-      <p class="title">Blair's blog</p>
+      <p class="title">blair's blog</p>
     
     
-      <p class="subtitle">👩🏻‍💻ちんぶれあ</p>
+      <p class="subtitle">👩🏻‍💻ブレア</p>
     
   </div>
   <div class='bottom'>
@@ -2806,14 +2806,15 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>交叉验证(cross validation)让我们知道在机器学习中验证是有多么的重要, 这一次的 sklearn 中我们用到了<code>sklearn.learning_curve</code>当中的另外一种, 叫做<code>validation_curve</code>,用这一种曲线我们就能更加直观看出改变模型中的参数的时候有没有过拟合(overfitting)的问题了. 这也是可以让我们更好的选择参数的方法.</p>
 <span id="more"></span>
-<h2 id="validation-curve-检视过拟合"><a href="#validation-curve-检视过拟合" class="headerlink" title="validation_curve 检视过拟合"></a>validation_curve 检视过拟合</h2><p>验证<code>SVC</code>中的一个参数 <code>gamma</code> 在什么范围内能使 <code>model</code> 产生好的结果. 以及过拟合和 <code>gamma</code> 取值的关系.</p>
+<h2 id="validation_curve-检视过拟合"><a class="markdownIt-Anchor" href="#validation_curve-检视过拟合"></a> validation_curve 检视过拟合</h2>
+<p>验证<code>SVC</code>中的一个参数 <code>gamma</code> 在什么范围内能使 <code>model</code> 产生好的结果. 以及过拟合和 <code>gamma</code> 取值的关系.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> sklearn.learning_curve <span class="keyword">import</span> validation_curve <span class="comment">#validation_curve模块</span></span><br><span class="line"><span class="keyword">from</span> sklearn.datasets <span class="keyword">import</span> load_digits </span><br><span class="line"><span class="keyword">from</span> sklearn.svm <span class="keyword">import</span> SVC </span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt </span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="comment">#digits数据集</span></span><br><span class="line">digits = load_digits()</span><br><span class="line">X = digits.data</span><br><span class="line">y = digits.target</span><br><span class="line"></span><br><span class="line"><span class="comment">#建立参数测试集</span></span><br><span class="line">param_range = np.logspace(-<span class="number">6</span>, -<span class="number">2.3</span>, <span class="number">5</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#使用validation_curve快速找出参数对模型的影响</span></span><br><span class="line">train_loss, test_loss = validation_curve(</span><br><span class="line">    SVC(), X, y, param_name=<span class="string">&#x27;gamma&#x27;</span>, param_range=param_range, cv=<span class="number">10</span>, scoring=<span class="string">&#x27;mean_squared_error&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#平均每一轮的平均方差</span></span><br><span class="line">train_loss_mean = -np.mean(train_loss, axis=<span class="number">1</span>)</span><br><span class="line">test_loss_mean = -np.mean(test_loss, axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">#可视化图形</span></span><br><span class="line">plt.plot(param_range, train_loss_mean, <span class="string">&#x27;o-&#x27;</span>, color=<span class="string">&quot;r&quot;</span>,</span><br><span class="line">         label=<span class="string">&quot;Training&quot;</span>)</span><br><span class="line">plt.plot(param_range, test_loss_mean, <span class="string">&#x27;o-&#x27;</span>, color=<span class="string">&quot;g&quot;</span>,</span><br><span class="line">        label=<span class="string">&quot;Cross-validation&quot;</span>)</span><br><span class="line"></span><br><span class="line">plt.xlabel(<span class="string">&quot;gamma&quot;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&quot;Loss&quot;</span>)</span><br><span class="line">plt.legend(loc=<span class="string">&quot;best&quot;</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
 <div class="limg1">
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/python/sklearn-6-cross-validation-3-output_1_1.png" class="lazyload" data-srcset="/images/python/sklearn-6-cross-validation-3-output_1_1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:400px;"/></div></div>
 </div>
-
 <p>由图中可以明显看到 <code>gamma</code> 值大于 <code>0.001</code>，模型就会有过拟合(<code>Overfitting</code>)的问题。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="http://scikit-learn.org/">scikit-learn.org</a></li>
 <li><a target="_blank" rel="noopener" href="http://scikit-learn.org/stable/tutorial/basic/tutorial.html">scikit-learn docs</a></li>
 <li><a target="_blank" rel="noopener" href="https://morvanzhou.github.io">scikit-learn morvanzhou</a></li>
@@ -2941,8 +2942,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class='prev' href='/2018/01/10/python/sklearn/py-sklearn-7-save-model/'>
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Sklearn Save Model</p>
-          <p class='content'>我们训练好了一个 Model 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。这次主要介绍两种保存Model的模块 pickle 与 joblib
-...</p>
+          <p class='content'>我们训练好了一个 Model 以后总需要保存和再次预测, 所以保存和读取我们的sklearn model也是同样重要的一步。
+这次主要介绍两种保存Model的模块 pickle 与 joblib...</p>
         </a>
       
       
@@ -2984,7 +2985,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#validation-curve-%E6%A3%80%E8%A7%86%E8%BF%87%E6%8B%9F%E5%90%88"><span class="toc-text">validation_curve 检视过拟合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#validation_curve-%E6%A3%80%E8%A7%86%E8%BF%87%E6%8B%9F%E5%90%88"><span class="toc-text"> validation_curve 检视过拟合</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3073,7 +3074,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
@@ -3897,7 +3898,7 @@ volantis.pjax.push(()=>{
 
   
 <script>
-  var imgs=["/images/logos/parallax-bg/7_logo1.png", "/images/logos/parallax-bg/7_logo2.png", "/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo3.png", "/images/logos/parallax-bg/7_logo4.png", "/images/logos/parallax-bg/7_logo5.png", "/images/logos/parallax-bg/7_logo7.jpeg"];
+  var imgs=["/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo5.png"];
   var index=0;
   
       function shuffle(arr){

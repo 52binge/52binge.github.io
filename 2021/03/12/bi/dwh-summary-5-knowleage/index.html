@@ -2340,7 +2340,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <body>
     
 
-<header id="l_header" class="l_header auto shadow blur "  >
+<header id="l_header" class="l_header auto shadow blur " style='opacity: 0' >
   <div class='container'>
   <div id='wrapper'>
     <div class='nav-sub'>
@@ -2660,10 +2660,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   <div class='top'>
     
     
-      <p class="title">Blair's blog</p>
+      <p class="title">blair's blog</p>
     
     
-      <p class="subtitle">👩🏻‍💻ちんぶれあ</p>
+      <p class="subtitle">👩🏻‍💻ブレア</p>
     
   </div>
   <div class='bottom'>
@@ -2804,12 +2804,14 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/hadoop/hadoop-hive-logo-1.png" class="lazyload" data-srcset="/images/hadoop/hadoop-hive-logo-1.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:400px;"/></div></div>
 <span id="more"></span>
-<h2 id="1-Hive-优化"><a href="#1-Hive-优化" class="headerlink" title="1. Hive 优化"></a>1. Hive 优化</h2><blockquote>
-<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg3NjIyNjQwMg==&amp;mid=2247493676&amp;idx=1&amp;sn=1658835f7c595cce105022e70640e020&amp;chksm=cf37da21f8405337445ce6d8edbe4640b1a6dbd7903dfd6ac7cd2edbd83394a372bd2e3b9997&amp;scene=21#wechat_redirect">再次分享！Hive调优，数据工程师成神之路</a><br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/pwyus1xfX7QAz5MtecveZw">2020 大数据/数仓/数开 Questions</a><br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI2MDQzOTk3MQ==&amp;mid=2247484702&amp;idx=1&amp;sn=a916d003851335e48b90be23c4519eb0&amp;chksm=ea68efd2dd1f66c4baee87b27f9ae70cf6bde4bd35d5f9c0af66285d795724f8d7345d27a074&amp;scene=21#wechat_redirect">Hive内部表外部表区别及各自使用场景</a></p>
+<h2 id="1-hive-优化"><a class="markdownIt-Anchor" href="#1-hive-优化"></a> 1. Hive 优化</h2>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg3NjIyNjQwMg==&amp;mid=2247493676&amp;idx=1&amp;sn=1658835f7c595cce105022e70640e020&amp;chksm=cf37da21f8405337445ce6d8edbe4640b1a6dbd7903dfd6ac7cd2edbd83394a372bd2e3b9997&amp;scene=21#wechat_redirect">再次分享！Hive调优，数据工程师成神之路</a><br />
+<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/pwyus1xfX7QAz5MtecveZw">2020 大数据/数仓/数开 Questions</a><br />
+<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzI2MDQzOTk3MQ==&amp;mid=2247484702&amp;idx=1&amp;sn=a916d003851335e48b90be23c4519eb0&amp;chksm=ea68efd2dd1f66c4baee87b27f9ae70cf6bde4bd35d5f9c0af66285d795724f8d7345d27a074&amp;scene=21#wechat_redirect">Hive内部表外部表区别及各自使用场景</a></p>
 </blockquote>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator">/</span><span class="operator">/</span> 让可以不走mapreduce任务的，就不走mapreduce任务</span><br><span class="line">hive<span class="operator">&gt;</span> <span class="keyword">set</span> hive.fetch.task.conversion<span class="operator">=</span>more;</span><br><span class="line"> </span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> 开启任务并行执行</span><br><span class="line"> <span class="keyword">set</span> hive.exec.parallel<span class="operator">=</span><span class="literal">true</span>;</span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> 解释：当一个<span class="keyword">sql</span>中有多个job时候，且这多个job之间没有依赖，则可以让顺序执行变为并行执行（一般为用到<span class="keyword">union</span> <span class="keyword">all</span>的时候）</span><br><span class="line"> </span><br><span class="line"> <span class="operator">/</span><span class="operator">/</span> 同一个<span class="keyword">sql</span>允许并行任务的最大线程数 </span><br><span class="line"><span class="keyword">set</span> hive.exec.parallel.thread.number<span class="operator">=</span><span class="number">8</span>;</span><br><span class="line"> </span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> 设置jvm重用</span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> JVM重用对hive的性能具有非常大的 影响，特别是对于很难避免小文件的场景或者task特别多的场景，这类场景大多数执行时间都很短。jvm的启动过程可能会造成相当大的开销，尤其是执行的job包含有成千上万个task任务的情况。</span><br><span class="line"><span class="keyword">set</span> mapred.job.reuse.jvm.num.tasks<span class="operator">=</span><span class="number">10</span>; </span><br><span class="line"> </span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> 合理设置reduce的数目</span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> 方法<span class="number">1</span>：调整每个reduce所接受的数据量大小</span><br><span class="line"><span class="keyword">set</span> hive.exec.reducers.bytes.per.reducer<span class="operator">=</span><span class="number">500000000</span>; （<span class="number">500</span>M）</span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> 方法<span class="number">2</span>：直接设置reduce数量</span><br><span class="line"><span class="keyword">set</span> mapred.reduce.tasks <span class="operator">=</span> <span class="number">20</span></span><br><span class="line"></span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> map端聚合，降低传给reduce的数据量</span><br><span class="line"><span class="keyword">set</span> hive.map.aggr<span class="operator">=</span><span class="literal">true</span>  </span><br><span class="line"></span><br><span class="line"><span class="operator">/</span><span class="operator">/</span> 开启hive内置的数倾优化机制</span><br><span class="line"><span class="keyword">set</span> hive.groupby.skewindata<span class="operator">=</span><span class="literal">true</span></span><br></pre></td></tr></table></figure>
 <p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg3NjIyNjQwMg==&amp;mid=2247493886&amp;idx=1&amp;sn=2cee4ece5c7cc87895d9e1a1b2fb440f&amp;chksm=cf37daf3f84053e51cd0323f1ec9114ca0ec159a9451dd53a4afde5a7c6f1cf48f12d7999ef0&amp;scene=21#wechat_redirect">Hadoop高频考点！</a></p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -2823,7 +2825,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <td style="text-align:center">1.</td>
 <td>explain</td>
 <td style="text-align:left">explain [extended] query</td>
-<td></td>
 </tr>
 <tr>
 <td style="text-align:center">2.</td>
@@ -2863,12 +2864,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <tr>
 <td style="text-align:center">8.</td>
 <td><strong>Join优化</strong></td>
-<td style="text-align:left">1. 优先过滤后再进行Join操作，最大限度减少参与join的数据量<br>2. 小表join大表，最好启动mapjoin，hive自启用mapjoin, 小表不能超过25M，可改<br>3. Join on的条件相同的话，最好放入同一个job，并且join表的排列顺序从小到大<br>4. 如果多张表做join, 如果多个链接条件都相同，会转换成一个Job<br><br><strong>大表Join大表</strong> <br> 1. filter null key <br>2. change null key to rand() <br><br>case when a.user_id is null then <code>concat(&#39;hive&#39;,rand())</code> else a.user_id end = b.user_id;</td>
+<td style="text-align:left">1. 优先过滤后再进行Join操作，最大限度减少参与join的数据量<br>2. 小表join大表，最好启动mapjoin，hive自启用mapjoin, 小表不能超过25M，可改<br>3. Join on的条件相同的话，最好放入同一个job，并且join表的排列顺序从小到大<br>4. 如果多张表做join, 如果多个链接条件都相同，会转换成一个Job<br><br><strong>大表Join大表</strong> <br> 1. filter null key <br>2. change null key to rand() <br><br>case when a.user_id is null then <code>concat('hive',rand())</code> else a.user_id end = b.user_id;</td>
 </tr>
 <tr>
 <td style="text-align:center">9.</td>
 <td>启用 MapJoin</td>
-<td style="text-align:left">是否根据输入小表的大小，自动将reduce端的common join 转化为map join，将小表刷入内存中 <br> 对应逻辑优化器是MapJoinProcessor <br><br> <code>set hive.auto.convert.join = true;</code><br><br># 刷入内存表的大小(字节)<br>set hive.mapjoin.smalltable.filesize = 25000000;<br><br> # hive会基于表的size自动的将普通join转换成mapjoin <br> set hive.auto.convert.join.noconditionaltask=true;<br><br> # 多大的表可以自动触发放到内层LocalTask中，默认大小10M<br>set hive.auto.convert.join.noconditionaltask.size=10000000; <br><br> <strong>也可以手动开启mapjoin</strong>： <br> &nbsp;&nbsp; SELECT /<em>+ MAPJOIN(smallTable) </em>/ smallTable.key, bigTable.value</td>
+<td style="text-align:left">是否根据输入小表的大小，自动将reduce端的common join 转化为map join，将小表刷入内存中 <br> 对应逻辑优化器是MapJoinProcessor <br><br> <code>set hive.auto.convert.join = true;</code><br><br># 刷入内存表的大小(字节)<br>set hive.mapjoin.smalltable.filesize = 25000000;<br><br> # hive会基于表的size自动的将普通join转换成mapjoin <br> set hive.auto.convert.join.noconditionaltask=true;<br><br> # 多大的表可以自动触发放到内层LocalTask中，默认大小10M<br>set hive.auto.convert.join.noconditionaltask.size=10000000; <br><br> <strong>也可以手动开启mapjoin</strong>： <br>    SELECT /*+ MAPJOIN(smallTable) */ smallTable.key, bigTable.value</td>
 </tr>
 <tr>
 <td style="text-align:center">10.</td>
@@ -2883,16 +2884,15 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <tr>
 <td style="text-align:center">15.</td>
 <td>Count Distinct优化</td>
-<td style="text-align:left">优化后（启动2个job，1个job负责子查询(可有多个reduce)，另1个job负责count(1)): <br> <code>select count(1) from (select id from tablename group by id) tmp;</code> </td>
+<td style="text-align:left">优化后（启动2个job，1个job负责子查询(可有多个reduce)，另1个job负责count(1)): <br> <code>select count(1) from (select id from tablename group by id) tmp;</code></td>
 </tr>
 <tr>
 <td style="text-align:center">16.</td>
 <td>怎样写in/exists<br><br>left semi join</td>
-<td style="text-align:left">— in / exists 实现 <br><code>select a.id, a.name from a where a.id in (select b.id from b);</code><br><br>是推荐使用 Hive 的一个高效替代方案：left semi join<br><code>select a.id, a.name from a left semi join b on a.id = b.id;</code> </td>
+<td style="text-align:left">– in / exists 实现 <br><code>select a.id, a.name from a where a.id in (select b.id from b);</code><br><br>是推荐使用 Hive 的一个高效替代方案：left semi join<br><code>select a.id, a.name from a left semi join b on a.id = b.id;</code></td>
 </tr>
 </tbody>
 </table>
-</div>
 <p>Hive0.11版本之后：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hive.auto.convert.join=True</span><br><span class="line">hive.mapjoin.smalltable.filesize</span><br><span class="line"></span><br><span class="line"><span class="comment"># 默认值为2500000(25M),通过配置该属性来确定使用该优化的表的大小，如果表的大小小于此值就会被加载进内存中</span></span><br></pre></td></tr></table></figure>
 <blockquote>
@@ -2909,7 +2909,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>在小表和大表进行join时，将小表放在前边，效率会高。hive会将小表进行缓存。</p>
 </blockquote>
 <p><strong>Reduce 长尾</strong></p>
-<p><code>Count Distinct</code> 的执行原理是将需要去重的字段 以及 Group By 字段 联合作为 key将数据分发到 Reduce端。<br>因为 Distinct操作，数据无法在 Map 端的 Shuffle 阶段根据 Group By 先做一次聚合操作，以减少传输的数据量，而是将所有的数据都传输到 Reduce 端，当 key 的数据分发不均匀时，就会导致 Reduce 端长尾。</p>
+<p><code>Count Distinct</code> 的执行原理是将需要去重的字段 以及 Group By 字段 联合作为 key将数据分发到 Reduce端。<br />
+因为 Distinct操作，数据无法在 Map 端的 Shuffle 阶段根据 Group By 先做一次聚合操作，以减少传输的数据量，而是将所有的数据都传输到 Reduce 端，当 key 的数据分发不均匀时，就会导致 Reduce 端长尾。</p>
 <blockquote>
 <ol>
 <li>对同一个表按照维度对不同的列进行 Count Distinct操作，造成 Map 端数据膨胀，从而使得下游的 Join 和 Reduce 出现链路上的 长尾。</li>
@@ -2918,12 +2919,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>多个 Distinct 同时出现在一段 SQL 代码时，数据会被分发多次， 会造成数据膨胀 N 倍，长尾现象放大 N 倍.</li>
 </ol>
 </blockquote>
-<h2 id="2-MapReduce"><a href="#2-MapReduce" class="headerlink" title="2. MapReduce"></a>2. MapReduce</h2><blockquote>
+<h2 id="2-mapreduce"><a class="markdownIt-Anchor" href="#2-mapreduce"></a> 2. MapReduce</h2>
+<blockquote>
 <p>(1) Map方法之后Reduce方法之前这段处理过程叫「Shuffle」</p>
 <p>(2) Map方法之后，数据首先进入到分区方法，把数据标记好分区，然后把数据发送到环形缓冲区；环形缓冲区默认大小100m，环形缓冲区达到80%时，进行溢写；溢写前对数据进行排序，排序按照对key的索引进行字典顺序排序，排序的手段「快排」；溢写产生大量溢写文件，需要对溢写文件进行「归并排序」；对溢写的文件也可以进行Combiner操作，前提是汇总操作，求平均值不行。最后将文件按照分区存储到磁盘，等待Reduce端拉取。</p>
 <p>3）每个Reduce拉取Map端对应分区的数据。拉取数据后先存储到内存中，内存不够了，再存储到磁盘。拉取完所有数据后，采用归并排序将内存和磁盘中的数据都进行排序。在进入Reduce方法前，可以对数据进行分组操作。</p>
 </blockquote>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -2946,10 +2947,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <tr>
 <td style="text-align:center">5.</td>
 <td>消灭子查询内的 group by 、 COUNT(DISTINCT)，MAX，MIN。可以减少job的数量</td>
+<td style="text-align:center"></td>
 </tr>
 <tr>
 <td style="text-align:center">6.</td>
-<td>spark join 优化 - set hive.auto.convert.join=true; 小表自动判断，在内存  <br> &nbsp;&nbsp;Sort -Merge -Bucket Join  对大表连接大表的优化</td>
+<td>spark join 优化 - set hive.auto.convert.join=true; 小表自动判断，在内存  <br>   Sort -Merge -Bucket Join  对大表连接大表的优化</td>
+<td style="text-align:center"></td>
 </tr>
 <tr>
 <td style="text-align:center">7.</td>
@@ -2973,9 +2976,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
-</div>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">WITH</span> x <span class="keyword">AS</span> (</span><br><span class="line">    <span class="keyword">SELECT</span></span><br><span class="line">        app,</span><br><span class="line">        user_id,</span><br><span class="line">        <span class="built_in">count</span>( <span class="number">1</span> ) <span class="keyword">AS</span> rn </span><br><span class="line">    <span class="keyword">FROM</span></span><br><span class="line">        table1 </span><br><span class="line">    <span class="keyword">GROUP</span> <span class="keyword">BY</span></span><br><span class="line">        app,</span><br><span class="line">        user_id </span><br><span class="line">    ) </span><br><span class="line"></span><br><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">    t.app,</span><br><span class="line">    t.user_id </span><br><span class="line"><span class="keyword">FROM</span></span><br><span class="line">    (</span><br><span class="line">    <span class="keyword">SELECT</span></span><br><span class="line">        app,</span><br><span class="line">        user_id,</span><br><span class="line">        <span class="built_in">row_number</span> ( ) <span class="keyword">over</span> ( <span class="keyword">PARTITION</span> <span class="keyword">BY</span> app <span class="keyword">ORDER</span> <span class="keyword">BY</span> rn <span class="keyword">DESC</span> ) <span class="keyword">AS</span> max_user </span><br><span class="line">    <span class="keyword">FROM</span></span><br><span class="line">        x </span><br><span class="line">    ) <span class="keyword">AS</span> t </span><br><span class="line"><span class="keyword">WHERE</span></span><br><span class="line">    t.max_user <span class="operator">&lt;=</span> <span class="number">5</span></span><br></pre></td></tr></table></figure>
-<h2 id="3-Spark"><a href="#3-Spark" class="headerlink" title="3. Spark"></a>3. Spark</h2><blockquote>
+<h2 id="3-spark"><a class="markdownIt-Anchor" href="#3-spark"></a> 3. Spark</h2>
+<blockquote>
 <p>(1). Data Skew 的原理很简单：在进行shuffle的时候，必须将各个节点上相同的key拉取到某个节点上的一个task来进行处理，比如按照key进行聚合或join等操作。此时如果某个key对应的数据量特别大的话，就会发生 Data Skew。</p>
 <p>(2). Task 有2个非常慢</p>
 </blockquote>
@@ -2985,22 +2988,22 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <ol>
 <li>lines = sc.textFile(…)</li>
-<li>lines.flatMap(lambda x: x.split(‘ ‘))</li>
+<li>lines.flatMap(lambda x: x.split(’ '))</li>
 <li>wco = words.map(lambda x: (x, 1))</li>
 <li>word_count = wco.reduceByKey(add)</li>
 <li>word_count.collect()</li>
 </ol>
 </blockquote>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">lines = sc.textFile(<span class="string">&quot;/Users/blair/ghome/github/spark3.0/pyspark/spark-src/word_count.text&quot;</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">lines = lines.<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: <span class="string">&#x27;New York&#x27;</span> <span class="keyword">in</span> x)</span><br><span class="line"><span class="comment">#lines.take(3)</span></span><br><span class="line"></span><br><span class="line">words = lines.flatMap(<span class="keyword">lambda</span> x: x.split(<span class="string">&#x27; &#x27;</span>))</span><br><span class="line"></span><br><span class="line">wco = words.<span class="built_in">map</span>(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#print(wco.take(5))</span></span><br><span class="line"></span><br><span class="line">word_count = wco.reduceByKey(add)</span><br><span class="line"></span><br><span class="line">word_count.collect()</span><br></pre></td></tr></table></figure>
-<ol>
+<ol start="2">
 <li>你能用SQL语句实现上述的MapReduce吗？</li>
 </ol>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">select</span> id, <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">from</span> D <span class="keyword">group</span> <span class="keyword">by</span> id <span class="keyword">order</span> <span class="keyword">by</span> <span class="built_in">count</span>(<span class="operator">*</span>) <span class="keyword">desc</span>;</span><br></pre></td></tr></table></figure>
-<ol>
+<ol start="3">
 <li>Spark提交你的jar包时所用的命令是什么？</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark-submit</span><br></pre></td></tr></table></figure>
-<ol>
+<ol start="4">
 <li>你所理解的Spark的shuffle过程？</li>
 </ol>
 <blockquote>
@@ -3019,7 +3022,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">spark.sql.files.maxPartitionBytes 默认128MB，单个分区读取的最大文件大小</span><br><span class="line">spark.sql.files.maxPartitionBytes 的值来降低 maxSplitBytes 的值</span><br><span class="line"></span><br><span class="line">parquet.block.size</span><br></pre></td></tr></table></figure>
 <blockquote>
 <p>parquet 文件的数据是以row group 存储，一个parquet 文件可能只含有一个row group，也有可能含有多个row group ，row group 的大小 主要由parquet.block.size 决定。</p>
-<p>「Parquet是为了使Hadoop生态系统中的任何项目都可以使用压缩的，高效的列式数据表示形式」<br>parquet.block size:默认值为134217728byte,即128MB,表示 Row Group在内存中的块大小。该值设置得大,可以提升 Parquet文件的读取效率,但是相应在写的时候需要耗费更多的内存</p>
+<p>「Parquet是为了使Hadoop生态系统中的任何项目都可以使用压缩的，高效的列式数据表示形式」<br />
+parquet.block size:默认值为134217728byte,即128MB,表示 Row Group在内存中的块大小。该值设置得大,可以提升 Parquet文件的读取效率,但是相应在写的时候需要耗费更多的内存</p>
 <p>「所以在实际生产中，使用Parquet存储，snappy/lzo压缩的方式更为常见，这种情况下可以避免由于读取不可分割大文件引发的数据倾斜。</p>
 <p>读取hdfs文件并行了 22个 tasks</p>
 </blockquote>
@@ -3041,16 +3045,25 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </ol>
 <p>聚合后cache</p>
 <p>默认情况下coalesce不会产生shuffle coalesce, repartition</p>
-<p>(1) 谓词下推 Predicate PushDown - SQL中的谓词主要有 like、between、is null、in、=、!=等<br>(2) 列裁剪 Column Pruning 和 映射下推 Project PushDown - 列裁剪和映射下推的目的：过滤掉查询不需要使用到的列</p>
+<p>(1) 谓词下推 Predicate PushDown - SQL中的谓词主要有 like、between、is null、in、=、!=等<br />
+(2) 列裁剪 Column Pruning 和 映射下推 Project PushDown - 列裁剪和映射下推的目的：过滤掉查询不需要使用到的列</p>
 </blockquote>
-<h2 id="4-hadoop-hive-spark"><a href="#4-hadoop-hive-spark" class="headerlink" title="4. hadoop, hive, spark"></a>4. hadoop, hive, spark</h2><ul>
+<h2 id="4-hadoop-hive-spark"><a class="markdownIt-Anchor" href="#4-hadoop-hive-spark"></a> 4. hadoop, hive, spark</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/lzm1340458776/article/details/43306115">Hive中order by，sort by，distribute by，cluster by的区别</a></li>
 </ul>
 <blockquote>
-<p>order by会对输入做全局排序，因此只有一个Reducer<br>sort by不是全局排序，其在数据进入reducer前完成排序</p>
+<p>order by会对输入做全局排序，因此只有一个Reducer<br />
+sort by不是全局排序，其在数据进入reducer前完成排序</p>
 <p>distribute by是控制在map端如何拆分数据给reduce端的, sort by为每个reduce产生一个排序文件</p>
 </blockquote>
-<p>1 Hadoop和spark的主要区别<br>2 Hadoop中一个大文件进行排序，如何保证整体有序？sort只会保证单个节点的数据有序<br>3 Hive中有哪些udf<br>4 Hadoop中文件put get的过程详细描述<br>5 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/Tpf386/p/11210483.html">Java中有哪些GC算法?</a> [1. 标记-清除算法 2. 复制算法 3. 标记-整理算法 4. 分代收集算法]<br>6 <a target="_blank" rel="noopener" href="https://blog.csdn.net/aitangyong/article/details/39453365">Java中的弱引用 强引用和软引用分别在哪些场景中使用</a><br>7 Hadoop和spark的主要区别-这个问题基本都会问到</p>
+<p>1 Hadoop和spark的主要区别<br />
+2 Hadoop中一个大文件进行排序，如何保证整体有序？sort只会保证单个节点的数据有序<br />
+3 Hive中有哪些udf<br />
+4 Hadoop中文件put get的过程详细描述<br />
+5 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/Tpf386/p/11210483.html">Java中有哪些GC算法?</a> [1. 标记-清除算法 2. 复制算法 3. 标记-整理算法 4. 分代收集算法]<br />
+6 <a target="_blank" rel="noopener" href="https://blog.csdn.net/aitangyong/article/details/39453365">Java中的弱引用 强引用和软引用分别在哪些场景中使用</a><br />
+7 Hadoop和spark的主要区别-这个问题基本都会问到</p>
 <p><strong>(1). Hadoop和spark的主要区别</strong></p>
 <blockquote>
 <p>spark消除了冗余的 HDFS 读写: Hadoop 每次 shuffle 操作后，必须写到磁盘，而 Spark 在 shuffle 后不一定落盘，可以 cache 到内存中，以便迭代时使用。如果操作复杂，很多的 shufle 操作，那么 Hadoop 的读写 IO 时间会大大增加，也是 Hive 更慢的主要原因了。</p>
@@ -3062,13 +3075,17 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>一个文件有key值从1到10000的数据，我们用两个分区，将1到5000的key发送到partition1，然后由reduce1处理，5001到10000的key发动到partition2然后由reduce2处理，reduce1的key是按照1到5000的升序排序，reduce2的key是按照5001到10000的升序排序，这就保证了整个MapReduce程序的全局排序。</p>
 <p>Hadoop 中的类 TotalOrderPartitioner</p>
 </blockquote>
-<h2 id="5-data-warehouse"><a href="#5-data-warehouse" class="headerlink" title="5. data warehouse"></a>5. data warehouse</h2><p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19703294">知乎：如何建设数据仓库？</a><br><a target="_blank" rel="noopener" href="https://www.huaweicloud.com/articles/432adc9ebe5d354c6393a3490a005d10.html">华为：数据仓库、主题域、主题概念与定义</a></p>
+<h2 id="5-data-warehouse"><a class="markdownIt-Anchor" href="#5-data-warehouse"></a> 5. data warehouse</h2>
+<p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/19703294">知乎：如何建设数据仓库？</a><br />
+<a target="_blank" rel="noopener" href="https://www.huaweicloud.com/articles/432adc9ebe5d354c6393a3490a005d10.html">华为：数据仓库、主题域、主题概念与定义</a></p>
 <p>other:</p>
 <p><a target="_blank" rel="noopener" href="https://tech.meituan.com/2020/03/12/delivery-data-governance.html">美团配送数据治理实践</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/panfelix">数仓大山哥 码龄10年</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/panfelix/article/details/107326899?spm=1001.2014.3001.5501">good 数仓大山哥 - Hive数据倾斜的原因及主要解决方法</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/panfelix/article/details/107913560?spm=1001.2014.3001.5501">数仓大山哥 - Hive优化-大表join大表优化</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/xqzt/p/4472005.html">缓慢变化维 (Slowly Changing Dimension) 常见的三种类型及原型设计（转）</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/panfelix">数仓大山哥 码龄10年</a><br />
+<a target="_blank" rel="noopener" href="https://blog.csdn.net/panfelix/article/details/107326899?spm=1001.2014.3001.5501">good 数仓大山哥 - Hive数据倾斜的原因及主要解决方法</a><br />
+<a target="_blank" rel="noopener" href="https://blog.csdn.net/panfelix/article/details/107913560?spm=1001.2014.3001.5501">数仓大山哥 - Hive优化-大表join大表优化</a><br />
+<a target="_blank" rel="noopener" href="https://www.cnblogs.com/xqzt/p/4472005.html">缓慢变化维 (Slowly Changing Dimension) 常见的三种类型及原型设计（转）</a></p>
 <p>DWH 建模方法: <strong>范式建模法/维度建模法/实体建模法</strong></p>
 <p>这里面就涉及到了数据仓库的架构，简单来说数据仓库分为四个层次：</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -3095,18 +3112,18 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
-</div>
 <blockquote>
 <p>注意: 数据仓库的架构当中，各个系统的元数据通过ETL同步到操作性数据仓库ODS中，对ODS数据进行面向主题域建模形成DW（数据仓库），DM是针对某一个业务领域建立模型，具体用户（决策层）查看DM生成的报表</p>
+</blockquote>
+<blockquote>
 <p>最重要的是，要和业务以及产品负责人耐心沟通，认真敲定口径，比如观看人数的统计，就是要确定好哪些观众不算有效观众，观众和主播是同一人的等等细节，耐心是很重要的，需要格外注意的是，开发要学会要抛弃自己的专业知识，用最通俗的方式去解释，并且学会留下记录。</p>
 <p>说了这么多，最最重要的，一定要做好规范维护，无论是用前端还是excel，及时更新是必须的。表的作用，设计理念，表字段的取数逻辑，口径的提供人，表结构都要记录在案，时常维护</p>
 </blockquote>
-<p>数据质量 - </p>
+<p>数据质量 -</p>
 <ol>
 <li>数据本身质量：数据开发对数据质量负责，保持对数据的敬畏心</li>
 <li>数据建设质量：可以从两方面来考量：易用性和丰富性；</li>
 </ol>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -3129,11 +3146,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
-</div>
 <ol>
 <li>数据主题划分</li>
 <li>数据分层</li>
-<li>表 命名规范 - dwd<em>数据域</em>业务过程<em>(p全量/i增量) / dws</em>数据域<em>维度</em>统计周期</li>
+<li>表 命名规范 - dwd_数据域_业务过程_(p全量/i增量) / dws_数据域_维度_统计周期</li>
 <li>ods dwd dws dim ads</li>
 </ol>
 <p>评价体系：</p>
@@ -3153,9 +3169,18 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <ol>
 <li>建立工单</li>
 </ol>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/volcao/p/13636557.html">大数据：元数据（Metadata）</a><br><a target="_blank" rel="noopener" href="https://my.oschina.net/u/4631230/blog/4538578">数据治理之元数据管理</a></p>
-<p><a target="_blank" rel="noopener" href="https://www.codenong.com/cs107025192/">数据仓库–数据分层（ETL、ODS、DW、APP、DIM）</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/10de9f7de648">数仓—Theory—数仓命名规范</a><br><a target="_blank" rel="noopener" href="https://tech.youzan.com/youzan-metadata/">有赞数据仓库元数据系统实践</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/jiangbei/p/8483591.html">【数据仓库】——数据仓库概念</a><br><a target="_blank" rel="noopener" href="https://monkeyip.github.io/2019/04/25/Hive%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E4%BC%98%E5%8C%96%E6%80%BB%E7%BB%93/">Hive数据倾斜优化总结</a><br><a target="_blank" rel="noopener" href="https://www.codenong.com/cs107025192/">数据仓库–数据分层（ETL、ODS、DW、APP、DIM）</a><br><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/D_mqw4UO8H-ckE5ytfnglg">网易严选数仓规范与评价体系</a><br><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1061680">DE（开发）题(附答案)</a></p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012834750/article/details/81164990?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_baidulandingword-0&amp;spm=1001.2101.3001.4242">Spark系列—SparkSQL(三)执行SparkSQL查询</a></p>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/volcao/p/13636557.html">大数据：元数据（Metadata）</a><br />
+<a target="_blank" rel="noopener" href="https://my.oschina.net/u/4631230/blog/4538578">数据治理之元数据管理</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.codenong.com/cs107025192/">数据仓库–数据分层（ETL、ODS、DW、APP、DIM）</a><br />
+<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/10de9f7de648">数仓–Theory–数仓命名规范</a><br />
+<a target="_blank" rel="noopener" href="https://tech.youzan.com/youzan-metadata/">有赞数据仓库元数据系统实践</a><br />
+<a target="_blank" rel="noopener" href="https://www.cnblogs.com/jiangbei/p/8483591.html">【数据仓库】——数据仓库概念</a><br />
+<a target="_blank" rel="noopener" href="https://monkeyip.github.io/2019/04/25/Hive%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C%E4%BC%98%E5%8C%96%E6%80%BB%E7%BB%93/">Hive数据倾斜优化总结</a><br />
+<a target="_blank" rel="noopener" href="https://www.codenong.com/cs107025192/">数据仓库–数据分层（ETL、ODS、DW、APP、DIM）</a><br />
+<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/D_mqw4UO8H-ckE5ytfnglg">网易严选数仓规范与评价体系</a><br />
+<a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1061680">DE（开发）题(附答案)</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/u012834750/article/details/81164990?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_baidulandingword-0&amp;spm=1001.2101.3001.4242">Spark系列–SparkSQL(三)执行SparkSQL查询</a></p>
 
   
   
@@ -3282,8 +3307,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='content'>
 
 
-1. binary-search1.1 二分查找, while l &lt;= r
-123456789101112131415161718class Solution:    def se...</p>
+ 1. binary-search
+1.1 二分查找, while l &lt;= r
+123456789101112131415161718class Solution:    def ...</p>
         </a>
       
       
@@ -3291,7 +3317,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'>DataWare Review Summary 4<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>
 
-1. DW 技术选型
+ 1. DW 技术选型
 
 
 
@@ -3309,7 +3335,7 @@ flume, kafka, sqoop, logstach, datax
 
 2.
 数据存储
-mysql, ...</p>
+mysql,...</p>
         </a>
       
     </div>
@@ -3345,7 +3371,7 @@ mysql, ...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Hive-%E4%BC%98%E5%8C%96"><span class="toc-text">1. Hive 优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-MapReduce"><span class="toc-text">2. MapReduce</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Spark"><span class="toc-text">3. Spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-hadoop-hive-spark"><span class="toc-text">4. hadoop, hive, spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-data-warehouse"><span class="toc-text">5. data warehouse</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-hive-%E4%BC%98%E5%8C%96"><span class="toc-text"> 1. Hive 优化</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-mapreduce"><span class="toc-text"> 2. MapReduce</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-spark"><span class="toc-text"> 3. Spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-hadoop-hive-spark"><span class="toc-text"> 4. hadoop, hive, spark</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-data-warehouse"><span class="toc-text"> 5. data warehouse</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3434,7 +3460,7 @@ mysql, ...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
@@ -4258,7 +4284,7 @@ volantis.pjax.push(()=>{
 
   
 <script>
-  var imgs=["/images/logos/parallax-bg/7_logo1.png", "/images/logos/parallax-bg/7_logo2.png", "/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo3.png", "/images/logos/parallax-bg/7_logo4.png", "/images/logos/parallax-bg/7_logo5.png", "/images/logos/parallax-bg/7_logo7.jpeg"];
+  var imgs=["/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo_b.webp", "/images/logos/parallax-bg/7_logo5.png"];
   var index=0;
   
       function shuffle(arr){
