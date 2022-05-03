@@ -2811,26 +2811,38 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p><strong>新版本API：</strong></p>
 <blockquote>
 <ul>
-<li><p>用 dynamic_rnn 来构造 RNN模型，这样就避免了数据长度不同所带来的困扰，不需要再使用 model_with_buckets 这种方法来构建模型，使得我们数据处理和模型代码都简洁很多。</p>
+<li>
+<p>用 dynamic_rnn 来构造 RNN模型，这样就避免了数据长度不同所带来的困扰，不需要再使用 model_with_buckets 这种方法来构建模型，使得我们数据处理和模型代码都简洁很多。</p>
 </li>
-<li><p>新版本将 Attention、 Decoder 等几个主要的功能都分别进行封装，直接调用相应的 Wapper函数 进行封装即可，更加灵活方便，而且只需要写几个简单的函数既可以自定义的各个模块以满足我们个性化的需求。</p>
+<li>
+<p>新版本将 Attention、 Decoder 等几个主要的功能都分别进行封装，直接调用相应的 Wapper函数 进行封装即可，更加灵活方便，而且只需要写几个简单的函数既可以自定义的各个模块以满足我们个性化的需求。</p>
+</li>
+<li>
+<p>实现了beam_search功能，可直接调用。</p>
 </li>
 </ul>
-<ul>
-<li>实现了beam_search功能，可直接调用。</li>
-</ul>
+</blockquote>
+<blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/52200883">tensor flow dynamic_rnn 与rnn有啥区别？</a></p>
 <p>dynamic_rnn 只在一个 batch 内部进行自动 padding， 不同 batch padding 长度可以不同</p>
 </blockquote>
-<h2 id="1-数据处理"><a href="#1-数据处理" class="headerlink" title="1. 数据处理"></a>1. 数据处理</h2><blockquote>
-<p> word2id is :  { ‘decorations’: 12002, ‘scraps’: 4599, …}</p>
-<p>id2word is :  { 0: ‘<pad>‘, 1: ‘<go>‘, 2: ‘<eos>‘, 3: ‘<unknown>‘, 4: ‘can’, 5: ‘we’, 6: ‘make’, … }</p>
-<p>trainingSamples is :<br> [<br>    [ [793, 138, 65], [35, 209, 110, 9016, 208, 382, 35, 22] ],<br>    [ [35, 209, 110, 9016, 208, 382, 35, 22], [26, 92, 1906, 47, 254, 65] ],<br>    …<br> ]</p>
+<h2 id="1-数据处理"><a class="markdownIt-Anchor" href="#1-数据处理"></a> 1. 数据处理</h2>
+<blockquote>
+<p>word2id is :  { ‘decorations’: 12002, ‘scraps’: 4599, …}</p>
+<p>id2word is :  { 0: ‘<pad>’, 1: ‘<go>’, 2: ‘<eos>’, 3: ‘<unknown>’, 4: ‘can’, 5: ‘we’, 6: ‘make’, … }</p>
+<p>trainingSamples is :<br />
+[<br />
+[ [793, 138, 65], [35, 209, 110, 9016, 208, 382, 35, 22] ],<br />
+[ [35, 209, 110, 9016, 208, 382, 35, 22], [26, 92, 1906, 47, 254, 65] ],<br />
+…<br />
+]</p>
 </blockquote>
-<h2 id="2-模型构建"><a href="#2-模型构建" class="headerlink" title="2. 模型构建"></a>2. 模型构建</h2><p>代码主要是从 tensorflow官网 给出的nmt例子的代码简化而来，实现了最基本的 <strong>attention</strong> 和 <strong>beam_search</strong> 等功能，同时有将nmt代码中繁杂的代码逻辑进行简化。这里参考nmt中所提到的构建<code>train</code>、<code>eval</code>、<code>inference</code> , 三个图进行模型构建，好处在于 <a target="_blank" rel="noopener" href="https://github.com/tensorflow/nmt#building-training-eval-and-inference-graphs">nmt官方文档 Building Training, Eval, and Inference Graphs </a></p>
+<h2 id="2-模型构建"><a class="markdownIt-Anchor" href="#2-模型构建"></a> 2. 模型构建</h2>
+<p>代码主要是从 tensorflow官网 给出的nmt例子的代码简化而来，实现了最基本的 <strong>attention</strong> 和 <strong>beam_search</strong> 等功能，同时有将nmt代码中繁杂的代码逻辑进行简化。这里参考nmt中所提到的构建<code>train</code>、<code>eval</code>、<code>inference</code> , 三个图进行模型构建，好处在于 <a target="_blank" rel="noopener" href="https://github.com/tensorflow/nmt#building-training-eval-and-inference-graphs">nmt官方文档 Building Training, Eval, and Inference Graphs </a></p>
 <blockquote>
 <ul>
-<li>inference图 往往与 train 和 eval结构 存在较大差异，所以往往需要单独进行构建<br>.   （没有decoder输入和目标，需要使用 greedy 或 beam_search 进行 decode，batch_size 也不同等等）</li>
+<li>inference图 往往与 train 和 eval结构 存在较大差异，所以往往需要单独进行构建<br />
+.   （没有decoder输入和目标，需要使用 greedy 或 beam_search 进行 decode，batch_size 也不同等等）</li>
 <li>eval图，不需要进行反向传播，只需要得到一个 <strong>loss</strong> 和 <strong>acc</strong>值</li>
 <li>数据进行 <code>feed</code>，简化数据操作</li>
 <li>变量重用变得简单，因为 train、eval 存在一些公用变量和代码块，就不需要我们重复定义</li>
@@ -2848,7 +2860,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>loss</li>
 </ul>
 </blockquote>
-<h3 id="2-1-BasicDecoder-类和-dynamic-decode"><a href="#2-1-BasicDecoder-类和-dynamic-decode" class="headerlink" title="2.1 BasicDecoder 类和 dynamic_decode"></a>2.1 BasicDecoder 类和 dynamic_decode</h3><p>decoder文件中定义了</p>
+<h3 id="21-basicdecoder-类和-dynamic_decode"><a class="markdownIt-Anchor" href="#21-basicdecoder-类和-dynamic_decode"></a> 2.1 BasicDecoder 类和 dynamic_decode</h3>
+<p>decoder文件中定义了</p>
 <ul>
 <li>Decoder抽象类</li>
 <li>dynamic_decode函数</li>
@@ -2856,9 +2869,12 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>dynamic_decode 可以视为整个解码过程的入口，需要传入的参数就是 Decoder 的一个实例，他会动态的调用 Decoder 的 <code>step</code>函数 按步执行 decode，可以理解为Decoder类定义了单步解码（根据输入求出输出，并将该输出当做下一时刻输入），而dynamic_decode则会调用control_flow_ops.while_loop这个函数来循环执行直到输出<eos>结束编码过程.</p>
 </blockquote>
-<h3 id="2-2-cell类型（Attention类型）"><a href="#2-2-cell类型（Attention类型）" class="headerlink" title="2.2 cell类型（Attention类型）"></a>2.2 cell类型（Attention类型）</h3><figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 分为3步，</span></span><br><span class="line"><span class="comment">#.  1. 定义attention机制</span></span><br><span class="line"><span class="comment">#.  2. 定义要是用的基础的RNNCell</span></span><br><span class="line"><span class="comment">#.  3. 使用AttentionWrapper进行封装</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 定义要使用的attention机制。</span></span><br><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=self.rnn_size, memory=encoder_outputs, memory_sequence_length=encoder_inputs_length)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 定义decoder阶段要是用的LSTMCell，然后为其封装attention wrapper</span></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 使用AttentionWrapper进行封装</span></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper(cell=decoder_cell, attention_mechanism=attention_mechanism, attention_layer_size=self.rnn_size, name=<span class="string">&#x27;Attention_Wrapper&#x27;</span>)</span><br></pre></td></tr></table></figure>
-<h3 id="2-3-helper类型"><a href="#2-3-helper类型" class="headerlink" title="2.3 helper类型"></a>2.3 helper类型</h3><p>helper其实就是decode阶段如何根据预测结果得到下一时刻的输入，比如train训练过程中应该直接使用上一时刻的真实值作为下一时刻输入，预测过程中可以使用贪婪的方法选择概率最大的那个值作为下一时刻等等。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h3 id="22-cell类型attention类型"><a class="markdownIt-Anchor" href="#22-cell类型attention类型"></a> 2.2 cell类型（Attention类型）</h3>
+<figure class="highlight py"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 分为3步，</span></span><br><span class="line"><span class="comment">#.  1. 定义attention机制</span></span><br><span class="line"><span class="comment">#.  2. 定义要是用的基础的RNNCell</span></span><br><span class="line"><span class="comment">#.  3. 使用AttentionWrapper进行封装</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 1. 定义要使用的attention机制。</span></span><br><span class="line">attention_mechanism = tf.contrib.seq2seq.BahdanauAttention(num_units=self.rnn_size, memory=encoder_outputs, memory_sequence_length=encoder_inputs_length)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 2. 定义decoder阶段要是用的LSTMCell，然后为其封装attention wrapper</span></span><br><span class="line">decoder_cell = self._create_rnn_cell()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 3. 使用AttentionWrapper进行封装</span></span><br><span class="line">decoder_cell = tf.contrib.seq2seq.AttentionWrapper(cell=decoder_cell, attention_mechanism=attention_mechanism, attention_layer_size=self.rnn_size, name=<span class="string">&#x27;Attention_Wrapper&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="23-helper类型"><a class="markdownIt-Anchor" href="#23-helper类型"></a> 2.3 helper类型</h3>
+<p>helper其实就是decode阶段如何根据预测结果得到下一时刻的输入，比如train训练过程中应该直接使用上一时刻的真实值作为下一时刻输入，预测过程中可以使用贪婪的方法选择概率最大的那个值作为下一时刻等等。</p>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/thriving_fcl/article/details/74165062">Tensorflow新版Seq2Seq接口使用</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.tensorflow.org/api_docs/python/tf/contrib/legacy_seq2seq">tensorflow官网API指导</a></li>
 <li><a target="_blank" rel="noopener" href="https://github.com/Conchylicultor/DeepQA#chatbot">DeepQA</a></li>
@@ -2993,7 +3009,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Tensorflow Sequence_loss</p>
           <p class='content'>sequence_loss 是 nlp算法 中非常重要的一个函数. rnn,lstm,attention都要用到这个函数.看下面代码:
 
-1. 特殊的🌰12345678910111213141...</p>
+ 1. 特殊的🌰
+123456789101112131...</p>
         </a>
       
       
@@ -3045,7 +3062,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="toc-text">1. 数据处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%A8%A1%E5%9E%8B%E6%9E%84%E5%BB%BA"><span class="toc-text">2. 模型构建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-BasicDecoder-%E7%B1%BB%E5%92%8C-dynamic-decode"><span class="toc-text">2.1 BasicDecoder 类和 dynamic_decode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-cell%E7%B1%BB%E5%9E%8B%EF%BC%88Attention%E7%B1%BB%E5%9E%8B%EF%BC%89"><span class="toc-text">2.2 cell类型（Attention类型）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3-helper%E7%B1%BB%E5%9E%8B"><span class="toc-text">2.3 helper类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E6%95%B0%E6%8D%AE%E5%A4%84%E7%90%86"><span class="toc-text"> 1. 数据处理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%A8%A1%E5%9E%8B%E6%9E%84%E5%BB%BA"><span class="toc-text"> 2. 模型构建</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-basicdecoder-%E7%B1%BB%E5%92%8C-dynamic_decode"><span class="toc-text"> 2.1 BasicDecoder 类和 dynamic_decode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-cell%E7%B1%BB%E5%9E%8Battention%E7%B1%BB%E5%9E%8B"><span class="toc-text"> 2.2 cell类型（Attention类型）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-helper%E7%B1%BB%E5%9E%8B"><span class="toc-text"> 2.3 helper类型</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3134,7 +3151,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
