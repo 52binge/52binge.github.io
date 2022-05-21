@@ -2816,19 +2816,38 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <h2 id="Business-intelligence"><a href="#Business-intelligence" class="headerlink" title="Business intelligence"></a>Business intelligence</h2><p style="font-style:italic;color:cornflowerblue;">小舟從此逝 江海寄餘生🧘 is inputting <img src=/images/tw/main-progress-blue-dot.gif style="box-shadow:none; margin:0;height:16px">
+  <h2 id="Business-intelligence"><a href="#Business-intelligence" class="headerlink" title="Business intelligence"></a>Business intelligence</h2><p><strong>BI：做正确的事，等待好事发生</strong> </p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hdc520/p/12588379.html">Spark面试整理 hdc520 大全好总结</a></li>
+<li><a href="/2021/03/19/leetcode/2021-leetcode/">2021 Leetcode</a></li>
+<li>SQL</li>
+<li>Project</li>
+</ol>
+<p style="font-style:italic;color:cornflowerblue;">小舟從此逝 江海寄餘生🧘 is inputting <img src=/images/tw/main-progress-blue-dot.gif style="box-shadow:none; margin:0;height:16px">
 </p>
 
-
 <blockquote>
+<p><code>2022.05.21</code> <a href="/2021/03/19/leetcode/2021-leetcode/">2021 Leetcode</a></p>
 <p><code>2022.05.21</code> full outer join相对来说要复杂一点，full outer join仅采用sort merge join实现，左边和右表既要作为streamIter，又要作为buildIter<br><div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-full-outer-join.png" class="lazyload" data-srcset="/images/spark/spark-full-outer-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div></p>
-<p><code>2022.05.20</code> <a target="_blank" rel="noopener" href="https://www.cnblogs.com/hdc520/p/12588379.html">Spark面试整理 hdc520 大全好总结</a><br>1.1 <a target="_blank" rel="noopener" href="https://book.itheima.net/study/1269935677353533441/1270196659166420993/1270200848609222657">Spark处理数据比Hive快的原因</a></p>
-<p>总结： Spark比Mapreduce运行更快，主要得益于其对mapreduce操作的优化以及对JVM使用的优化。<br>  (1) <code>消除了冗余的HDFS读写</code> （不需要过多地和磁盘交互）<br>  (2) <code>消除了冗余的MapReduce阶段</code><br>  (3) <code>JVM的优化</code> [MapReduce操作，启个Task便启次JVM，进程的操作。Spark 线程]</p>
+<p><code>2022.05.20</code><br>1.1 <a target="_blank" rel="noopener" href="https://book.itheima.net/study/1269935677353533441/1270196659166420993/1270200848609222657">Spark处理数据比Hive快的原因</a></p>
+<p>总结： Spark比Mapreduce运行更快 - Spark在计算模型和调度上比MR做了更多的优化，不需要过多地和磁盘交互。以及对JVM使用的优化。<br>  (1) <code>消除了冗余的HDFS读写</code> （不需要过多地和磁盘交互）<br>  (2) <code>消除了冗余的MapReduce阶段</code><br>  (3) <code>JVM的优化</code> [MapReduce操作，启个Task便启次JVM，进程的操作。Spark 线程]</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hdc520/p/12588379.html">4点答案在这里 最佳Answer</a></p>
 <p>1.2 <a target="_blank" rel="noopener" href="https://blog.csdn.net/zongzhiyuan/article/details/49965021">reduceByKey vs groupByKey</a><br>在spark中，我们知道一切的操作都是基于RDD的。在使用中，RDD有一种非常特殊也是非常实用的format——pair RDD，即RDD的每一行是（key, value）的格式。这种格式很像Python的字典类型，便于针对key进行一些处理。<br>针对pair RDD这样的特殊形式，spark中定义了许多方便的操作，今天主要介绍一下reduceByKey和groupByKey，</p>
 <p>groupByKey 当采用groupByKey时，由于它不接收函数，spark只能先将所有的键值对(key-value pair)都移动，这样的后果是集群节点之间的开销很大，导致传输延时</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">lines = sc.textFile(<span class="string">&quot;/Users/blair/ghome/github/spark3.0/pyspark/spark-src/word_count.text&quot;</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">lines = lines.<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: <span class="string">&#x27;New York&#x27;</span> <span class="keyword">in</span> x)</span><br><span class="line"><span class="comment">#lines.take(3)</span></span><br><span class="line"></span><br><span class="line">words = lines.flatMap(<span class="keyword">lambda</span> x: x.split(<span class="string">&#x27; &#x27;</span>))</span><br><span class="line"></span><br><span class="line">wco = words.<span class="built_in">map</span>(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#print(wco.take(5))</span></span><br><span class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</span><br><span class="line">word_count = wco.reduceByKey(add)</span><br><span class="line"></span><br><span class="line">word_count.collect()</span><br></pre></td></tr></table></figure>
-<p><code>2022.05.19</code> English My Job<br><div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/bi/interview-consecutive-login-sql01.jpg" class="lazyload" data-srcset="/images/bi/interview-consecutive-login-sql01.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:650px;"/></div></div><br><a href="/2021/01/09/bi/dwh-summary-2-interview/">2021 blair Notes</a> / <a target="_blank" rel="noopener" href="https://jishuin.proginn.com/p/763bfbd32925">2020 Interview Questions - Data Warehouse</a><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. how to 连续 </span></span><br><span class="line"><span class="keyword">select</span> </span><br><span class="line"> user_id, <span class="built_in">count</span>(<span class="number">1</span>) cnt</span><br><span class="line"><span class="keyword">from</span></span><br><span class="line"> (</span><br><span class="line">   <span class="keyword">select</span> </span><br><span class="line">     user_id, </span><br><span class="line">     login_date, </span><br><span class="line">     <span class="built_in">row_number</span>() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> user_id <span class="keyword">order</span> <span class="keyword">by</span> login_date) <span class="keyword">as</span> rn</span><br><span class="line">   <span class="keyword">from</span> tmp.tmp_last_3_day</span><br><span class="line"> ) t</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> user_id, date_sub(login_date, t.rn)</span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="number">1</span>) <span class="operator">&gt;=</span> <span class="number">3</span>;</span><br></pre></td></tr></table></figure><br><code>2022.05.18</code> shuffle形式有几种？都做哪些优化 &amp; English BBC - &lt;如果在相遇,我会记得你&gt; the good old songs</p>
+<p><code>2022.05.19</code> English My Job<br><div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/bi/interview-consecutive-login-sql01.jpg" class="lazyload" data-srcset="/images/bi/interview-consecutive-login-sql01.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:650px;"/></div></div><br><a href="/2021/01/09/bi/dwh-summary-2-interview/">2021 blair Notes</a> / <a target="_blank" rel="noopener" href="https://jishuin.proginn.com/p/763bfbd32925">2020 Interview Questions - Data Warehouse</a><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. how to 连续 </span></span><br><span class="line"><span class="keyword">select</span> </span><br><span class="line"> user_id, <span class="built_in">count</span>(<span class="number">1</span>) cnt</span><br><span class="line"><span class="keyword">from</span></span><br><span class="line"> (</span><br><span class="line">   <span class="keyword">select</span> </span><br><span class="line">     user_id, </span><br><span class="line">     login_date, </span><br><span class="line">     <span class="built_in">row_number</span>() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> user_id <span class="keyword">order</span> <span class="keyword">by</span> login_date) <span class="keyword">as</span> rn</span><br><span class="line">   <span class="keyword">from</span> tmp.tmp_last_3_day</span><br><span class="line"> ) t</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> user_id, date_sub(login_date, t.rn)</span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="number">1</span>) <span class="operator">&gt;=</span> <span class="number">3</span>;</span><br></pre></td></tr></table></figure></p>
+<p><code>2022.05.18</code> shuffle形式有几种？都做哪些优化 &amp; English BBC - &lt;如果在相遇,我会记得你&gt; the good old songs</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/BigData_Mining/article/details/82622502">spark基础之shuffle机制、原理分析及Shuffle的优化（很好很详细)</a><br>Shuffle就是对数据进行重组，由于分布式计算的特性和要求，在实现细节上更加繁琐和复杂</p>
+<ol>
+<li>HashShuffle（&lt;=spark1.6,会产生很多小文件, Writer费内存易GC）</li>
+<li>Sort-Based Shuffle (有多重model，不展开)<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-shuffle-maptask.png" class="lazyload" data-srcset="/images/spark/spark-shuffle-maptask.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:650px;"/></div></div>
+Transformation 操作如:repartition，join，cogroup，以及任何 <em>By 或者 </em>ByKey 的 Transformation 都需要 shuffle 数据9,合理的选用操作将降低 shuffle 操作的成本,提高运算速度</li>
+</ol>
 <p><code>2022.05.17</code> SparkSQL Join &amp; English BBC - 诸事不顺的一天 The English we We Speak </p>
+<ol>
+<li>join 实现有几种呢，源码有研究过吗？ 底层是怎么实现的</li>
+</ol>
+<p><a target="_blank" rel="noopener" href="https://www.51cto.com/article/626552.html">面试必知的Spark SQL几种Join实现 - (streamIter为大表，buildIter为小表)</a><br>sort merge join / broadcast join / hash join</p>
 </blockquote>
 <h3 id="Spark-精品"><a href="#Spark-精品" class="headerlink" title="Spark 精品"></a>Spark 精品</h3><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b70fe63a77a8">Spark会把数据都载入到内存么？</a></p>
 <blockquote>
@@ -2837,29 +2856,11 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>其实就是给某个Stage加上了一个saveAsMemoryBlockFile的动作, Spark允许你把中间结果放内存里.</p>
 </blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.zhihu.com/people/allwefantasy/posts">Author 知乎</a></p>
-<p><strong>BI：做正确的事，等待好事发生</strong></p>
 <p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/339135205/answer/1178925849">萝卜姐: Is the ByteDance interview difficult and how should you deal with it?</a></p>
 <h3 id="1-skill-dismantling"><a href="#1-skill-dismantling" class="headerlink" title="1. skill dismantling"></a>1. skill dismantling</h3><blockquote>
 <p>1.1 底层原理，源码理解。<br>1.2 项目相关，难点，仓库建模<br>1.3 show <strong>sql</strong></p>
 </blockquote>
 <p><strong>spark和hive</strong>：</p>
-<ol>
-<li>join 实现有几种呢，源码有研究过吗？ 底层是怎么实现的</li>
-</ol>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://www.51cto.com/article/626552.html">面试必知的Spark SQL几种Join实现 - (streamIter为大表，buildIter为小表)</a><br>sort merge join / broadcast join / hash join</p>
-</blockquote>
-<ol>
-<li>shuffle形式有几种？都做哪些优化</li>
-</ol>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/BigData_Mining/article/details/82622502">spark基础之shuffle机制、原理分析及Shuffle的优化（很好很详细)</a><br>Shuffle就是对数据进行重组，由于分布式计算的特性和要求，在实现细节上更加繁琐和复杂</p>
-<ol>
-<li>HashShuffle（&lt;=spark1.6,会产生很多小文件, Writer费内存易GC）</li>
-<li>Sort-Based Shuffle (有多重model，不展开)<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-shuffle-maptask.png" class="lazyload" data-srcset="/images/spark/spark-shuffle-maptask.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:650px;"/></div></div>
-Transformation 操作如:repartition，join，cogroup，以及任何 <em>By 或者 </em>ByKey 的 Transformation 都需要 shuffle 数据9,合理的选用操作将降低 shuffle 操作的成本,提高运算速度</li>
-</ol>
-</blockquote>
 <ol>
 <li><p>是通过什么管理shuffle中的内存，磁盘 的</p>
 </li>
@@ -2964,10 +2965,10 @@ Transformation 操作如:repartition，join，cogroup，以及任何 <em>By 或�
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2022-05-20T09:51:59+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2022-05-21T16:49:25+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：May 20, 2022</p>
+    <p>更新于：May 21, 2022</p>
   </a>
 </div>
 
