@@ -2709,18 +2709,18 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
               <p>Skill</p>
             </a>
           
+            <a href="/inter"
+              
+              
+              id="inter">
+              <p>Interview</p>
+            </a>
+          
             <a href="/tweet"
               
               
               id="tweet">
               <p>Tweet</p>
-            </a>
-          
-            <a href="/about/"
-              
-              
-              id="about">
-              <p>About</p>
             </a>
           
         
@@ -2813,7 +2813,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>本文主要基于周志华《机器学习》一书第八章 集成学习内容做的整理笔记，此外查阅了网上的一些博客和问答网站</p>
 <span id="more"></span>
-<h2 id="1-Ensumble-概念"><a href="#1-Ensumble-概念" class="headerlink" title="1. Ensumble 概念"></a>1. Ensumble 概念</h2><p>Ensumble 是通过构建并结合多个<code>学习器</code>来完成学习任务。</p>
+<h2 id="1-ensumble-概念"><a class="markdownIt-Anchor" href="#1-ensumble-概念"></a> 1. Ensumble 概念</h2>
+<p>Ensumble 是通过构建并结合多个<code>学习器</code>来完成学习任务。</p>
 <blockquote>
 <p>曾经听过一句话，”Feature为主，Ensemble为后”。</p>
 </blockquote>
@@ -2821,6 +2822,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>Ensemble 讲究“好而不同”，不同是指模型的学习到的侧重面不一样。</p>
 <p>举个直观的例子，比如数学考试，A的函数题做的比B好，B的几何题做的比A好，那么他们合作完成的分数通常比他们各自单独完成的要高。</p>
+</blockquote>
+<blockquote>
 <p>常见的Ensemble方法有Bagging、Boosting、Stacking、Blending.</p>
 <p>Notes:  Stacking 与 Blending 类似，<a target="_blank" rel="noopener" href="https://mlwave.com/kaggle-ensembling-guide/">区别可参见</a></p>
 </blockquote>
@@ -2836,20 +2839,25 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </blockquote>
 <p>集成学习研究的核心, 当前按照个体学习器的生成方式划分:</p>
 <blockquote>
-<p>bagging（及其变体随机森林）— 个体学习器间不存在强依赖关系，可同时生成的并行化方法<br>boosting - 个体学习器间存在强依赖关系，必须串行生成的序列化方法</p>
+<p>bagging（及其变体随机森林）— 个体学习器间不存在强依赖关系，可同时生成的并行化方法<br />
+boosting - 个体学习器间存在强依赖关系，必须串行生成的序列化方法</p>
 </blockquote>
-<p>从偏差-方差分解的角度: </p>
+<p>从偏差-方差分解的角度:</p>
 <blockquote>
-<p>bagging 关注降低方差<br>boosting 关注降低偏差</p>
+<p>bagging 关注降低方差<br />
+boosting 关注降低偏差</p>
 </blockquote>
 <p>也可以按照机器学习技法的两张图来理解</p>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/ml/ensumble/under_over.png" class="lazyload" data-srcset="/images/ml/ensumble/under_over.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:750px;"/></div></div>
 <p>第一幅图(对应boosting)可看作进行了一个特征转换来防止欠拟合，第二幅图(对应bagging)则进行了一个正则化来防止过拟合</p>
-<h2 id="2-Boosting"><a href="#2-Boosting" class="headerlink" title="2. Boosting"></a>2. Boosting</h2><blockquote>
+<h2 id="2-boosting"><a class="markdownIt-Anchor" href="#2-boosting"></a> 2. Boosting</h2>
+<blockquote>
 <p>首先从初始训练集训练出一个基学习器，再根据基学习器的表现对训练样本分布进行调整，使得先前基学习器做错的训练样本在后续受到更多的关注，然后基于调整后的样本分布来训练下一个基学习器；如此重复进行，直至基学习器数目达到事先指定的值T,最终将这T个基学习器进行加权组合.</p>
 </blockquote>
-<h3 id="2-1-adaboost"><a href="#2-1-adaboost" class="headerlink" title="2.1 adaboost"></a>2.1 adaboost</h3><blockquote>
-<p>推导方式，基于“加性模型”，即基于基学习器的线性组合<br>如何在每一轮修改样本分布</p>
+<h3 id="21-adaboost"><a class="markdownIt-Anchor" href="#21-adaboost"></a> 2.1 adaboost</h3>
+<blockquote>
+<p>推导方式，基于“加性模型”，即基于基学习器的线性组合<br />
+如何在每一轮修改样本分布</p>
 <ul>
 <li>重赋权法：在每一轮训练中，根据样本分布为每一个训练样本重新赋予一个权重（比如《机器学习实战》一书中就是利用这种方法构建提升树算法，通过修改权重来计算每一轮的损失）</li>
 <li>重采样法：利用重采样的训练集来对基学习器进行训练–&gt;重启动：避免训练过程过早停止</li>
@@ -2860,55 +2868,67 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>西瓜书上的算法还提到训练的每一轮开始都要检查当前学习器是否比随机猜测好，若条件不满足则抛弃当前学习器，这种情形可能会导致学习过程未达到T轮即停止，所以有重采样的方法来进行重启动避免出现此种情况；但是另一方面《统计学习方法》以及《机器学习实战》中的算法并未有这条判断语句；</p>
 <p>《机器学习》一书中提到，从统计学的出发认为AdaBoost实质上是基于加性模型（后续指出这一视角阐释的是一个与AdaBoost很相似的过程而非其本身），以类似牛顿迭代法来优化指数损失函数，通过将迭代优化过程替换为其他优化方法产生了GradientBoosting、LPBoost等；而这里也提到每一种变体针对不同的问题（噪声、数据不平衡等）而拥有不同的权重更新规则.</p>
 </blockquote>
-<h3 id="2-2-特点"><a href="#2-2-特点" class="headerlink" title="2.2 特点"></a>2.2 特点</h3><blockquote>
+<h3 id="22-特点"><a class="markdownIt-Anchor" href="#22-特点"></a> 2.2 特点</h3>
+<blockquote>
 <p>从bias-variance分解的角度来看，Boosting主要关注降低 bias，因此Boosting能基于泛化性能相当弱的学习器构建出很强的集成（与bagging不同）</p>
 </blockquote>
 <p>Notes: boosting 对于噪音数据较为敏感</p>
-<h2 id="3-Bagging-Bootstrap-aggregating"><a href="#3-Bagging-Bootstrap-aggregating" class="headerlink" title="3. Bagging (Bootstrap aggregating )"></a>3. Bagging (Bootstrap aggregating )</h2><p>出发点依然是“好而不同”</p>
+<h2 id="3-bagging-bootstrap-aggregating"><a class="markdownIt-Anchor" href="#3-bagging-bootstrap-aggregating"></a> 3. Bagging (Bootstrap aggregating )</h2>
+<p>出发点依然是“好而不同”</p>
 <blockquote>
 <ul>
 <li>“不同” — 不同基学习器基于不同的样本子集</li>
 <li>“好” — 使用相互有交叠的采样子集</li>
 </ul>
 </blockquote>
-<h3 id="3-1-工作机制"><a href="#3-1-工作机制" class="headerlink" title="3.1 工作机制"></a>3.1 工作机制</h3><p>基于自助采样法（bootstrap sampling）— “有放回地全抽”</p>
+<h3 id="31-工作机制"><a class="markdownIt-Anchor" href="#31-工作机制"></a> 3.1 工作机制</h3>
+<p>基于自助采样法（bootstrap sampling）— “有放回地全抽”</p>
 <blockquote>
 <p>从训练集从进行<strong>子抽样组成每个基模型所需要的子训练集</strong>，对所有基模型预测的结果进行综合产生最终的预测结果,至于为什么叫bootstrap aggregation，因为它抽取训练样本的时候采用的就是bootstrap的方法！</p>
 </blockquote>
-<h3 id="3-2-优点（相对于boosting）"><a href="#3-2-优点（相对于boosting）" class="headerlink" title="3.2 优点（相对于boosting）"></a>3.2 优点（相对于boosting）</h3><ul>
+<h3 id="32-优点相对于boosting"><a class="markdownIt-Anchor" href="#32-优点相对于boosting"></a> 3.2 优点（相对于boosting）</h3>
+<ul>
 <li>高效 - 训练一个bagging集成与直接使用基学习器算法训练一个学习器的复杂度同阶</li>
 <li>baggign能不经修改地用于多分类、回归任务（标准AdaBoosting只能适用于二分类任务）</li>
 <li>包外估计——自助采样过程中剩余的样本可以作为验证集来对泛化性能进行“包外估计”</li>
 </ul>
-<h3 id="3-3-特点"><a href="#3-3-特点" class="headerlink" title="3.3 特点"></a>3.3 特点</h3><blockquote>
+<h3 id="33-特点"><a class="markdownIt-Anchor" href="#33-特点"></a> 3.3 特点</h3>
+<blockquote>
 <p>从偏差-方差角度看，Bagging主要关注降低方差，因此它在不剪枝决策树、神经网络等易受样本扰动的学习器上效用明显.</p>
 </blockquote>
-<h2 id="4-Random-Forest-随机森林"><a href="#4-Random-Forest-随机森林" class="headerlink" title="4. Random Forest 随机森林"></a>4. Random Forest 随机森林</h2><p>Bagging 的一个扩展变体</p>
-<h3 id="4-1-概述"><a href="#4-1-概述" class="headerlink" title="4.1 概述"></a>4.1 概述</h3><ul>
+<h2 id="4-random-forest-随机森林"><a class="markdownIt-Anchor" href="#4-random-forest-随机森林"></a> 4. Random Forest 随机森林</h2>
+<p>Bagging 的一个扩展变体</p>
+<h3 id="41-概述"><a class="markdownIt-Anchor" href="#41-概述"></a> 4.1 概述</h3>
+<ul>
 <li>以决策树为基学习器构建Bagging集成</li>
 <li>在决策树的训练过程中引入了随机属性选择</li>
 </ul>
 <blockquote>
 <p>传统决策树在选择划分属性时是在当前结点的属性集合中选择一个最优属性；而在随机森林中，对基决策树的每个节点，<strong>先从该节点属性集合中随机选择一个包含k个属性的子集</strong>，然后再从这个子集中选择一个最优属性用于划分，其中<code>k</code>控制了随机性的引入程度</p>
 </blockquote>
-<h3 id="4-2-特点"><a href="#4-2-特点" class="headerlink" title="4.2 特点"></a>4.2 特点</h3><blockquote>
+<h3 id="42-特点"><a class="markdownIt-Anchor" href="#42-特点"></a> 4.2 特点</h3>
+<blockquote>
 <ul>
 <li>简单、易于实现、计算开销小</li>
 <li>样本扰动+属性扰动</li>
 </ul>
 </blockquote>
-<h3 id="4-3-bagging-vs-随机森林"><a href="#4-3-bagging-vs-随机森林" class="headerlink" title="4.3 bagging vs. 随机森林"></a>4.3 bagging vs. 随机森林</h3><ul>
+<h3 id="43-bagging-vs-随机森林"><a class="markdownIt-Anchor" href="#43-bagging-vs-随机森林"></a> 4.3 bagging vs. 随机森林</h3>
+<ul>
 <li>两者收敛性相似，随机森林的起始性能往往相对较差，但会收敛到更低的泛化误差</li>
 <li>随机森林的训练效率常优于Bagging，主要是决策树划分属性时，原始baggin需要对属性全集进行考虑，而 <strong>RF</strong> 是针对一个子集</li>
 </ul>
-<h2 id="5-结合策略"><a href="#5-结合策略" class="headerlink" title="5. 结合策略"></a>5. 结合策略</h2><h3 id="5-1-学习器结合的好处"><a href="#5-1-学习器结合的好处" class="headerlink" title="5.1 学习器结合的好处"></a>5.1 学习器结合的好处</h3><blockquote>
+<h2 id="5-结合策略"><a class="markdownIt-Anchor" href="#5-结合策略"></a> 5. 结合策略</h2>
+<h3 id="51-学习器结合的好处"><a class="markdownIt-Anchor" href="#51-学习器结合的好处"></a> 5.1 学习器结合的好处</h3>
+<blockquote>
 <ul>
 <li>统计的角度：假设空间很大时，可能存在多个假设在训练集上达到同等性能，但学习其可能误选导致泛化性能不佳，结合多个学习器可以减小该风险</li>
 <li>计算的角度：降低陷入糟糕局部极小点的风险</li>
 <li>表示的角度：结合多个学习器可扩大假设空间，对于真实假设在假设空间之外的情形可能学得更好的近似</li>
 </ul>
 </blockquote>
-<h3 id="5-2-策略"><a href="#5-2-策略" class="headerlink" title="5.2 策略"></a>5.2 策略</h3><p><strong>平均法(Averaging)</strong></p>
+<h3 id="52-策略"><a class="markdownIt-Anchor" href="#52-策略"></a> 5.2 策略</h3>
+<p><strong>平均法(Averaging)</strong></p>
 <blockquote>
 <ul>
 <li>简单平均法</li>
@@ -2946,16 +2966,22 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>可以将K个模型对Test Data的预测结果求平均，也可以用所有的Train Data重新训练一个新模型来预测Test Data</p>
 </blockquote>
-<h2 id="6-多样性"><a href="#6-多样性" class="headerlink" title="6. 多样性"></a>6. 多样性</h2><h3 id="6-1-误差-分歧分解"><a href="#6-1-误差-分歧分解" class="headerlink" title="6.1 误差-分歧分解"></a>6.1 误差-分歧分解</h3><ul>
+<h2 id="6-多样性"><a class="markdownIt-Anchor" href="#6-多样性"></a> 6. 多样性</h2>
+<h3 id="61-误差-分歧分解"><a class="markdownIt-Anchor" href="#61-误差-分歧分解"></a> 6.1 误差-分歧分解</h3>
+<ul>
 <li>集成学习“好而不同”的理论分析，见《机器学习》P185~186</li>
 <li>寻找 集成泛化误差、个体学习器泛化误差、个体学习器间 的分歧三者之间的关系</li>
 </ul>
-<h3 id="6-2-多样性度量"><a href="#6-2-多样性度量" class="headerlink" title="6.2 多样性度量"></a>6.2 多样性度量</h3><blockquote>
+<h3 id="62-多样性度量"><a class="markdownIt-Anchor" href="#62-多样性度量"></a> 6.2 多样性度量</h3>
+<blockquote>
 <p>多样性度量是用于度量集成中个体分类器的多样性，即估算个体学习器的多样化程度，典型做法是考虑个体分类器的两两相似/不相似性</p>
-<p>度量方法 {不合度量、相关系数、Q-统计量、k-统计量} </p>
+</blockquote>
+<blockquote>
+<p>度量方法 {不合度量、相关系数、Q-统计量、k-统计量}</p>
 <p>Notes: 目前我还没有做过这种类似测试 😢</p>
 </blockquote>
-<h3 id="6-3-多样性增强"><a href="#6-3-多样性增强" class="headerlink" title="6.3 多样性增强"></a>6.3 多样性增强</h3><p>如何增强多样性？— 在学习过程中引入随机性</p>
+<h3 id="63-多样性增强"><a class="markdownIt-Anchor" href="#63-多样性增强"></a> 6.3 多样性增强</h3>
+<p>如何增强多样性？— 在学习过程中引入随机性</p>
 <ol>
 <li>数据样本扰动</li>
 <li>输入属性扰动</li>
@@ -2975,15 +3001,19 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p><strong>Notes:</strong></p>
 <blockquote>
 <ul>
-<li><p>数据样本扰动中相对的稳定基学习器包括：线性学习器、支持向量机、朴素贝叶斯、k近邻学习器等</p>
+<li>
+<p>数据样本扰动中相对的稳定基学习器包括：线性学习器、支持向量机、朴素贝叶斯、k近邻学习器等</p>
 </li>
-<li><p>输入属性扰动 : 感觉典型的是 Random Forest 就做了这件事.</p>
+<li>
+<p>输入属性扰动 : 感觉典型的是 Random Forest 就做了这件事.</p>
 </li>
-<li><p>对于算法参数扰动，与交叉验证做比较，交叉验证常常是在不同参数组合模型里选择最优参数组合模型，而集成则是将这些不同参数组合的模型结合起来，所以集成学习技术的实际计算开销并不比使用单一学习器大很多</p>
+<li>
+<p>对于算法参数扰动，与交叉验证做比较，交叉验证常常是在不同参数组合模型里选择最优参数组合模型，而集成则是将这些不同参数组合的模型结合起来，所以集成学习技术的实际计算开销并不比使用单一学习器大很多</p>
 </li>
 </ul>
 </blockquote>
-<h2 id="Reference-article"><a href="#Reference-article" class="headerlink" title="Reference article"></a>Reference article</h2><ul>
+<h2 id="reference-article"><a class="markdownIt-Anchor" href="#reference-article"></a> Reference article</h2>
+<ul>
 <li>周志华《机器学习》</li>
 <li><a target="_blank" rel="noopener" href="https://mlwave.com/kaggle-ensembling-guide/">kaggle-ensembling-guide</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.quora.com/What-are-the-differences-between-the-three-commonly-ensemble-learning-techniques-stacking-boosting-and-bagging">Bagging, Boosting &amp; Stacking</a></li>
@@ -3116,8 +3146,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
       
         <a class='prev' href='/2018/07/07/data-science/deeplearning/Neural-Networks-and-Deep-Learning-week2/'>
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Neural Networks and Deep Learning (week2) - Neural Networks Basics</p>
-          <p class='content'>本周我们将要学习 Logistic Regression, 它是神经网络的基础. 
-Logistic Regression 可以看成是一种只有输入层和输出层(没有隐藏层)的神经网络. 
+          <p class='content'>本周我们将要学习 Logistic Regression, 它是神经网络的基础.
+Logistic Regression 可以看成是一种只有输入层和输出层(没有隐藏层)的神经网络.
 
 
 </p>
@@ -3128,9 +3158,10 @@ Logistic Regression 可以看成是一种只有输入层和输出层(没有隐�
           <p class='title'>Decision Tree part2<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>
 
-1. 决策树模型决策树（decision tree）是一个树结构（可以是二叉树或非二叉树）
+ 1. 决策树模型
+决策树（decision tree）是一个树结构（可以是二叉树或非二叉树）
 
-关于 ID3 与 C4.5 的具体计算流程示例，请参见 desicion tree (part1...</p>
+关于 ID3 与 C4.5 的具体计算流程示例，请参见 desicion tree (par...</p>
         </a>
       
     </div>
@@ -3166,7 +3197,7 @@ Logistic Regression 可以看成是一种只有输入层和输出层(没有隐�
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Ensumble-%E6%A6%82%E5%BF%B5"><span class="toc-text">1. Ensumble 概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Boosting"><span class="toc-text">2. Boosting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-adaboost"><span class="toc-text">2.1 adaboost</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%89%B9%E7%82%B9"><span class="toc-text">2.2 特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Bagging-Bootstrap-aggregating"><span class="toc-text">3. Bagging (Bootstrap aggregating )</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6"><span class="toc-text">3.1 工作机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E4%BC%98%E7%82%B9%EF%BC%88%E7%9B%B8%E5%AF%B9%E4%BA%8Eboosting%EF%BC%89"><span class="toc-text">3.2 优点（相对于boosting）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-%E7%89%B9%E7%82%B9"><span class="toc-text">3.3 特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Random-Forest-%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97"><span class="toc-text">4. Random Forest 随机森林</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-%E6%A6%82%E8%BF%B0"><span class="toc-text">4.1 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-%E7%89%B9%E7%82%B9"><span class="toc-text">4.2 特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-bagging-vs-%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97"><span class="toc-text">4.3 bagging vs. 随机森林</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%BB%93%E5%90%88%E7%AD%96%E7%95%A5"><span class="toc-text">5. 结合策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1-%E5%AD%A6%E4%B9%A0%E5%99%A8%E7%BB%93%E5%90%88%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="toc-text">5.1 学习器结合的好处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2-%E7%AD%96%E7%95%A5"><span class="toc-text">5.2 策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%A4%9A%E6%A0%B7%E6%80%A7"><span class="toc-text">6. 多样性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#6-1-%E8%AF%AF%E5%B7%AE-%E5%88%86%E6%AD%A7%E5%88%86%E8%A7%A3"><span class="toc-text">6.1 误差-分歧分解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-2-%E5%A4%9A%E6%A0%B7%E6%80%A7%E5%BA%A6%E9%87%8F"><span class="toc-text">6.2 多样性度量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-3-%E5%A4%9A%E6%A0%B7%E6%80%A7%E5%A2%9E%E5%BC%BA"><span class="toc-text">6.3 多样性增强</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference-article"><span class="toc-text">Reference article</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-ensumble-%E6%A6%82%E5%BF%B5"><span class="toc-text"> 1. Ensumble 概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-boosting"><span class="toc-text"> 2. Boosting</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-adaboost"><span class="toc-text"> 2.1 adaboost</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-%E7%89%B9%E7%82%B9"><span class="toc-text"> 2.2 特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-bagging-bootstrap-aggregating"><span class="toc-text"> 3. Bagging (Bootstrap aggregating )</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#31-%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6"><span class="toc-text"> 3.1 工作机制</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-%E4%BC%98%E7%82%B9%E7%9B%B8%E5%AF%B9%E4%BA%8Eboosting"><span class="toc-text"> 3.2 优点（相对于boosting）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#33-%E7%89%B9%E7%82%B9"><span class="toc-text"> 3.3 特点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-random-forest-%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97"><span class="toc-text"> 4. Random Forest 随机森林</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#41-%E6%A6%82%E8%BF%B0"><span class="toc-text"> 4.1 概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#42-%E7%89%B9%E7%82%B9"><span class="toc-text"> 4.2 特点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#43-bagging-vs-%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97"><span class="toc-text"> 4.3 bagging vs. 随机森林</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-%E7%BB%93%E5%90%88%E7%AD%96%E7%95%A5"><span class="toc-text"> 5. 结合策略</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#51-%E5%AD%A6%E4%B9%A0%E5%99%A8%E7%BB%93%E5%90%88%E7%9A%84%E5%A5%BD%E5%A4%84"><span class="toc-text"> 5.1 学习器结合的好处</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#52-%E7%AD%96%E7%95%A5"><span class="toc-text"> 5.2 策略</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-%E5%A4%9A%E6%A0%B7%E6%80%A7"><span class="toc-text"> 6. 多样性</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#61-%E8%AF%AF%E5%B7%AE-%E5%88%86%E6%AD%A7%E5%88%86%E8%A7%A3"><span class="toc-text"> 6.1 误差-分歧分解</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#62-%E5%A4%9A%E6%A0%B7%E6%80%A7%E5%BA%A6%E9%87%8F"><span class="toc-text"> 6.2 多样性度量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#63-%E5%A4%9A%E6%A0%B7%E6%80%A7%E5%A2%9E%E5%BC%BA"><span class="toc-text"> 6.3 多样性增强</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference-article"><span class="toc-text"> Reference article</span></a></li></ol>
     </div>
   </section>
 
@@ -3255,7 +3286,7 @@ Logistic Regression 可以看成是一种只有输入层和输出层(没有隐�
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
