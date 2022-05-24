@@ -2813,7 +2813,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>处理 <code>NaN</code> 数据, 一些 空 或者 <code>NaN</code> 数据, 如何删除或者填补这些 <code>NaN</code> 数据.</p>
 <span id="more"></span>
-<h2 id="创建含-NaN-的矩阵"><a href="#创建含-NaN-的矩阵" class="headerlink" title="创建含 NaN 的矩阵"></a>创建含 NaN 的矩阵</h2><p>建立了一个6X4的矩阵数据并且把两个位置置为空.</p>
+<h2 id="创建含-nan-的矩阵"><a class="markdownIt-Anchor" href="#创建含-nan-的矩阵"></a> 创建含 NaN 的矩阵</h2>
+<p>建立了一个6X4的矩阵数据并且把两个位置置为空.</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line">dates = pd.date_range(<span class="string">&#x27;20130101&#x27;</span>, periods=<span class="number">6</span>)</span><br><span class="line">df = pd.DataFrame(np.arange(<span class="number">24</span>).reshape((<span class="number">6</span>,<span class="number">4</span>)),index=dates, columns=[<span class="string">&#x27;A&#x27;</span>,<span class="string">&#x27;B&#x27;</span>,<span class="string">&#x27;C&#x27;</span>,<span class="string">&#x27;D&#x27;</span>])</span><br><span class="line">df.iloc[<span class="number">0</span>,<span class="number">1</span>] = np.nan</span><br><span class="line">df.iloc[<span class="number">1</span>,<span class="number">2</span>] = np.nan</span><br><span class="line"><span class="built_in">print</span>(df)</span><br></pre></td></tr></table></figure>
 <pre><code>             A     B     C   D
 2013-01-01   0   NaN   2.0   3
@@ -2822,14 +2823,18 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 2013-01-04  12  13.0  14.0  15
 2013-01-05  16  17.0  18.0  19
 2013-01-06  20  21.0  22.0  23
-</code></pre><h2 id="pd-dropna"><a href="#pd-dropna" class="headerlink" title="pd.dropna()"></a>pd.dropna()</h2><p>如果想直接去掉有 <code>NaN</code> 的行或列, 可以使用 <code>dropna</code></p>
+</code></pre>
+<h2 id="pddropna"><a class="markdownIt-Anchor" href="#pddropna"></a> pd.dropna()</h2>
+<p>如果想直接去掉有 <code>NaN</code> 的行或列, 可以使用 <code>dropna</code></p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">df1 = df.dropna(</span><br><span class="line">    axis=<span class="number">0</span>,     <span class="comment"># 0: 对行进行操作; 1: 对列进行操作</span></span><br><span class="line">    how=<span class="string">&#x27;any&#x27;</span>   <span class="comment"># &#x27;any&#x27;: 只要存在 NaN 就 drop 掉; &#x27;all&#x27;: 必须全部是 NaN 才 drop </span></span><br><span class="line">    ) </span><br><span class="line"><span class="built_in">print</span>(df1)</span><br></pre></td></tr></table></figure>
 <pre><code>             A     B     C   D
 2013-01-03   8   9.0  10.0  11
 2013-01-04  12  13.0  14.0  15
 2013-01-05  16  17.0  18.0  19
 2013-01-06  20  21.0  22.0  23
-</code></pre><h2 id="pd-fillna"><a href="#pd-fillna" class="headerlink" title="pd.fillna()"></a>pd.fillna()</h2><p>如果是将 <code>NaN</code> 的值用其他值代替, 比如代替成 <code>0</code>:</p>
+</code></pre>
+<h2 id="pdfillna"><a class="markdownIt-Anchor" href="#pdfillna"></a> pd.fillna()</h2>
+<p>如果是将 <code>NaN</code> 的值用其他值代替, 比如代替成 <code>0</code>:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">df2 = df.fillna(value=<span class="number">0</span>)</span><br><span class="line"><span class="built_in">print</span>(df2)</span><br></pre></td></tr></table></figure>
 <pre><code>             A     B     C   D
 2013-01-01   0   0.0   2.0   3
@@ -2838,7 +2843,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 2013-01-04  12  13.0  14.0  15
 2013-01-05  16  17.0  18.0  19
 2013-01-06  20  21.0  22.0  23
-</code></pre><h2 id="pd-isnull"><a href="#pd-isnull" class="headerlink" title="pd.isnull()"></a>pd.isnull()</h2><p>判断是否有缺失数据 <code>NaN</code>, 为 <code>True</code> 表示缺失数据:</p>
+</code></pre>
+<h2 id="pdisnull"><a class="markdownIt-Anchor" href="#pdisnull"></a> pd.isnull()</h2>
+<p>判断是否有缺失数据 <code>NaN</code>, 为 <code>True</code> 表示缺失数据:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">print</span>(df.isnull())</span><br></pre></td></tr></table></figure>
 <pre><code>                A      B      C      D
 2013-01-01  False   True  False  False
@@ -2847,10 +2854,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 2013-01-04  False  False  False  False
 2013-01-05  False  False  False  False
 2013-01-06  False  False  False  False
-</code></pre><p>检测在数据中是否存在 <code>NaN</code>, 如果存在就返回 <code>True</code>:</p>
+</code></pre>
+<p>检测在数据中是否存在 <code>NaN</code>, 如果存在就返回 <code>True</code>:</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">np.<span class="built_in">any</span>(df.isnull()) == <span class="literal">True</span>  </span><br><span class="line"><span class="comment"># True</span></span><br></pre></td></tr></table></figure>
 <pre><code>True
-</code></pre><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+</code></pre>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://pandas.pydata.org/">pandas.pydata.org</a></li>
 <li><a target="_blank" rel="noopener" href="http://pandas.pydata.org/pandas-docs/version/0.21/">pandas docs</a></li>
 <li><a target="_blank" rel="noopener" href="https://morvanzhou.github.io">morvanzhou</a></li>
@@ -2981,8 +2991,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='content'>pandas 可以读取与存取的资料格式有很多种，像 csv、excel、json、html 与 pickle 等…
 详细请看官方文档
 
-读取csv示范档案下载 - student.csv
-123...</p>
+ 读取csv
+示范档案下载 - student.csv
+1...</p>
         </a>
       
       
@@ -2990,8 +3001,9 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'>Pandas Set Value<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>我们可以根据自己的需求, 用 pandas 进行更改数据里面的值, 或者加上一些空的,或者有数值的列.
 
-创建数据首先建立了一个 6X4 的矩阵数据
-123456import pandas as...</p>
+ 创建数据
+首先建立了一个 6X4 的矩阵数据
+123456import pandas ...</p>
         </a>
       
     </div>
@@ -3027,7 +3039,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%90%AB-NaN-%E7%9A%84%E7%9F%A9%E9%98%B5"><span class="toc-text">创建含 NaN 的矩阵</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pd-dropna"><span class="toc-text">pd.dropna()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pd-fillna"><span class="toc-text">pd.fillna()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pd-isnull"><span class="toc-text">pd.isnull()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E5%90%AB-nan-%E7%9A%84%E7%9F%A9%E9%98%B5"><span class="toc-text"> 创建含 NaN 的矩阵</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pddropna"><span class="toc-text"> pd.dropna()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pdfillna"><span class="toc-text"> pd.fillna()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#pdisnull"><span class="toc-text"> pd.isnull()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3116,7 +3128,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
