@@ -2827,6 +2827,36 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p style="font-style:italic;color:cornflowerblue;">小舟從此逝 江海寄餘生🧘 is inputting <img src=/images/tw/main-progress-blue-dot.gif style="box-shadow:none; margin:0;height:16px">
 </p>
 <blockquote>
+<p><code>2022.05.27</code>: review: <strong>spark vs MR</strong>   <a target="_blank" rel="noopener" href="https://www.cnblogs.com/hdc520/p/12588379.html">Spark面试整理 hdc520 大全好总结</a></p>
+<ol>
+<li>DAG计算模型. spark遇到宽依赖才会出现shuffer，而hadoop每次MapReduce都会有一次shuffer；</li>
+<li>MapReduce 每次shuffle 操作后，必须写到磁盘, 而spark可以 cache/persist.   RDD在每次transformation后并不立即执行，而且action后才执行，有进一步减少了I/O操作。</li>
+<li>MR它必须等map输出的所有数据都写入本地磁盘文件以后，才能启动reduce操作</li>
+<li>利用多线程来执行具体的任务（Hadoop MapReduce采用的是进程模型），减少任务的启动和切换开销；</li>
+</ol>
+<p><strong>spark的RDD与DataFrame以及Dataset的区别</strong><br />
+<strong>（1）RDD特点</strong><br />
+　　１）弹性：RDD的每个分区在spark节点上存储时默认是放在内存中的，若内存存储不下，则存储在磁盘中。<br />
+　　２）分布性：每个RDD中的数据可以处在不同的分区中，而分区可以处在不同的节点中．<br />
+　　３）容错性：当一个RDD出现故障时，可以根据RDD之间的依赖关系来重新计算出发生故障的RDD.</p>
+<p><strong>2、spark的算子</strong><br />
+（1）transform算子：map转换算子，filter筛选算子，flatmap，groupByKey，reduceByKey，sortByKey，join，cogroup，combinerByKey。<br />
+（2）action算子：reduce，collect，count，take，aggregate，countByKey。</p>
+<p><strong>(2.5) coalesce与repartition的区别</strong><br />
+　　1）coalesce 与 repartition 都是对RDD进行重新划分，repartition只是coalesce接口中参数shuffle为true的实现。<br />
+　　2）若coalesce中shuffle为false时，传入的参数大于现有的分区数目，RDD的分区数不变，也就是说不经过shuffle，是无法将RDD的分区数变多的。<br />
+　　3）若存在过多的小任务的时候，可以通过coalesce方法，收缩合并分区，减少分区的个数，减小任务调度成本，尽量避免shuffle，这样会比repartition效率高。</p>
+<p><strong>(2.6) reduceByKey与groupByKey的区别：</strong><br />
+　　pairRdd.reduceByKey(<em>+</em>).collect.foreach(println)等价于pairRdd.groupByKey().map(t =&gt; (t._1,t._2.sum)).collect.foreach(println)<br />
+　　reduceByKey的结果：（hello,2）(world,3) groupByKey的结果：（hello,(1,1)）（world,(1,1,1)）<br />
+　　使用reduceByKey()的时候，会对同一个Key所对应的value进行本地聚合，然后再传输到不同节点的节点。而使用groupByKey()的时候，并不进行本地的本地聚合，而是将全部数据传输到不同节点再进行合并，groupByKey()传输速度明显慢于reduceByKey()。虽然groupByKey().map(func)也能实现reduceByKey(func)功能，但是，优先使用reduceByKey(func)．</p>
+<p><strong>(2.7) spark的cache和persist的区别：</strong><br />
+　　1）计算流程DAG特别长,服务器需要将整个DAG计算完成得出结果，若计算流程中突然中间算出的数据丢失了,spark又会根据RDD的依赖关系重新计算，这样会浪费时间，为避免浪费时间可以将中间的计算结果通过cache或者persist放到内存或者磁盘中<br />
+　　2）cache最终调用了persist方法，默认的存储级别仅是存储内存中的；persist是最根本的底层函数，有多个存储级别，executor执行时，60%用来缓存RDD，40%用来存放数据．</p>
+<p><strong>九、spark如何分区：</strong></p>
+<p>分区是RDD内部并行计算的一个计算单元，RDD的数据集在逻辑上被划分为多个分片，每一个分片称为分区，分区的个数决定了并行计算的粒度，而每个分区的数值计算都是在一个任务中进行的，因此任务的个数，也是由RDD(准确来说是作业最后一个RDD)的分区数决定。spark默认分区方式是HashPartitioner．只有Key-Value类型的RDD才有分区的，非Key-Value类型的RDD分区的值是None，每个RDD的分区ID范围：0~numPartitions-1，决定这个值是属于那个分区的。</p>
+</blockquote>
+<blockquote>
 <p><code>2022.05.24</code>  <strong>DFS / Stack</strong><br />
 2.1 字符串解码 “3[a2[c]]” == “accacc”, stack == [(3, “”), (2,“a”)]</p>
 <p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/kth-largest-element-in-an-array/">215. 数组中的第K个最大元素</a>  from heapq import heapify, heappush, heappop<br />
@@ -3045,10 +3075,10 @@ DataSet是spark1.6.0版本提出来的<br />
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2022-05-24T09:53:20+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2022-05-27T08:51:05+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>更新于：May 24, 2022</p>
+    <p>更新于：May 27, 2022</p>
   </a>
 </div>
 
