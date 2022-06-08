@@ -2845,34 +2845,26 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>目前 <code>Spark</code> 支持四种方式从数据库中读取数据，这里以 <code>MySQL</code> 为例进行介绍。</p>
 <span id="more"></span>
-<h2 id="startup-spark-shell"><a class="markdownIt-Anchor" href="#startup-spark-shell"></a> Startup spark-shell</h2>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
-<h2 id="1-不指定查询条件"><a class="markdownIt-Anchor" href="#1-不指定查询条件"></a> 1. 不指定查询条件</h2>
-<h3 id="11-function-define"><a class="markdownIt-Anchor" href="#11-function-define"></a> 1.1 function define</h3>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(url: <span class="type">String</span>, table: <span class="type">String</span>, properties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
-<h3 id="12-detail-example"><a class="markdownIt-Anchor" href="#12-detail-example"></a> 1.2 detail example</h3>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> url = <span class="string">&quot;jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password&quot;</span></span><br><span class="line"><span class="keyword">import</span> java.util.<span class="type">Properties</span></span><br><span class="line"><span class="keyword">val</span> prop = <span class="keyword">new</span> <span class="type">Properties</span>()</span><br><span class="line"><span class="keyword">val</span> df = sqlContext.read.jdbc(url, <span class="string">&quot;mds_user_coupon_bhv&quot;</span>, prop )</span><br><span class="line">println(df.count())</span><br><span class="line">println(df.rdd.partitions.size)</span><br></pre></td></tr></table></figure>
+<h2 id="Startup-spark-shell"><a href="#Startup-spark-shell" class="headerlink" title="Startup spark-shell"></a>Startup spark-shell</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SPARK_CLASSPATH=/opt/cloudera/parcels/CDH/lib/sqoop/mysql-connector-java-5.1.40.jar spark-shell</span><br></pre></td></tr></table></figure>
+<h2 id="1-不指定查询条件"><a href="#1-不指定查询条件" class="headerlink" title="1. 不指定查询条件"></a>1. 不指定查询条件</h2><h3 id="1-1-function-define"><a href="#1-1-function-define" class="headerlink" title="1.1 function define"></a>1.1 function define</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(url: <span class="type">String</span>, table: <span class="type">String</span>, properties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
+<h3 id="1-2-detail-example"><a href="#1-2-detail-example" class="headerlink" title="1.2 detail example"></a>1.2 detail example</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> url = <span class="string">&quot;jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password&quot;</span></span><br><span class="line"><span class="keyword">import</span> java.util.<span class="type">Properties</span></span><br><span class="line"><span class="keyword">val</span> prop = <span class="keyword">new</span> <span class="type">Properties</span>()</span><br><span class="line"><span class="keyword">val</span> df = sqlContext.read.jdbc(url, <span class="string">&quot;mds_user_coupon_bhv&quot;</span>, prop )</span><br><span class="line">println(df.count())</span><br><span class="line">println(df.rdd.partitions.size)</span><br></pre></td></tr></table></figure>
 <p>我们运行上面的程序，可以看到df.rdd.partitions.size输出结果是1，这个结果的含义是iteblog表的所有数据都是由RDD的一个分区处理的，所以说，如果你这个表很大，很可能会出现OOM</p>
 <blockquote>
 <p>Note : 这种方式在数据量大的时候不建议使用。</p>
 </blockquote>
-<h2 id="2-指定数据库字段的范围"><a class="markdownIt-Anchor" href="#2-指定数据库字段的范围"></a> 2. 指定数据库字段的范围</h2>
-<p>这种方式就是通过指定数据库中某个字段的范围，但是<code>这个字段必须是数字</code>，来看看这个函数的函数原型：</p>
+<h2 id="2-指定数据库字段的范围"><a href="#2-指定数据库字段的范围" class="headerlink" title="2. 指定数据库字段的范围"></a>2. 指定数据库字段的范围</h2><p>这种方式就是通过指定数据库中某个字段的范围，但是<code>这个字段必须是数字</code>，来看看这个函数的函数原型：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jdbc</span></span>(</span><br><span class="line">    url: <span class="type">String</span>,</span><br><span class="line">    table: <span class="type">String</span>,</span><br><span class="line">    columnName: <span class="type">String</span>,</span><br><span class="line">    lowerBound: <span class="type">Long</span>,</span><br><span class="line">    upperBound: <span class="type">Long</span>,</span><br><span class="line">    numPartitions: <span class="type">Int</span>,</span><br><span class="line">    connectionProperties: <span class="type">Properties</span>): <span class="type">DataFrame</span></span><br></pre></td></tr></table></figure>
 <p>… not finish</p>
-<h2 id="3-根据任意字段进行分区"><a class="markdownIt-Anchor" href="#3-根据任意字段进行分区"></a> 3. 根据任意字段进行分区</h2>
-<p>…</p>
-<h2 id="4-通过-load-获取"><a class="markdownIt-Anchor" href="#4-通过-load-获取"></a> 4. 通过 load 获取</h2>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.load(<span class="string">&quot;jdbc&quot;</span>, <span class="type">Map</span>(<span class="string">&quot;url&quot;</span> -&gt; <span class="string">&quot;jdbc:mysql://...&quot;</span>, </span><br><span class="line">              <span class="string">&quot;dbtable&quot;</span> -&gt; <span class="string">&quot;mds_user_coupon_bhv&quot;</span>)</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
+<h2 id="3-根据任意字段进行分区"><a href="#3-根据任意字段进行分区" class="headerlink" title="3. 根据任意字段进行分区"></a>3. 根据任意字段进行分区</h2><p>…</p>
+<h2 id="4-通过-load-获取"><a href="#4-通过-load-获取" class="headerlink" title="4. 通过 load 获取"></a>4. 通过 load 获取</h2><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.load(<span class="string">&quot;jdbc&quot;</span>, <span class="type">Map</span>(<span class="string">&quot;url&quot;</span> -&gt; <span class="string">&quot;jdbc:mysql://...&quot;</span>, </span><br><span class="line">              <span class="string">&quot;dbtable&quot;</span> -&gt; <span class="string">&quot;mds_user_coupon_bhv&quot;</span>)</span><br><span class="line">         )</span><br></pre></td></tr></table></figure>
 <p>换一种更正式的写法如下 :</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> df = sqlContext.read.format(<span class="string">&quot;jdbc&quot;</span>).options(<span class="type">Map</span>(</span><br><span class="line">      <span class="string">&quot;url&quot;</span> -&gt; <span class="string">&quot;jdbc:mysql://192.168.***.**:3306/your_lib_name?user= your_username&amp;password=your_password&quot;</span>,</span><br><span class="line">      <span class="string">&quot;dbtable&quot;</span> -&gt; <span class="string">&quot;mds_user_coupon_bhv&quot;</span>)</span><br><span class="line">   ).load()</span><br></pre></td></tr></table></figure>
 <p>options函数支持url、driver、dbtable、partitionColumn、lowerBound、upperBound以及numPartitions选项，这个和方法二的参数一致。其内部实现原理部分和方法二大体一致。同时load方法还支持json、orc等数据源的读取。</p>
 <blockquote>
 <p>Reading notes</p>
 </blockquote>
-<h2 id="5-reference"><a class="markdownIt-Anchor" href="#5-reference"></a> 5. Reference</h2>
-<blockquote>
-<p>尊重原创，转载请注明： 转载自过往记忆（<a target="_blank" rel="noopener" href="http://www.iteblog.com/%EF%BC%89">http://www.iteblog.com/）</a></p>
+<h2 id="5-Reference"><a href="#5-Reference" class="headerlink" title="5. Reference"></a>5. Reference</h2><blockquote>
+<p>尊重原创，转载请注明： 转载自过往记忆（<a target="_blank" rel="noopener" href="http://www.iteblog.com/）">http://www.iteblog.com/）</a> </p>
 </blockquote>
 <p><a target="_blank" rel="noopener" href="http://blog.csdn.net/mlljava1111/article/details/50432569">Spark Read Mysql-csdn</a></p>
 
@@ -3016,6 +3008,7 @@ JDBC Server
 
 
 
+
 年龄
 含义
 
@@ -3045,7 +3038,6 @@ JDBC Server
 
 00901
 都市白领
-
 ...</p>
         </a>
       
@@ -3082,7 +3074,7 @@ JDBC Server
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#startup-spark-shell"><span class="toc-text"> Startup spark-shell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%8D%E6%8C%87%E5%AE%9A%E6%9F%A5%E8%AF%A2%E6%9D%A1%E4%BB%B6"><span class="toc-text"> 1. 不指定查询条件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#11-function-define"><span class="toc-text"> 1.1 function define</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#12-detail-example"><span class="toc-text"> 1.2 detail example</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%8C%87%E5%AE%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%97%E6%AE%B5%E7%9A%84%E8%8C%83%E5%9B%B4"><span class="toc-text"> 2. 指定数据库字段的范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%A0%B9%E6%8D%AE%E4%BB%BB%E6%84%8F%E5%AD%97%E6%AE%B5%E8%BF%9B%E8%A1%8C%E5%88%86%E5%8C%BA"><span class="toc-text"> 3. 根据任意字段进行分区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E9%80%9A%E8%BF%87-load-%E8%8E%B7%E5%8F%96"><span class="toc-text"> 4. 通过 load 获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-reference"><span class="toc-text"> 5. Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Startup-spark-shell"><span class="toc-text">Startup spark-shell</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%8D%E6%8C%87%E5%AE%9A%E6%9F%A5%E8%AF%A2%E6%9D%A1%E4%BB%B6"><span class="toc-text">1. 不指定查询条件</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-function-define"><span class="toc-text">1.1 function define</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2-detail-example"><span class="toc-text">1.2 detail example</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E6%8C%87%E5%AE%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AD%97%E6%AE%B5%E7%9A%84%E8%8C%83%E5%9B%B4"><span class="toc-text">2. 指定数据库字段的范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%A0%B9%E6%8D%AE%E4%BB%BB%E6%84%8F%E5%AD%97%E6%AE%B5%E8%BF%9B%E8%A1%8C%E5%88%86%E5%8C%BA"><span class="toc-text">3. 根据任意字段进行分区</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-%E9%80%9A%E8%BF%87-load-%E8%8E%B7%E5%8F%96"><span class="toc-text">4. 通过 load 获取</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Reference"><span class="toc-text">5. Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3171,7 +3163,7 @@ JDBC Server
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
 </div>
         
       
