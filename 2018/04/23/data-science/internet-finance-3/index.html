@@ -2852,7 +2852,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <p>用户全流程欺诈⻛险评分体系</p>
 <span id="more"></span>
-<h2 id="反欺诈是一种机器学习过程"><a href="#反欺诈是一种机器学习过程" class="headerlink" title="反欺诈是一种机器学习过程"></a>反欺诈是一种机器学习过程</h2><blockquote>
+<h2 id="反欺诈是一种机器学习过程"><a class="markdownIt-Anchor" href="#反欺诈是一种机器学习过程"></a> 反欺诈是一种机器学习过程</h2>
+<blockquote>
 <p>对于做互联网金融一般情况是 正负样本 是极度不平衡的(最高可以达到 100 : 1), 这样的情况对于 SVM 这种分类器是不合适的，所以在做金融的<strong>评分卡模型</strong> 或 <strong>欺诈模型</strong> 也好，这样对特征的处理 和 样本的非平衡处理是比较高的.</p>
 <p>好坏用户的定义，一般是根据用户的贷后表现，来定义好坏用户的.</p>
 </blockquote>
@@ -2860,16 +2861,23 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>用户借款 5W 元，可能是分期还款 12个月，这样每个月都会还一笔固定的额度.</p>
 <p><strong>信用风险</strong> : 在挺长的时间可以按时还款.</p>
-<p><strong>欺诈风险</strong> : </p>
+</blockquote>
+<blockquote>
+<p><strong>欺诈风险</strong> :</p>
 <ol>
-<li>用户可能 第 1、2 期 是还的，之后是不还的.<br> (因为中介也越来越聪明，给他自己留出时间，躲避催收的手段，也躲避追踪等等)</li>
+<li>用户可能 第 1、2 期 是还的，之后是不还的.<br />
+(因为中介也越来越聪明，给他自己留出时间，躲避催收的手段，也躲避追踪等等)</li>
 <li>贷前审核 （触碰到拒贷规则）</li>
 <li>造假行为 （信息资料造假）</li>
 <li>调查员 调查出来是 <strong>中介</strong> 或者 <strong>有欺诈风向的</strong>，进入黑名单的.</li>
 <li>…</li>
 </ol>
 <p>所以我们在定义模型负样本的话，我们可能定义为 m1+ 信用风险、m3+ (90天以上不还款的话)，我们可以定义为欺诈风险</p>
-<p><code>坏用户</code> ： 欺诈风险用户<br><code>好用户</code> ： 一天都不逾期还款<br><code>灰用户</code> ： m1+ 未还款，但是90天之内可以还款的 (不放在训练中，否则会给模型带来很多额外的信息，影响效果)</p>
+</blockquote>
+<blockquote>
+<p><code>坏用户</code> ： 欺诈风险用户<br />
+<code>好用户</code> ： 一天都不逾期还款<br />
+<code>灰用户</code> ： m1+ 未还款，但是90天之内可以还款的 (不放在训练中，否则会给模型带来很多额外的信息，影响效果)</p>
 <p>灰用户不放在模型中，这样训练出的模型对好坏用户的区分程度也越高.</p>
 </blockquote>
 <p>金融模型 和 CTR预估 相比是 有一个周期性质的</p>
@@ -2879,23 +2887,27 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>做长期现金贷，选择样本是选择半年之前的用户，作为样本</li>
 </ol>
 </blockquote>
-<h2 id="正负样本"><a href="#正负样本" class="headerlink" title="正负样本"></a>正负样本</h2><p>真实场景正负样本比例 <code>(10~30) ：1</code> （成熟平台的风险是越来越小的，所以我们拿到的 <code>正负样本比例</code>是逐步增加的）.</p>
+<h2 id="正负样本"><a class="markdownIt-Anchor" href="#正负样本"></a> 正负样本</h2>
+<p>真实场景正负样本比例 <code>(10~30) ：1</code> （成熟平台的风险是越来越小的，所以我们拿到的 <code>正负样本比例</code>是逐步增加的）.</p>
 <p>数据的不平衡处理 ： <strong>降采样</strong>、<strong>过采样</strong>、<strong>SMOTE</strong></p>
 <ul>
 <li><strong>降采样</strong> ： 正负样本成 3:1， 5:1 来做一个模型,  坏样本是全部取的, (一般这种情况 做评分卡的时候是需要做的)</li>
 <li><strong>过采样</strong> ： 实际用的不多，如果负样本实在是过少 都 &lt;100 个， 那么可以考虑 减低我们的观察周期， 或者 欺诈定义的并不是一个很严格 来放进来多一些的 负样本过来来做训练，或者在拒贷里面找一些人过来.</li>
-<li><strong>SMOTE</strong> ： 在分布上模拟一些数据，模拟完的数据可做训练，比较经典拿真实的数据做训练是更贴近真实的情况.<blockquote>
+<li><strong>SMOTE</strong> ： 在分布上模拟一些数据，模拟完的数据可做训练，比较经典拿真实的数据做训练是更贴近真实的情况.</li>
+</ul>
+<blockquote>
 <p>做模型 如 GBRT、RF 等，他们对不平衡的数据是有容忍的，这种直接用真实数据进行训练，也能得到很好的效果.</p>
 </blockquote>
-</li>
-</ul>
-<h2 id="模型选型"><a href="#模型选型" class="headerlink" title="模型选型"></a>模型选型</h2><p>对于做评分卡的模型 或者 LR 的话，样本的平衡要在 10:1 范围内， LR 对变量相关性的筛选 和 数据平衡 有要求</p>
+<h2 id="模型选型"><a class="markdownIt-Anchor" href="#模型选型"></a> 模型选型</h2>
+<p>对于做评分卡的模型 或者 LR 的话，样本的平衡要在 10:1 范围内， LR 对变量相关性的筛选 和 数据平衡 有要求</p>
 <p>做模型，至少要用 RF 来做模型， 或者 GBDT、GBRT，这种 Boosting 的模型，对于样本的不平衡容忍度更高一些，他们对于学习 更小而细微 的特征和变量 可以学习的更深一些.</p>
-<h2 id="Lending-Club"><a href="#Lending-Club" class="headerlink" title="Lending Club"></a>Lending Club</h2><p>Lending Club 创立于 2016年， 主要做一个提供 P2P 贷款的平台中介服务，2016年底在 纽交所上市，后来爆出来很多丑闻，创始人离职，股价下跌. 但是不管怎么样，它的数据在我们做反欺诈等是非常有重要的.</p>
+<h2 id="lending-club"><a class="markdownIt-Anchor" href="#lending-club"></a> Lending Club</h2>
+<p>Lending Club 创立于 2016年， 主要做一个提供 P2P 贷款的平台中介服务，2016年底在 纽交所上市，后来爆出来很多丑闻，创始人离职，股价下跌. 但是不管怎么样，它的数据在我们做反欺诈等是非常有重要的.</p>
 <blockquote>
 <p>Lending Club 2016 的借贷数据，Q3，Q4 可以一起做一下，半年的数据做训练是更好的.</p>
 </blockquote>
-<h3 id="1-Data"><a href="#1-Data" class="headerlink" title="1. Data"></a>1. Data</h3><p>Lending Club 2016年Q3数据：<a target="_blank" rel="noopener" href="https://www.lendingclub.com/info/download-data.action">https://www.lendingclub.com/info/download-data.action</a></p>
+<h3 id="1-data"><a class="markdownIt-Anchor" href="#1-data"></a> 1. Data</h3>
+<p>Lending Club 2016年Q3数据：<a target="_blank" rel="noopener" href="https://www.lendingclub.com/info/download-data.action">https://www.lendingclub.com/info/download-data.action</a></p>
 <p>参考：<a target="_blank" rel="noopener" href="http://kldavenport.com/lending-club-data-analysis-revisted-with-python/">http://kldavenport.com/lending-club-data-analysis-revisted-with-python/</a></p>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/finance-LC-18.jpg" class="lazyload" data-srcset="/images/datascience/finance-LC-18.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:900px;"/></div></div>
 <p>看下数据，其实我也不能完全了解这些所有字段的含义</p>
@@ -2913,27 +2925,31 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <blockquote>
 <p>用户贷款之后的表现，如果填的真假我们不了解，填写的是假资料，但是之后还款表现好那么它还是一个好用户.</p>
 </blockquote>
-<p><strong>数据上</strong> </p>
+<p><strong>数据上</strong></p>
 <blockquote>
 <p>我只取了2016年Q3数据，9W+ 的数据，列数 122 列。数据有 99124行， 去掉表头，有 99123 行</p>
 </blockquote>
-<h2 id="2-Keep-what-we-need"><a href="#2-Keep-what-we-need" class="headerlink" title="2. Keep what we need"></a>2. Keep what we need</h2><blockquote>
+<h2 id="2-keep-what-we-need"><a class="markdownIt-Anchor" href="#2-keep-what-we-need"></a> 2. Keep what we need</h2>
+<blockquote>
 <p>我们初步做特征筛选…, 我们在看的时候，可以分片分片的看这 122 个列…</p>
 </blockquote>
-<h3 id="2-1-特征分析-part1"><a href="#2-1-特征分析-part1" class="headerlink" title="2.1 特征分析 part1"></a>2.1 特征分析 part1</h3><div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/finance-LC-19.jpg" class="lazyload" data-srcset="/images/datascience/finance-LC-19.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:850px;"/></div></div>
+<h3 id="21-特征分析-part1"><a class="markdownIt-Anchor" href="#21-特征分析-part1"></a> 2.1 特征分析 part1</h3>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/finance-LC-19.jpg" class="lazyload" data-srcset="/images/datascience/finance-LC-19.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:850px;"/></div></div>
 <blockquote>
 <p>id 和 member_id 不作为特征，可以直接去掉, int_rate 带 % 的可以直接去掉 %， 变为 float 的</p>
 </blockquote>
 <p><strong>Loan Amount Requested Verus the Funded Amount</strong></p>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/datascience/finance-LC-20.png" class="lazyload" data-srcset="/images/datascience/finance-LC-20.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:850px;"/></div></div>
-<h3 id="2-2-特征分析-part2"><a href="#2-2-特征分析-part2" class="headerlink" title="2.2 特征分析 part2"></a>2.2 特征分析 part2</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df.ix[:<span class="number">5</span>,<span class="number">8</span>:<span class="number">15</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(df.emp_title.value_counts().head())</span><br><span class="line"><span class="built_in">print</span>(df.emp_title.value_counts().tail())</span><br><span class="line">df.emp_title.unique().shape </span><br><span class="line"><span class="comment"># 37421 emp_title， 太多了，可信度不高，我们也无法做 emp_title 非数值型变量的 one-hot enconding</span></span><br></pre></td></tr></table></figure>
+<h3 id="22-特征分析-part2"><a class="markdownIt-Anchor" href="#22-特征分析-part2"></a> 2.2 特征分析 part2</h3>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">df.ix[:<span class="number">5</span>,<span class="number">8</span>:<span class="number">15</span>]</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(df.emp_title.value_counts().head())</span><br><span class="line"><span class="built_in">print</span>(df.emp_title.value_counts().tail())</span><br><span class="line">df.emp_title.unique().shape </span><br><span class="line"><span class="comment"># 37421 emp_title， 太多了，可信度不高，我们也无法做 emp_title 非数值型变量的 one-hot enconding</span></span><br></pre></td></tr></table></figure>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">df.drop([&#x27;emp_title&#x27;],1, inplace=True)</span><br></pre></td></tr></table></figure>
 <p>employment title</p>
-<hr>
+<hr />
 <ul>
 <li><a target="_blank" rel="noopener" href="https://github.com/blair101/machine-learning-action/blob/master/LC/LC.ipynb">LC code</a></li>
 </ul>
-<h2 id="3-总结"><a href="#3-总结" class="headerlink" title="3. 总结"></a>3. 总结</h2><p>删不删除变量，需要看模型，LR 需要删除，GBRT 不用删除也可以.</p>
+<h2 id="3-总结"><a class="markdownIt-Anchor" href="#3-总结"></a> 3. 总结</h2>
+<p>删不删除变量，需要看模型，LR 需要删除，GBRT 不用删除也可以.</p>
 <p>LR 做评分卡模型，变量 一定是强变量，20个左右，不会几百个，有个变量可以训练处系数</p>
 <p>出来 0 ~ 1 概率，拉一下橡皮筋， 分数映射，拉到 300 ~ 900 分，可以做一个评分卡，600分 可能是好用户:坏用户，可能是 50:1</p>
 <p>评分卡的阶梯可能是增加。</p>
@@ -2946,13 +2962,17 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>模型的稳定性非常重要，当前要评估的人群已经和去年下半年的用户已经不一样的，所以训练的时候要尽可能提升模型的稳定性，如果训练时模型稳定性非常差，那么一上线就崩溃了。</p>
 <p>如何提高模型稳定性，2种方法</p>
 <ol>
-<li><p>特征筛选的时候，我会去把特征从样本的时间开始，2016.06 开始每个月我一直在看它的均值和方差的变化是否在容忍的范围内，比如我去年这个月这个特征是30，当前 2017.06 这个特征变为了 100，那么这个特征变化太大，是不能用的，超过50%， 太不稳定了，其实这个变量，或者做评分卡，反欺诈等是不合适的，直接扔掉。</p>
+<li>
+<p>特征筛选的时候，我会去把特征从样本的时间开始，2016.06 开始每个月我一直在看它的均值和方差的变化是否在容忍的范围内，比如我去年这个月这个特征是30，当前 2017.06 这个特征变为了 100，那么这个特征变化太大，是不能用的，超过50%， 太不稳定了，其实这个变量，或者做评分卡，反欺诈等是不合适的，直接扔掉。</p>
 </li>
-<li><p>尽量做模型融合，单模型的模型稳定性是不好的，随着月份的变化，你的预测是有变化的，波动的范围是有点低，ensemble 集成学习，</p>
-<p>三种方法 (bagging、boosting，Stacking）</p>
+<li>
+<p>尽量做模型融合，单模型的模型稳定性是不好的，随着月份的变化，你的预测是有变化的，波动的范围是有点低，ensemble 集成学习，</p>
 </li>
 </ol>
-<p>2.1 Bagging 比如 RF，每个模型取一样的权重，进行评估<br>2.2 Boosting 根据模型训练出不同权重，给予不同的权重<br>2.3 Stacking 我在用一个分类器，去处理我要集成的这3，4种模型，训练出一个参数</p>
+<p>三种方法 (bagging、boosting，Stacking）</p>
+<p>2.1 Bagging 比如 RF，每个模型取一样的权重，进行评估<br />
+2.2 Boosting 根据模型训练出不同权重，给予不同的权重<br />
+2.3 Stacking 我在用一个分类器，去处理我要集成的这3，4种模型，训练出一个参数</p>
 <p>这三种方法，都能提高模型的稳定性</p>
 <p>让你在线上运行 3~6 个月，信贷产品比较长的话，2个月更新一次比较好，贷款周期短的话，周更新都可以</p>
 <blockquote>
@@ -2963,7 +2983,8 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>半年的样本数据，把数据取出来之后，你要定义你的<code>好坏</code>样本,会把一些灰色地段的用户给他摘除掉，只留下最好或者最坏的用户，这些用户提特征之后，在做训练，<code>样本内的验证</code>和<code>跨时间的验证</code> ，就是说我的时间段是完全不一样的，那么能够验证模型的稳定性，那么最好就要拿 2017年，1和2月的数据，在做一个跨时间的验证，跨时间的验证才是你真正上线之后的效果，因为你在时间窗口内训练或者test的话，它的 ks 可能 30 多，如果跨时间验证的话，你的人群可能会偏移，那么ks可能会下降，ks就变为20，如果差别控制在 15%，差别大稳定性就很不好，是不能上线的。</p>
 <p>模型的话，你现在开始做模型，你一定取的是 去年 下半年的是数据，做验证的话是拿去年1月份的数据，一个月的数据还有5，6，7个还款表现，基本上等你做完模型，你做跨时间验证的话，刚刚好，你花2个礼拜做一个模型，上线的时候，你就不需要重新训练了。除非你到9月份上线，那么时间久了，就需要重新训练，一般是不需要重新训练的。</p>
 <p>欺诈模型的稳定性评价指标： 1. 对比训练集 与 跨时间验证集 的 KS 偏差，一般偏差大不大的话，觉得这个模型是可以在时间维度上hold住的，那么可以模型上线。另外指标金融上比较常用的指标是 psi，这个是验证不同人群的偏移程度，以后可以自己查查资料。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://myslide.cn/slides/3199">金融反欺诈场景下的Spark实践</a></li>
 </ul>
 
@@ -3098,9 +3119,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='content'>反欺诈也是一种机器学习过程， 反欺诈建模中的数据科学
 
 
-反欺诈也是一种机器学习过程
+ 反欺诈也是一种机器学习过程
 
-对于做互联网金融一般情况是 正负样本 是极度不平衡的(最高可以达到 100 : 1), 这样的情况对于 S...</p>
+
+对于做互联网金融一般情况是 正负样本 是极度不平衡的(最高可以达到 100 : 1), 这样的情况对于...</p>
         </a>
       
     </div>
@@ -3136,7 +3158,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E6%AC%BA%E8%AF%88%E6%98%AF%E4%B8%80%E7%A7%8D%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B"><span class="toc-text">反欺诈是一种机器学习过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E8%B4%9F%E6%A0%B7%E6%9C%AC"><span class="toc-text">正负样本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B"><span class="toc-text">模型选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Lending-Club"><span class="toc-text">Lending Club</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-Data"><span class="toc-text">1. Data</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Keep-what-we-need"><span class="toc-text">2. Keep what we need</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E7%89%B9%E5%BE%81%E5%88%86%E6%9E%90-part1"><span class="toc-text">2.1 特征分析 part1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2-%E7%89%B9%E5%BE%81%E5%88%86%E6%9E%90-part2"><span class="toc-text">2.2 特征分析 part2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%80%BB%E7%BB%93"><span class="toc-text">3. 总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%8D%E6%AC%BA%E8%AF%88%E6%98%AF%E4%B8%80%E7%A7%8D%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B"><span class="toc-text"> 反欺诈是一种机器学习过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E8%B4%9F%E6%A0%B7%E6%9C%AC"><span class="toc-text"> 正负样本</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A8%A1%E5%9E%8B%E9%80%89%E5%9E%8B"><span class="toc-text"> 模型选型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lending-club"><span class="toc-text"> Lending Club</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-data"><span class="toc-text"> 1. Data</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-keep-what-we-need"><span class="toc-text"> 2. Keep what we need</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-%E7%89%B9%E5%BE%81%E5%88%86%E6%9E%90-part1"><span class="toc-text"> 2.1 特征分析 part1</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-%E7%89%B9%E5%BE%81%E5%88%86%E6%9E%90-part2"><span class="toc-text"> 2.2 特征分析 part2</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E6%80%BB%E7%BB%93"><span class="toc-text"> 3. 总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3225,7 +3247,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
