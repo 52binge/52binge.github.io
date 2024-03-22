@@ -2849,40 +2849,60 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>25条Hive性能调优实战</li>
 </ol>
 <center><embed src="/images/hadoop/奈学大数据公开课-Hive调优-正课文档.pdf" width="930" height="600"></center>
-
-<h1 id="深度剖析Hive架构设计与工作原理"><a href="#深度剖析Hive架构设计与工作原理" class="headerlink" title="深度剖析Hive架构设计与工作原理"></a>深度剖析Hive架构设计与工作原理</h1><h2 id="4-1-Hive-的概念"><a href="#4-1-Hive-的概念" class="headerlink" title="4.1 Hive 的概念"></a>4.1 Hive 的概念</h2><blockquote>
+<h1 id="深度剖析hive架构设计与工作原理"><a class="markdownIt-Anchor" href="#深度剖析hive架构设计与工作原理"></a> 深度剖析Hive架构设计与工作原理</h1>
+<h2 id="41-hive-的概念"><a class="markdownIt-Anchor" href="#41-hive-的概念"></a> 4.1 Hive 的概念</h2>
+<blockquote>
 <p>Hive依赖HDFS数据，Hive将HQL转成MapReduce执行，所以说Hive是基于Hadoop的一个数据仓库工具</p>
 <p>实质就是一款基于HDFS的MapReduce计算框架，对存储在HDFS中的数据进行分析和管理。</p>
 </blockquote>
-<h2 id="4-2-Hive-的工作机制"><a href="#4-2-Hive-的工作机制" class="headerlink" title="4.2 Hive 的工作机制"></a>4.2 Hive 的工作机制</h2><p>简单总结:</p>
+<h2 id="42-hive-的工作机制"><a class="markdownIt-Anchor" href="#42-hive-的工作机制"></a> 4.2 Hive 的工作机制</h2>
+<p>简单总结:</p>
 <blockquote>
 <p>1、Hive的内置四大组件(Driver, Compiler, Optimizer, Executor)完成HQL到MapReduce的转换</p>
-<p>2、在Hive执行HQL编译过程中，会从元数据库获取表结构和数据存储目录等相关信息 </p>
+<p>2、在Hive执行HQL编译过程中，会从元数据库获取表结构和数据存储目录等相关信息</p>
 <p>3、Hive只是完成对存储在HDFS上的结构化数据的管理，并提供一种类SQL的操作方式来进行海量数据运行， 底层支持多种分布式计算引擎。</p>
 </blockquote>
-<h1 id="最全25条选性能调优全详解"><a href="#最全25条选性能调优全详解" class="headerlink" title="最全25条选性能调优全详解"></a>最全25条选性能调优全详解</h1><h2 id="5-1-调优概述"><a href="#5-1-调优概述" class="headerlink" title="5.1 调优概述"></a>5.1 调优概述</h2><p>Hive 作为大数据领域常用的数据仓库组件，在平时设计和查询时要特别注意效率。<br>影响 Hive 效率的几乎从不是数据量过大，而是数据倾斜、冗余、Job或I/O过多、MapReduce 分配不合理等。</p>
+<h1 id="最全25条选性能调优全详解"><a class="markdownIt-Anchor" href="#最全25条选性能调优全详解"></a> 最全25条选性能调优全详解</h1>
+<h2 id="51-调优概述"><a class="markdownIt-Anchor" href="#51-调优概述"></a> 5.1 调优概述</h2>
+<p>Hive 作为大数据领域常用的数据仓库组件，在平时设计和查询时要特别注意效率。<br />
+影响 Hive 效率的几乎从不是数据量过大，而是数据倾斜、冗余、Job或I/O过多、MapReduce 分配不合理等。</p>
 <blockquote>
 <p>对 Hive 的调优既包含 Hive 的建表设计方面，对HiveHQL 语句本身的优化，也包含 Hive 配置参数和底层引擎 MapReduce方面的调整。</p>
 </blockquote>
 <p>所以此次调优主要分为以下四个方面展开:</p>
 <blockquote>
-<p>1、Hive的建表设计层面 </p>
-<p>2、HQL语法和运行参数层面 </p>
-<p>3、Hive架构层面 </p>
+<p>1、Hive的建表设计层面</p>
+<p>2、HQL语法和运行参数层面</p>
+<p>3、Hive架构层面</p>
 <p>4、Hive数据倾斜</p>
 </blockquote>
 <p><strong>总之，Hive调优的作用： 在保证业务结果不变的前提下，降低资源的使用量，减少任务的执行时间。</strong></p>
-<h2 id="5-2-调优须知"><a href="#5-2-调优须知" class="headerlink" title="5.2 调优须知"></a>5.2 调优须知</h2><h2 id="5-3-Hive建表设计层面"><a href="#5-3-Hive建表设计层面" class="headerlink" title="5.3 Hive建表设计层面"></a>5.3 Hive建表设计层面</h2><h3 id="5-3-1-利用分区表优化"><a href="#5-3-1-利用分区表优化" class="headerlink" title="5.3.1 利用分区表优化"></a>5.3.1 利用分区表优化</h3><h3 id="5-3-2-利用分桶表优化"><a href="#5-3-2-利用分桶表优化" class="headerlink" title="5.3.2 利用分桶表优化"></a>5.3.2 利用分桶表优化</h3><p>跟分区的概念很相似, 都是把数据分成多个不同类别, 区别就是规则不一样 !</p>
+<h2 id="52-调优须知"><a class="markdownIt-Anchor" href="#52-调优须知"></a> 5.2 调优须知</h2>
+<h2 id="53-hive建表设计层面"><a class="markdownIt-Anchor" href="#53-hive建表设计层面"></a> 5.3 Hive建表设计层面</h2>
+<h3 id="531-利用分区表优化"><a class="markdownIt-Anchor" href="#531-利用分区表优化"></a> 5.3.1 利用分区表优化</h3>
+<h3 id="532-利用分桶表优化"><a class="markdownIt-Anchor" href="#532-利用分桶表优化"></a> 5.3.2 利用分桶表优化</h3>
+<p>跟分区的概念很相似, 都是把数据分成多个不同类别, 区别就是规则不一样 !</p>
 <blockquote>
 <p>1、分区： 按照字段值来进行: 一个分区, 就只是包含这个这一个值的所有记录</p>
 </blockquote>
 <p>Hive Bucket, 分桶, 是指将数据以指定列的值为key进行hash, hash 到指定数据的桶中.</p>
-<h3 id="5-3-3-合适的文件存储格式"><a href="#5-3-3-合适的文件存储格式" class="headerlink" title="5.3.3 合适的文件存储格式"></a>5.3.3 合适的文件存储格式</h3><p>data warehouse</p>
+<h3 id="533-合适的文件存储格式"><a class="markdownIt-Anchor" href="#533-合适的文件存储格式"></a> 5.3.3 合适的文件存储格式</h3>
+<p>data warehouse</p>
 <ol>
 <li>ods: TextFile</li>
 <li>dw: ORC or ParquetFile</li>
 </ol>
-<h3 id="5-3-4-合适的压缩格式"><a href="#5-3-4-合适的压缩格式" class="headerlink" title="5.3.4 合适的压缩格式"></a>5.3.4 合适的压缩格式</h3><h2 id="5-4-HQL-语法和运行参数层面"><a href="#5-4-HQL-语法和运行参数层面" class="headerlink" title="5.4 HQL 语法和运行参数层面"></a>5.4 HQL 语法和运行参数层面</h2><h3 id="5-4-1-查看Hive执行计划"><a href="#5-4-1-查看Hive执行计划" class="headerlink" title="5.4.1 查看Hive执行计划"></a>5.4.1 查看Hive执行计划</h3><h3 id="5-4-2-列裁剪"><a href="#5-4-2-列裁剪" class="headerlink" title="5.4.2 列裁剪"></a>5.4.2 列裁剪</h3><h3 id="5-4-3-谓词下推"><a href="#5-4-3-谓词下推" class="headerlink" title="5.4.3 谓词下推"></a>5.4.3 谓词下推</h3><h3 id="5-4-4-分区裁剪"><a href="#5-4-4-分区裁剪" class="headerlink" title="5.4.4 分区裁剪"></a>5.4.4 分区裁剪</h3><h3 id="5-4-5-合并小文件"><a href="#5-4-5-合并小文件" class="headerlink" title="5.4.5 合并小文件"></a>5.4.5 合并小文件</h3><h3 id="5-4-6-合理设置MapTask并行度"><a href="#5-4-6-合理设置MapTask并行度" class="headerlink" title="5.4.6 合理设置MapTask并行度"></a>5.4.6 合理设置MapTask并行度</h3><h3 id="5-4-7-合理设置ReduceTask并行度"><a href="#5-4-7-合理设置ReduceTask并行度" class="headerlink" title="5.4.7 合理设置ReduceTask并行度"></a>5.4.7 合理设置ReduceTask并行度</h3><h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<h3 id="534-合适的压缩格式"><a class="markdownIt-Anchor" href="#534-合适的压缩格式"></a> 5.3.4 合适的压缩格式</h3>
+<h2 id="54-hql-语法和运行参数层面"><a class="markdownIt-Anchor" href="#54-hql-语法和运行参数层面"></a> 5.4 HQL 语法和运行参数层面</h2>
+<h3 id="541-查看hive执行计划"><a class="markdownIt-Anchor" href="#541-查看hive执行计划"></a> 5.4.1 查看Hive执行计划</h3>
+<h3 id="542-列裁剪"><a class="markdownIt-Anchor" href="#542-列裁剪"></a> 5.4.2 列裁剪</h3>
+<h3 id="543-谓词下推"><a class="markdownIt-Anchor" href="#543-谓词下推"></a> 5.4.3 谓词下推</h3>
+<h3 id="544-分区裁剪"><a class="markdownIt-Anchor" href="#544-分区裁剪"></a> 5.4.4 分区裁剪</h3>
+<h3 id="545-合并小文件"><a class="markdownIt-Anchor" href="#545-合并小文件"></a> 5.4.5 合并小文件</h3>
+<h3 id="546-合理设置maptask并行度"><a class="markdownIt-Anchor" href="#546-合理设置maptask并行度"></a> 5.4.6 合理设置MapTask并行度</h3>
+<h3 id="547-合理设置reducetask并行度"><a class="markdownIt-Anchor" href="#547-合理设置reducetask并行度"></a> 5.4.7 合理设置ReduceTask并行度</h3>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://tech.meituan.com/2016/04/29/spark-tuning-basic.html">Spark性能优化指南——基础篇</a></li>
 <li><a target="_blank" rel="noopener" href="https://tech.meituan.com/2016/05/12/spark-tuning-pro.html">Spark性能优化指南——高级篇</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/huang66666666/category_9399107.html">大数据资料笔记整理</a></li>
@@ -3012,9 +3032,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
           <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Spark 核心概念详述 2.2</p>
           <p class='content'>Spark 核心概念详述 2.2
 
-1. Word CountSpark 核心概念详述 2.2
+ 1. Word Count
+Spark 核心概念详述 2.2
 
-data source -&gt; LineRDD -&gt; WordRDD -&gt; Wo...</p>
+data source -&gt; LineRDD -&gt; WordRDD -&gt; ...</p>
         </a>
       
       
@@ -3022,9 +3043,12 @@ data source -&gt; LineRDD -&gt; WordRDD -&gt; Wo...</p>
           <p class='title'>Python 星号表达式(*) 用法详解<i class="fas fa-chevron-right" aria-hidden="true"></i></p>
           <p class='content'>STAR
 
-1. 函数可变参数标志以及参数解包2. 赋值语句中作为可变变量标志3. 对可迭代对象进行解包4. 元组/集合/列表以元组为例，集合与列表同理。
-元组也可以比较大小，例如下面代码：
-1...</p>
+ 1. 函数可变参数标志以及参数解包
+ 2. 赋值语句中作为可变变量标志
+ 3. 对可迭代对象进行解包
+ 4. 元组/集合/列表
+以元组为例，集合与列表同理。
+元组也可以比较大小，例...</p>
         </a>
       
     </div>
@@ -3034,7 +3058,16 @@ data source -&gt; LineRDD -&gt; WordRDD -&gt; Wo...</p>
 
   
 
-  
+  <article class="post white-box reveal shadow" id="comments">
+    <p ct><i class='fas fa-comments'></i> Comments</p>
+    
+    <div id="disqus_thread">
+  <div id="notShowDisqus" style="display: none;text-align: center;"><i class='fas fa-exclamation-triangle'></i>&nbsp;Unable to load Disqus, please make sure your network can access.</div>
+  <div id="load-btns"><a class="load-comments" onclick="needLoadDisqus()">Load Disqus</a></div>
+  <div id="loading-comments" style="display: none"><i class="fa fa-cog fa-spin fa-fw fa-2x"></i><br>Checking if Disqus is accessible...</div>
+</div>
+
+  </article>
 
 
 
@@ -3060,7 +3093,7 @@ data source -&gt; LineRDD -&gt; WordRDD -&gt; Wo...</p>
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-Hive-%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-text">4.1 Hive 的概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-Hive-%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6"><span class="toc-text">4.2 Hive 的工作机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-1-%E8%B0%83%E4%BC%98%E6%A6%82%E8%BF%B0"><span class="toc-text">5.1 调优概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-2-%E8%B0%83%E4%BC%98%E9%A1%BB%E7%9F%A5"><span class="toc-text">5.2 调优须知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-3-Hive%E5%BB%BA%E8%A1%A8%E8%AE%BE%E8%AE%A1%E5%B1%82%E9%9D%A2"><span class="toc-text">5.3 Hive建表设计层面</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-1-%E5%88%A9%E7%94%A8%E5%88%86%E5%8C%BA%E8%A1%A8%E4%BC%98%E5%8C%96"><span class="toc-text">5.3.1 利用分区表优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-2-%E5%88%A9%E7%94%A8%E5%88%86%E6%A1%B6%E8%A1%A8%E4%BC%98%E5%8C%96"><span class="toc-text">5.3.2 利用分桶表优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-3-%E5%90%88%E9%80%82%E7%9A%84%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="toc-text">5.3.3 合适的文件存储格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-4-%E5%90%88%E9%80%82%E7%9A%84%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F"><span class="toc-text">5.3.4 合适的压缩格式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-4-HQL-%E8%AF%AD%E6%B3%95%E5%92%8C%E8%BF%90%E8%A1%8C%E5%8F%82%E6%95%B0%E5%B1%82%E9%9D%A2"><span class="toc-text">5.4 HQL 语法和运行参数层面</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-1-%E6%9F%A5%E7%9C%8BHive%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92"><span class="toc-text">5.4.1 查看Hive执行计划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-2-%E5%88%97%E8%A3%81%E5%89%AA"><span class="toc-text">5.4.2 列裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-3-%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%8E%A8"><span class="toc-text">5.4.3 谓词下推</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-4-%E5%88%86%E5%8C%BA%E8%A3%81%E5%89%AA"><span class="toc-text">5.4.4 分区裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-5-%E5%90%88%E5%B9%B6%E5%B0%8F%E6%96%87%E4%BB%B6"><span class="toc-text">5.4.5 合并小文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-6-%E5%90%88%E7%90%86%E8%AE%BE%E7%BD%AEMapTask%E5%B9%B6%E8%A1%8C%E5%BA%A6"><span class="toc-text">5.4.6 合理设置MapTask并行度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-4-7-%E5%90%88%E7%90%86%E8%AE%BE%E7%BD%AEReduceTask%E5%B9%B6%E8%A1%8C%E5%BA%A6"><span class="toc-text">5.4.7 合理设置ReduceTask并行度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#41-hive-%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="toc-text"> 4.1 Hive 的概念</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#42-hive-%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6"><span class="toc-text"> 4.2 Hive 的工作机制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#51-%E8%B0%83%E4%BC%98%E6%A6%82%E8%BF%B0"><span class="toc-text"> 5.1 调优概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#52-%E8%B0%83%E4%BC%98%E9%A1%BB%E7%9F%A5"><span class="toc-text"> 5.2 调优须知</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#53-hive%E5%BB%BA%E8%A1%A8%E8%AE%BE%E8%AE%A1%E5%B1%82%E9%9D%A2"><span class="toc-text"> 5.3 Hive建表设计层面</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#531-%E5%88%A9%E7%94%A8%E5%88%86%E5%8C%BA%E8%A1%A8%E4%BC%98%E5%8C%96"><span class="toc-text"> 5.3.1 利用分区表优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#532-%E5%88%A9%E7%94%A8%E5%88%86%E6%A1%B6%E8%A1%A8%E4%BC%98%E5%8C%96"><span class="toc-text"> 5.3.2 利用分桶表优化</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#533-%E5%90%88%E9%80%82%E7%9A%84%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E6%A0%BC%E5%BC%8F"><span class="toc-text"> 5.3.3 合适的文件存储格式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#534-%E5%90%88%E9%80%82%E7%9A%84%E5%8E%8B%E7%BC%A9%E6%A0%BC%E5%BC%8F"><span class="toc-text"> 5.3.4 合适的压缩格式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#54-hql-%E8%AF%AD%E6%B3%95%E5%92%8C%E8%BF%90%E8%A1%8C%E5%8F%82%E6%95%B0%E5%B1%82%E9%9D%A2"><span class="toc-text"> 5.4 HQL 语法和运行参数层面</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#541-%E6%9F%A5%E7%9C%8Bhive%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92"><span class="toc-text"> 5.4.1 查看Hive执行计划</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#542-%E5%88%97%E8%A3%81%E5%89%AA"><span class="toc-text"> 5.4.2 列裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#543-%E8%B0%93%E8%AF%8D%E4%B8%8B%E6%8E%A8"><span class="toc-text"> 5.4.3 谓词下推</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#544-%E5%88%86%E5%8C%BA%E8%A3%81%E5%89%AA"><span class="toc-text"> 5.4.4 分区裁剪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#545-%E5%90%88%E5%B9%B6%E5%B0%8F%E6%96%87%E4%BB%B6"><span class="toc-text"> 5.4.5 合并小文件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#546-%E5%90%88%E7%90%86%E8%AE%BE%E7%BD%AEmaptask%E5%B9%B6%E8%A1%8C%E5%BA%A6"><span class="toc-text"> 5.4.6 合理设置MapTask并行度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#547-%E5%90%88%E7%90%86%E8%AE%BE%E7%BD%AEreducetask%E5%B9%B6%E8%A1%8C%E5%BA%A6"><span class="toc-text"> 5.4.7 合理设置ReduceTask并行度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3149,7 +3182,7 @@ data source -&gt; LineRDD -&gt; WordRDD -&gt; Wo...</p>
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
@@ -3683,6 +3716,99 @@ volantis.pjax.push(bindToggleButton);
 </script>
 
 
+
+
+  <script>
+  const disqus_shortname = "blairos-sn";
+  const autoload = "true";
+  const global_url = "http://www.blairee.com"; //  must use an absolute URL; relative URLs won’t work.
+
+  function checkDisqus() {
+    // 正在检查 Disqus 能否访问...
+    const runcheck = (domain) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const timeout = setTimeout(() => {
+          img.onerror = img.onload = null;
+          reject();
+        }, 3000);
+        img.onerror = () => {
+          clearTimeout(timeout);
+          reject();
+        };
+        img.onload = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+        img.src = `https://${domain}/favicon.ico?${+new Date()}=${+new Date()}`;
+      });
+    };
+    return Promise.all([
+      runcheck("blairos-sn.disqus.com"),
+    ]).then(loadDisqus, showError);
+  }
+
+  function loadDisqus() {
+    let path = pdata.commentPath;
+    if (path.length == 0) {
+      let defaultPath = "";
+      path = defaultPath || decodeURI(window.location.pathname);
+    }
+    if (window.DISQUS) {
+      window.DISQUS.reset({
+        reload: true,
+        config() {
+          this.page.identifier = global_url + path;
+          this.page.url = global_url + path;
+        },
+      });
+    } else {
+      window.disqus_config = function () {
+        this.page.url = global_url + path;
+        this.page.identifier = global_url + path;
+      };
+      let d = document,
+        s = d.createElement("script");
+      s.async = true;
+      s.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+      s.setAttribute("data-timestamp", +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  }
+
+  // 加载错误
+  function showError() {
+    volantis.dom.$(document.getElementById("loading-comments")).hide();
+    volantis.dom.$(document.getElementById("notShowDisqus")).show();
+  }
+
+  // 点击了加载
+  function needLoadDisqus() {
+    checkDisqus();
+    volantis.dom.$(document.getElementById("load-btns")).hide();
+    volantis.dom.$(document.getElementById("loading-comments")).show();
+  }
+
+  // pjax 重载
+  function pjax_disqus() {
+    // 排除当前页面不存在评论框的情形
+    if (!document.getElementById("disqus_thread")) return;
+    // 如果 DISQUS 已被实例化，则可直接加载
+    if (window.DISQUS) {
+      volantis.dom.$(document.getElementById("load-btns")).hide();
+      volantis.dom.$(document.getElementById("notShowDisqus")).hide();
+      volantis.dom.$(document.getElementById("loading-comments")).hide();
+      loadDisqus();
+    } else if (autoload == "true") {
+      // 设置自动加载但是上个页面加载失败了
+      needLoadDisqus();
+    }
+  }
+  if (autoload == "true") {
+    needLoadDisqus();
+  }
+  volantis.pjax.push(pjax_disqus);
+</script>
 
 
 
