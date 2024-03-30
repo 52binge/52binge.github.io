@@ -2848,7 +2848,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   
   
-  <p>Diligence is not a race against time, but <strong>continuous</strong>, dripping water wears through the rock. </p>
+  <p>Diligence is not a race against time, but <strong>continuous</strong>, dripping water wears through the rock.</p>
 <blockquote>
 <ol>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hdc520/p/12588379.html">Spark面试整理 hdc520 大全好总结</a> 2. <a href="/lc/">2021 Leetcode all</a> / <a href="/2021/03/19/leetcode/2021-leetcode/">2021 Leetcode</a> 3. <a href="/categories/sql/">SQL</a></li>
@@ -2856,7 +2856,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </blockquote>
 <p style="font-style:italic;color:cornflowerblue;">小舟從此逝 江海寄餘生🧘 is inputting <img src=/images/tw/main-progress-blue-dot.gif style="box-shadow:none; margin:0;height:16px">
 </p>
-
 <blockquote>
 <p><code>2022.05.27</code>: review: <strong>spark vs MR</strong>   <a target="_blank" rel="noopener" href="https://www.cnblogs.com/hdc520/p/12588379.html">Spark面试整理 hdc520 大全好总结</a></p>
 <ol>
@@ -2865,38 +2864,82 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>MR它必须等map输出的所有数据都写入本地磁盘文件以后，才能启动reduce操作</li>
 <li>spark 利用多线程来执行具体的任务（Hadoop MapReduce采用的是进程模型），减少任务的启动和切换开销；</li>
 </ol>
-<p><strong>spark的RDD与DataFrame以及Dataset的区别</strong><br><strong>（1）RDD特点</strong><br>　　１）弹性：RDD的每个分区在spark节点上存储时默认是放在内存中的，若内存存储不下，则存储在磁盘中。<br>　　２）分布性：每个RDD中的数据可以处在不同的分区中，而分区可以处在不同的节点中．<br>　　３）容错性：当一个RDD出现故障时，可以根据RDD之间的依赖关系来重新计算出发生故障的RDD.</p>
-<p><strong>2、spark的算子</strong><br>（1）transform算子：map转换算子，filter筛选算子，flatmap，groupByKey，reduceByKey，sortByKey，join，cogroup，combinerByKey。<br>（2）action算子：reduce，collect，count，take，aggregate，countByKey。</p>
-<p><strong>(2.5) coalesce与repartition的区别</strong><br>　　1）coalesce 与 repartition 都是对RDD进行重新划分，repartition只是coalesce接口中参数shuffle为true的实现。<br>　　2）若coalesce中shuffle为false时，传入的参数大于现有的分区数目，RDD的分区数不变，也就是说不经过shuffle，是无法将RDD的分区数变多的。<br>　　3）若存在过多的小任务的时候，可以通过coalesce方法，收缩合并分区，减少分区的个数，减小任务调度成本，尽量避免shuffle，这样会比repartition效率高。</p>
-<p><strong>(2.6) reduceByKey与groupByKey的区别：</strong><br>　　pairRdd.reduceByKey(<em>+</em>).collect.foreach(println)等价于pairRdd.groupByKey().map(t =&gt; (t._1,t._2.sum)).collect.foreach(println)<br>　　reduceByKey的结果：（hello,2）(world,3) groupByKey的结果：（hello,(1,1)）（world,(1,1,1)）<br>　　使用reduceByKey()的时候，会对同一个Key所对应的value进行本地聚合，然后再传输到不同节点的节点。而使用groupByKey()的时候，并不进行本地的本地聚合，而是将全部数据传输到不同节点再进行合并，groupByKey()传输速度明显慢于reduceByKey()。虽然groupByKey().map(func)也能实现reduceByKey(func)功能，但是，优先使用reduceByKey(func)．</p>
-<p><strong>(2.7) spark的cache和persist的区别：</strong><br>　　1）计算流程DAG特别长,服务器需要将整个DAG计算完成得出结果，若计算流程中突然中间算出的数据丢失了,spark又会根据RDD的依赖关系重新计算，这样会浪费时间，为避免浪费时间可以将中间的计算结果通过cache或者persist放到内存或者磁盘中<br>　　2）cache最终调用了persist方法，默认的存储级别仅是存储内存中的；persist是最根本的底层函数，有多个存储级别，executor执行时，60%用来缓存RDD，40%用来存放数据．</p>
+<p><strong>spark的RDD与DataFrame以及Dataset的区别</strong><br />
+<strong>（1）RDD特点</strong><br />
+　　１）弹性：RDD的每个分区在spark节点上存储时默认是放在内存中的，若内存存储不下，则存储在磁盘中。<br />
+　　２）分布性：每个RDD中的数据可以处在不同的分区中，而分区可以处在不同的节点中．<br />
+　　３）容错性：当一个RDD出现故障时，可以根据RDD之间的依赖关系来重新计算出发生故障的RDD.</p>
+<p><strong>2、spark的算子</strong><br />
+（1）transform算子：map转换算子，filter筛选算子，flatmap，groupByKey，reduceByKey，sortByKey，join，cogroup，combinerByKey。<br />
+（2）action算子：reduce，collect，count，take，aggregate，countByKey。</p>
+<p><strong>(2.5) coalesce与repartition的区别</strong><br />
+　　1）coalesce 与 repartition 都是对RDD进行重新划分，repartition只是coalesce接口中参数shuffle为true的实现。<br />
+　　2）若coalesce中shuffle为false时，传入的参数大于现有的分区数目，RDD的分区数不变，也就是说不经过shuffle，是无法将RDD的分区数变多的。<br />
+　　3）若存在过多的小任务的时候，可以通过coalesce方法，收缩合并分区，减少分区的个数，减小任务调度成本，尽量避免shuffle，这样会比repartition效率高。</p>
+<p><strong>(2.6) reduceByKey与groupByKey的区别：</strong><br />
+　　pairRdd.reduceByKey(<em>+</em>).collect.foreach(println)等价于pairRdd.groupByKey().map(t =&gt; (t._1,t._2.sum)).collect.foreach(println)<br />
+　　reduceByKey的结果：（hello,2）(world,3) groupByKey的结果：（hello,(1,1)）（world,(1,1,1)）<br />
+　　使用reduceByKey()的时候，会对同一个Key所对应的value进行本地聚合，然后再传输到不同节点的节点。而使用groupByKey()的时候，并不进行本地的本地聚合，而是将全部数据传输到不同节点再进行合并，groupByKey()传输速度明显慢于reduceByKey()。虽然groupByKey().map(func)也能实现reduceByKey(func)功能，但是，优先使用reduceByKey(func)．</p>
+<p><strong>(2.7) spark的cache和persist的区别：</strong><br />
+　　1）计算流程DAG特别长,服务器需要将整个DAG计算完成得出结果，若计算流程中突然中间算出的数据丢失了,spark又会根据RDD的依赖关系重新计算，这样会浪费时间，为避免浪费时间可以将中间的计算结果通过cache或者persist放到内存或者磁盘中<br />
+　　2）cache最终调用了persist方法，默认的存储级别仅是存储内存中的；persist是最根本的底层函数，有多个存储级别，executor执行时，60%用来缓存RDD，40%用来存放数据．</p>
 <p><strong>九、spark如何分区：</strong></p>
-<p>　　分区是RDD内部并行计算的一个计算单元，RDD的数据集在逻辑上被划分为多个分片，每一个分片称为分区，分区的个数决定了并行计算的粒度，而每个分区的数值计算都是在一个任务中进行的，因此任务的个数，也是由RDD(准确来说是作业最后一个RDD)的分区数决定。spark默认分区方式是HashPartitioner．只有Key-Value类型的RDD才有分区的，非Key-Value类型的RDD分区的值是None，每个RDD的分区ID范围：0~numPartitions-1，决定这个值是属于那个分区的。</p>
-<p><code>2022.05.24</code>  <strong>DFS / Stack</strong><br> 2.1 字符串解码 “3[a2[c]]” == “accacc”, stack == [(3, “”), (2,”a”)]</p>
-<p> <a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/kth-largest-element-in-an-array/">215. 数组中的第K个最大元素</a>  from heapq import heapify, heappush, heappop<br> python中的heap是小根堆:  heapify(hp) , heappop(hp), heappush(hp, v) </p>
-<p><code>2022.05.22</code>  <strong>binary-search</strong><br> 1.1 二分查找, while l &lt;= r  1.2 two_sum (easy hash) 1.3 <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/3sum/">3sum</a>,(first, second, third)<br> 1.4 <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/">34. 在排序数组中查找元素的第一个和最后一个位置</a></p>
-<p><code>2022.05.21</code> full outer join相对来说要复杂一点，full outer join仅采用sort merge join实现，左边和右表既要作为streamIter，又要作为buildIter<br><div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-full-outer-join.png" class="lazyload" data-srcset="/images/spark/spark-full-outer-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div></p>
-<p><code>2022.05.20</code><br>1.1 <a target="_blank" rel="noopener" href="https://book.itheima.net/study/1269935677353533441/1270196659166420993/1270200848609222657">Spark处理数据比Hive快的原因</a></p>
-<p>总结： Spark比Mapreduce运行更快 - Spark在计算模型和调度上比MR做了更多的优化，不需要过多地和磁盘交互。以及对JVM使用的优化。<br>  (1) <code>消除了冗余的HDFS读写</code> （不需要过多地和磁盘交互）<br>  (2) <code>消除了冗余的MapReduce阶段</code><br>  (3) <code>JVM的优化</code> [MapReduce操作，启个Task便启次JVM，进程的操作。Spark 线程]</p>
+<p>分区是RDD内部并行计算的一个计算单元，RDD的数据集在逻辑上被划分为多个分片，每一个分片称为分区，分区的个数决定了并行计算的粒度，而每个分区的数值计算都是在一个任务中进行的，因此任务的个数，也是由RDD(准确来说是作业最后一个RDD)的分区数决定。spark默认分区方式是HashPartitioner．只有Key-Value类型的RDD才有分区的，非Key-Value类型的RDD分区的值是None，每个RDD的分区ID范围：0~numPartitions-1，决定这个值是属于那个分区的。</p>
+</blockquote>
+<blockquote>
+<p><code>2022.05.24</code>  <strong>DFS / Stack</strong><br />
+2.1 字符串解码 “3[a2[c]]” == “accacc”, stack == [(3, “”), (2,“a”)]</p>
+<p><a target="_blank" rel="noopener" href="https://leetcode-cn.com/problems/kth-largest-element-in-an-array/">215. 数组中的第K个最大元素</a>  from heapq import heapify, heappush, heappop<br />
+python中的heap是小根堆:  heapify(hp) , heappop(hp), heappush(hp, v)</p>
+<p><code>2022.05.22</code>  <strong>binary-search</strong><br />
+1.1 二分查找, while l &lt;= r  1.2 two_sum (easy hash) 1.3 <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/3sum/">3sum</a>,(first, second, third)<br />
+1.4 <a target="_blank" rel="noopener" href="https://leetcode.cn/problems/find-first-and-last-position-of-element-in-sorted-array/">34. 在排序数组中查找元素的第一个和最后一个位置</a></p>
+</blockquote>
+<blockquote>
+<p><code>2022.05.21</code> full outer join相对来说要复杂一点，full outer join仅采用sort merge join实现，左边和右表既要作为streamIter，又要作为buildIter</p>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-full-outer-join.png" class="lazyload" data-srcset="/images/spark/spark-full-outer-join.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div>
+</blockquote>
+<blockquote>
+<p><code>2022.05.20</code><br />
+1.1 <a target="_blank" rel="noopener" href="https://book.itheima.net/study/1269935677353533441/1270196659166420993/1270200848609222657">Spark处理数据比Hive快的原因</a></p>
+<p>总结： Spark比Mapreduce运行更快 - Spark在计算模型和调度上比MR做了更多的优化，不需要过多地和磁盘交互。以及对JVM使用的优化。<br />
+(1) <code>消除了冗余的HDFS读写</code> （不需要过多地和磁盘交互）<br />
+(2) <code>消除了冗余的MapReduce阶段</code><br />
+(3) <code>JVM的优化</code> [MapReduce操作，启个Task便启次JVM，进程的操作。Spark 线程]</p>
 <p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hdc520/p/12588379.html">4点答案在这里 最佳Answer</a></p>
-<p>1.2 <a target="_blank" rel="noopener" href="https://blog.csdn.net/zongzhiyuan/article/details/49965021">reduceByKey vs groupByKey</a><br>在spark中，我们知道一切的操作都是基于RDD的。在使用中，RDD有一种非常特殊也是非常实用的format——pair RDD，即RDD的每一行是（key, value）的格式。这种格式很像Python的字典类型，便于针对key进行一些处理。<br>针对pair RDD这样的特殊形式，spark中定义了许多方便的操作，今天主要介绍一下reduceByKey和groupByKey，</p>
+<p>1.2 <a target="_blank" rel="noopener" href="https://blog.csdn.net/zongzhiyuan/article/details/49965021">reduceByKey vs groupByKey</a><br />
+在spark中，我们知道一切的操作都是基于RDD的。在使用中，RDD有一种非常特殊也是非常实用的format——pair RDD，即RDD的每一行是（key, value）的格式。这种格式很像Python的字典类型，便于针对key进行一些处理。<br />
+针对pair RDD这样的特殊形式，spark中定义了许多方便的操作，今天主要介绍一下reduceByKey和groupByKey，</p>
 <p>groupByKey 当采用groupByKey时，由于它不接收函数，spark只能先将所有的键值对(key-value pair)都移动，这样的后果是集群节点之间的开销很大，导致传输延时</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">lines = sc.textFile(<span class="string">&quot;/Users/blair/ghome/github/spark3.0/pyspark/spark-src/word_count.text&quot;</span>, <span class="number">2</span>)</span><br><span class="line"></span><br><span class="line">lines = lines.<span class="built_in">filter</span>(<span class="keyword">lambda</span> x: <span class="string">&#x27;New York&#x27;</span> <span class="keyword">in</span> x)</span><br><span class="line"><span class="comment">#lines.take(3)</span></span><br><span class="line"></span><br><span class="line">words = lines.flatMap(<span class="keyword">lambda</span> x: x.split(<span class="string">&#x27; &#x27;</span>))</span><br><span class="line"></span><br><span class="line">wco = words.<span class="built_in">map</span>(<span class="keyword">lambda</span> x: (x, <span class="number">1</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">#print(wco.take(5))</span></span><br><span class="line"><span class="keyword">from</span> operator <span class="keyword">import</span> add</span><br><span class="line">word_count = wco.reduceByKey(add)</span><br><span class="line"></span><br><span class="line">word_count.collect()</span><br></pre></td></tr></table></figure>
-<p><code>2022.05.19</code> English My Job<br><div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/bi/interview-consecutive-login-sql01.jpg" class="lazyload" data-srcset="/images/bi/interview-consecutive-login-sql01.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:650px;"/></div></div><br><a href="/2021/01/09/bi/dwh-summary-2-interview/">2021 blair Notes</a> / <a target="_blank" rel="noopener" href="https://jishuin.proginn.com/p/763bfbd32925">2020 Interview Questions - Data Warehouse</a><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. how to 连续 </span></span><br><span class="line"><span class="keyword">select</span> </span><br><span class="line"> user_id, <span class="built_in">count</span>(<span class="number">1</span>) cnt</span><br><span class="line"><span class="keyword">from</span></span><br><span class="line"> (</span><br><span class="line">   <span class="keyword">select</span> </span><br><span class="line">     user_id, </span><br><span class="line">     login_date, </span><br><span class="line">     <span class="built_in">row_number</span>() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> user_id <span class="keyword">order</span> <span class="keyword">by</span> login_date) <span class="keyword">as</span> rn</span><br><span class="line">   <span class="keyword">from</span> tmp.tmp_last_3_day</span><br><span class="line"> ) t</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> user_id, date_sub(login_date, t.rn)</span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="number">1</span>) <span class="operator">&gt;=</span> <span class="number">3</span>;</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<blockquote>
+<p><code>2022.05.19</code> English My Job</p>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/bi/interview-consecutive-login-sql01.jpg" class="lazyload" data-srcset="/images/bi/interview-consecutive-login-sql01.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:650px;"/></div></div>
+<p><a href="/2021/01/09/bi/dwh-summary-2-interview/">2021 blair Notes</a> / <a target="_blank" rel="noopener" href="https://jishuin.proginn.com/p/763bfbd32925">2020 Interview Questions - Data Warehouse</a></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- 1. how to 连续 </span></span><br><span class="line"><span class="keyword">select</span> </span><br><span class="line"> user_id, <span class="built_in">count</span>(<span class="number">1</span>) cnt</span><br><span class="line"><span class="keyword">from</span></span><br><span class="line"> (</span><br><span class="line">   <span class="keyword">select</span> </span><br><span class="line">     user_id, </span><br><span class="line">     login_date, </span><br><span class="line">     <span class="built_in">row_number</span>() <span class="keyword">over</span>(<span class="keyword">partition</span> <span class="keyword">by</span> user_id <span class="keyword">order</span> <span class="keyword">by</span> login_date) <span class="keyword">as</span> rn</span><br><span class="line">   <span class="keyword">from</span> tmp.tmp_last_3_day</span><br><span class="line"> ) t</span><br><span class="line"><span class="keyword">group</span> <span class="keyword">by</span> user_id, date_sub(login_date, t.rn)</span><br><span class="line"><span class="keyword">having</span> <span class="built_in">count</span>(<span class="number">1</span>) <span class="operator">&gt;=</span> <span class="number">3</span>;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<blockquote>
 <p><code>2022.05.18</code> shuffle形式有几种？都做哪些优化 &amp; English BBC - &lt;如果在相遇,我会记得你&gt; the good old songs</p>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/BigData_Mining/article/details/82622502">spark基础之shuffle机制、原理分析及Shuffle的优化（很好很详细)</a><br>Shuffle就是对数据进行重组，由于分布式计算的特性和要求，在实现细节上更加繁琐和复杂</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/BigData_Mining/article/details/82622502">spark基础之shuffle机制、原理分析及Shuffle的优化（很好很详细)</a><br />
+Shuffle就是对数据进行重组，由于分布式计算的特性和要求，在实现细节上更加繁琐和复杂</p>
 <ol>
 <li>HashShuffle（&lt;=spark1.6,会产生很多小文件, Writer费内存易GC）</li>
-<li>Sort-Based Shuffle (有多重model，不展开)<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-shuffle-maptask.png" class="lazyload" data-srcset="/images/spark/spark-shuffle-maptask.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:650px;"/></div></div>
-Transformation 操作如:repartition，join，cogroup，以及任何 <em>By 或者 </em>ByKey 的 Transformation 都需要 shuffle 数据9,合理的选用操作将降低 shuffle 操作的成本,提高运算速度</li>
+<li>Sort-Based Shuffle (有多重model，不展开)</li>
 </ol>
-<p><code>2022.05.17</code> SparkSQL Join &amp; English BBC - 诸事不顺的一天 The English we We Speak </p>
+ <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-shuffle-maptask.png" class="lazyload" data-srcset="/images/spark/spark-shuffle-maptask.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:650px;"/></div></div>
+<p>Transformation 操作如:repartition，join，cogroup，以及任何 *By 或者 *ByKey 的 Transformation 都需要 shuffle 数据9,合理的选用操作将降低 shuffle 操作的成本,提高运算速度</p>
+</blockquote>
+<blockquote>
+<p><code>2022.05.17</code> SparkSQL Join &amp; English BBC - 诸事不顺的一天 The English we We Speak</p>
 <ol>
 <li>join 实现有几种呢，源码有研究过吗？ 底层是怎么实现的</li>
 </ol>
-<p><a target="_blank" rel="noopener" href="https://www.51cto.com/article/626552.html">面试必知的Spark SQL几种Join实现 - (streamIter为大表，buildIter为小表)</a><br>sort merge join / broadcast join / hash join</p>
+<p><a target="_blank" rel="noopener" href="https://www.51cto.com/article/626552.html">面试必知的Spark SQL几种Join实现 - (streamIter为大表，buildIter为小表)</a><br />
+sort merge join / broadcast join / hash join</p>
 </blockquote>
-<h3 id="Spark-精品"><a href="#Spark-精品" class="headerlink" title="Spark 精品"></a>Spark 精品</h3><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b70fe63a77a8">Spark会把数据都载入到内存么？</a></p>
+<h3 id="spark-精品"><a class="markdownIt-Anchor" href="#spark-精品"></a> Spark 精品</h3>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b70fe63a77a8">Spark会把数据都载入到内存么？</a></p>
 <blockquote>
 <p>Shuffle不过是偷偷的帮你加上了个类似saveAsLocalDiskFile的动作。然而，写磁盘是一个高昂的动作。所以我们尽可能的把数据先放到内存，再批量写到文件里，还有读磁盘文件也是给费内存的动作。</p>
 <p><strong>Cache/Persist意味着什么？</strong></p>
@@ -2904,101 +2947,151 @@ Transformation 操作如:repartition，join，cogroup，以及任何 <em>By 或�
 </blockquote>
 <p><a target="_blank" rel="noopener" href="https://www.zhihu.com/people/allwefantasy/posts">Author 知乎</a></p>
 <p><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/339135205/answer/1178925849">萝卜姐: Is the ByteDance interview difficult and how should you deal with it?</a></p>
-<h3 id="1-skill-dismantling"><a href="#1-skill-dismantling" class="headerlink" title="1. skill dismantling"></a>1. skill dismantling</h3><blockquote>
-<p>1.1 底层原理，源码理解。<br>1.2 项目相关，难点，仓库建模<br>1.3 show <strong>sql</strong></p>
+<h3 id="1-skill-dismantling"><a class="markdownIt-Anchor" href="#1-skill-dismantling"></a> 1. skill dismantling</h3>
+<blockquote>
+<p>1.1 底层原理，源码理解。<br />
+1.2 项目相关，难点，仓库建模<br />
+1.3 show <strong>sql</strong></p>
 </blockquote>
 <p><strong>spark和hive</strong>：</p>
-<ol>
-<li><p>是通过什么管理shuffle中的内存，磁盘 的</p>
+<ol start="3">
+<li>
+<p>是通过什么管理shuffle中的内存，磁盘 的</p>
 </li>
-<li><p>讲讲谓词下推？</p>
+<li>
+<p>讲讲谓词下推？</p>
 </li>
-<li><p>full outer join原理</p>
+<li>
+<p>full outer join原理</p>
 </li>
-<li><p>spark为什么比hive快</p>
+<li>
+<p>spark为什么比hive快</p>
 </li>
-<li><p>讲讲sparksql优化</p>
+<li>
+<p>讲讲sparksql优化</p>
 </li>
-<li><p>讲讲RDD, DAG, Stage</p>
+<li>
+<p>讲讲RDD, DAG, Stage</p>
 </li>
-<li><p>说说groupByKey, reduceByKey</p>
+<li>
+<p>说说groupByKey, reduceByKey</p>
 </li>
-<li><p>spark是怎么读取文件,分片的？</p>
+<li>
+<p>spark是怎么读取文件,分片的？</p>
 </li>
-<li>有没有遇到过spark读取文件，有一些task空跑的现象？</li>
-<li>窗口函数中 几个rank函数有啥不同（spark、hive中窗口函数实现原理复盘 Hive sql窗口函数源码分析 sparksql比hivesql优化的点（窗口函数））parquet文件和orc文件有啥不同mr shuffle 是什么样子？具体原理是什么？跟spark有什么不同？讲讲hive sql优化hive 数据倾斜参数原理讲讲spark内存模型？（从一个sql任务理解spark内存模型 ）</li>
+<li>
+<p>有没有遇到过spark读取文件，有一些task空跑的现象？</p>
+</li>
+<li>
+<p>窗口函数中 几个rank函数有啥不同（spark、hive中窗口函数实现原理复盘 Hive sql窗口函数源码分析 sparksql比hivesql优化的点（窗口函数））parquet文件和orc文件有啥不同mr shuffle 是什么样子？具体原理是什么？跟spark有什么不同？讲讲hive sql优化hive 数据倾斜参数原理讲讲spark内存模型？（从一个sql任务理解spark内存模型 ）</p>
+</li>
 </ol>
 <p><strong>2. Show SQL</strong></p>
 <blockquote>
-<p>就会问还有没有更优化的方式？<br>窗口函数，groupingsets cube这些 都会用到。有好多是计算滑动的那种<br>这个sql 在hive中起几个job，为什么是这么几个job？</p>
+<p>就会问还有没有更优化的方式？<br />
+窗口函数，groupingsets cube这些 都会用到。有好多是计算滑动的那种<br />
+这个sql 在hive中起几个job，为什么是这么几个job？</p>
 </blockquote>
-<ol>
-<li><p>Be confident and positive</p>
+<ol start="3">
+<li>
+<p>Be confident and positive</p>
 </li>
-<li><p>Interview tips (overcoming nervousness)</p>
+<li>
+<p>Interview tips (overcoming nervousness)</p>
 </li>
-<li><p>last last last last</p>
+<li>
+<p>last last last last</p>
 </li>
 </ol>
-<h2 id="1-Spark-Summary"><a href="#1-Spark-Summary" class="headerlink" title="1. Spark Summary"></a>1. Spark Summary</h2><ul>
-<li><p><a href="/2020/10/31/spark/spark-summary-1-basic-questions/">1.1 Spark Summary 1 - Basic knowledge</a></p>
+<h2 id="1-spark-summary"><a class="markdownIt-Anchor" href="#1-spark-summary"></a> 1. Spark Summary</h2>
+<ul>
+<li>
+<p><a href="/2020/10/31/spark/spark-summary-1-basic-questions/">1.1 Spark Summary 1 - Basic knowledge</a></p>
 </li>
-<li><p><a href="/2021/01/21/spark/spark-summary-3-trouble-shooting/">1.2 Spark - troubleshooting</a></p>
+<li>
+<p><a href="/2021/01/21/spark/spark-summary-3-trouble-shooting/">1.2 Spark - troubleshooting</a></p>
 </li>
-<li><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5fe79b67ea00">1.3 [转] Spark 多个Stage执行是串行执行的么？</a></p>
+<li>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/5fe79b67ea00">1.3 [转] Spark 多个Stage执行是串行执行的么？</a></p>
 </li>
-<li><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/736a4e628f0f">1.4 [转] Spark宽依赖和窄依赖深度剖析</a></p>
+<li>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/736a4e628f0f">1.4 [转] Spark宽依赖和窄依赖深度剖析</a></p>
 </li>
 </ul>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-summary-1.3-stage-rdd-partition-join.webp" class="lazyload" data-srcset="/images/spark/spark-summary-1.3-stage-rdd-partition-join.webp" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Spark Stages" style="width:600px;"/></div><span class="image-caption">Spark Stages</span></div>
 <blockquote>
-<p>DataFrame是spark1.3.0版本提出来的<br>DataSet是spark1.6.0版本提出来的<br>但在 spark2.0 版本中，DataFrame和DataSet合并为DataSet.</p>
+<p>DataFrame是spark1.3.0版本提出来的<br />
+DataSet是spark1.6.0版本提出来的<br />
+但在 spark2.0 版本中，DataFrame和DataSet合并为DataSet.</p>
 </blockquote>
-<h2 id="2-SparkSQL"><a href="#2-SparkSQL" class="headerlink" title="2. SparkSQL"></a>2. SparkSQL</h2><ul>
-<li><p><a href="/2020/10/17/spark/sparkSQL-all-knowleage/">2.1 SparkSQL 底层实现原理</a></p>
+<h2 id="2-sparksql"><a class="markdownIt-Anchor" href="#2-sparksql"></a> 2. SparkSQL</h2>
+<ul>
+<li>
+<p><a href="/2020/10/17/spark/sparkSQL-all-knowleage/">2.1 SparkSQL 底层实现原理</a></p>
 </li>
-<li><p><a href="/2021/02/03/spark/spark-summary-5-sql-optimization-indoor/">2.2 SparkSQL 从入门到调优</a></p>
+<li>
+<p><a href="/2021/02/03/spark/spark-summary-5-sql-optimization-indoor/">2.2 SparkSQL 从入门到调优</a></p>
 </li>
-<li><p><a href="/2020/09/26/spark/spark-sql-join-core/">2.3 Spark SQL几种Join实现</a></p>
+<li>
+<p><a href="/2020/09/26/spark/spark-sql-join-core/">2.3 Spark SQL几种Join实现</a></p>
 </li>
-<li><p><a href="/2021/02/10/spark/spark-summary-6-sql-optimization-cube-group-by/">2.4 SparkSQL Multidimensional Analysis - Group by</a></p>
-</li>
-</ul>
-<h2 id="3-Spark-Basic"><a href="#3-Spark-Basic" class="headerlink" title="3. Spark Basic"></a>3. Spark Basic</h2><ul>
-<li><p><a href="/2016/06/29/spark/spark-review-1-introduce/">3.1 Spark Introduce 1</a></p>
-</li>
-<li><p><a href="/2020/07/07/spark/spark-review-2/">3.2 Spark Intrduce 2 - RDD</a></p>
-</li>
-<li><p><a href="/2020/07/21/spark/spark-aura-2.2-core-introduce/">3.3 Spark 核心概念详述 2.2</a></p>
-</li>
-<li><p><a href="/2020/07/23/spark/spark-aura-3.1-RDD-detail/">3.4 Spark Core 中的 RDD 详解 3.1</a></p>
-</li>
-<li><p><a href="/2020/07/27/spark/spark-aura-3.2-spark-basic-summary/">3.5 spark 基础概念复习 3.2</a></p>
-</li>
-<li><p><a href="/2020/07/29/spark/spark-aura-4.2-task-commit/">3.6 Spark Task-Commit 流程解析 4.2</a></p>
-</li>
-<li><p><a href="/2020/07/31/spark/spark-aura-5.1-sparkCore/">3.7 SparkCore 中的工作原理 - 任务执行流程 5.1</a></p>
-</li>
-<li><p><a href="/2020/08/12/spark/spark-ma-public-shuffle-optimization/">3.8 Spark Shuffle Optimize 10 items</a></p>
-</li>
-<li><p><a href="/2020/08/28/spark/spark-aura-9.2-SparkSql/">3.9 SparkSql - 结构化数据处理 (下)</a></p>
-</li>
-<li><p><a href="/2020/10/19/spark/spark-aura-7.1-memory/">3.10 Spark Chap 7 内存模型和资源调优</a></p>
-</li>
-<li><p><a href="/2021/01/06/spark/python-spark-practice/">3.11 Spark Practice</a></p>
-</li>
-<li><p><a href="/2021/01/27/spark/spark-summary-4-data-skew/">3.12 Spark - Data Skew Advanced</a></p>
+<li>
+<p><a href="/2021/02/10/spark/spark-summary-6-sql-optimization-cube-group-by/">2.4 SparkSQL Multidimensional Analysis - Group by</a></p>
 </li>
 </ul>
-<h2 id="4-Spark-Review"><a href="#4-Spark-Review" class="headerlink" title="4. Spark Review"></a>4. Spark Review</h2><ul>
-<li><p><a href="/2020/09/19/spark/Spark-Tutorials-Part1/">4.1 Spark Tutorials 1 - Introduce、Ecosysm、Features、Shell Commands</a></p>
+<h2 id="3-spark-basic"><a class="markdownIt-Anchor" href="#3-spark-basic"></a> 3. Spark Basic</h2>
+<ul>
+<li>
+<p><a href="/2016/06/29/spark/spark-review-1-introduce/">3.1 Spark Introduce 1</a></p>
 </li>
-<li><p><a href="/2020/09/19/spark/Spark-Tutorials-Part2/">4.2 Spark Tutorials 2 - SparkContext、Stage、Executor、RDD</a></p>
+<li>
+<p><a href="/2020/07/07/spark/spark-review-2/">3.2 Spark Intrduce 2 - RDD</a></p>
 </li>
-<li><p><a href="/2020/09/25/spark/Spark-Tutorials-Part3/">4.3 Spark Tutorials 3 - RDD</a></p>
+<li>
+<p><a href="/2020/07/21/spark/spark-aura-2.2-core-introduce/">3.3 Spark 核心概念详述 2.2</a></p>
+</li>
+<li>
+<p><a href="/2020/07/23/spark/spark-aura-3.1-RDD-detail/">3.4 Spark Core 中的 RDD 详解 3.1</a></p>
+</li>
+<li>
+<p><a href="/2020/07/27/spark/spark-aura-3.2-spark-basic-summary/">3.5 spark 基础概念复习 3.2</a></p>
+</li>
+<li>
+<p><a href="/2020/07/29/spark/spark-aura-4.2-task-commit/">3.6 Spark Task-Commit 流程解析 4.2</a></p>
+</li>
+<li>
+<p><a href="/2020/07/31/spark/spark-aura-5.1-sparkCore/">3.7 SparkCore 中的工作原理 - 任务执行流程 5.1</a></p>
+</li>
+<li>
+<p><a href="/2020/08/12/spark/spark-ma-public-shuffle-optimization/">3.8 Spark Shuffle Optimize 10 items</a></p>
+</li>
+<li>
+<p><a href="/2020/08/28/spark/spark-aura-9.2-SparkSql/">3.9 SparkSql - 结构化数据处理 (下)</a></p>
+</li>
+<li>
+<p><a href="/2020/10/19/spark/spark-aura-7.1-memory/">3.10 Spark Chap 7 内存模型和资源调优</a></p>
+</li>
+<li>
+<p><a href="/2021/01/06/spark/python-spark-practice/">3.11 Spark Practice</a></p>
+</li>
+<li>
+<p><a href="/2021/01/27/spark/spark-summary-4-data-skew/">3.12 Spark - Data Skew Advanced</a></p>
 </li>
 </ul>
-<h2 id="5-Spark-Interview"><a href="#5-Spark-Interview" class="headerlink" title="5. Spark Interview"></a>5. Spark Interview</h2><ul>
+<h2 id="4-spark-review"><a class="markdownIt-Anchor" href="#4-spark-review"></a> 4. Spark Review</h2>
+<ul>
+<li>
+<p><a href="/2020/09/19/spark/Spark-Tutorials-Part1/">4.1 Spark Tutorials 1 - Introduce、Ecosysm、Features、Shell Commands</a></p>
+</li>
+<li>
+<p><a href="/2020/09/19/spark/Spark-Tutorials-Part2/">4.2 Spark Tutorials 2 - SparkContext、Stage、Executor、RDD</a></p>
+</li>
+<li>
+<p><a href="/2020/09/25/spark/Spark-Tutorials-Part3/">4.3 Spark Tutorials 3 - RDD</a></p>
+</li>
+</ul>
+<h2 id="5-spark-interview"><a class="markdownIt-Anchor" href="#5-spark-interview"></a> 5. Spark Interview</h2>
+<ul>
 <li><a href="/2021/01/03/spark/spark-rdd-ds-df/">5.1 RDD、DataFrame和DataSet的区别</a></li>
 </ul>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TreeNode</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span>(<span class="params">self, x</span>):</span></span><br><span class="line">        self.val = x</span><br><span class="line">        self.left = <span class="literal">None</span></span><br><span class="line">        self.right = <span class="literal">None</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Solution</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">isBalanced</span>(<span class="params">self, root: TreeNode</span>) -&gt; <span class="built_in">bool</span>:</span></span><br><span class="line">        <span class="function"><span class="keyword">def</span> <span class="title">maxHigh</span>(<span class="params">root</span>):</span></span><br><span class="line">            <span class="keyword">if</span> root == <span class="literal">None</span>:</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">            <span class="keyword">return</span> <span class="built_in">max</span>(maxHigh(root.left), maxHigh(root.right)) + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> root == <span class="literal">None</span>:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">abs</span>(maxHigh(root.left) - maxHigh(root.right)) &lt;= <span class="number">1</span> <span class="keyword">and</span> self.isBalanced(root.left) <span class="keyword">and</span> self.isBalanced(root.right)</span><br></pre></td></tr></table></figure>
@@ -3135,7 +3228,7 @@ Transformation 操作如:repartition，join，cogroup，以及任何 <em>By 或�
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#Spark-%E7%B2%BE%E5%93%81"><span class="toc-text">Spark 精品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-skill-dismantling"><span class="toc-text">1. skill dismantling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Spark-Summary"><span class="toc-text">1. Spark Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-SparkSQL"><span class="toc-text">2. SparkSQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Spark-Basic"><span class="toc-text">3. Spark Basic</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Spark-Review"><span class="toc-text">4. Spark Review</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-Spark-Interview"><span class="toc-text">5. Spark Interview</span></a>
+        <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#spark-%E7%B2%BE%E5%93%81"><span class="toc-text"> Spark 精品</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-skill-dismantling"><span class="toc-text"> 1. skill dismantling</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-spark-summary"><span class="toc-text"> 1. Spark Summary</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-sparksql"><span class="toc-text"> 2. SparkSQL</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-spark-basic"><span class="toc-text"> 3. Spark Basic</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-spark-review"><span class="toc-text"> 4. Spark Review</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-spark-interview"><span class="toc-text"> 5. Spark Interview</span></a>
     </div>
   </section>
 
@@ -3224,7 +3317,7 @@ Transformation 操作如:repartition，join，cogroup，以及任何 <em>By 或�
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
