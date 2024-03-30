@@ -3081,7 +3081,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
         <div class="webinfo-item">
           <div>Activity Time：</div>
           
-            <div id="last-update" style="display: none;">Sun Mar 31 2024 01:02:48 GMT+0800 (Singapore Standard Time)</div>
+            <div id="last-update" style="display: none;">Sun Mar 31 2024 01:03:02 GMT+0800 (Singapore Standard Time)</div>
             <div id="last-update-show">2024-03-31 days</div>
           
         </div>
@@ -3893,6 +3893,219 @@ const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
 
 function loadSearchService(){
   volantis.import.jQuery().then(()=>{
+    // see: layout/_partial/scripts/cdnCtrl.ejce.update();
+  });
+  document.addEventListener('pjax:complete', function () {
+    lazyLoadInstance.update();
+  });
+</script>
+
+
+
+
+  
+
+<script>
+  window.FPConfig = {
+	delay: 0,
+	ignoreKeywords: ["#"],
+	maxRPS: 6,
+	hoverDelay: 0
+  };
+</script>
+<script defer src="https://cdn.jsdelivr.net/gh/gijo-varghese/flying-pages@2.1.2/flying-pages.min.js"></script>
+
+
+
+
+
+  <script>
+  function wait(callback, seconds) {
+    var timelag = null;
+    timelag = window.setTimeout(callback, seconds);
+  }
+  function pjax_CopyCode() {
+    if (!(document.querySelector(".highlight .code pre") || document.querySelector(".article pre code")))
+      return;
+    if (typeof clipboard == "undefined") {
+      var clipboard = new ClipboardJS(".btn-copy", {
+        target: function (trigger) {
+          return trigger.nextElementSibling;
+        },
+      });
+    }
+    var copyHtml = "";
+    copyHtml += '<button class="btn-copy" data-clipboard-snippet="">';
+    copyHtml += '<i class="fas fa-copy"></i><span>COPY</span>';
+    copyHtml += "</button>";
+    document.querySelectorAll(".highlight .code pre").forEach(e => {
+      e.insertAdjacentHTML("beforebegin", copyHtml)
+    });
+    document.querySelectorAll(".article pre code").forEach(e => {
+      e.insertAdjacentHTML("beforebegin", copyHtml)
+    });
+    clipboard.off("success").on("success", function (e) {
+      let $btn = volantis.dom.$(e.trigger);
+      $btn.addClass("copied");
+      let $icon = volantis.dom.$($btn.find("i"));
+      $icon.removeClass("fa-copy").addClass("fa-check-circle");
+      let $span = volantis.dom.$($btn.find("span"));
+      $span.innerText = "COPIED";
+      wait(function () {
+        $icon.removeClass("fa-check-circle").addClass("fa-copy");
+        $span.innerText = "COPY";
+      }, 2000);
+    });
+    clipboard.off("error").on("error", function (e) {
+      e.clearSelection();
+      let $btn = volantis.dom.$(e.trigger);
+      $btn.addClass("copy-failed");
+      let $icon = volantis.dom.$($btn.find("i"));
+      $icon.removeClass("fa-copy").addClass("fa-times-circle");
+      let $span = volantis.dom.$($btn.find("span"));
+      $span.innerText = "COPY FAILED";
+      wait(function () {
+        $icon.removeClass("fa-times-circle").addClass("fa-copy");
+        $span.innerText = "COPY";
+      }, 2000);
+    });
+  }
+  volantis.js("https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js").then(pjax_CopyCode)
+  volantis.pjax.push(pjax_CopyCode);
+</script>
+
+
+
+
+
+
+  <script>
+    volantis.APlayerController = {};
+    volantis.APlayerController.id = '3175833810';  // 设定全局音乐播放ID
+    volantis.APlayerController.volume = '0.7';
+    volantis.css("https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.css");
+    // APlayer 需要在  MetingJS 之前加载
+    (async () => {
+      await volantis.js("https://cdn.jsdelivr.net/npm/aplayer@1.10/dist/APlayer.min.js")
+      await volantis.js("https://cdn.jsdelivr.net/npm/meting@2.0/dist/Meting.min.js")
+
+      
+    })();
+  // message see: /layout/_third-party/message/script.ejs
+  
+</script>
+
+
+
+
+  <script>
+  const disqus_shortname = "blairos-sn";
+  const autoload = "true";
+  const global_url = "http://www.blairee.com"; //  must use an absolute URL; relative URLs won’t work.
+
+  function checkDisqus() {
+    // 正在检查 Disqus 能否访问...
+    const runcheck = (domain) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        const timeout = setTimeout(() => {
+          img.onerror = img.onload = null;
+          reject();
+        }, 3000);
+        img.onerror = () => {
+          clearTimeout(timeout);
+          reject();
+        };
+        img.onload = () => {
+          clearTimeout(timeout);
+          resolve();
+        };
+        img.src = `https://${domain}/favicon.ico?${+new Date()}=${+new Date()}`;
+      });
+    };
+    return Promise.all([
+      runcheck("blairos-sn.disqus.com"),
+    ]).then(loadDisqus, showError);
+  }
+
+  function loadDisqus() {
+    let path = pdata.commentPath;
+    if (path.length == 0) {
+      let defaultPath = "";
+      path = defaultPath || decodeURI(window.location.pathname);
+    }
+    if (window.DISQUS) {
+      window.DISQUS.reset({
+        reload: true,
+        config() {
+          this.page.identifier = global_url + path;
+          this.page.url = global_url + path;
+        },
+      });
+    } else {
+      window.disqus_config = function () {
+        this.page.url = global_url + path;
+        this.page.identifier = global_url + path;
+      };
+      let d = document,
+        s = d.createElement("script");
+      s.async = true;
+      s.src = "//" + disqus_shortname + ".disqus.com/embed.js";
+      s.setAttribute("data-timestamp", +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  }
+
+  // 加载错误
+  function showError() {
+    volantis.dom.$(document.getElementById("loading-comments")).hide();
+    volantis.dom.$(document.getElementById("notShowDisqus")).show();
+  }
+
+  // 点击了加载
+  function needLoadDisqus() {
+    checkDisqus();
+    volantis.dom.$(document.getElementById("load-btns")).hide();
+    volantis.dom.$(document.getElementById("loading-comments")).show();
+  }
+
+  // pjax 重载
+  function pjax_disqus() {
+    // 排除当前页面不存在评论框的情形
+    if (!document.getElementById("disqus_thread")) return;
+    // 如果 DISQUS 已被实例化，则可直接加载
+    if (window.DISQUS) {
+      volantis.dom.$(document.getElementById("load-btns")).hide();
+      volantis.dom.$(document.getElementById("notShowDisqus")).hide();
+      volantis.dom.$(document.getElementById("loading-comments")).hide();
+      loadDisqus();
+    } else if (autoload == "true") {
+      // 设置自动加载但是上个页面加载失败了
+      needLoadDisqus();
+    }
+  }
+  if (autoload == "true") {
+    needLoadDisqus();
+  }
+  volantis.pjax.push(pjax_disqus);
+</script>
+
+
+
+
+
+
+<script src="/js/app.js"></script>
+
+
+<!-- optional -->
+
+  <script>
+const SearchServiceimagePath="https://cdn.jsdelivr.net/gh/volantis-x/cdn-volantis@master/img/logo/";
+const ROOT =  ("/" || "/").endsWith('/') ? ("/" || "/") : ("//" || "/" );
+
+function loadSearchService(){
+  volantis.import.jQuery().then(()=>{
     // see: layout/_partial/scripts/cdnCtrl.ejs
     volantis.js('/js/search/hexo.js',setSearchService); // 此处依赖JQ
   })
@@ -4210,225 +4423,6 @@ volantis.pjax.push(()=>{
         // console.log("afterDestroy")
       },
     });
-  }
-  function next_parallax(){
-    $("#l_cover .parallax-mirror img")[0].src=imgs[(index)%(imgs.length)];
-    index++;
-    fetch(imgs[(index)%(imgs.length)]); // cach
-  }
-  function pjax_parallax(){
-    next_parallax();
-    volantis.IntervalParallax = setInterval(function () {
-      next_parallax();
-    }, 15000)
-  }
-  volantis.import.jQuery().then(()=>{
-    // https://github.com/pixelcog/parallax.js/tree/v2.0.0-alpha
-    // 这是 2.0.0-alpha，（1.x不兼容pjax） alpha版本官方尚未正式发布 上一次更新时间：30 Nov 2017
-    volantis.js('/js/jquery.parallax.min.js').then(()=>{
-        parallax(imgs[(index)%(imgs.length)])
-    })
-  })
-  volantis.pjax.push(pjax_parallax);
-  volantis.pjax.send(()=>{
-    try {
-      clearInterval(volantis.IntervalParallax);
-    } catch (error) {}
-  },'pjax_parallax')
-</script>
-
-
-
-<script>
-  volantis.message = (title, message, type, autoClose, time = 3000) => { // 此处依赖JQ
-    volantis.import.jQuery().then(()=>{
-      if (typeof $.message == "undefined") {
-        volantis.css('/css/message.css')
-        volantis.js('/js/message.js', () => {
-          start(title, message, type, autoClose, time);
-        });
-      } else {
-        start(title, message, type, autoClose, time);
-      }
-    })
-    function start(title, message, type, autoClose, time) {
-      $.message({
-        title: title,
-        message: message,
-        type: type,
-        autoClose: autoClose,
-        time: time,
-      });
-    }
-  };
-</script>
-
-
-<pjax>
-
-</pjax>
-
-<pjax>
-
-</pjax>
-
-<script>
-function listennSidebarTOC() {
-  const navItems = document.querySelectorAll(".toc li");
-  if (!navItems.length) return;
-  const sections = [...navItems].map((element) => {
-    const link = element.querySelector(".toc-link");
-    const target = document.getElementById(
-      decodeURI(link.getAttribute("href")).replace("#", "")
-    );
-    link.addEventListener("click", (event) => {
-      event.preventDefault();
-      window.scrollTo({
-        top: target.offsetTop + document.getElementById("safearea").offsetTop + 5,
-        
-          behavior: "smooth"
-        
-	    });
-    });
-    return target;
-  });
-
-  function activateNavByIndex(target) {
-    if (target.classList.contains("active-current")) return;
-
-    document.querySelectorAll(".toc .active").forEach((element) => {
-      element.classList.remove("active", "active-current");
-    });
-    target.classList.add("active", "active-current");
-    let parent = target.parentNode;
-    while (!parent.matches(".toc")) {
-      if (parent.matches("li")) parent.classList.add("active");
-      parent = parent.parentNode;
-    }
-  }
-
-  function findIndex(entries) {
-    let index = 0;
-    let entry = entries[index];
-    if (entry.boundingClientRect.top > 0) {
-      index = sections.indexOf(entry.target);
-      return index === 0 ? 0 : index - 1;
-    }
-    for (; index < entries.length; index++) {
-      if (entries[index].boundingClientRect.top <= 0) {
-        entry = entries[index];
-      } else {
-        return sections.indexOf(entry.target);
-      }
-    }
-    return sections.indexOf(entry.target);
-  }
-
-  function createIntersectionObserver(marginTop) {
-    marginTop = Math.floor(marginTop + 10000);
-    let intersectionObserver = new IntersectionObserver(
-      (entries, observe) => {
-        let scrollHeight = document.documentElement.scrollHeight + document.getElementById("safearea").offsetTop + 5;
-        if (scrollHeight > marginTop) {
-          observe.disconnect();
-          createIntersectionObserver(scrollHeight);
-          return;
-        }
-        let index = findIndex(entries);
-        activateNavByIndex(navItems[index]);
-      },
-      {
-        rootMargin: marginTop + "px 0px -100% 0px",
-        threshold: 0,
-      }
-    );
-    sections.forEach((element) => {
-      element && intersectionObserver.observe(element);
-    });
-  }
-  createIntersectionObserver(document.documentElement.scrollHeight);
-}
-
-document.addEventListener("DOMContentLoaded", listennSidebarTOC);
-document.addEventListener("pjax:success", listennSidebarTOC);
-</script>
-
-<!-- more -->
-
-  
-  <script></script>
-
-
-
-
-      
-        <!-- 
-  pjax重载区域接口：
-  1.  <pjax></pjax> 标签
-  2.  script[data-pjax]
-  3.  .pjax-reload script
--->
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script>
-
-
-<script>
-    var pjax;
-    document.addEventListener('DOMContentLoaded', function () {
-      pjax = new Pjax({
-        elements: 'a[href]:not([href^="#"]):not([href="javascript:void(0)"]):not([pjax-fancybox])',
-        selectors: [
-          "title",
-          
-          "#pjax-container",
-          "#pjax-header-nav-list",
-          "pjax", // <pjax></pjax> 标签
-          "script[data-pjax], .pjax-reload script" // script标签添加data-pjax 或 script标签外层添加.pjax-reload 的script代码段重载
-        ],
-        cacheBust: false,   // url 地址追加时间戳，用以避免浏览器缓存
-        timeout: 5000
-      });
-    });
-
-    document.addEventListener('pjax:send', function (e) {
-      //window.stop(); // 相当于点击了浏览器的停止按钮
-
-      try {
-        var currentUrl = window.location.pathname;
-        var targetUrl = e.triggerElement.href;
-        var banUrl = [""];
-        if (banUrl[0] != "") {
-          banUrl.forEach(item => {
-            if(currentUrl.indexOf(item) != -1 || targetUrl.indexOf(item) != -1) {
-              window.location.href = targetUrl;
-            }
-          });
-        }
-      } catch (error) {}
-
-      // 使用 volantis.pjax.send 方法传入pjax:send回调函数 参见layout/_partial/scripts/global.ejs
-      volantis.pjax.method.send.start();
-    });
-
-    document.addEventListener('pjax:complete', function () {
-      // 使用 volantis.pjax.push 方法传入重载函数 参见layout/_partial/scripts/global.ejs
-      volantis.pjax.method.complete.start();
-    });
-
-    document.addEventListener('pjax:error', function (e) {
-      // 使用 volantis.pjax.error 方法传入pjax:error回调函数 参见layout/_partial/scripts/global.ejs
-      volantis.pjax.method.error.start();
-      window.location.href = e.triggerElement.href;
-    });
-</script>
-
-      
-    </div>
-  </body>
-</html>
-});
   }
   function next_parallax(){
     $("#l_cover .parallax-mirror img")[0].src=imgs[(index)%(imgs.length)];
