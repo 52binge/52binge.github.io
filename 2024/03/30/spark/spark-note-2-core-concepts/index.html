@@ -2989,14 +2989,56 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>Cronroller，(cache/persist)</li>
 </ol>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/rdd-narrow-and-wide-dependencies.png" class="lazyload" data-srcset="/images/spark/rdd-narrow-and-wide-dependencies.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div>
-<h2 id="3-dag-stage"><a class="markdownIt-Anchor" href="#3-dag-stage"></a> 3. DAG &amp; Stage</h2>
+<h2 id="3-stage-dag"><a class="markdownIt-Anchor" href="#3-stage-dag"></a> 3. Stage &amp; DAG</h2>
 <h3 id="31-wordcount-flowchart"><a class="markdownIt-Anchor" href="#31-wordcount-flowchart"></a> 3.1 WordCount FlowChart</h3>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-aura-3.2.2.jpg" class="lazyload" data-srcset="/images/spark/spark-aura-3.2.2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="WorCount 各种流程划分" style="width:800px;"/></div><span class="image-caption">WorCount 各种流程划分</span></div>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-dag-visualization.png" class="lazyload" data-srcset="/images/spark/spark-dag-visualization.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:500px;"/></div></div>
 <h3 id="32-stage-dag"><a class="markdownIt-Anchor" href="#32-stage-dag"></a> 3.2 Stage &amp; DAG</h3>
-<p>WordCount DAG - 2个Stage</p>
-<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-wordcount-rdd-trans.jpg" class="lazyload" data-srcset="/images/spark/spark-wordcount-rdd-trans.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div>
-<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-aura-3.2.3.jpg" class="lazyload" data-srcset="/images/spark/spark-aura-3.2.3.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="WorCount DAG有向无环图" style="width:750px;"/></div><span class="image-caption">WorCount DAG有向无环图</span></div>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-aura-3.2.3.jpg" class="lazyload" data-srcset="/images/spark/spark-aura-3.2.3.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="WorCount 2个Stage DAG有向无环图" style="width:750px;"/></div><span class="image-caption">WorCount 2个Stage DAG有向无环图</span></div>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Application</strong></td>
+<td>A complete program built on Spark, consisting of a set of jobs / 基于Spark构建的完整程序，包含一组作业</td>
+</tr>
+<tr>
+<td><strong>Job</strong></td>
+<td>A sequence of computations triggered by an action operation, split based on actions from front to back / 由action操作触发的一系列计算，根据动作从前往后切分,Job被分解成多个Stage，Stage是基于RDD的宽依赖（shuffle依赖）来划分的。 每个action操作会提交一个Job。Job是由一系列Stage组成的，这些Stage基于RDD的宽依赖被顺序执行。每个Stage是对一组可以并行执行的任务的封装，而Job的完成则是通过顺序执行这些Stage来实现的。这种设计使得Spark能够有效地处理大规模数据集，同时优化计算资源的使用。</td>
+</tr>
+<tr>
+<td><strong>Stage</strong></td>
+<td>Jobs are divided into stages at wide dependencies, split from back to front / 从后往前找 shuffle类型/宽依赖 的算子, 遇到一个就断开, 形成一个 stage；遇到窄赖就将这个RDD加入该stage中。 作业在宽依赖处被划分为阶段，从后往前切分, Stage的边界是shuffle：当一个操作需要对数据进行重新分布，比如通过key进行分组时，这就引入了宽依赖。Spark会在这些宽依赖的位置切分Stage，因此，Stage的边界就是数据shuffle的地方。</td>
+</tr>
+<tr>
+<td><strong>关系</strong></td>
+<td>一个Job包含多个Stage。<br>- Stage内的任务可以并行执行，但多个Stage之间是有先后顺序的，只有当一个Stage中的所有Task执行完成后，下一个Stage才会开始执行。 <br>- Stage的边界是数据shuffle的地方。</td>
+</tr>
+<tr>
+<td><strong>执行过程</strong></td>
+<td>执行过程中，每个Stage被TaskScheduler分解成多个Task，这些Task由Executor并行执行。Stage的执行是顺序的，但Stage内的Task是并行的。Job的完成依赖于所有Stage的顺序执行和完成。</td>
+</tr>
+<tr>
+<td><strong>RDD</strong></td>
+<td>每个 RDD 又可以指定不同的分区数, 默认情况下：每一个分区，就会是一个 Task</td>
+</tr>
+<tr>
+<td><strong>Task</strong></td>
+<td>The smallest unit of work in Spark, executed on the cluster / Spark中执行的最小工作单位</td>
+</tr>
+<tr>
+<td><strong>2 Task Types</strong></td>
+<td>Split into <code>ShuffleMapTask</code> and <code>ResultTask</code>: <br> - <strong>ShuffleMapTask</strong>: Prepares data for a shuffle before the next stage <br> - <strong>ResultTask</strong>: Executes at the final stage for each partition’s result <br> 分为<code>ShuffleMapTask</code>和<code>ResultTask</code>： <br> - <strong>ShuffleMapTask</strong>：在下一个阶段之前准备shuffle的数据 <br> - <strong>ResultTask</strong>：在最后一个阶段为每个分区的结果执行 ; ShuffleMapTask和ResultTask；简单来说，DAG的最后一个阶段会为每个结果的partition生成一个ResultTask，即每个Stage里面的Task的数量是由该Stage中最后一个RDD的Partition的数量所决定的！</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-dagscheduler-workflow"><a class="markdownIt-Anchor" href="#33-dagscheduler-workflow"></a> 3.3 DAGScheduler Workflow</h3>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-stage-tasks.png" class="lazyload" data-srcset="/images/spark/spark-stage-tasks.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Stage is a TaskSet" style="width:600px;"/></div><span class="image-caption">Stage is a TaskSet</span></div>
 <table>
 <thead>
 <tr>
@@ -3024,95 +3066,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <tr>
 <td>5</td>
 <td>Each stage is submitted to TaskScheduler.</td>
-</tr>
-</tbody>
-</table>
-<p>Spark Stage- An Introduction to Physical Execution plan</p>
-<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-stage-tasks.png" class="lazyload" data-srcset="/images/spark/spark-stage-tasks.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div>
-<blockquote>
-<p>Stage is a TaskSet, which divides the Stage into Tasks based on the number of partitions.<br />
-Stage是一个TaskSet，将Stage根据分区数划分成一个个的Task</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th>Concept</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Application</strong></td>
-<td>A complete program built on Spark, consisting of a set of jobs / 基于Spark构建的完整程序，包含一组作业</td>
-</tr>
-<tr>
-<td><strong>Job</strong></td>
-<td>A sequence of computations triggered by an action operation, split based on actions from front to back / 由action操作触发的一系列计算，根据动作从前往后切分</td>
-</tr>
-<tr>
-<td><strong>Stage</strong></td>
-<td>Jobs are divided into stages at wide dependencies, split from back to front / 作业在宽依赖处被划分为阶段，从后往前切分</td>
-</tr>
-<tr>
-<td><strong>Task</strong></td>
-<td>The smallest unit of work in Spark, executed on the cluster / Spark中执行的最小工作单位</td>
-</tr>
-<tr>
-<td><strong>Task Types</strong></td>
-<td>Split into <code>ShuffleMapTask</code> and <code>ResultTask</code>: <br> - <strong>ShuffleMapTask</strong>: Prepares data for a shuffle before the next stage <br> - <strong>ResultTask</strong>: Executes at the final stage for each partition’s result <br> 分为<code>ShuffleMapTask</code>和<code>ResultTask</code>： <br> - <strong>ShuffleMapTask</strong>：在下一个阶段之前准备shuffle的数据 <br> - <strong>ResultTask</strong>：在最后一个阶段为每个分区的结果执行</td>
-</tr>
-</tbody>
-</table>
-<p><strong>切分stage：</strong></p>
-<p>Job的定义：在Spark中，一个Job通常是由一个action操作触发的一系列计算任务。当你在RDD或Dataset上执行一个action操作（如count(), collect(), saveAsTextFile()等）时，Spark会提交一个Job。</p>
-<p>Stage的生成：Job会被DAGScheduler分解成多个Stage，Stage是Job的组成部分。Stage的划分基于RDD的宽依赖（shuffle依赖），每个Stage内部包含的是窄依赖的一组任务，这些任务可以并行执行。</p>
-<p>关系：</p>
-<p>一个Job包含多个Stage：Job根据数据处理中的宽依赖（即需要shuffle的地方）被分割成多个Stage。<br />
-Stage的顺序执行：虽然一个Stage内的任务可以并行执行，但是多个Stage之间是有先后顺序的，只有当一个Stage中的所有Task执行完成后，下一个Stage才会开始执行。<br />
-Stage的边界是shuffle：当一个操作需要对数据进行重新分布，比如通过key进行分组时，这就引入了宽依赖。Spark会在这些宽依赖的位置切分Stage，因此，Stage的边界就是数据shuffle的地方。<br />
-执行过程：执行过程中，每个Stage被TaskScheduler分解成多个Task，这些Task由Executor并行执行。Stage的执行是顺序的，但Stage内的Task是并行的。Job的完成依赖于所有Stage的顺序执行和完成。</p>
-<p>总的来说，Job是由一系列Stage组成的，这些Stage基于RDD的宽依赖被顺序执行。每个Stage是对一组可以并行执行的任务的封装，而Job的完成则是通过顺序执行这些Stage来实现的。这种设计使得Spark能够有效地处理大规模数据集，同时优化计算资源的使用。</p>
-<p>从后往前找 shuffle类型/宽依赖 的算子, 遇到一个就断开, 形成一个 stage；遇到窄赖就将这个RDD加入该stage中。</p>
-<blockquote>
-<p>在spark中，Task的类型分为2种：ShuffleMapTask和ResultTask；简单来说，DAG的最后一个阶段会为每个结果的partition生成一个ResultTask，即每个Stage里面的Task的数量是由该Stage中最后一个RDD的Partition的数量所决定的！</p>
-<p>而其余所有阶段都会生成ShuffleMapTask；之所以称之为ShuffleMapTask是因为它需要将自己的计算结果通过shuffle到下一个stage中。<br />
-最后一个stage: ResultStage   ------&gt;  ResultTask<br />
-除此之外的stage：ShffleMapStage   ------&gt;  ShffleTask</p>
-<p>每一个 stage 都会切成多个同种类型的 Task</p>
-<p>每一个 Stage 中的有可能包含多个不同的 RDD<br />
-那么一个 Stage 又有可能会划分多个 task 执行<br />
-每个 RDD 又可以指定不同的分区数<br />
-默认情况下：每一个分区，就会是一个 Task</p>
-<p>那么现在，如果遇到了一个 stage 中有多个不同分区数的RDD，<br />
-那么请问：到底这个stage中有多少个Task执行呢？</p>
-<p>5 4 3 -----&gt; 3个task</p>
-<p>最后一个 stage： ResultStage</p>
-<p>以最后一个RDD的分区数来决定</p>
-</blockquote>
-<p><strong>DAG规划和基础理论</strong></p>
-<table>
-<thead>
-<tr>
-<th>概念</th>
-<th>描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>Job</strong></td>
-<td>由action操作触发的一系列计算任务。每个action操作会提交一个Job。</td>
-</tr>
-<tr>
-<td><strong>Stage</strong></td>
-<td>Job被分解成多个Stage，Stage是基于RDD的宽依赖（shuffle依赖）来划分的。</td>
-</tr>
-<tr>
-<td><strong>关系</strong></td>
-<td>- 一个Job包含多个Stage。<br>- Stage内的任务可以并行执行，但多个Stage之间是有先后顺序的。<br>- Stage的边界是数据shuffle的地方。</td>
-</tr>
-<tr>
-<td><strong>执行过程</strong></td>
-<td>- 每个Stage被分解成多个Task，由Executor并行执行。<br>- Stage的执行是顺序的，但Stage内的Task是并行的。<br>- Job的完成依赖于所有Stage的顺序执行和完成。</td>
 </tr>
 </tbody>
 </table>
@@ -3188,7 +3141,7 @@ Stage的边界是shuffle：当一个操作需要对数据进行重新分布，�
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2024-03-31T10:53:38+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2024-03-31T11:07:31+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>updated on：Mar 31, 2024</p>
@@ -3333,7 +3286,7 @@ Apache Spark is a unified analytics engine for large-scale data processing
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-sparkcontext"><span class="toc-text"> 1. SparkContext</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-core-concepts"><span class="toc-text"> 2. Core Concepts</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-rdd-resilient-distributed-dataset"><span class="toc-text"> 2. RDD (resilient distributed dataset)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-concept"><span class="toc-text"> 2.1 Concept</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-attributes"><span class="toc-text"> 2.2 Attributes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-create-rdd"><span class="toc-text"> 2.3 Create RDD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-operations"><span class="toc-text"> 2.4 Operations</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-dag-stage"><span class="toc-text"> 3. DAG &amp; Stage</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#31-wordcount-flowchart"><span class="toc-text"> 3.1 WordCount FlowChart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-stage-dag"><span class="toc-text"> 3.2 Stage &amp; DAG</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-executor"><span class="toc-text"> 4. Executor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-application"><span class="toc-text"> 5. Application</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-sparkcontext"><span class="toc-text"> 1. SparkContext</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-core-concepts"><span class="toc-text"> 2. Core Concepts</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-rdd-resilient-distributed-dataset"><span class="toc-text"> 2. RDD (resilient distributed dataset)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#21-concept"><span class="toc-text"> 2.1 Concept</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#22-attributes"><span class="toc-text"> 2.2 Attributes</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#23-create-rdd"><span class="toc-text"> 2.3 Create RDD</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#24-operations"><span class="toc-text"> 2.4 Operations</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-stage-dag"><span class="toc-text"> 3. Stage &amp; DAG</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#31-wordcount-flowchart"><span class="toc-text"> 3.1 WordCount FlowChart</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#32-stage-dag"><span class="toc-text"> 3.2 Stage &amp; DAG</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#33-dagscheduler-workflow"><span class="toc-text"> 3.3 DAGScheduler Workflow</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-executor"><span class="toc-text"> 4. Executor</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#5-application"><span class="toc-text"> 5. Application</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
