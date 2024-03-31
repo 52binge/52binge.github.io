@@ -2997,9 +2997,74 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <p>WordCount DAG - 2个Stage</p>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-aura-3.2.3.jpg" class="lazyload" data-srcset="/images/spark/spark-aura-3.2.3.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="WorCount DAG有向无环图" style="width:750px;"/></div><span class="image-caption">WorCount DAG有向无环图</span></div>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-wordcount-rdd-trans.jpg" class="lazyload" data-srcset="/images/spark/spark-wordcount-rdd-trans.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div>
+<p><strong>DAG规划和基础理论</strong></p>
+<p>切分 Stage 是 从后往前找 shuffer类型/宽依赖的算子，遇到一个就断开，形成一个 stage</p>
+<p>最后一个 stage： ResultStage</p>
+<p>除此之外的stage</p>
+<blockquote>
+<p>因此spark划分stage的整体思路是：从后往前推，遇到宽依赖就断开，划分为一个stage；遇到窄赖就将这个RDD加入该stage中。</p>
+<p>在spark中，Task的类型分为2种：ShuffleMapTask和ResultTask；简单来说，DAG的最后一个阶段会为每个结果的partition生成一个ResultTask，即每个Stage里面的Task的数量是由该Stage中最后一个RDD的Partition的数量所决定的！</p>
+<p>而其余所有阶段都会生成ShuffleMapTask；之所以称之为ShuffleMapTask是因为它需要将自己的计算结果通过shuffle到下一个stage中。</p>
+</blockquote>
+<p><strong>切分stage：</strong></p>
+<p>从后往前找 shuffle类型/宽依赖 的算子, 遇到一个就断开, 形成一个 stage</p>
+<blockquote>
+<p>最后一个stage: ResultStage   ------&gt;  ResultTask<br />
+除此之外的stage：ShffleMapStage   ------&gt;  ShffleTask</p>
+<p>每一个 stage 都会切成多个同种类型的 Task</p>
+<p>每一个 Stage 中的有可能包含多个不同的 RDD<br />
+那么一个 Stage 又有可能会划分多个 task 执行<br />
+每个 RDD 又可以指定不同的分区数<br />
+默认情况下：每一个分区，就会是一个 Task</p>
+<p>那么现在，如果遇到了一个 stage 中有多个不同分区数的RDD，<br />
+那么请问：到底这个stage中有多少个Task执行呢？</p>
+<p>5 4 3 -----&gt; 3个task</p>
+<p>以最后一个RDD的分区数来决定</p>
+</blockquote>
+<p><strong>切分job：</strong></p>
+<p>从前往后找action算子, 找到一个就形成一个 job.</p>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-aura-3.1.2.jpg" class="lazyload" data-srcset="/images/spark/spark-aura-3.1.2.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:750px;"/></div></div>
+<p>3 + 2 = 5 tasks</p>
+<p>DAG 的生成</p>
+<p>checkpoint linage</p>
+<p>检查点  血脉  血统</p>
+<p>容错</p>
+<p>对于Spark任务中的宽窄依赖，我们只喜欢窄依赖</p>
+<p>DAGScheduler：</p>
+<blockquote>
+<ol>
+<li>spark-submit 提交任务</li>
+<li>初始化 DAGScheduler 和 TaskScheduler</li>
+<li>接收到 application 之后，DAGScheduler 会首先把 application 抽象成一个 DAG</li>
+<li>DAGScheduler 对这个 DAG (DAG中的一个Job) 进行 stage 的切分</li>
+<li>把每一个 stage 提交给 TaskScheduler</li>
+</ol>
+</blockquote>
+<p>rdd1.collect</p>
+<p>client 提交任务的任务节点</p>
+<blockquote>
+<p>如果是client模式，那么 driver程序就在 client 节点<br />
+如果模式是 cluster, driver 程序在 worker 中.<br />
+rdd20.countByKey()</p>
+<p>countByKey 是作用在 key-value 类型上的一个 action 算法<br />
+countByValue 一般是用来统计普通类型的RDD<br />
+map reduce recudeByKey filter, json</p>
+<p>难点：</p>
+<ol>
+<li>aggregate</li>
+<li>aggregate</li>
+</ol>
+</blockquote>
+<p>count sum max min distinct avg</p>
+<p>100G ----&gt; 1G<br />
+20G -----&gt; 30G</p>
 <h3 id="33-stage"><a class="markdownIt-Anchor" href="#33-stage"></a> 3.3 Stage</h3>
 <p>Spark Stage- An Introduction to Physical Execution plan</p>
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-stage-tasks.png" class="lazyload" data-srcset="/images/spark/spark-stage-tasks.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:600px;"/></div></div>
+<blockquote>
+<p>Stage is a TaskSet, which divides the Stage into Tasks based on the number of partitions.<br />
+Stage是一个TaskSet，将Stage根据分区数划分成一个个的Task</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -3039,6 +3104,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-2.3.jpg" class="lazyload" data-srcset="/images/spark/spark-2.3.jpg" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="Spark Exec" style="width:600px;"/></div><span class="image-caption">Spark Exec</span></div>
 <h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <ul>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/787706759036">spark中如何划分stage</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/BigData_Mining/article/details/82148085">Spark广播变量和累加器详解</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/zhongqi2513/article/details/81513587">马老师-Spark的WordCount到底产生了多少个RDD</a></li>
 <li><a target="_blank" rel="noopener" href="https://www.cnblogs.com/chenmingjun/p/10777091.html">大数据技术之_19_Spark学习_02_Spark Core 应用解析 实例练习</a></li>
@@ -3083,7 +3149,7 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2024-03-31T00:59:17+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2024-03-31T10:18:20+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
     <p>updated on：Mar 31, 2024</p>
@@ -3169,6 +3235,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 
   
     <div class="prev-next">
+      
+        <a class='prev' href='/2024/03/31/spark/spark-note-3-rdd/'>
+          <p class='title'><i class="fas fa-chevron-left" aria-hidden="true"></i>Spark Notes 3 - RDD (Resilient Distributed Dataset)</p>
+          <p class='content'>
+
+Resilient Distributed Datasets (RDDs) are a fundamental data structure of Apache Spark designed...</p>
+        </a>
       
       
         <a class='next' href='/2024/03/30/spark/spark-note-1-introduce/'>

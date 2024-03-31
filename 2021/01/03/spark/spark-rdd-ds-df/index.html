@@ -2863,9 +2863,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <h2 id="3-df-减少数据读取"><a class="markdownIt-Anchor" href="#3-df-减少数据读取"></a> 3. DF 减少数据读取</h2>
 <p>分析大数据，最快的方法就是 ——忽略它。这里的“忽略”并不是熟视无睹，而是根据查询条件进行恰当的剪枝</p>
 <p>上文讨论分区表时提到的 分区剪枝 便是其中一种 -&gt; 当查询的过滤条件中涉及到分区列时，我们可以根据查询条件剪掉肯定不包含目标数据的分区目录，从而减少IO</p>
-<blockquote>
-<p>Spark SQL也可以充分利用RCFile、ORC、Parquet等列式存储格式的优势，仅扫描查询真正涉及的列，忽略其余列的数据。</p>
-</blockquote>
 <h2 id="4-rdd和dataset"><a class="markdownIt-Anchor" href="#4-rdd和dataset"></a> 4. RDD和DataSet</h2>
 <blockquote>
 <ul>
@@ -2886,9 +2883,6 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 <li>DataFrame会继承DataSet，DataFrame是面向Spark SQL的接口</li>
 </ol>
 </blockquote>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//DataSet,完全使用scala编程，不要切换到DataFrame</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> wordCount = </span><br><span class="line">  ds.flatMap(_.split(<span class="string">&quot; &quot;</span>))</span><br><span class="line">    .filter(_ != <span class="string">&quot;&quot;</span>)</span><br><span class="line">    .groupBy(_.toLowerCase()) <span class="comment">// Instead of grouping on a column expression (i.e. $&quot;value&quot;) we pass a lambda function</span></span><br><span class="line">    .count()</span><br></pre></td></tr></table></figure>
-<p>DataFrame</p>
-<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Load a text file and interpret each line as a java.lang.String</span></span><br><span class="line"><span class="keyword">val</span> ds = sqlContext.read.text(<span class="string">&quot;/home/spark/1.6/lines&quot;</span>).as[<span class="type">String</span>]</span><br><span class="line"><span class="keyword">val</span> result = ds</span><br><span class="line">  .flatMap(_.split(<span class="string">&quot; &quot;</span>))               <span class="comment">// Split on whitespace</span></span><br><span class="line">  .filter(_ != <span class="string">&quot;&quot;</span>)                     <span class="comment">// Filter empty words</span></span><br><span class="line">  .toDF()                              <span class="comment">// Convert to DataFrame to perform aggregation / sorting</span></span><br><span class="line">  .groupBy($<span class="string">&quot;value&quot;</span>)                   <span class="comment">// Count number of occurences of each word</span></span><br><span class="line">  .agg(count(<span class="string">&quot;*&quot;</span>) as <span class="string">&quot;numOccurances&quot;</span>)</span><br><span class="line">  .orderBy($<span class="string">&quot;numOccurances&quot;</span> desc)      <span class="comment">// Show most common words first</span></span><br></pre></td></tr></table></figure>
 <h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
 <ul>
 <li><a target="_blank" rel="noopener" href="http://www.infoq.com/cn/articles/apache-spark-sql">用Apache Spark进行大数据处理——第二部分：Spark SQL</a></li>
@@ -2928,10 +2922,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2022-05-03T16:25:53+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2024-03-31T10:08:12+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>updated on：May 3, 2022</p>
+    <p>updated on：Mar 31, 2024</p>
   </a>
 </div>
 
