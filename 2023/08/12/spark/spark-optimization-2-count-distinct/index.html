@@ -2936,6 +2936,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </table>
 <h2 id="3-query"><a class="markdownIt-Anchor" href="#3-query"></a> 3. Query</h2>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> id),</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> name) </span><br><span class="line"><span class="keyword">FROM</span> table_a;</span><br></pre></td></tr></table></figure>
+<p>expand 操作是 SparkSQL 用来处理多个 count(distinct) 聚合时的一种常见优化策略。特别是在查询中有多个 count(distinct) 的情况下，SparkSQL 可能会使用 expand 操作来将数据扩展到多个副本，这样每个副本可以独立地计算一个 count(distinct)。</p>
+<p>在 count(distinct) 中的作用：<br />
+如果你有多个 count(distinct) 操作，例如 count(distinct id) 和 count(distinct name)，SparkSQL 可能会使用 expand 操作将数据集扩展为两个（或多个）副本，这样 id 和 name 可以在各自的副本中单独计算。<br />
+expand 操作的结果是数据量会增加（数据膨胀），但这允许 SparkSQL 更好地并行计算多个 count(distinct) 操作。</p>
 <h2 id="4-internal-optimization"><a class="markdownIt-Anchor" href="#4-internal-optimization"></a> 4. Internal Optimization</h2>
 <h3 id="41-partial-aggregation"><a class="markdownIt-Anchor" href="#41-partial-aggregation"></a> 4.1: Partial Aggregation</h3>
 <p>Local <code>count(distinct)</code> operations are performed within each partition first, reducing the amount of data to be transmitted.<br />
@@ -3077,10 +3081,10 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
     <div class='new-meta-box'>
       
         
-          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2024-08-08T08:47:23+08:00">
+          <div class="new-meta-item date" itemprop="dateUpdated" datetime="2024-08-18T00:19:01+08:00">
   <a class='notlink'>
     <i class="fas fa-edit fa-fw" aria-hidden="true"></i>
-    <p>updated on：Aug 8, 2024</p>
+    <p>updated on：Aug 18, 2024</p>
   </a>
 </div>
 
