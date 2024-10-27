@@ -2843,47 +2843,55 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
   
   <div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-logo-count-distinct.png" class="lazyload" data-srcset="/images/spark/spark-logo-count-distinct.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:500px;"/></div></div>
 <span id="more"></span>
-<h2 id="1-Flow-Chart-Explanation"><a href="#1-Flow-Chart-Explanation" class="headerlink" title="1. Flow Chart Explanation"></a>1. Flow Chart Explanation</h2><div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-count-distinct.png" class="lazyload" data-srcset="/images/spark/spark-count-distinct.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:800px;"/></div></div>
+<h2 id="1-flow-chart-explanation"><a class="markdownIt-Anchor" href="#1-flow-chart-explanation"></a> 1. Flow Chart Explanation</h2>
+<div class="img-wrap"><div class="img-bg"><img class="img lazyload" src="/images/spark/spark-count-distinct.png" class="lazyload" data-srcset="/images/spark/spark-count-distinct.png" srcset="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAABGdBTUEAALGPC/xhBQAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAADa6r/EAAAAC0lEQVQIHWNgAAIAAAUAAY27m/MAAAAASUVORK5CYII=" alt="image" style="width:800px;"/></div></div>
 <ol>
-<li><p><strong>Input Data</strong>:</p>
+<li>
+<p><strong>Input Data</strong>:</p>
 <ul>
 <li>Data is read and partitioned.</li>
 <li>数据被读取并分区。</li>
 </ul>
 </li>
-<li><p><strong>Partition Processing (Partition 1 and Partition 2)</strong>:</p>
+<li>
+<p><strong>Partition Processing (Partition 1 and Partition 2)</strong>:</p>
 <ul>
 <li>Data is assigned to different partitions for processing.</li>
 <li>数据被分配到不同的分区进行处理。</li>
 </ul>
 </li>
-<li><p><strong>Local Aggregation (Local Aggregation 1 and Local Aggregation 2)</strong>:</p>
+<li>
+<p><strong>Local Aggregation (Local Aggregation 1 and Local Aggregation 2)</strong>:</p>
 <ul>
 <li>Local deduplication and aggregation are performed within each partition, reducing the amount of data to be transmitted.</li>
 <li>在每个分区内，先进行局部去重和聚合，减少需要传输的数据量。</li>
 </ul>
 </li>
-<li><p><strong>Shuffle and Repartition</strong>:</p>
+<li>
+<p><strong>Shuffle and Repartition</strong>:</p>
 <ul>
 <li>The local aggregation results are repartitioned through a shuffle operation to ensure that data with the same key is sent to the same partition.</li>
 <li>将局部聚合结果通过 Shuffle 操作重新分区，确保相同键的数据被发送到同一个分区。</li>
 </ul>
 </li>
-<li><p><strong>Global Aggregation</strong>:</p>
+<li>
+<p><strong>Global Aggregation</strong>:</p>
 <ul>
 <li>Global deduplication and aggregation are performed within the repartitioned partitions to calculate the final deduplication result.</li>
 <li>在重新分区后的分区内进行全局去重和聚合，计算最终的去重结果。</li>
 </ul>
 </li>
-<li><p><strong>Final Result</strong>:</p>
+<li>
+<p><strong>Final Result</strong>:</p>
 <ul>
 <li>The final <code>count(distinct)</code> result is obtained.</li>
 <li>得到 <code>count(distinct)</code> 的最终结果。</li>
 </ul>
 </li>
 </ol>
-<h2 id="2-Example-Data"><a href="#2-Example-Data" class="headerlink" title="2. Example Data"></a>2. Example Data</h2><p>Assume the data in table <code>table_a</code> is as follows:<br>假设 <code>table_a</code> 表的数据如下：</p>
-<div class="table-container">
+<h2 id="2-example-data"><a class="markdownIt-Anchor" href="#2-example-data"></a> 2. Example Data</h2>
+<p>Assume the data in table <code>table_a</code> is as follows:<br />
+假设 <code>table_a</code> 表的数据如下：</p>
 <table>
 <thead>
 <tr>
@@ -2926,13 +2934,17 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
-</div>
-<h2 id="3-Query"><a href="#3-Query" class="headerlink" title="3. Query"></a>3. Query</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> id),</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> name) </span><br><span class="line"><span class="keyword">FROM</span> table_a;</span><br></pre></td></tr></table></figure>
+<h2 id="3-query"><a class="markdownIt-Anchor" href="#3-query"></a> 3. Query</h2>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> </span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> id),</span><br><span class="line">    <span class="built_in">count</span>(<span class="keyword">distinct</span> name) </span><br><span class="line"><span class="keyword">FROM</span> table_a;</span><br></pre></td></tr></table></figure>
 <p>expand 操作是 SparkSQL 用来处理多个 count(distinct) 聚合时的一种常见优化策略。特别是在查询中有多个 count(distinct) 的情况下，SparkSQL 可能会使用 expand 操作来将数据扩展到多个副本，这样每个副本可以独立地计算一个 count(distinct)。</p>
-<p>在 count(distinct) 中的作用：<br>如果你有多个 count(distinct) 操作，例如 count(distinct id) 和 count(distinct name)，SparkSQL 可能会使用 expand 操作将数据集扩展为两个（或多个）副本，这样 id 和 name 可以在各自的副本中单独计算。<br>expand 操作的结果是数据量会增加（数据膨胀），但这允许 SparkSQL 更好地并行计算多个 count(distinct) 操作。</p>
-<h2 id="4-Internal-Optimization"><a href="#4-Internal-Optimization" class="headerlink" title="4. Internal Optimization"></a>4. Internal Optimization</h2><h3 id="4-1-Partial-Aggregation"><a href="#4-1-Partial-Aggregation" class="headerlink" title="4.1: Partial Aggregation"></a>4.1: Partial Aggregation</h3><p>Local <code>count(distinct)</code> operations are performed within each partition first, reducing the amount of data to be transmitted.<br>在每个分区内部先进行局部 <code>count(distinct)</code> 操作，减少需要传输的数据量。</p>
+<p>在 count(distinct) 中的作用：<br />
+如果你有多个 count(distinct) 操作，例如 count(distinct id) 和 count(distinct name)，SparkSQL 可能会使用 expand 操作将数据集扩展为两个（或多个）副本，这样 id 和 name 可以在各自的副本中单独计算。<br />
+expand 操作的结果是数据量会增加（数据膨胀），但这允许 SparkSQL 更好地并行计算多个 count(distinct) 操作。</p>
+<h2 id="4-internal-optimization"><a class="markdownIt-Anchor" href="#4-internal-optimization"></a> 4. Internal Optimization</h2>
+<h3 id="41-partial-aggregation"><a class="markdownIt-Anchor" href="#41-partial-aggregation"></a> 4.1: Partial Aggregation</h3>
+<p>Local <code>count(distinct)</code> operations are performed within each partition first, reducing the amount of data to be transmitted.<br />
+在每个分区内部先进行局部 <code>count(distinct)</code> 操作，减少需要传输的数据量。</p>
 <p><strong>Partition 1</strong>:</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -2959,14 +2971,13 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
-</div>
-<p>Local aggregation results:<br>局部聚合结果：</p>
+<p>Local aggregation results:<br />
+局部聚合结果：</p>
 <ul>
 <li><code>id</code>：<code>[1, 2, 3, 4]</code></li>
 <li><code>name</code>：<code>[Alice, Bob, Carol]</code></li>
 </ul>
 <p><strong>Partition 2</strong>:</p>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -2993,36 +3004,44 @@ if (/*@cc_on!@*/false || (!!window.MSInputMethodContext && !!document.documentMo
 </tr>
 </tbody>
 </table>
-</div>
-<p>Local aggregation results:<br>局部聚合结果：</p>
+<p>Local aggregation results:<br />
+局部聚合结果：</p>
 <ul>
 <li><code>id</code>：<code>[1, 2, 5, 6]</code></li>
 <li><code>name</code>：<code>[Alice, Bob, Dave, Eve]</code></li>
 </ul>
-<h3 id="4-2-Shuffle-Operation"><a href="#4-2-Shuffle-Operation" class="headerlink" title="4.2: Shuffle Operation"></a>4.2: Shuffle Operation</h3><p>The local aggregation results are repartitioned through a shuffle operation.<br>将局部聚合结果通过 Shuffle 操作重新分区。</p>
+<h3 id="42-shuffle-operation"><a class="markdownIt-Anchor" href="#42-shuffle-operation"></a> 4.2: Shuffle Operation</h3>
+<p>The local aggregation results are repartitioned through a shuffle operation.<br />
+将局部聚合结果通过 Shuffle 操作重新分区。</p>
 <p><strong>Partitions after Shuffle</strong>:</p>
 <ul>
-<li><p><strong>Partition 1</strong>:</p>
+<li>
+<p><strong>Partition 1</strong>:</p>
 <ul>
 <li><code>id</code>：<code>[1, 2, 3, 4]</code></li>
 <li><code>id</code>：<code>[1, 2, 5, 6]</code></li>
 </ul>
 </li>
-<li><p><strong>Partition 2</strong>:</p>
+<li>
+<p><strong>Partition 2</strong>:</p>
 <ul>
 <li><code>name</code>：<code>[Alice, Bob, Carol]</code></li>
 <li><code>name</code>：<code>[Alice, Bob, Dave, Eve]</code></li>
 </ul>
 </li>
 </ul>
-<h3 id="4-3-Global-Aggregation"><a href="#4-3-Global-Aggregation" class="headerlink" title="4.3: Global Aggregation"></a>4.3: Global Aggregation</h3><p>Global aggregation is performed within the repartitioned partitions.<br>在重新分区后的分区内进行全局聚合。</p>
+<h3 id="43-global-aggregation"><a class="markdownIt-Anchor" href="#43-global-aggregation"></a> 4.3: Global Aggregation</h3>
+<p>Global aggregation is performed within the repartitioned partitions.<br />
+在重新分区后的分区内进行全局聚合。</p>
 <p><strong>Global Aggregation Results 全局聚合结果</strong>:</p>
 <ul>
 <li><code>count(distinct id)</code> = 6</li>
 <li><code>count(distinct name)</code> = 5</li>
 </ul>
-<p>Through this process, Spark SQL effectively reduces the amount of data transmission and computation, fully utilizing distributed computing resources, thereby optimizing the performance of the <code>count(distinct)</code> operation.<br>通过这种方式，Spark SQL 有效地减少了数据传输量和计算量，充分利用分布式计算资源，从而优化了 <code>count(distinct)</code> 操作的性能。</p>
-<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<p>Through this process, Spark SQL effectively reduces the amount of data transmission and computation, fully utilizing distributed computing resources, thereby optimizing the performance of the <code>count(distinct)</code> operation.<br />
+通过这种方式，Spark SQL 有效地减少了数据传输量和计算量，充分利用分布式计算资源，从而优化了 <code>count(distinct)</code> 操作的性能。</p>
+<h2 id="reference"><a class="markdownIt-Anchor" href="#reference"></a> Reference</h2>
+<ul>
 <li><a target="_blank" rel="noopener" href="https://tech.meituan.com/2016/04/29/spark-tuning-basic.html">Spark性能优化指南——基础篇</a></li>
 <li><a target="_blank" rel="noopener" href="https://tech.meituan.com/2016/05/12/spark-tuning-pro.html">Spark性能优化指南——高级篇</a></li>
 <li><a target="_blank" rel="noopener" href="https://blog.csdn.net/huang66666666/category_9399107.html">大数据资料笔记整理</a></li>
@@ -3199,7 +3218,7 @@ Resilient Distributed Datasets (RDDs) are a fundamental data structure of Apache
 
 
     <div class='content'>
-        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-Flow-Chart-Explanation"><span class="toc-text">1. Flow Chart Explanation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-Example-Data"><span class="toc-text">2. Example Data</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Query"><span class="toc-text">3. Query</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-Internal-Optimization"><span class="toc-text">4. Internal Optimization</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#4-1-Partial-Aggregation"><span class="toc-text">4.1: Partial Aggregation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-2-Shuffle-Operation"><span class="toc-text">4.2: Shuffle Operation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-3-Global-Aggregation"><span class="toc-text">4.3: Global Aggregation</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Reference"><span class="toc-text">Reference</span></a></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-flow-chart-explanation"><span class="toc-text"> 1. Flow Chart Explanation</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-example-data"><span class="toc-text"> 2. Example Data</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-query"><span class="toc-text"> 3. Query</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-internal-optimization"><span class="toc-text"> 4. Internal Optimization</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#41-partial-aggregation"><span class="toc-text"> 4.1: Partial Aggregation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#42-shuffle-operation"><span class="toc-text"> 4.2: Shuffle Operation</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#43-global-aggregation"><span class="toc-text"> 4.3: Global Aggregation</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#reference"><span class="toc-text"> Reference</span></a></li></ol>
     </div>
   </section>
 
@@ -3288,7 +3307,7 @@ Resilient Distributed Datasets (RDDs) are a fundamental data structure of Apache
     
       
         
-          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次&lt;/span&gt; <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人&lt;/span&gt;</p>
+          <div><p><span id="lc-sv">本站总访问量为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 次</span> <span id="lc-uv">访客数为 <span id='number'><i class="fas fa-circle-notch fa-spin fa-fw" aria-hidden="true"></i></span> 人</span></p>
 </div>
         
       
